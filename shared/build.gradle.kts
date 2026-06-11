@@ -5,10 +5,16 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.kotlinxSerialization)
+    alias(libs.plugins.androidx.room)
     alias(libs.plugins.ksp)
 }
 
 kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xexplicit-backing-fields")
+    }
+
     jvm()
 
     androidLibrary {
@@ -35,18 +41,46 @@ kotlin {
         }
 
         commonMain.dependencies {
-            implementation(libs.compose.runtime)
-            implementation(libs.compose.foundation)
-            implementation(libs.compose.material3)
-            implementation(libs.compose.ui)
-            implementation(libs.compose.components.resources)
-            implementation(libs.compose.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodelCompose)
-            implementation(libs.androidx.lifecycle.runtimeCompose)
+            api(libs.compose.runtime)
+            api(libs.compose.foundation)
+            api(libs.compose.material3)
+            api(libs.compose.ui)
+            api(libs.compose.components.resources)
+            api(libs.compose.material.icon.extended)
+            api(libs.compose.uiToolingPreview)
+            api(libs.androidx.lifecycle.viewmodelCompose)
+            api(libs.androidx.lifecycle.runtimeCompose)
 
             //  Decompose
-            implementation(libs.decompose.core)
-            implementation(libs.decompose.compose.jetbrains)
+            api(libs.decompose.core)
+            api(libs.decompose.compose)
+
+            //  Datetime
+            implementation(libs.kotlinx.datetime)
+
+            //  Serialization
+            implementation(libs.kotlinx.serialization)
+
+            //  Koin
+            api(project.dependencies.platform(libs.koin.bom))
+            api(libs.koin.core)
+            api(libs.koin.compose)
+
+            //  Room
+            api(libs.androidx.room.runtime)
+            api(libs.androidx.room.paging)
+            api(libs.androidx.sqlite.bundled)
+
+            //  Paging
+            api(libs.androidx.paging.common)
+            api(libs.androidx.paging.compose)
+
+            api("io.github.vinceglb:filekit-core:0.14.1")
+            api("io.github.vinceglb:filekit-dialogs:0.14.1")
+            api("io.github.vinceglb:filekit-dialogs-compose:0.14.1")
+
+            api("io.coil-kt.coil3:coil-compose:3.5.0")
+
         }
 
         commonTest.dependencies {
@@ -55,6 +89,16 @@ kotlin {
     }
 }
 
+room {
+    schemaDirectory("$projectDir/schemas")
+}
+
+compose.resources {
+    publicResClass = true
+}
+
 dependencies {
     androidRuntimeClasspath(libs.compose.uiTooling)
+    add("kspAndroid", libs.androidx.room.compiler)
+    add("kspJvm", libs.androidx.room.compiler)
 }

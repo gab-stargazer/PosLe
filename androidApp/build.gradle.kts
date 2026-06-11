@@ -18,6 +18,11 @@ dependencies {
 
     implementation(libs.compose.uiToolingPreview)
     debugImplementation(libs.compose.uiTooling)
+
+    implementation(libs.koin.android)
+
+    implementation("com.dilivva.blueline:basic-builder:2.0.1")
+    implementation("com.github.DantSu:ESCPOS-ThermalPrinter-Android:3.3.0")
 }
 
 android {
