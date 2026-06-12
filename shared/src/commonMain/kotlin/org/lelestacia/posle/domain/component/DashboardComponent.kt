@@ -8,10 +8,9 @@ import com.arkivanov.decompose.value.update
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.state_event.DashboardComponentEvent
 import org.lelestacia.posle.domain.state_event.DashboardStateEvent
-import org.lelestacia.posle.navigation.AddEdit
+import org.lelestacia.posle.navigation.Config
 import org.lelestacia.posle.navigation.NavChild
 import org.lelestacia.posle.navigation.NavConfig
 import org.lelestacia.posle.util.SelectedTabIndex
@@ -19,8 +18,7 @@ import org.lelestacia.posle.util.SelectedTabIndex
 class DashboardComponent(
     componentContext: ComponentContext,
     val children: Value<ChildStack<NavConfig, NavChild>>,
-    private val onNavigateTo: (NavConfig) -> Unit,
-    val onNavigateToAddEditProduct: (AddEdit, Product?) -> Unit
+    val onNavigation: (DashboardNavigation) -> Unit,
 ) : ComponentContext by componentContext {
 
     val scope = CoroutineScope(Dispatchers.Main.immediate)
@@ -37,9 +35,14 @@ class DashboardComponent(
                     )
                 }
 
-                onNavigateTo(event.destination)
+                onNavigation(DashboardNavigation.BottomNav(event.destination))
             }
         }
     }
+}
+
+sealed interface DashboardNavigation {
+    data class BottomNav(val navConfig: NavConfig): DashboardNavigation
+    data class Nav(val config: Config): DashboardNavigation
 }
 

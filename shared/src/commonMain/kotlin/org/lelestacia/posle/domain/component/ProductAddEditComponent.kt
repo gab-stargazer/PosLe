@@ -69,7 +69,7 @@ class ProductAddEditComponent(
                     AddEdit.Edit -> {
                         repository.updateProduct(
                             Product(
-                                id = 0,
+                                id = product?.id ?: throw Exception("Data isn't being passed from previous screen"),
                                 name = Name(state.value.name.text.toString()),
                                 price = Price(BigDecimal(state.value.price.text.toString())),
                                 unit = Unit(state.value.unit.text.toString()),

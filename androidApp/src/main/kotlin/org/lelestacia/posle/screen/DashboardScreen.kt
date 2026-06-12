@@ -4,6 +4,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -21,7 +24,9 @@ import com.arkivanov.decompose.extensions.compose.subscribeAsState
 
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.component.DashboardComponent
+import org.lelestacia.posle.domain.component.DashboardNavigation
 import org.lelestacia.posle.domain.state_event.DashboardComponentEvent.OnNavigateTo
+import org.lelestacia.posle.navigation.Config
 import org.lelestacia.posle.navigation.NavChild
 import org.lelestacia.posle.navigation.NavDestination
 import org.lelestacia.posle.screen.product_list.ProductListScreen
@@ -77,7 +82,14 @@ fun DashboardScreen(
                 is NavChild.ProductList -> {
                     ProductListScreen(
                         onNavigateToAddProduct = { addEdit, product ->
-                            component.onNavigateToAddEditProduct(addEdit, product)
+                            component.onNavigation(
+                                DashboardNavigation.Nav(
+                                    Config.AddEditProduct(
+                                        addEdit = addEdit,
+                                        product = product
+                                    )
+                                )
+                            )
                         },
                         component = child.component
                     )
@@ -93,11 +105,22 @@ fun DashboardScreen(
                 }
 
                 NavChild.Transaction -> {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        Text("Transaksi")
+                    Scaffold(
+                        contentWindowInsets = WindowInsets(),
+                        floatingActionButton = {
+                            FloatingActionButton(
+                                onClick = {
+                                    component.onNavigation(DashboardNavigation.Nav(Config.TransactionAdd))
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = null
+                                )
+                            }
+                        }
+                    ) { _ ->
+
                     }
                 }
             }

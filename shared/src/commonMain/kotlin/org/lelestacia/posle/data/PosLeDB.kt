@@ -9,11 +9,13 @@ import androidx.room.RoomDatabaseConstructor
 import androidx.room.TypeConverters
 import org.lelestacia.posle.data.converter.BigDecimalConverter
 import org.lelestacia.posle.data.dao.ProductDao
+import org.lelestacia.posle.data.dao.TransactionDao
 import org.lelestacia.posle.data.entity.ProductEntity
 import org.lelestacia.posle.data.entity.TransactionEntity
+import org.lelestacia.posle.data.entity.TransactionItemEntity
 
 @Database(
-    entities = [ProductEntity::class, TransactionEntity::class],
+    entities = [ProductEntity::class, TransactionEntity::class, TransactionItemEntity::class],
     version = 1,
     exportSchema = true
 )
@@ -21,6 +23,7 @@ import org.lelestacia.posle.data.entity.TransactionEntity
 @TypeConverters(BigDecimalConverter::class)
 abstract class PosLeDB : RoomDatabase() {
     abstract fun productDao(): ProductDao
+    abstract fun transactionDao(): TransactionDao
 }
 
 @Suppress("NO_ACTUAL_FOR_EXPECT")

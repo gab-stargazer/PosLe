@@ -6,8 +6,9 @@ import androidx.compose.ui.Modifier
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.fade
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
-import org.lelestacia.posle.screen.AddTransactionScreen
+import org.lelestacia.posle.screen.transaction_add.TransactionAddScreen
 import org.lelestacia.posle.screen.DashboardScreen
+import org.lelestacia.posle.screen.TransactionViewScreen
 import org.lelestacia.posle.screen.product_add.ProductAddEditScreen
 
 @Composable
@@ -20,9 +21,17 @@ fun RootContent(
         animation = stackAnimation(fade()),
         modifier = modifier.statusBarsPadding()
     ) {
-        when(val child = it.instance) {
+        when (val child = it.instance) {
             is Child.Dashboard -> DashboardScreen(component = child.component)
-            is Child.AddEditTransaction -> AddTransactionScreen()
+
+            //  Transaction
+            is Child.TransactionAdd -> TransactionAddScreen(component = child.component)
+            is Child.TransactionList -> {
+
+            }
+
+            is Child.TransactionView -> TransactionViewScreen(component = child.component)
+
             is Child.AddProduct -> ProductAddEditScreen(component = child.component)
         }
     }

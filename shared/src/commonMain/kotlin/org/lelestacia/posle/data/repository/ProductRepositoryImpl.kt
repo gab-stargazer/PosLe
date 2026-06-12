@@ -68,13 +68,17 @@ class ProductRepositoryImpl(
         product: Product,
         imageByteArray: ByteArray?
     ) {
-        val newImageUri = imageByteArray?.let {
+        var newImageUri = imageByteArray?.let {
             storage.saveImage(fileName = "${product.name.value}.png", imageByteArray)
+        }
+
+        if (product.imageUri != null && imageByteArray == null) {
+            newImageUri = product.imageUri
         }
 
         dao.update(
             ProductEntity(
-                id = 0,
+                id = product.id,
                 name = product.name.value,
                 price = product.price.value,
                 unit = product.unit.value,

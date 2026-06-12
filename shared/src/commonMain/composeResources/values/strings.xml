@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">PosLe</string>
+
+    <!--Nav Destination-->
+    <string name="destination_transaction_history">Transaksi</string>
+    <string name="destination_list_product">Daftar Produk</string>
+    <string name="destination_settings">Pengaturan</string>
+
+    <!--Label-->
+    <string name="label_product_name">Nama Produk</string>
+    <string name="label_product_unit">Satuan Produk</string>
+    <string name="label_product_amount">Jumlah Produk</string>
+    <string name="label_product_price">Harga Produk</string>
+    <string name="label_product_price_latest">Harga Produk Terbaru</string>
+    <string name="label_product_volatility">Apakah produk memiliki harga yang terus berubah setiap waktu?</string>
+
+
+    <!--Button-->
+    <string name="btn_add_product">Tambah Produk</string>"
+    <string name="btn_update_product">Ubah Produk</string>
+    <string name="btn_delete_product">Hapus Produk</string>
+
+    <!--Item-->
+    <string name="item_product_volatile">Harga Produk ini tidak stabil dan dapat berubah sewaktu-waktu</string>
+</resources>
