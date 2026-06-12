@@ -2,23 +2,25 @@ package org.lelestacia.posle.screen.transaction_add
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material3.Card
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -31,9 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -43,7 +42,6 @@ import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.state_event.TransactionItemState
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
-import org.lelestacia.posle.util.RupiahOutputTransformation
 import org.lelestacia.posle.util.toRupiah
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.label_product_amount
@@ -60,10 +58,9 @@ fun TransactionAddItem(
     modifier: Modifier = Modifier
 ) {
     Column(
-        horizontalAlignment = Alignment.End,
         modifier = modifier
     ) {
-        Card(
+        ElevatedCard(
             shape = RoundedCornerShape(
                 topStart = 25F,
                 topEnd = 25F,
@@ -72,6 +69,7 @@ fun TransactionAddItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(IntrinsicSize.Min)
+                .animateContentSize()
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -100,10 +98,13 @@ fun TransactionAddItem(
                 }
 
                 Column(
-                    verticalArrangement = Arrangement.SpaceBetween,
-                    horizontalAlignment = Alignment.End,
+                    horizontalAlignment =
+                        when (product.imageUri != null) {
+                            true -> Alignment.End
+                            false -> Alignment.Start
+                        },
                     modifier = Modifier
-                        .fillMaxSize()
+                        .weight(1F)
                         .padding(vertical = 12.dp)
                         .padding(end = 12.dp)
                 ) {
@@ -114,70 +115,61 @@ fun TransactionAddItem(
                         modifier = Modifier.padding(top = 6.dp)
                     )
                 }
+
+                IconButton(
+                    onClick = {
+                        when (product in productMap) {
+                            true -> onRemove()
+                            false -> onAdd()
+                        }
+                    }
+                ) {
+                    AnimatedContent(product in productMap) { isInMap ->
+                        when (isInMap) {
+                            true -> {
+                                Icon(
+                                    imageVector = Icons.Default.Remove,
+                                    contentDescription = null
+                                )
+                            }
+
+                            false -> {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = null
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
-        Card(
-            shape = RoundedCornerShape(
-                bottomStart = 25F,
-                bottomEnd = 25F
-            ),
-            modifier = Modifier
+
+        AnimatedVisibility(
+            product in productMap,
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically(),
+            modifier = Modifier.padding(top = 12.dp)
         ) {
-            IconButton(
-                onClick = {
-                    when (product in productMap) {
-                        true -> onRemove()
-                        false -> onAdd()
-                    }
-                }
+            Column(
+                horizontalAlignment = Alignment.End,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                AnimatedContent(product in productMap) { isInMap ->
-                    when (isInMap) {
-                        true -> {
-                            Icon(
-                                imageVector = Icons.Default.Remove,
-                                contentDescription = null
-                            )
-                        }
-
-                        false -> {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = null
-                            )
-                        }
-                    }
-                }
-
-            }
-        }
-
-        AnimatedVisibility(product in productMap) {
-            Column {
                 TextField(
                     state = productMap[product]?.amountState ?: rememberTextFieldState(),
                     label = {
                         Text(
-                            text = stringResource(Res.string.label_product_amount),
-                            style = MaterialTheme.typography.labelMedium.copy(
-                                fontWeight = FontWeight.Bold
-                            )
+                            stringResource(Res.string.label_product_amount),
+                            style = MaterialTheme.typography.labelMediumEmphasized
                         )
                     },
-                    shape = RoundedCornerShape(25F),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Done
-                    ),
+                    textStyle = MaterialTheme.typography.bodyMedium,
                     colors = TextFieldDefaults.colors(
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
                         disabledIndicatorColor = Color.Transparent
                     ),
-                    textStyle = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 12.dp)
+                    shape = RoundedCornerShape(25F)
                 )
 
                 if (product.isProductVolatile) {
@@ -185,27 +177,18 @@ fun TransactionAddItem(
                         state = productMap[product]?.priceState ?: rememberTextFieldState(),
                         label = {
                             Text(
-                                text = stringResource(Res.string.label_product_price_latest),
-                                style = MaterialTheme.typography.labelMedium.copy(
-                                    fontWeight = FontWeight.Bold
-                                )
+                                stringResource(Res.string.label_product_price_latest),
+                                style = MaterialTheme.typography.labelMediumEmphasized
                             )
                         },
-                        shape = RoundedCornerShape(25F),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Done
-                        ),
-                        outputTransformation = RupiahOutputTransformation(),
+                        textStyle = MaterialTheme.typography.bodyMedium,
                         colors = TextFieldDefaults.colors(
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent,
                             disabledIndicatorColor = Color.Transparent
                         ),
-                        textStyle = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 12.dp)
+                        shape = RoundedCornerShape(25F),
+                        modifier = Modifier.padding(top = 12.dp)
                     )
                 }
             }

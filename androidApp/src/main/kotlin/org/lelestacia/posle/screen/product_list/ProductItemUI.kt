@@ -76,8 +76,12 @@ fun ProductItemUI(
             }
 
             Column(
-                verticalArrangement = Arrangement.spacedBy(0.dp , Alignment.CenterVertically),
-                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
+                horizontalAlignment =
+                    when (product.imageUri != null) {
+                        true -> Alignment.End
+                        false -> Alignment.Start
+                    },
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(vertical = 6.dp)
@@ -96,7 +100,11 @@ fun ProductItemUI(
                         stringResource(Res.string.item_product_volatile),
                         style = MaterialTheme.typography.bodySmall.copy(
                             fontWeight = FontWeight.Normal,
-                            textAlign = TextAlign.End
+                            textAlign =
+                                when (product.imageUri != null) {
+                                    true -> TextAlign.End
+                                    false -> TextAlign.Start
+                                }
                         )
                     )
                 }
