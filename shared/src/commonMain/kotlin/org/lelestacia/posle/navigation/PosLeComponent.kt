@@ -1,5 +1,6 @@
 package org.lelestacia.posle.navigation
 
+import androidx.compose.material3.SnackbarHostState
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
@@ -31,6 +32,7 @@ class PosLeComponent(
     componentContext: ComponentContext
 ) : ComponentContext by componentContext {
 
+    val snackbarHostState = SnackbarHostState()
     private val productRepository by inject<ProductRepository>(ProductRepository::class.java)
     private val transactionRepository by inject<TransactionRepository>(TransactionRepository::class.java)
 
@@ -86,7 +88,7 @@ class PosLeComponent(
                         componentContext = context,
                         children = navChildren,
                         onNavigation = {
-                            when(it) {
+                            when (it) {
                                 is DashboardNavigation.BottomNav -> bottomNavigation.pushToFront(it.navConfig)
                                 is DashboardNavigation.Nav -> parentNavigation.pushNew(it.config)
                             }
@@ -108,7 +110,7 @@ class PosLeComponent(
                         componentContext = context,
                         transaction = config.transaction,
                         onNavigation = { navigation ->
-                            when(navigation) {
+                            when (navigation) {
                                 TransactionViewNavigation.OnPop -> parentNavigation.pop()
                             }
                         }
@@ -123,6 +125,7 @@ class PosLeComponent(
                             parentNavigation.pop()
                         },
                         product = config.product,
+                        snackbarHostState = snackbarHostState,
                         repository = productRepository
                     )
                 )

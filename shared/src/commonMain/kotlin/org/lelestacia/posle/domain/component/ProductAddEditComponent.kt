@@ -1,6 +1,7 @@
 package org.lelestacia.posle.domain.component
 
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.material3.SnackbarHostState
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
@@ -8,6 +9,8 @@ import com.arkivanov.decompose.value.update
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.repository.ProductRepository
 import org.lelestacia.posle.domain.state_event.ProductAddEditEvent
@@ -15,14 +18,20 @@ import org.lelestacia.posle.domain.state_event.ProductAddEditState
 import org.lelestacia.posle.navigation.AddEdit
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
-import org.lelestacia.posle.util.Unit
+import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.msg_error_name_cannot_be_empty
+import posle.shared.generated.resources.msg_error_price_cannot_be_empty
+import posle.shared.generated.resources.msg_error_price_cannot_contain_alphabet
+import posle.shared.generated.resources.msg_error_unit_cannot_be_empty
 import java.math.BigDecimal
+import org.lelestacia.posle.util.Unit as PosLeUnit
 
 class ProductAddEditComponent(
     componentContext: ComponentContext,
     mode: AddEdit,
     private val onPop: () -> kotlin.Unit,
     private val product: Product?,
+    private val snackbarHostState: SnackbarHostState,
     private val repository: ProductRepository
 ) : ComponentContext by componentContext {
 
@@ -43,68 +52,84 @@ class ProductAddEditComponent(
     fun onEvent(event: ProductAddEditEvent) = scope.launch {
         when (event) {
             is ProductAddEditEvent.OnToggleProductVolatility -> state.update {
+                it.copy(isProductVolatile = event.newToggle)
+            }
+
+            is ProductAddEditEvent.OnImageChanged -> state.update {
                 it.copy(
-                    isProductVolatile = event.newToggle
-                )
-            }
-
-            ProductAddEditEvent.OnAddProductClicked -> {
-                when (state.value.mode) {
-                    AddEdit.Add -> {
-                        repository.addProduct(
-                            Product(
-                                id = 0,
-                                name = Name(state.value.name.text.toString()),
-                                price = Price(BigDecimal(state.value.price.text.toString())),
-                                unit = Unit(state.value.unit.text.toString()),
-                                imageUri = state.value.productImageUri,
-                                isProductVolatile = state.value.isProductVolatile
-                            ),
-                            imageByteArray = state.value.productImageByteArray
-                        ).run {
-                            onPop()
-                        }
-                    }
-
-                    AddEdit.Edit -> {
-                        repository.updateProduct(
-                            Product(
-                                id = product?.id ?: throw Exception("Data isn't being passed from previous screen"),
-                                name = Name(state.value.name.text.toString()),
-                                price = Price(BigDecimal(state.value.price.text.toString())),
-                                unit = Unit(state.value.unit.text.toString()),
-                                imageUri = state.value.productImageUri,
-                                isProductVolatile = state.value.isProductVolatile
-                            ),
-                            imageByteArray = state.value.productImageByteArray
-                        ).run {
-                            onPop()
-                        }
-                    }
-                }
-            }
-
-            is ProductAddEditEvent.OnImageChanged -> state.update { currentState ->
-                currentState.copy(
                     productImageUri = event.uri,
                     productImageByteArray = event.bytes
                 )
             }
 
+            ProductAddEditEvent.OnAddProductClicked -> {
+                validate(
+                    onSuccess = {
+                        when (state.value.mode) {
+                            AddEdit.Add -> repository.addProduct(
+                                product = buildProduct(id = 0),
+                                imageByteArray = state.value.productImageByteArray
+                            )
+
+                            AddEdit.Edit -> repository.updateProduct(
+                                product = buildProduct(
+                                    id = product?.id
+                                        ?: throw Exception("Data isn't being passed from previous screen")
+                                ),
+                                imageByteArray = state.value.productImageByteArray
+                            )
+                        }
+                        onPop()
+                    }
+                )
+            }
+
             ProductAddEditEvent.OnDeleteProductClicked -> {
                 repository.deleteProduct(
-                    Product(
-                        id = product?.id ?: return@launch,
-                        name = Name(state.value.name.text.toString()),
-                        price = Price(BigDecimal(state.value.price.text.toString())),
-                        unit = Unit(state.value.unit.text.toString()),
-                        imageUri = state.value.productImageUri,
-                        isProductVolatile = state.value.isProductVolatile
-                    )
-                ).run {
-                    onPop()
-                }
+                    product = buildProduct(id = product?.id ?: return@launch)
+                )
+                onPop()
             }
+        }
+    }
+
+    private fun buildProduct(id: Int): Product {
+        val currentState = state.value
+        return Product(
+            id = id,
+            name = Name(currentState.name.text.toString()),
+            price = Price(BigDecimal(currentState.price.text.toString())),
+            unit = PosLeUnit(currentState.unit.text.toString()),
+            imageUri = currentState.productImageUri,
+            isProductVolatile = currentState.isProductVolatile
+        )
+    }
+
+    private suspend fun validate(onSuccess: suspend () -> Unit) {
+        val errorMessage = getValidationError() ?: run {
+            onSuccess()
+            return
+        }
+
+        snackbarHostState.showSnackbar(getString(errorMessage))
+    }
+
+    private fun getValidationError(): StringResource? {
+        val currentState = state.value
+        return when {
+            currentState.name.text.toString().isBlank() ->
+                Res.string.msg_error_name_cannot_be_empty
+
+            currentState.unit.text.toString().isBlank() ->
+                Res.string.msg_error_unit_cannot_be_empty
+
+            currentState.price.text.toString().isBlank() ->
+                Res.string.msg_error_price_cannot_be_empty
+
+            currentState.price.text.toString().any { it.isLetter() } ->
+                Res.string.msg_error_price_cannot_contain_alphabet
+
+            else -> null
         }
     }
 }

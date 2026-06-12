@@ -22,4 +22,10 @@
 
     <!--Item-->
     <string name="item_product_volatile">Harga Produk ini tidak stabil dan dapat berubah sewaktu-waktu</string>
+
+    <!--Error-->
+    <string name="msg_error_name_cannot_be_empty">Nama Produk tidak boleh kosong</string>
+    <string name="msg_error_unit_cannot_be_empty">Satuan Produk tidak boleh kosong</string>
+    <string name="msg_error_price_cannot_be_empty">Harga Produk tidak boleh kosong</string>
+    <string name="msg_error_price_cannot_contain_alphabet">Harga Produk harus berisi angka</string>
 </resources>

@@ -1,6 +1,10 @@
 package org.lelestacia.posle.navigation
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.arkivanov.decompose.extensions.compose.stack.Children
@@ -16,23 +20,33 @@ fun RootContent(
     component: PosLeComponent,
     modifier: Modifier = Modifier
 ) {
-    Children(
-        stack = component.children,
-        animation = stackAnimation(fade()),
-        modifier = modifier.statusBarsPadding()
-    ) {
-        when (val child = it.instance) {
-            is Child.Dashboard -> DashboardScreen(component = child.component)
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(component.snackbarHostState)
+        },
+        contentWindowInsets = WindowInsets(),
+        modifier = modifier
+    ) { paddingValues ->
+        Children(
+            stack = component.children,
+            animation = stackAnimation(fade()),
+            modifier = modifier
+                .statusBarsPadding()
+                .padding(paddingValues = paddingValues)
+        ) {
+            when (val child = it.instance) {
+                is Child.Dashboard -> DashboardScreen(component = child.component)
 
-            //  Transaction
-            is Child.TransactionAdd -> TransactionAddScreen(component = child.component)
-            is Child.TransactionList -> {
+                //  Transaction
+                is Child.TransactionAdd -> TransactionAddScreen(component = child.component)
+                is Child.TransactionList -> {
 
+                }
+
+                is Child.TransactionView -> TransactionViewScreen(component = child.component)
+
+                is Child.AddProduct -> ProductAddEditScreen(component = child.component)
             }
-
-            is Child.TransactionView -> TransactionViewScreen(component = child.component)
-
-            is Child.AddProduct -> ProductAddEditScreen(component = child.component)
         }
     }
 }
