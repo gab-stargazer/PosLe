@@ -5,10 +5,15 @@ import androidx.paging.cachedIn
 import com.arkivanov.decompose.ComponentContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -26,6 +31,7 @@ import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
 import java.math.BigDecimal
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.milliseconds
 
 class TransactionAddComponent(
     componentContext: ComponentContext,
@@ -37,7 +43,16 @@ class TransactionAddComponent(
 
     val scope = CoroutineScope(Dispatchers.Main.immediate)
 
-    val products = productRepository.readProduct("").cachedIn(scope)
+    private val _searchQuery = MutableStateFlow("")
+
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+    val products = _searchQuery
+        .debounce(300.milliseconds)
+        .distinctUntilChanged()
+        .flatMapLatest { query ->
+            productRepository.readProduct(query)
+        }
+        .cachedIn(scope)
 
     private val _state = MutableStateFlow(TransactionAddState())
     private val settings = settingManager.readSettings()
@@ -46,6 +61,7 @@ class TransactionAddComponent(
         flow2 = settings
     ) { state, settings ->
         TransactionAddState(
+            searchQuery = state.searchQuery,
             products = state.products,
             customerName = state.customerName,
             settings = settings
@@ -89,6 +105,10 @@ class TransactionAddComponent(
                 )
             }
 
+            is TransactionAddEvent.OnSearchQueryChanged -> {
+                _searchQuery.value = event.query
+            }
+
             TransactionAddEvent.OnAddTransactionClicked -> {
                 val selectedProducts = mutableListOf<TransactionItem>()
                 state.value.products.entries.forEach { map ->
@@ -97,16 +117,16 @@ class TransactionAddComponent(
                             id = 0,
                             productName = map.key.name,
                             productPrice =
-                                if (settings.first().isProductVolatile) {
-                                    val currentPrice = Price(BigDecimal(map.value.priceState.text.toString().ifBlank { "0" }))
-                                    if (currentPrice.value > BigDecimal.ZERO) {
-                                        currentPrice
-                                    } else {
-                                        map.key.price
-                                    }
+                            if (settings.first().isProductVolatile) {
+                                val currentPrice = Price(BigDecimal(map.value.priceState.text.toString().ifBlank { "0" }))
+                                if (currentPrice.value > BigDecimal.ZERO) {
+                                    currentPrice
                                 } else {
                                     map.key.price
-                                },
+                                }
+                            } else {
+                                map.key.price
+                            },
                             productUnit = map.key.unit,
                             productAmount = Amount(map.value.amountState.text.toString().toFloat())
                         )
