@@ -18,6 +18,7 @@ import org.lelestacia.posle.domain.component.ProductAddEditComponent
 import org.lelestacia.posle.domain.component.ProductListComponent
 import org.lelestacia.posle.domain.component.SettingComponent
 import org.lelestacia.posle.domain.component.TransactionAddComponent
+import org.lelestacia.posle.domain.component.TransactionHistoryComponent
 import org.lelestacia.posle.domain.component.TransactionListComponent
 import org.lelestacia.posle.domain.component.TransactionViewComponent
 import org.lelestacia.posle.domain.component.TransactionViewNavigation
@@ -63,7 +64,13 @@ class PosLeComponent(
 
     private fun createTabChild(config: NavConfig, context: ComponentContext): NavChild =
         when (config) {
-            NavConfig.Transaction -> Transaction
+            is NavConfig.Transaction -> Transaction(
+                TransactionHistoryComponent(
+                    componentContext = context,
+                    repository = transactionRepository,
+                    onNavigation = { rootNavigation.pushNew(it) }
+                )
+            )
             NavConfig.Setting -> Setting(
                 SettingComponent(
                     componentContext = context,
@@ -109,7 +116,6 @@ class PosLeComponent(
             is Config.TransactionView -> Child.TransactionView(
                 TransactionViewComponent(
                     componentContext = context,
-                    customerName = config.customerName,
                     transaction = config.transaction,
                     settingManager = settingManager,
                     onNavigation = { navigation ->

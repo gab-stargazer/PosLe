@@ -3,7 +3,9 @@ package org.lelestacia.posle.data.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.math.BigDecimal
+import org.lelestacia.posle.util.Name
+import org.lelestacia.posle.util.Price
+import org.lelestacia.posle.util.Unit as PosLeUnit
 
 @Entity(
     tableName = "product"
@@ -13,15 +15,13 @@ data class ProductEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     @ColumnInfo("name")
-    val name: String,
+    val name: Name,
     @ColumnInfo("price")
-    val price: BigDecimal,
+    val price: Price,
     @ColumnInfo("unit")
-    val unit: String,
+    val unit: PosLeUnit,
     @ColumnInfo("image_uri")
     val imageUri: String? = null,
-    @ColumnInfo("is_product_volatile")
-    val isProductVolatile: Boolean,
     @ColumnInfo("created_at")
     val createdAt: Long,
     @ColumnInfo("updated_at")

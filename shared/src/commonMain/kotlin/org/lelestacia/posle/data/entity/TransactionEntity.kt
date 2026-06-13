@@ -19,6 +19,8 @@ data class TransactionEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo("id")
     val id: Int = 0,
+    @ColumnInfo("customer_name")
+    val customerName: Name,
     @ColumnInfo("created_at")
     val createdAt: Long,
     @ColumnInfo("updated_at")
@@ -66,9 +68,10 @@ data class TransactionWithItems(
 
 fun TransactionWithItems.toDomain() = Transaction(
     id = transaction.id,
+    customerName = transaction.customerName,
+    items = items.map { it.toDomain() },
     createdAt = transaction.createdAt,
-    updatedAt = transaction.updatedAt,
-    items = items.map { it.toDomain() }
+    updatedAt = transaction.updatedAt
 )
 
 fun TransactionItemEntity.toDomain() = TransactionItem(

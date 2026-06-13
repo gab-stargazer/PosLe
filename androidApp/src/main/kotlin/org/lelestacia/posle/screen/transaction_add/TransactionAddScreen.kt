@@ -43,10 +43,6 @@ import org.lelestacia.posle.domain.state_event.TransactionAddEvent
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent.OnAddTransactionClicked
 import org.lelestacia.posle.domain.state_event.TransactionAddState
 import org.lelestacia.posle.domain.state_event.TransactionItemState
-import org.lelestacia.posle.util.Name
-import org.lelestacia.posle.util.Price
-import java.math.BigDecimal
-import org.lelestacia.posle.util.Unit as CustomUnit
 
 @Composable
 fun TransactionAddScreen(
@@ -164,37 +160,7 @@ fun TransactionAddUI(
 @Composable
 private fun PreviewTransactionAddUI() {
     App {
-        val products = listOf(
-            Product(
-                id = 1,
-                name = Name("Salak"),
-                unit = CustomUnit("Kg"),
-                price = Price(BigDecimal("10000")),
-                isProductVolatile = true
-            ),
-            Product(
-                id = 2,
-                name = Name("Jeruk"),
-                unit = CustomUnit("Kg"),
-                price = Price(BigDecimal("15000")),
-                isProductVolatile = false
-            ),
-            Product(
-                id = 3,
-                name = Name("Apel"),
-                unit = CustomUnit("Kg"),
-                price = Price(BigDecimal("25000")),
-                isProductVolatile = true
-            ),
-            Product(
-                id = 4,
-                name = Name("Mangga"),
-                unit = CustomUnit("Kg"),
-                price = Price(BigDecimal("12000")),
-                isProductVolatile = false
-            )
-        )
-
+        val products = org.lelestacia.posle.util.SampleData.products
         val productsLazyPagingItems =
             MutableStateFlow(PagingData.from(products)).collectAsLazyPagingItems()
 
@@ -204,11 +170,11 @@ private fun PreviewTransactionAddUI() {
                 products = mapOf(
                     products[0] to TransactionItemState(
                         amountState = TextFieldState("2"),
-                        priceState = TextFieldState("10000")
+                        priceState = TextFieldState("15000")
                     ),
-                    products[2] to TransactionItemState(
+                    products[1] to TransactionItemState(
                         amountState = TextFieldState("1"),
-                        priceState = TextFieldState("25000")
+                        priceState = TextFieldState("5000")
                     )
                 ),
                 settings = PosLeSettings(

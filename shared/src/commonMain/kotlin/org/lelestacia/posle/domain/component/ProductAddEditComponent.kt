@@ -44,16 +44,12 @@ class ProductAddEditComponent(
                 unit = TextFieldState(product?.unit?.value.orEmpty()),
                 price = TextFieldState(product?.price?.value?.toString() ?: ""),
                 productImageUri = product?.imageUri,
-                isProductVolatile = product?.isProductVolatile ?: false,
                 mode = mode
             )
         )
 
     fun onEvent(event: ProductAddEditEvent) = scope.launch {
         when (event) {
-            is ProductAddEditEvent.OnToggleProductVolatility -> state.update {
-                it.copy(isProductVolatile = event.newToggle)
-            }
 
             is ProductAddEditEvent.OnImageChanged -> state.update {
                 it.copy(
@@ -101,7 +97,6 @@ class ProductAddEditComponent(
                 price = Price(BigDecimal(currentState.price.text.toString())),
             unit = PosLeUnit(currentState.unit.text.toString()),
             imageUri = currentState.productImageUri,
-            isProductVolatile = currentState.isProductVolatile
         )
     }
 

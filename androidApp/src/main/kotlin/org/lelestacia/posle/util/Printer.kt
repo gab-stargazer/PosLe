@@ -4,7 +4,7 @@ import com.dantsu.escposprinter.EscPosPrinter
 import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnections
 import org.lelestacia.posle.domain.model.Transaction
 
-fun printTransaction(customername: String, transaction: Transaction) {
+fun printTransaction(transaction: Transaction) {
     val printer = EscPosPrinter(
         BluetoothPrintersConnections.selectFirstPaired(),
         203,
@@ -42,9 +42,9 @@ fun printTransaction(customername: String, transaction: Transaction) {
                 .toRupiah()}\n"
     )
 
-    if (customername.isNotBlank()) {
+    if (transaction.customerName.value.isNotBlank()) {
         sb.append(
-            "[L]NAMA PELANGGAN :[R]$customername\n"
+            "[L]NAMA PELANGGAN :[R]${transaction.customerName.value}\n"
         )
     }
 

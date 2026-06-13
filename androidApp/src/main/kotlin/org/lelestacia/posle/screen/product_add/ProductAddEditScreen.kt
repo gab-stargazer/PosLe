@@ -2,7 +2,6 @@ package org.lelestacia.posle.screen.product_add
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,7 +13,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -25,13 +23,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -46,7 +45,6 @@ import org.lelestacia.posle.domain.state_event.ProductAddEditEvent
 import org.lelestacia.posle.domain.state_event.ProductAddEditEvent.OnAddProductClicked
 import org.lelestacia.posle.domain.state_event.ProductAddEditEvent.OnDeleteProductClicked
 import org.lelestacia.posle.domain.state_event.ProductAddEditEvent.OnImageChanged
-import org.lelestacia.posle.domain.state_event.ProductAddEditEvent.OnToggleProductVolatility
 import org.lelestacia.posle.domain.state_event.ProductAddEditState
 import org.lelestacia.posle.navigation.AddEdit.Add
 import org.lelestacia.posle.navigation.AddEdit.Edit
@@ -59,7 +57,6 @@ import posle.shared.generated.resources.btn_update_product
 import posle.shared.generated.resources.label_product_name
 import posle.shared.generated.resources.label_product_price
 import posle.shared.generated.resources.label_product_unit
-import posle.shared.generated.resources.label_product_volatility
 
 @Composable
 fun ProductAddEditScreen(
@@ -117,6 +114,8 @@ private fun ProductAddEditUI(
                 },
                 textStyle = MaterialTheme.typography.bodyMedium,
                 keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    capitalization = KeyboardCapitalization.Words,
                     imeAction = ImeAction.Next
                 ),
                 modifier = Modifier
@@ -158,6 +157,8 @@ private fun ProductAddEditUI(
                 outputTransformation = RupiahOutputTransformation(),
                 textStyle = MaterialTheme.typography.bodyMedium,
                 keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    capitalization = KeyboardCapitalization.Words,
                     imeAction = ImeAction.Done
                 ),
                 modifier = Modifier
@@ -192,23 +193,6 @@ private fun ProductAddEditUI(
                     .padding(horizontal = 12.dp)
                     .padding(top = 12.dp)
             )
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(top = 6.dp)
-            ) {
-                Checkbox(
-                    checked = state.isProductVolatile,
-                    onCheckedChange = { newState ->
-                        onEvent(OnToggleProductVolatility(newState))
-                    }
-                )
-
-                Text(
-                    stringResource(Res.string.label_product_volatility),
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
 
             Button(
                 onClick = {
@@ -269,14 +253,7 @@ private fun PreviewProductAddEditUI() {
 
         ProductAddEditUI(
             state = state,
-            onEvent = {
-                when (val event = it) {
-                    is OnToggleProductVolatility -> state =
-                        state.copy(isProductVolatile = event.newToggle)
-
-                    else -> Unit
-                }
-            },
+            onEvent = {},
         )
     }
 }

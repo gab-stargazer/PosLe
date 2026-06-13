@@ -2,6 +2,7 @@ package org.lelestacia.posle
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.arkivanov.decompose.defaultComponentContext
@@ -11,7 +12,12 @@ import org.lelestacia.posle.navigation.RootContent
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.light(
+                scrim = android.graphics.Color.TRANSPARENT,
+                darkScrim = android.graphics.Color.TRANSPARENT
+            )
+        )
         super.onCreate(savedInstanceState)
         val rootComponent = retainedComponent { PosLeComponent(componentContext = defaultComponentContext()) }
         setContent {

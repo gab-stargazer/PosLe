@@ -16,8 +16,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
@@ -35,6 +38,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -43,15 +47,12 @@ import org.lelestacia.posle.App
 import org.lelestacia.posle.data.PosLeSettings
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.state_event.TransactionItemState
-import org.lelestacia.posle.util.Name
-import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.RupiahOutputTransformation
 import org.lelestacia.posle.util.toRupiah
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.label_product_amount
 import posle.shared.generated.resources.label_product_price_latest
 import java.math.BigDecimal
-import org.lelestacia.posle.util.Unit as CustomUnit
 
 @Composable
 fun TransactionAddItem(
@@ -178,6 +179,9 @@ fun TransactionAddItem(
                             unfocusedIndicatorColor = Color.Transparent,
                             disabledIndicatorColor = Color.Transparent
                         ),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number
+                        ),
                         shape = RoundedCornerShape(25F)
                     )
                 } else {
@@ -261,6 +265,9 @@ fun TransactionAddItem(
                             unfocusedIndicatorColor = Color.Transparent,
                             disabledIndicatorColor = Color.Transparent
                         ),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number
+                        ),
                         shape = RoundedCornerShape(25F),
                         modifier = Modifier.padding(top = 12.dp)
                     )
@@ -274,30 +281,55 @@ fun TransactionAddItem(
 @Composable
 private fun PreviewTransactionAddItem() {
     App {
-        TransactionAddItem(
-            product = Product(
-                id = 0,
-                name = Name("Salak"),
-                unit = CustomUnit("Kg"),
-                price = Price(BigDecimal("100000")),
-                isProductVolatile = true
-            ),
-            productMap = mapOf(
-                Product(
-                    id = 0,
-                    name = Name("Salak"),
-                    unit = CustomUnit("Kg"),
-                    price = Price(BigDecimal("100000")),
-                    isProductVolatile = true
-                ) to TransactionItemState()
-            ),
-            settings = PosLeSettings(
-                isProductVolatile = true
-            ),
-            onAdd = {},
-            onRemove = {},
-            onAmountChanged = {},
-            modifier = Modifier.padding(12.dp)
-        )
+        val products = org.lelestacia.posle.util.SampleData.products
+        val sateAyam = products[0]
+        val esTehManis = products[1]
+
+        Column(
+            modifier = Modifier
+                .padding(12.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text("Precise Amount + Volatile Price", style = MaterialTheme.typography.titleSmall)
+            TransactionAddItem(
+                product = sateAyam,
+                productMap = mapOf(sateAyam to TransactionItemState()),
+                settings = PosLeSettings(isAmountPrecise = true, isProductVolatile = true),
+                onAdd = {},
+                onRemove = {},
+                onAmountChanged = {}
+            )
+
+            Text("Amount Selector + Non-Volatile Price", style = MaterialTheme.typography.titleSmall)
+            TransactionAddItem(
+                product = esTehManis,
+                productMap = mapOf(esTehManis to TransactionItemState()),
+                settings = PosLeSettings(isAmountPrecise = false, isProductVolatile = false),
+                onAdd = {},
+                onRemove = {},
+                onAmountChanged = {}
+            )
+
+            Text("Amount Selector + Volatile Price", style = MaterialTheme.typography.titleSmall)
+            TransactionAddItem(
+                product = esTehManis,
+                productMap = mapOf(esTehManis to TransactionItemState()),
+                settings = PosLeSettings(isAmountPrecise = false, isProductVolatile = true),
+                onAdd = {},
+                onRemove = {},
+                onAmountChanged = {}
+            )
+
+            Text("Collapsed State", style = MaterialTheme.typography.titleSmall)
+            TransactionAddItem(
+                product = sateAyam,
+                productMap = emptyMap(),
+                settings = PosLeSettings(),
+                onAdd = {},
+                onRemove = {},
+                onAmountChanged = {}
+            )
+        }
     }
 }

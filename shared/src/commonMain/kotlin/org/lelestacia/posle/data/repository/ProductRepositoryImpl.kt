@@ -11,9 +11,6 @@ import org.lelestacia.posle.data.entity.ProductEntity
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.repository.ProductRepository
 import org.lelestacia.posle.util.FileStorage
-import org.lelestacia.posle.util.Name
-import org.lelestacia.posle.util.Price
-import org.lelestacia.posle.util.Unit
 import kotlin.time.Clock
 
 
@@ -30,11 +27,10 @@ class ProductRepositoryImpl(
         dao.addProduct(
             ProductEntity(
                 id = 0,
-                name = product.name.value,
-                price = product.price.value,
-                unit = product.unit.value,
+                name = product.name,
+                price = product.price,
+                unit = product.unit,
                 imageUri = newImageUri,
-                isProductVolatile = product.isProductVolatile,
                 createdAt = Clock.System.now().toEpochMilliseconds()
             )
         )
@@ -54,11 +50,10 @@ class ProductRepositoryImpl(
             pagingData.map {
                 Product(
                     id = it.id,
-                    name = Name(it.name),
-                    price = Price(it.price),
-                    unit = Unit(it.unit),
-                    imageUri = it.imageUri,
-                    isProductVolatile = it.isProductVolatile
+                    name = it.name,
+                    price = it.price,
+                    unit = it.unit,
+                    imageUri = it.imageUri
                 )
             }
         }
@@ -79,11 +74,10 @@ class ProductRepositoryImpl(
         dao.update(
             ProductEntity(
                 id = product.id,
-                name = product.name.value,
-                price = product.price.value,
-                unit = product.unit.value,
+                name = product.name,
+                price = product.price,
+                unit = product.unit,
                 imageUri = newImageUri,
-                isProductVolatile = product.isProductVolatile,
                 createdAt = Clock.System.now().toEpochMilliseconds()
             )
         )

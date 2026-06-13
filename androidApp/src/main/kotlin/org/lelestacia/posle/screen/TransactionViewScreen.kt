@@ -63,7 +63,6 @@ fun TransactionViewScreen(
         onPrint = {
             scope.launch {
                 printTransaction(
-                    customername = state.customerName,
                     transaction = state.transaction
                 )
             }
@@ -267,6 +266,7 @@ private fun PreviewTransactionUI() {
             state = TransactionViewState(
                 transaction = Transaction(
                     id = 1,
+                    customerName = Name("Budi"),
                     items = listOf(
                         TransactionItem(
                             id = 1,
