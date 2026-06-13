@@ -23,7 +23,6 @@ sealed interface Config {
 
     @Serializable
     data class TransactionView(
-        val customerName: String,
         val transaction: Transaction
     ): Config
 

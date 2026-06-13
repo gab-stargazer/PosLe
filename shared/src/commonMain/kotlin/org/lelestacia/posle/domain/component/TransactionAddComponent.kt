@@ -22,6 +22,7 @@ import org.lelestacia.posle.domain.state_event.TransactionAddState
 import org.lelestacia.posle.domain.state_event.TransactionItemState
 import org.lelestacia.posle.navigation.Config
 import org.lelestacia.posle.util.Amount
+import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
 import java.math.BigDecimal
 import kotlin.time.Clock
@@ -90,32 +91,37 @@ class TransactionAddComponent(
 
             TransactionAddEvent.OnAddTransactionClicked -> {
                 val selectedProducts = mutableListOf<TransactionItem>()
-                state.value.products.entries.forEach {
+                state.value.products.entries.forEach { map ->
                     selectedProducts.add(
                         TransactionItem(
                             id = 0,
-                            productName = it.key.name,
+                            productName = map.key.name,
                             productPrice =
                                 if (settings.first().isProductVolatile) {
-                                    Price(BigDecimal(it.value.priceState.text.toString().ifEmpty { "0" }))
+                                    val currentPrice = Price(BigDecimal(map.value.priceState.text.toString().ifBlank { "0" }))
+                                    if (currentPrice.value > BigDecimal.ZERO) {
+                                        currentPrice
+                                    } else {
+                                        map.key.price
+                                    }
                                 } else {
-                                    it.key.price
+                                    map.key.price
                                 },
-                            productUnit = it.key.unit,
-                            productAmount = Amount(it.value.amountState.text.toString().toFloat())
+                            productUnit = map.key.unit,
+                            productAmount = Amount(map.value.amountState.text.toString().toFloat())
                         )
                     )
                 }
 
                 val transaction = Transaction(
                     id = 0,
+                    customerName = Name(state.value.customerName.text.toString()),
                     items = selectedProducts,
                     createdAt = Clock.System.now().toEpochMilliseconds()
                 )
 
                 onNavigateTo(
                     Config.TransactionView(
-                        customerName = state.value.customerName.text.toString(),
                         transaction = transactionRepository.insertAndGetTransaction(transaction)
                     )
                 )

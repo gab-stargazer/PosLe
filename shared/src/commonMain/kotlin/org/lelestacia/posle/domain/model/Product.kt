@@ -11,6 +11,5 @@ data class Product(
     val name: Name,
     val price: Price,
     val unit: Unit,
-    val imageUri: String? = null,
-    val isProductVolatile: Boolean
+    val imageUri: String? = null
 )

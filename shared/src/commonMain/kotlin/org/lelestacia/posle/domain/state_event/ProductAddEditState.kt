@@ -7,7 +7,6 @@ data class ProductAddEditState(
     val name: TextFieldState = TextFieldState(),
     val unit: TextFieldState =  TextFieldState(),
     val price: TextFieldState = TextFieldState(),
-    val isProductVolatile: Boolean = false,
 
     //  Image Section
     val productImageUri: String? = null,
@@ -19,7 +18,6 @@ data class ProductAddEditState(
 
 sealed interface ProductAddEditEvent {
     data class OnImageChanged(val uri: String?, val bytes: ByteArray?): ProductAddEditEvent
-    data class OnToggleProductVolatility(val newToggle: Boolean): ProductAddEditEvent
     data object OnAddProductClicked: ProductAddEditEvent
     data object OnDeleteProductClicked: ProductAddEditEvent
 }

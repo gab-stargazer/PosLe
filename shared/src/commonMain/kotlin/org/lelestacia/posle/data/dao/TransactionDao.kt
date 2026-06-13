@@ -1,5 +1,6 @@
 package org.lelestacia.posle.data.dao
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
@@ -23,7 +24,7 @@ interface TransactionDao {
 
     @Transaction
     @Query("SELECT * FROM `transaction` ORDER BY created_at DESC")
-    fun readTransactionWithItems(): TransactionWithItems
+    fun readTransactionWithItems(): PagingSource<Int, TransactionWithItems>
 
     @Transaction
     suspend fun insertTransactionAndReturnTransactionItems(

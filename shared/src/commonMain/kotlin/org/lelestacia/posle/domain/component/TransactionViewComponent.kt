@@ -13,7 +13,6 @@ import org.lelestacia.posle.domain.state_event.TransactionViewState
 
 class TransactionViewComponent(
     componentContext: ComponentContext,
-    customerName: String,
     transaction: Transaction,
     settingManager: SettingManager,
     private val onNavigation: (TransactionViewNavigation) -> Unit
@@ -24,7 +23,6 @@ class TransactionViewComponent(
     private val settings = settingManager.readSettings()
     private val _state = MutableStateFlow(
         TransactionViewState(
-            customerName = customerName,
             transaction = transaction
         )
     )
@@ -33,7 +31,6 @@ class TransactionViewComponent(
         flow2 = _state
     ) { settings, state ->
         TransactionViewState(
-            customerName = state.customerName,
             transaction = state.transaction,
             settings = settings
         )

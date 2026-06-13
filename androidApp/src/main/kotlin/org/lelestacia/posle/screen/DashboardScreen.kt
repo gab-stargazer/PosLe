@@ -3,9 +3,6 @@ package org.lelestacia.posle.screen
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -27,6 +24,7 @@ import org.lelestacia.posle.navigation.Config
 import org.lelestacia.posle.navigation.NavChild
 import org.lelestacia.posle.navigation.NavDestination
 import org.lelestacia.posle.screen.product_list.ProductListScreen
+import org.lelestacia.posle.screen.transaction_history.TransactionHistoryScreen
 
 @Composable
 fun DashboardScreen(
@@ -93,29 +91,11 @@ fun DashboardScreen(
                 }
 
                 is NavChild.Setting -> {
-                    SettingScreen(
-                        component = child.component
-                    )
+                    SettingScreen(component = child.component)
                 }
 
-                NavChild.Transaction -> {
-                    Scaffold(
-                        contentWindowInsets = WindowInsets(),
-                        floatingActionButton = {
-                            FloatingActionButton(
-                                onClick = {
-                                    component.onNavigation(DashboardNavigation.Nav(Config.TransactionAdd))
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = null
-                                )
-                            }
-                        }
-                    ) { _ ->
-
-                    }
+                is NavChild.Transaction -> {
+                    TransactionHistoryScreen(component = child.component)
                 }
             }
         }

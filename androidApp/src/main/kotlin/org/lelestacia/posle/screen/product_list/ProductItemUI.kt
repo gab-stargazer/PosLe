@@ -20,19 +20,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.App
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.toRupiah
-import posle.shared.generated.resources.Res
-import posle.shared.generated.resources.item_product_volatile
 import java.math.BigDecimal
 
 @Composable
@@ -94,20 +89,6 @@ fun ProductItemUI(
                     style = MaterialTheme.typography.labelMedium,
                     modifier = Modifier.padding(top = 6.dp)
                 )
-
-                if (product.isProductVolatile) {
-                    Text(
-                        stringResource(Res.string.item_product_volatile),
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontWeight = FontWeight.Normal,
-                            textAlign =
-                                when (product.imageUri != null) {
-                                    true -> TextAlign.End
-                                    false -> TextAlign.Start
-                                }
-                        )
-                    )
-                }
             }
         }
     }
@@ -122,8 +103,7 @@ private fun PreviewProductItemUI() {
                 id = 0,
                 name = Name("Salak"),
                 unit = org.lelestacia.posle.util.Unit("Kg"),
-                price = Price(BigDecimal("100000")),
-                isProductVolatile = true
+                price = Price(BigDecimal("100000"))
             ),
             onEdit = {
 
