@@ -1,19 +1,49 @@
 package org.lelestacia.posle.domain.component
 
 import com.arkivanov.decompose.ComponentContext
-import com.arkivanov.decompose.value.MutableValue
-import com.arkivanov.decompose.value.Value
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import org.lelestacia.posle.data.SettingManager
 import org.lelestacia.posle.domain.model.Transaction
 import org.lelestacia.posle.domain.state_event.TransactionViewState
 
 class TransactionViewComponent(
     componentContext: ComponentContext,
+    customerName: String,
     transaction: Transaction,
-    onNavigation: (TransactionViewNavigation) -> Unit
+    settingManager: SettingManager,
+    private val onNavigation: (TransactionViewNavigation) -> Unit
 ) : ComponentContext by componentContext {
 
-    val state: Value<TransactionViewState>
-        field = MutableValue(TransactionViewState(transaction = transaction))
+    private val scope = CoroutineScope(Dispatchers.Main.immediate)
+
+    private val settings = settingManager.readSettings()
+    private val _state = MutableStateFlow(
+        TransactionViewState(
+            customerName = customerName,
+            transaction = transaction
+        )
+    )
+    val state = combine(
+        flow = settings,
+        flow2 = _state
+    ) { settings, state ->
+        TransactionViewState(
+            customerName = state.customerName,
+            transaction = state.transaction,
+            settings = settings
+        )
+    }.stateIn(
+        scope = scope,
+        started = SharingStarted.Lazily,
+        initialValue = TransactionViewState(transaction = transaction)
+    )
+
+    fun onAction(navigation: TransactionViewNavigation) = onNavigation(navigation)
 }
 
 sealed interface TransactionViewNavigation {

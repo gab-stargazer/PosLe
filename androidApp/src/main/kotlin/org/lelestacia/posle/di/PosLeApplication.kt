@@ -9,7 +9,7 @@ class PosLeApplication: Application() {
     override fun onCreate() {
         super.onCreate()
         startKoin {
-            modules(androidModule)
+            modules(sharedModule, androidModule)
             androidContext(this@PosLeApplication)
         }
     }

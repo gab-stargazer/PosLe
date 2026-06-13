@@ -1,6 +1,5 @@
 package org.lelestacia.posle.screen
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -15,13 +14,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.fade
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
-
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.component.DashboardComponent
 import org.lelestacia.posle.domain.component.DashboardNavigation
@@ -95,13 +92,10 @@ fun DashboardScreen(
                     )
                 }
 
-                NavChild.Setting -> {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        Text("Setting")
-                    }
+                is NavChild.Setting -> {
+                    SettingScreen(
+                        component = child.component
+                    )
                 }
 
                 NavChild.Transaction -> {

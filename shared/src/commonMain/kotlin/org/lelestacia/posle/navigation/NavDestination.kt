@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.StringResource
 import org.lelestacia.posle.domain.component.ProductListComponent
+import org.lelestacia.posle.domain.component.SettingComponent
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.destination_list_product
 import posle.shared.generated.resources.destination_settings
@@ -51,6 +52,6 @@ sealed interface NavConfig {
 sealed class NavChild {
     data object Transaction : NavChild()
     data class ProductList(val component: ProductListComponent) : NavChild()
-    data object Setting : NavChild()
+    data class Setting(val component: SettingComponent) : NavChild()
 }
 

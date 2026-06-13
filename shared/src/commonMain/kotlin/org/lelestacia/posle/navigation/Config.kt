@@ -1,9 +1,9 @@
 package org.lelestacia.posle.navigation
 
 import kotlinx.serialization.Serializable
-import org.lelestacia.posle.domain.component.TransactionAddComponent
 import org.lelestacia.posle.domain.component.DashboardComponent
 import org.lelestacia.posle.domain.component.ProductAddEditComponent
+import org.lelestacia.posle.domain.component.TransactionAddComponent
 import org.lelestacia.posle.domain.component.TransactionListComponent
 import org.lelestacia.posle.domain.component.TransactionViewComponent
 import org.lelestacia.posle.domain.model.Product
@@ -23,6 +23,7 @@ sealed interface Config {
 
     @Serializable
     data class TransactionView(
+        val customerName: String,
         val transaction: Transaction
     ): Config
 

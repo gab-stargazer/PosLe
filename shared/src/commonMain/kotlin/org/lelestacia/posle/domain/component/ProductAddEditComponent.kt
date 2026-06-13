@@ -98,7 +98,7 @@ class ProductAddEditComponent(
         return Product(
             id = id,
             name = Name(currentState.name.text.toString()),
-            price = Price(BigDecimal(currentState.price.text.toString())),
+                price = Price(BigDecimal(currentState.price.text.toString())),
             unit = PosLeUnit(currentState.unit.text.toString()),
             imageUri = currentState.productImageUri,
             isProductVolatile = currentState.isProductVolatile

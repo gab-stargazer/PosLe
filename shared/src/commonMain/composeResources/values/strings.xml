@@ -14,6 +14,13 @@
     <string name="label_product_price_latest">Harga Produk Terbaru</string>
     <string name="label_product_volatility">Apakah produk memiliki harga yang terus berubah setiap waktu?</string>
 
+    <string name="label_setting_product_volatile">Harga Produk Volatil</string>
+    <string name="msg_setting_product_volatile">Jika aktif, Anda dapat mengubah harga produk saat menambahkan transaksi.</string>
+    <string name="label_setting_amount_precise">Jumlah Presisi</string>
+    <string name="msg_setting_amount_precise">Jika aktif, jumlah produk akan menggunakan angka desimal.</string>
+    <string name="label_setting_customer_name">Nama Pelanggan</string>
+    <string name="msg_setting_customer_name">Jika aktif, Anda dapat menambahkan nama pelanggan pada transaksi.</string>
+
 
     <!--Button-->
     <string name="btn_add_product">Tambah Produk</string>"

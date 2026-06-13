@@ -7,6 +7,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -33,15 +34,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.App
+import org.lelestacia.posle.data.PosLeSettings
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.state_event.TransactionItemState
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
+import org.lelestacia.posle.util.RupiahOutputTransformation
 import org.lelestacia.posle.util.toRupiah
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.label_product_amount
@@ -53,8 +57,10 @@ import org.lelestacia.posle.util.Unit as CustomUnit
 fun TransactionAddItem(
     product: Product,
     productMap: Map<Product, TransactionItemState>,
+    settings: PosLeSettings,
     onAdd: () -> Unit,
     onRemove: () -> Unit,
+    onAmountChanged: (Float) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -155,32 +161,100 @@ fun TransactionAddItem(
                 horizontalAlignment = Alignment.End,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                TextField(
-                    state = productMap[product]?.amountState ?: rememberTextFieldState(),
-                    label = {
+                if (settings.isAmountPrecise) {
+                    TextField(
+                        state = productMap[product]?.amountState ?: rememberTextFieldState(),
+                        label = {
+                            Text(
+                                stringResource(Res.string.label_product_amount),
+                                style = MaterialTheme.typography.labelMediumEmphasized.copy(
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            )
+                        },
+                        textStyle = MaterialTheme.typography.bodyMedium,
+                        colors = TextFieldDefaults.colors(
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent
+                        ),
+                        shape = RoundedCornerShape(25F)
+                    )
+                } else {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.padding(horizontal = 12.dp)
+                    ) {
                         Text(
                             stringResource(Res.string.label_product_amount),
-                            style = MaterialTheme.typography.labelMediumEmphasized
+                            style = MaterialTheme.typography.labelMediumEmphasized.copy(
+                                fontWeight = FontWeight.SemiBold
+                            )
                         )
-                    },
-                    textStyle = MaterialTheme.typography.bodyMedium,
-                    colors = TextFieldDefaults.colors(
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent
-                    ),
-                    shape = RoundedCornerShape(25F)
-                )
 
-                if (product.isProductVolatile) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            IconButton(
+                                onClick = {
+                                    val currentAmount =
+                                        productMap[product]?.amountState?.text?.toString()
+                                            ?.toFloatOrNull()
+                                            ?: 0f
+                                    if (currentAmount > 1) {
+                                        onAmountChanged(currentAmount - 1)
+                                    }
+                                }
+                            ) {
+                                Icon(Icons.Default.Remove, contentDescription = null)
+                            }
+
+                            Text(
+                                text =
+                                    if (productMap[product]?.amountState?.text
+                                            .toString()
+                                            .isBlank()
+                                    ) {
+                                        "0"
+                                    } else {
+                                        BigDecimal(productMap[product]?.amountState?.text?.toString())
+                                            .stripTrailingZeros()
+                                            .toString()
+                                    },
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                modifier = Modifier.padding(horizontal = 8.dp)
+                            )
+
+                            IconButton(
+                                onClick = {
+                                    val currentAmount =
+                                        productMap[product]?.amountState?.text?.toString()
+                                            ?.toFloatOrNull()
+                                            ?: 0f
+                                    onAmountChanged(currentAmount + 1)
+                                }
+                            ) {
+                                Icon(Icons.Default.Add, contentDescription = null)
+                            }
+                        }
+                    }
+                }
+
+                if (settings.isProductVolatile) {
                     TextField(
                         state = productMap[product]?.priceState ?: rememberTextFieldState(),
                         label = {
                             Text(
                                 stringResource(Res.string.label_product_price_latest),
-                                style = MaterialTheme.typography.labelMediumEmphasized
+                                style = MaterialTheme.typography.labelMediumEmphasized.copy(
+                                    fontWeight = FontWeight.SemiBold
+                                )
                             )
                         },
+                        outputTransformation = RupiahOutputTransformation(),
                         textStyle = MaterialTheme.typography.bodyMedium,
                         colors = TextFieldDefaults.colors(
                             focusedIndicatorColor = Color.Transparent,
@@ -217,12 +291,12 @@ private fun PreviewTransactionAddItem() {
                     isProductVolatile = true
                 ) to TransactionItemState()
             ),
-            onAdd = {
-
-            },
-            onRemove = {
-
-            },
+            settings = PosLeSettings(
+                isProductVolatile = true
+            ),
+            onAdd = {},
+            onRemove = {},
+            onAmountChanged = {},
             modifier = Modifier.padding(12.dp)
         )
     }

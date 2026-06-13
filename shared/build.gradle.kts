@@ -75,11 +75,17 @@ kotlin {
             api(libs.androidx.paging.common)
             api(libs.androidx.paging.compose)
 
-            api("io.github.vinceglb:filekit-core:0.14.1")
-            api("io.github.vinceglb:filekit-dialogs:0.14.1")
-            api("io.github.vinceglb:filekit-dialogs-compose:0.14.1")
+            //  Filekit
+            api(libs.filekit.core)
+            api(libs.filekit.dialogs)
+            api(libs.filekit.compose)
 
-            api("io.coil-kt.coil3:coil-compose:3.5.0")
+            //  Coil
+            api(libs.coil.compose)
+
+            //  Datastore
+            api(libs.androidx.datastore)
+            api(libs.androidx.datastore.preferences)
 
         }
 

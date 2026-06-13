@@ -25,6 +25,9 @@ sqlite = "2.6.2"
 paging = "3.5.0"
 serializationPlugin = "2.4.0"
 serializationLibrary = "1.11.0"
+filekit = "0.14.1"
+coil = "3.5.0"
+datastore = "1.2.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -73,6 +76,18 @@ androidx-room-paging = { module = "androidx.room:room-paging", version.ref = "ro
 #   Paging
 androidx-paging-common = { module = "androidx.paging:paging-common", version.ref = "paging" }
 androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "paging" }
+
+#   FileKit
+filekit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "filekit" }
+filekit-dialogs = { module = "io.github.vinceglb:filekit-dialogs", version.ref = "filekit" }
+filekit-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekit" }
+
+#   Coil
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+
+#   DataStore
+androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 
 
 [plugins]
