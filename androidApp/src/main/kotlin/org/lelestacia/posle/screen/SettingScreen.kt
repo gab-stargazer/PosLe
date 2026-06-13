@@ -1,5 +1,6 @@
 package org.lelestacia.posle.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,6 +11,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,18 +21,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import org.jetbrains.compose.resources.stringResource
-import org.lelestacia.posle.App
 import org.lelestacia.posle.data.PosLeSettings
 import org.lelestacia.posle.domain.component.SettingComponent
 import org.lelestacia.posle.domain.state_event.SettingEvent
 import org.lelestacia.posle.domain.state_event.SettingState
+import org.lelestacia.posle.ui.theme.AppTheme
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.label_setting_amount_precise
 import posle.shared.generated.resources.label_setting_customer_name
 import posle.shared.generated.resources.label_setting_product_volatile
+import posle.shared.generated.resources.label_setting_recap_transaction
 import posle.shared.generated.resources.msg_setting_amount_precise
 import posle.shared.generated.resources.msg_setting_customer_name
 import posle.shared.generated.resources.msg_setting_product_volatile
+import posle.shared.generated.resources.msg_setting_recap_transaction
 
 @Composable
 fun SettingScreen(
@@ -57,6 +61,7 @@ fun SettingUI(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surfaceContainerLowest)
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
@@ -80,6 +85,13 @@ fun SettingUI(
                 description = stringResource(Res.string.msg_setting_customer_name),
                 checked = state.settings.isCustomerNameNeeded,
                 onCheckedChange = { onEvent(SettingEvent.OnToggleCustomerNameNeeded(it)) }
+            )
+
+            SettingItem(
+                title = stringResource(Res.string.label_setting_recap_transaction),
+                description = stringResource(Res.string.msg_setting_recap_transaction),
+                checked = state.settings.isTransactionRecapNeeded,
+                onCheckedChange = { onEvent(SettingEvent.OnToggleTransactionRecapNeeded(it)) }
             )
         }
     }
@@ -114,7 +126,10 @@ private fun SettingItem(
         }
         Switch(
             checked = checked,
-            onCheckedChange = onCheckedChange
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+            )
         )
     }
 }
@@ -122,7 +137,7 @@ private fun SettingItem(
 @Preview(showBackground = true)
 @Composable
 private fun PreviewSettingUI() {
-    App {
+    AppTheme {
         SettingUI(
             state = SettingState(
                 settings = PosLeSettings(

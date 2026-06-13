@@ -16,6 +16,7 @@ val androidModule = module {
         getDatabaseBuilder(androidContext())
             .setQueryCoroutineContext(Dispatchers.IO)
             .setDriver(AndroidSQLiteDriver())
+            .addMigrations(PosLeDB.MIGRATION_1_2)
             .build()
     }
 

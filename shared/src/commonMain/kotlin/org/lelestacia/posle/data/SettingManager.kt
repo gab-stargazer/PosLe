@@ -14,13 +14,15 @@ class SettingManager(
     val productVolatileKey = booleanPreferencesKey("is_product_volatile")
     val amountPreciseKey = booleanPreferencesKey("is_amount_precise")
     val customerNameKey = booleanPreferencesKey("is_customer_name_needed")
+    val transactionRecapKey = booleanPreferencesKey("is_transaction_recap_needed")
 
     fun readSettings(): Flow<PosLeSettings> {
         return dataStore.data.map {
             PosLeSettings(
                 isProductVolatile = it[productVolatileKey] ?: false,
                 isAmountPrecise = it[amountPreciseKey] ?: false,
-                isCustomerNameNeeded = it[customerNameKey] ?: false
+                isCustomerNameNeeded = it[customerNameKey] ?: false,
+                isTransactionRecapNeeded = it[transactionRecapKey] ?: false
             )
         }
     }
@@ -36,10 +38,15 @@ class SettingManager(
     suspend fun updateCustomerNameNeeded(newValue: Boolean) {
         dataStore.edit { it[customerNameKey] = newValue }
     }
+
+    suspend fun updateTransactionRecapNeeded(newValue: Boolean) {
+        dataStore.edit { it[transactionRecapKey] = newValue }
+    }
 }
 
 data class PosLeSettings(
     val isProductVolatile: Boolean = false,
     val isAmountPrecise: Boolean = false,
-    val isCustomerNameNeeded: Boolean = false
+    val isCustomerNameNeeded: Boolean = false,
+    val isTransactionRecapNeeded: Boolean = false,
 )

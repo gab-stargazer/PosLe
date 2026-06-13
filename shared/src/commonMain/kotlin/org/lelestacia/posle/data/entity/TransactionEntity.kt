@@ -21,6 +21,8 @@ data class TransactionEntity(
     val id: Int = 0,
     @ColumnInfo("customer_name")
     val customerName: Name,
+    @ColumnInfo("is_recapped")
+    val isRecapped: Boolean = false,
     @ColumnInfo("created_at")
     val createdAt: Long,
     @ColumnInfo("updated_at")
@@ -70,8 +72,9 @@ fun TransactionWithItems.toDomain() = Transaction(
     id = transaction.id,
     customerName = transaction.customerName,
     items = items.map { it.toDomain() },
+    isRecapped = transaction.isRecapped,
     createdAt = transaction.createdAt,
-    updatedAt = transaction.updatedAt
+    updatedAt = transaction.updatedAt,
 )
 
 fun TransactionItemEntity.toDomain() = TransactionItem(

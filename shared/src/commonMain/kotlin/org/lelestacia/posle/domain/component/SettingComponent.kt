@@ -36,6 +36,7 @@ class SettingComponent(
                 is SettingEvent.OnToggleProductVolatile -> settingManager.updateProductVolatile(event.newValue)
                 is SettingEvent.OnToggleAmountPrecise -> settingManager.updateAmountPrecise(event.newValue)
                 is SettingEvent.OnToggleCustomerNameNeeded -> settingManager.updateCustomerNameNeeded(event.newValue)
+                is SettingEvent.OnToggleTransactionRecapNeeded -> settingManager.updateTransactionRecapNeeded(event.newValue)
             }
         }
     }

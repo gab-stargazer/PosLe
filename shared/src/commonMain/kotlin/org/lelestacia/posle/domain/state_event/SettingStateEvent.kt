@@ -10,4 +10,5 @@ sealed interface SettingEvent {
     data class OnToggleProductVolatile(val newValue: Boolean) : SettingEvent
     data class OnToggleAmountPrecise(val newValue: Boolean) : SettingEvent
     data class OnToggleCustomerNameNeeded(val newValue: Boolean) : SettingEvent
+    data class OnToggleTransactionRecapNeeded(val newValue: Boolean) : SettingEvent
 }
