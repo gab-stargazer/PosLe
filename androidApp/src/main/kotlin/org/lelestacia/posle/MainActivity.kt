@@ -5,10 +5,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.material3.Surface
 import com.arkivanov.decompose.defaultComponentContext
 import com.arkivanov.decompose.retainedComponent
 import org.lelestacia.posle.navigation.PosLeComponent
 import org.lelestacia.posle.navigation.RootContent
+import org.lelestacia.posle.ui.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,9 +23,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val rootComponent = retainedComponent { PosLeComponent(componentContext = defaultComponentContext()) }
         setContent {
-            App(
+            AppTheme(
+                darkTheme = false,
                 content = {
-                    RootContent(rootComponent)
+                    Surface {
+                        RootContent(rootComponent)
+                    }
                 }
             )
         }

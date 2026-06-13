@@ -1,5 +1,8 @@
 package org.lelestacia.posle.screen
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,8 +17,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Print
+import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -25,6 +30,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -35,12 +41,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
-import org.lelestacia.posle.App
 import org.lelestacia.posle.domain.component.TransactionViewComponent
 import org.lelestacia.posle.domain.component.TransactionViewNavigation
 import org.lelestacia.posle.domain.model.Transaction
 import org.lelestacia.posle.domain.model.TransactionItem
+import org.lelestacia.posle.domain.state_event.TransactionViewEvent
+import org.lelestacia.posle.domain.state_event.TransactionViewEvent.OnRecapClicked
 import org.lelestacia.posle.domain.state_event.TransactionViewState
+import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
@@ -60,6 +68,7 @@ fun TransactionViewScreen(
     TransactionUI(
         state = state,
         onNavigation = component::onAction,
+        onEvent = component::onEvent,
         onPrint = {
             scope.launch {
                 printTransaction(
@@ -76,6 +85,7 @@ fun TransactionViewScreen(
 fun TransactionUI(
     state: TransactionViewState,
     onNavigation: (TransactionViewNavigation) -> Unit,
+    onEvent: (TransactionViewEvent) -> Unit,
     onPrint: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -83,8 +93,18 @@ fun TransactionUI(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Transaksi")
+                    Text(
+                        "Detail Transaksi",
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
                 },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface
+                ),
                 navigationIcon = {
                     IconButton(
                         onClick = {
@@ -92,17 +112,7 @@ fun TransactionUI(
                         }
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = null
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(
-                        onClick = onPrint
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Print,
+                            imageVector = Icons.Default.ArrowBackIosNew,
                             contentDescription = null
                         )
                     }
@@ -116,6 +126,7 @@ fun TransactionUI(
             contentAlignment = Alignment.BottomCenter,
             modifier = Modifier
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surfaceContainerLowest)
                 .padding(paddingValues)
         ) {
             LazyColumn(
@@ -125,7 +136,7 @@ fun TransactionUI(
                     end = 12.dp,
                     bottom = 100.dp
                 ),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.matchParentSize()
             ) {
                 items(items = state.transaction.items, key = { it.id }) { item ->
@@ -137,41 +148,21 @@ fun TransactionUI(
             }
 
             ElevatedCard(
-                shape = RoundedCornerShape(25F),
+                shape = RoundedCornerShape(50F),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(12.dp)
+                    .animateContentSize()
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(
-                            horizontal = 12.dp,
-                            vertical = 6.dp
-                        )
+                        .padding(all = 12.dp)
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        Text(
-                            "Total Transaksi:",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-
-                        Text(
-                            state
-                                .transaction
-                                .items
-                                .sumOf { it.productAmount.value.toBigDecimal() * it.productPrice.value }
-                                .toRupiah(),
-                            style = MaterialTheme.typography.bodyMediumEmphasized.copy(
-                                fontWeight = FontWeight.Bold
-                            )
-                        )
-                    }
-
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -185,10 +176,92 @@ fun TransactionUI(
 
                         Text(
                             state.transaction.createdAt.toFormattedDateTime(),
-                            style = MaterialTheme.typography.bodySmallEmphasized.copy(
-                                fontWeight = FontWeight.Bold
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontWeight = FontWeight.SemiBold
                             )
                         )
+                    }
+
+                    if (state.transaction.customerName.value.isNotBlank()) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ) {
+                            Text(
+                                "Pelanggan:",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+
+                            Text(
+                                state.transaction.customerName.value,
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            )
+                        }
+                    }
+
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            "Total:",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+
+                        Text(
+                            state
+                                .transaction
+                                .items
+                                .sumOf { it.productAmount.value.toBigDecimal() * it.productPrice.value }
+                                .toRupiah(),
+                            style = MaterialTheme.typography.bodyMediumEmphasized.copy(
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        )
+                    }
+
+                    AnimatedVisibility(
+                        !state.transaction.isRecapped && state.settings.isTransactionRecapNeeded,
+                        modifier = Modifier.padding(top = 12.dp)
+                    ) {
+                        Button(
+                            onClick = {
+                                onEvent(OnRecapClicked)
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            shape = RoundedCornerShape(25F),
+                            modifier = modifier.fillMaxWidth()
+                        ) {
+                            Text("Rekap")
+                        }
+                    }
+
+                    Button(
+                        onClick = onPrint,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                        ),
+                        shape = RoundedCornerShape(25F),
+                        modifier = Modifier
+                            .padding(
+                                top =
+                                    when (state.transaction.isRecapped) {
+                                        true -> 12.dp
+                                        false -> 6.dp
+                                    }
+                            )
+                            .fillMaxWidth()
+                    ) {
+                        Text("Cetak")
                     }
                 }
             }
@@ -251,8 +324,8 @@ fun TransactionViewItem(
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .padding(top = 6.dp)
+                    .padding(horizontal = 12.dp)
+                    .padding(top = 12.dp)
             )
         }
     }
@@ -261,7 +334,7 @@ fun TransactionViewItem(
 @Preview(showBackground = true)
 @Composable
 private fun PreviewTransactionUI() {
-    App {
+    AppTheme {
         TransactionUI(
             state = TransactionViewState(
                 transaction = Transaction(
@@ -287,6 +360,7 @@ private fun PreviewTransactionUI() {
                 )
             ),
             onNavigation = {},
+            onEvent = {},
             onPrint = {}
         )
     }

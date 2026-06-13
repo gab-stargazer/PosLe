@@ -67,6 +67,7 @@ class PosLeComponent(
             is NavConfig.Transaction -> Transaction(
                 TransactionHistoryComponent(
                     componentContext = context,
+                    settingManager = settingManager,
                     repository = transactionRepository,
                     onNavigation = { rootNavigation.pushNew(it) }
                 )
@@ -118,6 +119,7 @@ class PosLeComponent(
                     componentContext = context,
                     transaction = config.transaction,
                     settingManager = settingManager,
+                    repository = transactionRepository,
                     onNavigation = { navigation ->
                         when (navigation) {
                             TransactionViewNavigation.OnPop -> rootNavigation.pop()

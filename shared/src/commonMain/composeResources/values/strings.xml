@@ -19,12 +19,16 @@
     <string name="msg_setting_amount_precise">Jika aktif, jumlah produk akan menggunakan angka desimal.</string>
     <string name="label_setting_customer_name">Nama Pelanggan</string>
     <string name="msg_setting_customer_name">Jika aktif, Anda dapat menambahkan nama pelanggan pada transaksi.</string>
-
+    <string name="label_setting_recap_transaction">Rekap Transaksi Manual</string>
+    <string name="msg_setting_recap_transaction">Jika aktif, transaksi akan memiliki status rekap untuk membantu anda melakukan rekap manual.</string>
+    <string name="label_recapped">Direkap</string>
+    <string name="label_not_recapped">Belum Direkap</string>
 
     <!--Button-->
     <string name="btn_add_product">Tambah Produk</string>"
     <string name="btn_update_product">Ubah Produk</string>
     <string name="btn_delete_product">Hapus Produk</string>
+    <string name="btn_add_transaction">Tambah Transaksi</string>
 
     <!--Item-->
 

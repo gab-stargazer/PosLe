@@ -13,6 +13,7 @@ data class Transaction(
     val id: Int,
     val customerName: Name,
     val items: List<TransactionItem>,
+    val isRecapped: Boolean = false,
     val createdAt: Long,
     val updatedAt: Long? = null,
 )
@@ -29,6 +30,7 @@ data class TransactionItem(
 fun Transaction.toEntity() = TransactionEntity(
     id = id,
     customerName = customerName,
+    isRecapped = isRecapped,
     createdAt = createdAt,
     updatedAt = updatedAt,
 )

@@ -1,32 +1,48 @@
 package org.lelestacia.posle.screen.transaction_history
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowRight
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import org.lelestacia.posle.App
+import org.jetbrains.compose.resources.stringResource
+import org.lelestacia.posle.data.PosLeSettings
 import org.lelestacia.posle.domain.model.Transaction
 import org.lelestacia.posle.domain.model.TransactionItem
+import org.lelestacia.posle.ui.theme.AppTheme
+import org.lelestacia.posle.ui.theme.successLight
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.SampleData
 import org.lelestacia.posle.util.toFormattedDateTime
 import org.lelestacia.posle.util.toRupiah
+import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.label_not_recapped
+import posle.shared.generated.resources.label_recapped
 
 @Composable
 fun TransactionItem(
     transaction: Transaction,
+    settings: PosLeSettings,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -34,46 +50,109 @@ fun TransactionItem(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceContainerLowest)
             .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp)
+            .padding(all = 12.dp)
     ) {
         Column(
             modifier = Modifier
                 .weight(1F)
-                .padding(vertical = 6.dp)
         ) {
-            if (transaction.customerName.value.isNotBlank()) {
-                Text(
-                    text = "Nama Pelanggan\t: ${transaction.customerName.value}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-            Text(
-                text = "Total Belanja\t: ${
-                    transaction
-                        .items
-                        .sumOf { it.productAmount.value.toBigDecimal() * it.productPrice.value }
-                        .toRupiah()
-                }",
-                style = MaterialTheme.typography.bodyMedium
-            )
             Text(
                 "Waktu Transaksi: ${transaction.createdAt.toFormattedDateTime()}",
                 style = MaterialTheme.typography.bodyMedium
             )
+
+            val customerStringBuilder = buildAnnotatedString {
+                withStyle(MaterialTheme.typography.bodyMedium.toSpanStyle()) {
+                    append("Pelanggan: ")
+                }
+
+                withStyle(
+                    MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    ).toSpanStyle()
+                ) {
+                    append(transaction.customerName.value)
+                }
+            }
+
+            if (transaction.customerName.value.isNotBlank()) {
+                Text(text = customerStringBuilder)
+            }
+
+            val totalStringBuilder = buildAnnotatedString {
+                withStyle(MaterialTheme.typography.bodyMedium.toSpanStyle()) {
+                    append("Total: ")
+                }
+
+                withStyle(
+                    MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    ).toSpanStyle()
+                ) {
+                    append(
+                        transaction
+                            .items
+                            .sumOf { it.productAmount.value.toBigDecimal() * it.productPrice.value }
+                            .toRupiah()
+                    )
+                }
+            }
+
+            Text(text = totalStringBuilder)
         }
 
-        Icon(
-            imageVector = Icons.Default.ArrowRight,
-            contentDescription = null
-        )
+        if (settings.isTransactionRecapNeeded) {
+            OutlinedCard(
+                colors = CardDefaults.outlinedCardColors(
+                    containerColor = Color.Transparent
+                ),
+                border = BorderStroke(
+                    1.dp,
+                    color = when (transaction.isRecapped) {
+                        true -> successLight
+                        false -> MaterialTheme.colorScheme.error
+                    }
+                )
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        stringResource(
+                            when (transaction.isRecapped) {
+                                true -> Res.string.label_recapped
+                                false -> Res.string.label_not_recapped
+                            }
+                        ),
+                        style = MaterialTheme.typography.labelMediumEmphasized.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = when (transaction.isRecapped) {
+                                true -> successLight
+                                false -> MaterialTheme.colorScheme.error
+                            }
+                        ),
+                        modifier = Modifier.padding(
+                            horizontal = 12.dp,
+                            vertical = 6.dp
+                        )
+                    )
+                }
+            }
+        } else {
+            Icon(
+                imageVector = Icons.Default.ArrowRight,
+                contentDescription = null
+            )
+        }
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun PreviewTransactionItem() {
-    App {
+    AppTheme {
         TransactionItem(
             transaction = Transaction(
                 id = 0,
@@ -89,6 +168,9 @@ private fun PreviewTransactionItem() {
                         )
                     },
                 createdAt = kotlin.time.Clock.System.now().toEpochMilliseconds()
+            ),
+            settings = PosLeSettings(
+                isTransactionRecapNeeded = true
             ),
             onClick = {},
             modifier = Modifier

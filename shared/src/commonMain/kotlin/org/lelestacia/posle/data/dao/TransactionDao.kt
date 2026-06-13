@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import org.lelestacia.posle.data.entity.TransactionEntity
 import org.lelestacia.posle.data.entity.TransactionItemEntity
 import org.lelestacia.posle.data.entity.TransactionWithItems
@@ -39,4 +40,7 @@ interface TransactionDao {
 
         return getTransactionWithItems(transactionId)
     }
+
+    @Update
+    suspend fun updateTransaction(transaction: TransactionEntity)
 }

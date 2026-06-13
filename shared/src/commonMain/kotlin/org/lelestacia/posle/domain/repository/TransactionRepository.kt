@@ -8,4 +8,5 @@ interface TransactionRepository {
 
     suspend fun insertAndGetTransaction(transaction: Transaction): Transaction
     fun readTransactionHistory(): Flow<PagingData<Transaction>>
+    suspend fun updateTransaction(transaction: Transaction)
 }

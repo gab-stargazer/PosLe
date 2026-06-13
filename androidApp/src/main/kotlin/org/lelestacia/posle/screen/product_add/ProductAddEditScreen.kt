@@ -1,6 +1,7 @@
 package org.lelestacia.posle.screen.product_add
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
@@ -39,7 +40,6 @@ import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
-import org.lelestacia.posle.App
 import org.lelestacia.posle.domain.component.ProductAddEditComponent
 import org.lelestacia.posle.domain.state_event.ProductAddEditEvent
 import org.lelestacia.posle.domain.state_event.ProductAddEditEvent.OnAddProductClicked
@@ -48,6 +48,7 @@ import org.lelestacia.posle.domain.state_event.ProductAddEditEvent.OnImageChange
 import org.lelestacia.posle.domain.state_event.ProductAddEditState
 import org.lelestacia.posle.navigation.AddEdit.Add
 import org.lelestacia.posle.navigation.AddEdit.Edit
+import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.util.RupiahOutputTransformation
 import org.lelestacia.posle.util.handleImagePick
 import posle.shared.generated.resources.Res
@@ -99,6 +100,7 @@ private fun ProductAddEditUI(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surfaceContainerLowest)
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
         ) {
@@ -246,7 +248,7 @@ private fun ProductAddEditUI(
 @Preview(showBackground = true)
 @Composable
 private fun PreviewProductAddEditUI() {
-    App {
+    AppTheme {
         var state by remember {
             mutableStateOf(ProductAddEditState(mode = Add))
         }

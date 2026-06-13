@@ -38,4 +38,8 @@ class TransactionRepositoryImpl(
             it.map(TransactionWithItems::toDomain)
         }
     }
+
+    override suspend fun updateTransaction(transaction: Transaction) {
+        dao.updateTransaction(transaction.toEntity())
+    }
 }

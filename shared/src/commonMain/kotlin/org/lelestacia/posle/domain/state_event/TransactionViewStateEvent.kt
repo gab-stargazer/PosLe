@@ -8,3 +8,7 @@ data class TransactionViewState(
 
     val settings: PosLeSettings = PosLeSettings(),
 )
+
+sealed interface TransactionViewEvent {
+    data object OnRecapClicked: TransactionViewEvent
+}
