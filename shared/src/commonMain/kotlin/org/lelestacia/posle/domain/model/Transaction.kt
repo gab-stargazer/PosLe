@@ -25,6 +25,7 @@ data class TransactionItem(
     val productPrice: Price,
     val productUnit: Unit,
     val productAmount: Amount,
+    val variants: List<Variant> = emptyList(),
 )
 
 fun Transaction.toEntity() = TransactionEntity(
@@ -42,4 +43,5 @@ fun TransactionItem.toEntity(transactionId: Int) = TransactionItemEntity(
     productPrice = productPrice,
     productUnit = productUnit,
     productAmount = productAmount,
+    variants = variants
 )

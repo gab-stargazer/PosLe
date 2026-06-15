@@ -7,6 +7,7 @@ import org.lelestacia.posle.data.PosLeDB
 import org.lelestacia.posle.data.SettingManager
 import org.lelestacia.posle.data.dao.ProductDao
 import org.lelestacia.posle.data.dao.TransactionDao
+import org.lelestacia.posle.data.dao.VariantDao
 import org.lelestacia.posle.data.repository.ProductRepositoryImpl
 import org.lelestacia.posle.data.repository.TransactionRepositoryImpl
 import org.lelestacia.posle.domain.repository.ProductRepository
@@ -23,6 +24,9 @@ val sharedModule = module {
         get<PosLeDB>().transactionDao()
     }
 
+    single<VariantDao> {
+        get<PosLeDB>().variantDao()
+    }
 
     singleOf(::SettingManager)
 

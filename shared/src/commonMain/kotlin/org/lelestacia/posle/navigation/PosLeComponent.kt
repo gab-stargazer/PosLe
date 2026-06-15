@@ -14,17 +14,20 @@ import org.koin.java.KoinJavaComponent.inject
 import org.lelestacia.posle.data.SettingManager
 import org.lelestacia.posle.domain.component.DashboardComponent
 import org.lelestacia.posle.domain.component.DashboardNavigation
-import org.lelestacia.posle.domain.component.ProductAddEditComponent
 import org.lelestacia.posle.domain.component.ProductListComponent
 import org.lelestacia.posle.domain.component.SettingComponent
 import org.lelestacia.posle.domain.component.TransactionAddComponent
 import org.lelestacia.posle.domain.component.TransactionHistoryComponent
 import org.lelestacia.posle.domain.component.TransactionListComponent
+import org.lelestacia.posle.domain.component.TransactionProductConfigComponent
 import org.lelestacia.posle.domain.component.TransactionViewComponent
 import org.lelestacia.posle.domain.component.TransactionViewNavigation
+import org.lelestacia.posle.domain.component.product_add_edit.ProductAddEditComponent
+import org.lelestacia.posle.domain.component.product_add_edit.ProductAddVariantViewComponent
+import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.repository.ProductRepository
 import org.lelestacia.posle.domain.repository.TransactionRepository
-import org.lelestacia.posle.navigation.Child.AddProduct
+import org.lelestacia.posle.domain.state_event.TransactionItemState
 import org.lelestacia.posle.navigation.NavChild.ProductList
 import org.lelestacia.posle.navigation.NavChild.Setting
 import org.lelestacia.posle.navigation.NavChild.Transaction
@@ -44,6 +47,10 @@ class PosLeComponent(
     // Navigation stacks
     private val rootNavigation = StackNavigation<Config>()
     private val tabNavigation = StackNavigation<NavConfig>()
+
+    //  Helper
+    private var onVariantsSelected: ((List<Variant>) -> Unit)? = null
+    private var onProductConfigConfirmed: ((TransactionItemState, List<Variant>) -> Unit)? = null
 
     val tabChildren: Value<ChildStack<NavConfig, NavChild>> = childStack(
         source = tabNavigation,
@@ -103,7 +110,24 @@ class PosLeComponent(
                     productRepository = productRepository,
                     transactionRepository = transactionRepository,
                     settingManager = settingManager,
-                    onNavigateTo = { rootNavigation.replaceCurrent(it) }
+                    onNavigateTo = { rootNavigation.replaceCurrent(it) },
+                    onNavigateToProductConfig = { product, onConfirmed ->
+                        rootNavigation.pushNew(Config.TransactionProductConfig(product))
+                        this.onProductConfigConfirmed = onConfirmed
+                    }
+                )
+            )
+
+            is Config.TransactionProductConfig -> Child.TransactionProductConfig(
+                TransactionProductConfigComponent(
+                    componentContext = context,
+                    product = config.product,
+                    settingManager = settingManager,
+                    onConfirmed = { itemState, variants ->
+                        onProductConfigConfirmed?.invoke(itemState, variants)
+                        onProductConfigConfirmed = null
+                        rootNavigation.pop()
+                    }
                 )
             )
 
@@ -128,14 +152,33 @@ class PosLeComponent(
                 )
             )
 
-            is Config.AddEditProduct -> AddProduct(
+            is Config.ProductAddEdit -> Child.ProductAdd(
                 ProductAddEditComponent(
                     componentContext = context,
                     mode = config.addEdit,
                     product = config.product,
                     snackbarHostState = snackbarHostState,
                     repository = productRepository,
-                    onPop = { rootNavigation.pop() }
+                    onNavigateToVariantSelection = { selectedVariants, onResult ->
+                        onVariantsSelected = onResult
+                        rootNavigation.pushNew(Config.VariantView(selectedVariants))
+                    },
+                    onPop = {
+                        rootNavigation.pop()
+                    }
+                )
+            )
+
+            is Config.VariantView -> Child.VariantView(
+                ProductAddVariantViewComponent(
+                    componentContext = context,
+                    initialSelectedVariants = config.selectedVariants,
+                    onVariantsConfirmed = {
+                        onVariantsSelected?.invoke(it)
+                        onVariantsSelected = null
+                        rootNavigation.pop()
+                    },
+                    repository = productRepository
                 )
             )
         }

@@ -4,18 +4,21 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -40,14 +43,15 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import kotlinx.coroutines.flow.MutableStateFlow
-import org.lelestacia.posle.App
 import org.lelestacia.posle.data.PosLeSettings
 import org.lelestacia.posle.domain.component.TransactionAddComponent
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent.OnAddTransactionClicked
+import org.lelestacia.posle.domain.state_event.TransactionAddEvent.OnTabChanged
 import org.lelestacia.posle.domain.state_event.TransactionAddState
-import org.lelestacia.posle.domain.state_event.TransactionItemState
+import org.lelestacia.posle.ui.theme.AppTheme
+import org.lelestacia.posle.util.SampleData
 
 @Composable
 fun TransactionAddScreen(
@@ -79,116 +83,164 @@ fun TransactionAddUI(
             }
     }
 
-    Scaffold(modifier = modifier) { paddingValues ->
-        Column {
-            TextField(
-                state = state.searchQuery,
-                placeholder = {
-                    Text(
-                        text = "Cari Produk",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = null
-                    )
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp),
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp),
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                ),
-                shape = RoundedCornerShape(25F),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp)
-                    .padding(top = 12.dp)
-            )
-
-            LazyColumn(
-                contentPadding = PaddingValues(12.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier
-                    .weight(1F)
-                    .padding(paddingValues),
+    Scaffold(
+        topBar = {
+            PrimaryTabRow(
+                selectedTabIndex = state.currentTab,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                items(count = products.itemCount, key = products.itemKey { it.id }) {
-                    products[it]?.let { product ->
-                        TransactionAddItem(
-                            product = product,
-                            productMap = state.products,
-                            settings = state.settings,
-                            onAdd = {
-                                onEvent(TransactionAddEvent.OnAddNewProduct(product))
-                            },
-                            onRemove = {
-                                onEvent(TransactionAddEvent.OnRemoveProduct(product))
-                            },
-                            onAmountChanged = { newAmount ->
-                                onEvent(TransactionAddEvent.OnAmountChanged(product, newAmount))
-                            },
-                            modifier = Modifier.animateItem()
+                Tab(
+                    selected = state.currentTab == 0,
+                    onClick = { onEvent(OnTabChanged(0)) },
+                    text = {
+                        Text(
+                            text = "Produk",
+                            style = MaterialTheme.typography.titleSmall
                         )
                     }
-                }
+                )
+
+                Tab(
+                    selected = state.currentTab == 1,
+                    onClick = { onEvent(OnTabChanged(1)) },
+                    text = {
+                        Text(
+                            text = "Keranjang (${state.carts.size})",
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                    }
+                )
             }
-
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(all = 12.dp)
-                    .clip(RoundedCornerShape(25F))
-                    .background(MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp))
-
-            ) {
-
-                if (state.settings.isCustomerNameNeeded) {
-                    TextField(
-                        state = state.customerName,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            capitalization = KeyboardCapitalization.Words,
-                            imeAction = ImeAction.Done
-                        ),
-                        label = {
-                            Text(
-                                text = "Nama Pelanggan",
-                                style = MaterialTheme.typography.labelMediumEmphasized.copy(
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            )
-                        },
-                        textStyle = MaterialTheme.typography.bodyMedium,
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surface,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
-                        ),
-                        shape = RoundedCornerShape(25F),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp)
-                            .padding(top = 12.dp)
-                    )
-                }
-
-                Button(
-                    onClick = {
-                        onEvent(OnAddTransactionClicked)
+        },
+        modifier = modifier
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            if (state.currentTab == 0) {
+                TextField(
+                    state = state.searchQuery,
+                    placeholder = {
+                        Text(
+                            text = "Cari Produk",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                     },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = null
+                        )
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp),
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
                     shape = RoundedCornerShape(25F),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(12.dp)
+                        .padding(horizontal = 12.dp)
+                        .padding(top = 12.dp)
+                )
+
+                LazyColumn(
+                    contentPadding = PaddingValues(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.weight(1F),
                 ) {
-                    Text("Simpan Transaksi")
+                    items(count = products.itemCount, key = products.itemKey { it.id }) {
+                        products[it]?.let { product ->
+                            TransactionAddItem(
+                                product = product,
+                                onAdd = {
+                                    onEvent(TransactionAddEvent.OnRequestProductConfig(product))
+                                },
+                                modifier = Modifier.animateItem()
+                            )
+                        }
+                    }
+                }
+            } else {
+                LazyColumn(
+                    contentPadding = PaddingValues(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.weight(1F),
+                ) {
+                    items(
+                        items = state.carts,
+                    ) { item ->
+                        Column(
+                            modifier = Modifier.animateItem()
+                        ) {
+                            TransactionAddItemView(
+                                transactionItem = item,
+                                appSetting = state.settings,
+                                onRemove = {
+                                    onEvent(TransactionAddEvent.OnRemoveProduct(item))
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(all = 12.dp)
+                        .clip(RoundedCornerShape(25F))
+                        .background(MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp))
+
+                ) {
+
+                    if (state.settings.isCustomerNameNeeded) {
+                        TextField(
+                            state = state.customerName,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Text,
+                                capitalization = KeyboardCapitalization.Words,
+                                imeAction = ImeAction.Done
+                            ),
+                            label = {
+                                Text(
+                                    text = "Nama Pelanggan",
+                                    style = MaterialTheme.typography.labelMediumEmphasized.copy(
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                )
+                            },
+                            textStyle = MaterialTheme.typography.bodyMedium,
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface
+                            ),
+                            shape = RoundedCornerShape(25F),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp)
+                                .padding(top = 12.dp)
+                        )
+                    }
+
+                    Button(
+                        onClick = {
+                            onEvent(OnAddTransactionClicked)
+                        },
+                        shape = RoundedCornerShape(25F),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp)
+                    ) {
+                        Text("Simpan Transaksi")
+                    }
                 }
             }
         }
@@ -198,26 +250,18 @@ fun TransactionAddUI(
 @Preview(showBackground = true)
 @Composable
 private fun PreviewTransactionAddUI() {
-    App {
-        val products = org.lelestacia.posle.util.SampleData.products
+    AppTheme {
+
+        val products = SampleData.products
         val productsLazyPagingItems =
             MutableStateFlow(PagingData.from(products)).collectAsLazyPagingItems()
 
         TransactionAddUI(
             products = productsLazyPagingItems,
             state = TransactionAddState(
-                products = mapOf(
-                    products[0] to TransactionItemState(
-                        amountState = TextFieldState("2"),
-                        priceState = TextFieldState("15000")
-                    ),
-                    products[1] to TransactionItemState(
-                        amountState = TextFieldState("1"),
-                        priceState = TextFieldState("5000")
-                    )
-                ),
                 settings = PosLeSettings(
-                    isCustomerNameNeeded = true
+                    isCustomerNameNeeded = true,
+                    isProductVolatile = true
                 )
             ),
             onEvent = {}

@@ -1,4 +1,4 @@
-package org.lelestacia.posle.domain.component
+package org.lelestacia.posle.domain.component.product_add_edit
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.SnackbarHostState
@@ -12,9 +12,10 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import org.lelestacia.posle.domain.model.Product
+import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.repository.ProductRepository
-import org.lelestacia.posle.domain.state_event.ProductAddEditEvent
-import org.lelestacia.posle.domain.state_event.ProductAddEditState
+import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent
+import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditState
 import org.lelestacia.posle.navigation.AddEdit
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
@@ -24,12 +25,12 @@ import posle.shared.generated.resources.msg_error_price_cannot_be_empty
 import posle.shared.generated.resources.msg_error_price_cannot_contain_alphabet
 import posle.shared.generated.resources.msg_error_unit_cannot_be_empty
 import java.math.BigDecimal
-import org.lelestacia.posle.util.Unit as PosLeUnit
 
 class ProductAddEditComponent(
     componentContext: ComponentContext,
     mode: AddEdit,
-    private val onPop: () -> kotlin.Unit,
+    private val onPop: () -> Unit,
+    private val onNavigateToVariantSelection: (selectedVariants: List<Variant>, onResult: (List<Variant>) -> Unit) -> Unit,
     private val product: Product?,
     private val snackbarHostState: SnackbarHostState,
     private val repository: ProductRepository
@@ -43,12 +44,13 @@ class ProductAddEditComponent(
                 name = TextFieldState(product?.name?.value.orEmpty()),
                 unit = TextFieldState(product?.unit?.value.orEmpty()),
                 price = TextFieldState(product?.price?.value?.toString() ?: ""),
+                variants = product?.variants ?: emptyList(),
                 productImageUri = product?.imageUri,
                 mode = mode
             )
         )
 
-    fun onEvent(event: ProductAddEditEvent) = scope.launch {
+    fun onEvent(event: ProductAddEditEvent) {
         when (event) {
 
             is ProductAddEditEvent.OnImageChanged -> state.update {
@@ -59,32 +61,55 @@ class ProductAddEditComponent(
             }
 
             ProductAddEditEvent.OnAddProductClicked -> {
-                validate(
-                    onSuccess = {
-                        when (state.value.mode) {
-                            AddEdit.Add -> repository.addProduct(
-                                product = buildProduct(id = 0),
-                                imageByteArray = state.value.productImageByteArray
-                            )
+                scope.launch {
+                    validate(
+                        onSuccess = {
+                            when (state.value.mode) {
+                                AddEdit.Add -> repository.addProduct(
+                                    product = buildProduct(id = 0),
+                                    imageByteArray = state.value.productImageByteArray
+                                )
 
-                            AddEdit.Edit -> repository.updateProduct(
-                                product = buildProduct(
-                                    id = product?.id
-                                        ?: throw Exception("Data isn't being passed from previous screen")
-                                ),
-                                imageByteArray = state.value.productImageByteArray
-                            )
+                                AddEdit.Edit -> repository.updateProduct(
+                                    product = buildProduct(
+                                        id = product?.id
+                                            ?: throw Exception("Data isn't being passed from previous screen")
+                                    ),
+                                    imageByteArray = state.value.productImageByteArray
+                                )
+                            }
+                            onPop()
                         }
-                        onPop()
-                    }
-                )
+                    )
+                }
+            }
+
+            is ProductAddEditEvent.OnVariantSelected -> {
+                val variants = state.value.variants.toMutableList()
+                variants.removeAll(state.value.variants)
+                variants.addAll(event.variants)
+
+                state.update { currentState ->
+                    currentState.copy(
+                        variants = variants.distinctBy { it.id }
+                    )
+                }
             }
 
             ProductAddEditEvent.OnDeleteProductClicked -> {
-                repository.deleteProduct(
-                    product = buildProduct(id = product?.id ?: return@launch)
-                )
-                onPop()
+                scope.launch {
+                    repository.deleteProduct(
+                        product = buildProduct(id = product?.id ?: return@launch)
+                    )
+
+                    onPop()
+                }
+            }
+
+            ProductAddEditEvent.OnNavigateToViewVariant -> {
+                onNavigateToVariantSelection(state.value.variants) {
+                    onEvent(ProductAddEditEvent.OnVariantSelected(it))
+                }
             }
         }
     }
@@ -94,9 +119,10 @@ class ProductAddEditComponent(
         return Product(
             id = id,
             name = Name(currentState.name.text.toString()),
-                price = Price(BigDecimal(currentState.price.text.toString())),
-            unit = PosLeUnit(currentState.unit.text.toString()),
+            price = Price(BigDecimal(currentState.price.text.toString())),
+            unit = org.lelestacia.posle.util.Unit(currentState.unit.text.toString()),
             imageUri = currentState.productImageUri,
+            variants = currentState.variants
         )
     }
 

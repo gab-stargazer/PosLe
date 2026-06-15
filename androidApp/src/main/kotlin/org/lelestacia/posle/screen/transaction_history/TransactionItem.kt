@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -101,6 +102,34 @@ fun TransactionItem(
             }
 
             Text(text = totalStringBuilder)
+
+            val productsStringBuilder = buildAnnotatedString {
+                withStyle(MaterialTheme.typography.bodyMedium.toSpanStyle()) {
+                    append("Barang: ")
+                }
+
+                withStyle(
+                    MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    ).toSpanStyle()
+                ) {
+                    append(transaction.items.first().productName.value)
+                }
+
+                withStyle(MaterialTheme.typography.bodyMedium.toSpanStyle()) {
+                    if ((transaction.items.size > 1)) {
+                        append(", dan ${transaction.items.size - 1} lainnya")
+                    }
+                }
+            }
+
+            Text(
+                productsStringBuilder,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = 12.dp)
+            )
         }
 
         if (settings.isTransactionRecapNeeded) {

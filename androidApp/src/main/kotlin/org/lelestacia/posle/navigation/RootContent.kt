@@ -10,10 +10,12 @@ import androidx.compose.ui.Modifier
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.fade
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
-import org.lelestacia.posle.screen.transaction_add.TransactionAddScreen
 import org.lelestacia.posle.screen.DashboardScreen
 import org.lelestacia.posle.screen.TransactionViewScreen
 import org.lelestacia.posle.screen.product_add.ProductAddEditScreen
+import org.lelestacia.posle.screen.product_add.ProductAddVariationViewScreen
+import org.lelestacia.posle.screen.transaction_add.TransactionAddScreen
+import org.lelestacia.posle.screen.transaction_add.TransactionProductConfigScreen
 
 @Composable
 fun RootContent(
@@ -44,8 +46,10 @@ fun RootContent(
                 }
 
                 is Child.TransactionView -> TransactionViewScreen(component = child.component)
+                is Child.TransactionProductConfig -> TransactionProductConfigScreen(component = child.component)
 
-                is Child.AddProduct -> ProductAddEditScreen(component = child.component)
+                is Child.ProductAdd -> ProductAddEditScreen(component = child.component)
+                is Child.VariantView -> ProductAddVariationViewScreen(component = child.component)
             }
         }
     }

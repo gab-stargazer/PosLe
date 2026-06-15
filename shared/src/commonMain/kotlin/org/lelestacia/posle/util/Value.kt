@@ -5,7 +5,8 @@ import java.math.BigDecimal
 
 @Serializable
 @JvmInline
-value class Name(val value: String)
+value class Name(val value: String) {
+}
 
 @Serializable(PriceSerializer::class)
 @JvmInline

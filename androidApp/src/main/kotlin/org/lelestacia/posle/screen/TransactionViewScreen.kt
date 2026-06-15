@@ -13,11 +13,13 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.SubdirectoryArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
@@ -37,14 +39,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.component.TransactionViewComponent
 import org.lelestacia.posle.domain.component.TransactionViewNavigation
 import org.lelestacia.posle.domain.model.Transaction
 import org.lelestacia.posle.domain.model.TransactionItem
+import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.state_event.TransactionViewEvent
 import org.lelestacia.posle.domain.state_event.TransactionViewEvent.OnRecapClicked
 import org.lelestacia.posle.domain.state_event.TransactionViewState
@@ -55,7 +60,10 @@ import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.printTransaction
 import org.lelestacia.posle.util.toFormattedDateTime
 import org.lelestacia.posle.util.toRupiah
+import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.label_variant
 import java.math.BigDecimal
+import kotlin.math.roundToInt
 
 
 @Composable
@@ -320,6 +328,56 @@ fun TransactionViewItem(
             }
         }
 
+        if (item.variants.isNotEmpty()) {
+            Text(
+                stringResource(Res.string.label_variant),
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.Bold
+                ),
+                modifier = Modifier.padding(start = 12.dp)
+            )
+
+            item.variants.forEach { variant ->
+                Row(
+                    verticalAlignment = Alignment.Bottom,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 24.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.Bottom) {
+                        Icon(
+                            imageVector = Icons.Default.SubdirectoryArrowRight,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp)
+                        )
+
+                        Text(
+                            text = "${variant.name.value} x ${item.productAmount.value.roundToInt()}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+
+                    Text(
+                        text = variant.priceAdjustment.value.toRupiah(),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+        }
+
+        if (item.variants.isNotEmpty()) {
+            Text(
+                text = (item.variants.sumOf { item.productAmount.value.toBigDecimal() * it.priceAdjustment.value } + (item.productAmount.value.toBigDecimal() * item.productPrice.value)).toRupiah(),
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    textAlign = TextAlign.End,
+                    fontWeight = FontWeight.Bold
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+        }
+
         if (!isLast) {
             HorizontalDivider(
                 modifier = Modifier
@@ -346,6 +404,18 @@ private fun PreviewTransactionUI() {
                             productName = Name("Sate Ayam"),
                             productPrice = Price(BigDecimal("15000")),
                             productUnit = org.lelestacia.posle.util.Unit("Porsi"),
+                            variants = listOf(
+                                Variant(
+                                    id = 0,
+                                    name = Name("Kerupuk"),
+                                    priceAdjustment = Price(BigDecimal(5000))
+                                ),
+                                Variant(
+                                    id = 0,
+                                    name = Name("Extra Bawang"),
+                                    priceAdjustment = Price(BigDecimal(5000))
+                                )
+                            ),
                             productAmount = Amount(2f)
                         ),
                         TransactionItem(

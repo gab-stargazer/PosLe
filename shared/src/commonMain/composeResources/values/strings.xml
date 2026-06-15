@@ -12,6 +12,9 @@
     <string name="label_product_amount">Jumlah Produk</string>
     <string name="label_product_price">Harga Produk</string>
     <string name="label_product_price_latest">Harga Produk Terbaru</string>
+    <string name="label_variation_name">Nama Variasi</string>
+    <string name="label_variation_price_adjustment">Harga Tambahan</string>
+    <string name="label_variant">Varian: </string>
 
     <string name="label_setting_product_volatile">Harga Produk Volatil</string>
     <string name="msg_setting_product_volatile">Jika aktif, Anda dapat mengubah harga produk saat menambahkan transaksi.</string>
@@ -26,6 +29,7 @@
 
     <!--Button-->
     <string name="btn_add_product">Tambah Produk</string>"
+    <string name="btn_add_variation">Tambah Variasi</string>"
     <string name="btn_update_product">Ubah Produk</string>
     <string name="btn_delete_product">Hapus Produk</string>
     <string name="btn_add_transaction">Tambah Transaksi</string>

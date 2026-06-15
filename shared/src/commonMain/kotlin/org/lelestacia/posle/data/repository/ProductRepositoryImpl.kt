@@ -7,8 +7,15 @@ import androidx.paging.map
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.lelestacia.posle.data.dao.ProductDao
+import org.lelestacia.posle.data.dao.VariantDao
 import org.lelestacia.posle.data.entity.ProductEntity
+import org.lelestacia.posle.data.entity.VariantEntity
+import org.lelestacia.posle.data.entity.VariantJunction
+import org.lelestacia.posle.data.entity.toDomain
+import org.lelestacia.posle.data.entity.toEntity
 import org.lelestacia.posle.domain.model.Product
+import org.lelestacia.posle.domain.model.Variant
+import org.lelestacia.posle.domain.model.toDomain
 import org.lelestacia.posle.domain.repository.ProductRepository
 import org.lelestacia.posle.util.FileStorage
 import kotlin.time.Clock
@@ -16,7 +23,8 @@ import kotlin.time.Clock
 
 class ProductRepositoryImpl(
     private val storage: FileStorage,
-    private val dao: ProductDao
+    private val productDao: ProductDao,
+    private val variantDao: VariantDao,
 ) : ProductRepository {
 
     override suspend fun addProduct(product: Product, imageByteArray: ByteArray?) {
@@ -24,7 +32,7 @@ class ProductRepositoryImpl(
             storage.saveImage(fileName = "${product.name.value}.png", imageByteArray)
         }
 
-        dao.addProduct(
+        val productId = productDao.addProduct(
             ProductEntity(
                 id = 0,
                 name = product.name,
@@ -33,7 +41,20 @@ class ProductRepositoryImpl(
                 imageUri = newImageUri,
                 createdAt = Clock.System.now().toEpochMilliseconds()
             )
-        )
+        ).toInt()
+
+        product.variants.forEach { variant ->
+            variantDao.insertVariantToProduct(
+                VariantJunction(
+                    productId = productId,
+                    variantId = variant.id
+                )
+            )
+        }
+    }
+
+    override suspend fun addVariant(variant: Variant) {
+        variantDao.insertVariant(variant.toEntity())
     }
 
     override fun readProduct(searchQuery: String): Flow<PagingData<Product>> {
@@ -44,18 +65,25 @@ class ProductRepositoryImpl(
                 initialLoadSize = 30
             ),
             pagingSourceFactory = {
-                dao.readProduct(searchQuery)
+                productDao.readProductWithVariants(searchQuery)
             }
         ).flow.map { pagingData ->
-            pagingData.map {
-                Product(
-                    id = it.id,
-                    name = it.name,
-                    price = it.price,
-                    unit = it.unit,
-                    imageUri = it.imageUri
-                )
+            pagingData.map { it.toDomain() }
+        }
+    }
+
+    override fun readVariant(): Flow<PagingData<Variant>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 15,
+                prefetchDistance = 10,
+                initialLoadSize = 30
+            ),
+            pagingSourceFactory = {
+                variantDao.readVariant()
             }
+        ).flow.map { pagingData ->
+            pagingData.map(VariantEntity::toDomain)
         }
     }
 
@@ -71,7 +99,7 @@ class ProductRepositoryImpl(
             newImageUri = product.imageUri
         }
 
-        dao.update(
+        productDao.update(
             ProductEntity(
                 id = product.id,
                 name = product.name,
@@ -81,10 +109,21 @@ class ProductRepositoryImpl(
                 createdAt = Clock.System.now().toEpochMilliseconds()
             )
         )
+
+        variantDao.clearProductVariants(product.id)
+        product.variants.forEach { variant ->
+            variantDao.insertVariantToProduct(
+                VariantJunction(
+                    id = 0,
+                    productId = product.id,
+                    variantId = variant.id
+                )
+            )
+        }
     }
 
     override suspend fun deleteProduct(product: Product) {
         storage.deleteImage(fileName = "${product.name.value}.png")
-        dao.delete(product.id)
+        productDao.delete(product.id)
     }
 }

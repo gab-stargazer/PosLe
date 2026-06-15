@@ -1,6 +1,5 @@
 package org.lelestacia.posle.domain.component
 
-import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.paging.cachedIn
 import com.arkivanov.decompose.ComponentContext
 import kotlinx.coroutines.CoroutineScope
@@ -12,24 +11,25 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.lelestacia.posle.data.SettingManager
+import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.Transaction
 import org.lelestacia.posle.domain.model.TransactionItem
+import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.repository.ProductRepository
 import org.lelestacia.posle.domain.repository.TransactionRepository
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent
 import org.lelestacia.posle.domain.state_event.TransactionAddState
 import org.lelestacia.posle.domain.state_event.TransactionItemState
 import org.lelestacia.posle.navigation.Config
+import org.lelestacia.posle.navigation.Config.TransactionView
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
-import java.math.BigDecimal
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -38,6 +38,7 @@ class TransactionAddComponent(
     productRepository: ProductRepository,
     private val settingManager: SettingManager,
     private val onNavigateTo: (Config) -> Unit,
+    private val onNavigateToProductConfig: (Product, onConfirmed: (TransactionItemState, List<Variant>) -> Unit) -> Unit,
     private val transactionRepository: TransactionRepository
 ) : ComponentContext by componentContext {
 
@@ -62,9 +63,10 @@ class TransactionAddComponent(
     ) { state, settings ->
         TransactionAddState(
             searchQuery = state.searchQuery,
-            products = state.products,
+            carts = state.carts,
             customerName = state.customerName,
-            settings = settings
+            settings = settings,
+            currentTab = state.currentTab
         )
     }.stateIn(
         scope = scope,
@@ -74,74 +76,57 @@ class TransactionAddComponent(
 
     fun onEvent(event: TransactionAddEvent) = scope.launch {
         when (event) {
-            is TransactionAddEvent.OnAddNewProduct -> _state.update { currentState ->
-                val productMap = currentState.products.toMutableMap()
-                productMap[event.product] = TransactionItemState()
-                currentState.copy(
-                    products = productMap
-                )
-            }
-
-            is TransactionAddEvent.OnRemoveProduct -> _state.update { currentState ->
-                val productMap = currentState.products.toMutableMap()
-                productMap.remove(event.product)
-                currentState.copy(
-                    products = productMap
-                )
-            }
-
-            is TransactionAddEvent.OnAmountChanged -> _state.update { currentState ->
-                val productMap = currentState.products.toMutableMap()
-                val itemState = productMap[event.product]
-                itemState?.amountState?.setTextAndPlaceCursorAtEnd(
-                    if (event.newAmount % 1 == 0f) {
-                        event.newAmount.toInt().toString()
-                    } else {
-                        event.newAmount.toString()
-                    }
-                )
-                currentState.copy(
-                    products = productMap
-                )
-            }
 
             is TransactionAddEvent.OnSearchQueryChanged -> {
                 _searchQuery.value = event.query
             }
 
-            TransactionAddEvent.OnAddTransactionClicked -> {
-                val selectedProducts = mutableListOf<TransactionItem>()
-                state.value.products.entries.forEach { map ->
-                    selectedProducts.add(
-                        TransactionItem(
-                            id = 0,
-                            productName = map.key.name,
-                            productPrice =
-                            if (settings.first().isProductVolatile) {
-                                val currentPrice = Price(BigDecimal(map.value.priceState.text.toString().ifBlank { "0" }))
-                                if (currentPrice.value > BigDecimal.ZERO) {
-                                    currentPrice
-                                } else {
-                                    map.key.price
-                                }
-                            } else {
-                                map.key.price
-                            },
-                            productUnit = map.key.unit,
-                            productAmount = Amount(map.value.amountState.text.toString().toFloat())
-                        )
-                    )
-                }
+            is TransactionAddEvent.OnTabChanged -> {
+                _state.update { it.copy(currentTab = event.index) }
+            }
 
+            is TransactionAddEvent.OnRequestProductConfig -> {
+                val product = event.product
+                onNavigateToProductConfig(product) { itemState: TransactionItemState, variants: List<Variant> ->
+                    scope.launch {
+                        _state.update { currentState ->
+
+                            val cartItems = currentState.carts.toMutableList()
+                            cartItems.add(
+                                TransactionItem(
+                                    id = 0,
+                                    productName = product.name,
+                                    productPrice = Price(itemState.priceState.text.toString().ifBlank { "0" }.toBigDecimal()),
+                                    productUnit = product.unit,
+                                    productAmount = Amount(itemState.amountState.text.toString().toFloat()),
+                                    variants = variants
+                                )
+                            )
+
+                            currentState.copy(
+                                carts = cartItems
+                            )
+                        }
+                    }
+                }
+            }
+
+            is TransactionAddEvent.OnRemoveProduct -> _state.update { currentState ->
+                val carts = currentState.carts.toMutableList()
+                carts.remove(event.product)
+                currentState.copy(carts = carts)
+            }
+
+            TransactionAddEvent.OnAddTransactionClicked -> {
                 val transaction = Transaction(
                     id = 0,
                     customerName = Name(state.value.customerName.text.toString()),
-                    items = selectedProducts,
+                    items = state.value.carts,
                     createdAt = Clock.System.now().toEpochMilliseconds()
                 )
 
                 onNavigateTo(
-                    Config.TransactionView(
+                    TransactionView(
                         transaction = transactionRepository.insertAndGetTransaction(transaction)
                     )
                 )

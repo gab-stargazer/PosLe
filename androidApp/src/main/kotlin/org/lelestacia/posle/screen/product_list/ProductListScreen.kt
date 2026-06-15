@@ -76,7 +76,10 @@ private fun ProductListUi(
                     ProductItemUI(
                         product = product,
                         onEdit = {
-                            onNavigateToAddEditProduct(Edit, product)
+                            onNavigateToAddEditProduct(
+                                Edit,
+                                product
+                            )
                         }
                     )
                 }

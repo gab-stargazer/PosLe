@@ -1,12 +1,6 @@
 package org.lelestacia.posle.screen.transaction_add
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -18,52 +12,35 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import org.jetbrains.compose.resources.stringResource
-import org.lelestacia.posle.App
-import org.lelestacia.posle.data.PosLeSettings
 import org.lelestacia.posle.domain.model.Product
-import org.lelestacia.posle.domain.state_event.TransactionItemState
-import org.lelestacia.posle.util.RupiahOutputTransformation
+import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.util.toRupiah
-import posle.shared.generated.resources.Res
-import posle.shared.generated.resources.label_product_amount
-import posle.shared.generated.resources.label_product_price_latest
-import java.math.BigDecimal
 
 @Composable
 fun TransactionAddItem(
     product: Product,
-    productMap: Map<Product, TransactionItemState>,
-    settings: PosLeSettings,
     onAdd: () -> Unit,
-    onRemove: () -> Unit,
-    onAmountChanged: (Float) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val focusManager = LocalFocusManager.current
+
     Column(
         modifier = modifier
     ) {
@@ -124,152 +101,11 @@ fun TransactionAddItem(
                 }
 
                 IconButton(
-                    onClick = {
-                        when (product in productMap) {
-                            true -> onRemove()
-                            false -> onAdd()
-                        }
-                    }
+                    onClick = onAdd
                 ) {
-                    AnimatedContent(product in productMap) { isInMap ->
-                        when (isInMap) {
-                            true -> {
-                                Icon(
-                                    imageVector = Icons.Default.Remove,
-                                    contentDescription = null
-                                )
-                            }
-
-                            false -> {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = null
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        AnimatedVisibility(
-            product in productMap,
-            enter = fadeIn() + expandVertically(),
-            exit = fadeOut() + shrinkVertically(),
-            modifier = Modifier.padding(top = 12.dp)
-        ) {
-            Column(
-                horizontalAlignment = Alignment.End,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                if (settings.isAmountPrecise) {
-                    TextField(
-                        state = productMap[product]?.amountState ?: rememberTextFieldState(),
-                        label = {
-                            Text(
-                                stringResource(Res.string.label_product_amount),
-                                style = MaterialTheme.typography.labelMediumEmphasized.copy(
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            )
-                        },
-                        textStyle = MaterialTheme.typography.bodyMedium,
-                        colors = TextFieldDefaults.colors(
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent
-                        ),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number
-                        ),
-                        shape = RoundedCornerShape(25F)
-                    )
-                } else {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.padding(horizontal = 12.dp)
-                    ) {
-                        Text(
-                            stringResource(Res.string.label_product_amount),
-                            style = MaterialTheme.typography.labelMediumEmphasized.copy(
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        )
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            IconButton(
-                                onClick = {
-                                    val currentAmount =
-                                        productMap[product]?.amountState?.text?.toString()
-                                            ?.toFloatOrNull()
-                                            ?: 0f
-                                    if (currentAmount > 1) {
-                                        onAmountChanged(currentAmount - 1)
-                                    }
-                                }
-                            ) {
-                                Icon(Icons.Default.Remove, contentDescription = null)
-                            }
-
-                            Text(
-                                text =
-                                    if (productMap[product]?.amountState?.text
-                                            .toString()
-                                            .isBlank()
-                                    ) {
-                                        "0"
-                                    } else {
-                                        BigDecimal(productMap[product]?.amountState?.text?.toString())
-                                            .stripTrailingZeros()
-                                            .toString()
-                                    },
-                                style = MaterialTheme.typography.bodyMedium.copy(
-                                    fontWeight = FontWeight.Bold
-                                ),
-                                modifier = Modifier.padding(horizontal = 8.dp)
-                            )
-
-                            IconButton(
-                                onClick = {
-                                    val currentAmount =
-                                        productMap[product]?.amountState?.text?.toString()
-                                            ?.toFloatOrNull()
-                                            ?: 0f
-                                    onAmountChanged(currentAmount + 1)
-                                }
-                            ) {
-                                Icon(Icons.Default.Add, contentDescription = null)
-                            }
-                        }
-                    }
-                }
-
-                if (settings.isProductVolatile) {
-                    TextField(
-                        state = productMap[product]?.priceState ?: rememberTextFieldState(),
-                        label = {
-                            Text(
-                                stringResource(Res.string.label_product_price_latest),
-                                style = MaterialTheme.typography.labelMediumEmphasized.copy(
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            )
-                        },
-                        outputTransformation = RupiahOutputTransformation(),
-                        textStyle = MaterialTheme.typography.bodyMedium,
-                        colors = TextFieldDefaults.colors(
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent
-                        ),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number
-                        ),
-                        shape = RoundedCornerShape(25F),
-                        modifier = Modifier.padding(top = 12.dp)
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null
                     )
                 }
             }
@@ -280,10 +116,9 @@ fun TransactionAddItem(
 @Preview(showBackground = true)
 @Composable
 private fun PreviewTransactionAddItem() {
-    App {
+    AppTheme {
         val products = org.lelestacia.posle.util.SampleData.products
         val sateAyam = products[0]
-        val esTehManis = products[1]
 
         Column(
             modifier = Modifier
@@ -291,44 +126,9 @@ private fun PreviewTransactionAddItem() {
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text("Precise Amount + Volatile Price", style = MaterialTheme.typography.titleSmall)
             TransactionAddItem(
                 product = sateAyam,
-                productMap = mapOf(sateAyam to TransactionItemState()),
-                settings = PosLeSettings(isAmountPrecise = true, isProductVolatile = true),
                 onAdd = {},
-                onRemove = {},
-                onAmountChanged = {}
-            )
-
-            Text("Amount Selector + Non-Volatile Price", style = MaterialTheme.typography.titleSmall)
-            TransactionAddItem(
-                product = esTehManis,
-                productMap = mapOf(esTehManis to TransactionItemState()),
-                settings = PosLeSettings(isAmountPrecise = false, isProductVolatile = false),
-                onAdd = {},
-                onRemove = {},
-                onAmountChanged = {}
-            )
-
-            Text("Amount Selector + Volatile Price", style = MaterialTheme.typography.titleSmall)
-            TransactionAddItem(
-                product = esTehManis,
-                productMap = mapOf(esTehManis to TransactionItemState()),
-                settings = PosLeSettings(isAmountPrecise = false, isProductVolatile = true),
-                onAdd = {},
-                onRemove = {},
-                onAmountChanged = {}
-            )
-
-            Text("Collapsed State", style = MaterialTheme.typography.titleSmall)
-            TransactionAddItem(
-                product = sateAyam,
-                productMap = emptyMap(),
-                settings = PosLeSettings(),
-                onAdd = {},
-                onRemove = {},
-                onAmountChanged = {}
             )
         }
     }

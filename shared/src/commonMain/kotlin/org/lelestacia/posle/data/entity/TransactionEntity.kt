@@ -9,6 +9,7 @@ import androidx.room.PrimaryKey
 import androidx.room.Relation
 import org.lelestacia.posle.domain.model.Transaction
 import org.lelestacia.posle.domain.model.TransactionItem
+import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
@@ -55,6 +56,8 @@ data class TransactionItemEntity(
     val productUnit: Unit,
     @ColumnInfo("product_amount")
     val productAmount: Amount,
+    @ColumnInfo("variants")
+    val variants: List<Variant> = emptyList(),
 )
 
 data class TransactionWithItems(
@@ -83,4 +86,5 @@ fun TransactionItemEntity.toDomain() = TransactionItem(
     productPrice = productPrice,
     productUnit = productUnit,
     productAmount = productAmount,
+    variants = variants
 )
