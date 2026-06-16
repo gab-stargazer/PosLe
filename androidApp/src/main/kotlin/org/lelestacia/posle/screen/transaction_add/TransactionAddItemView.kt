@@ -114,7 +114,7 @@ fun TransactionAddItemView(
             )
         }
 
-        transactionItem.variants.forEachIndexed { index, variant ->
+        transactionItem.variants.forEach { variant ->
             Row(
                 verticalAlignment = Alignment.Top,
                 modifier = Modifier.padding(start = 12.dp)
