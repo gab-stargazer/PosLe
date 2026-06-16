@@ -1,6 +1,7 @@
 package org.lelestacia.posle.domain.state_event.product_add
 
 import androidx.compose.foundation.text.input.TextFieldState
+import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.navigation.AddEdit
 
@@ -16,7 +17,7 @@ data class ProductAddEditState(
 
     //  Mode
     val mode: AddEdit,
-)
+): InstanceKeeper.Instance
 
 sealed interface ProductAddEditEvent {
     data class OnImageChanged(val uri: String?, val bytes: ByteArray?) : ProductAddEditEvent

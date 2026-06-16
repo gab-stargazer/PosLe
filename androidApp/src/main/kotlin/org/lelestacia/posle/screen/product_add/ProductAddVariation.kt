@@ -30,6 +30,7 @@ import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.util.RupiahOutputTransformation
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.btn_add_variation
+import posle.shared.generated.resources.label_variation_and_addition
 import posle.shared.generated.resources.label_variation_name
 import posle.shared.generated.resources.label_variation_price_adjustment
 
@@ -53,7 +54,7 @@ fun ProductAddVariationDialog(
             modifier = Modifier.padding(all = 12.dp)
         ) {
             Text(
-                "Variasi/Tambahan",
+                stringResource(Res.string.label_variation_and_addition),
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold
                 )

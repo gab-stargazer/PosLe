@@ -18,8 +18,8 @@ import org.lelestacia.posle.domain.state_event.TransactionItemState
 data class TransactionProductConfigState(
     val product: Product,
     val selectedVariants: List<Variant> = emptyList(),
-    val amountState: TextFieldState = TextFieldState("1"),
-    val priceState: TextFieldState,
+    val amountState: TextFieldState = TextFieldState(),
+    val priceState: TextFieldState = TextFieldState(),
     val settings: PosLeSettings = PosLeSettings()
 )
 
@@ -31,7 +31,7 @@ sealed interface TransactionProductConfigEvent {
 
 class TransactionProductConfigComponent(
     componentContext: ComponentContext,
-    val product: Product,
+    product: Product,
     private val settingManager: SettingManager,
     private val onConfirmed: (TransactionItemState, List<Variant>) -> Unit
 ) : ComponentContext by componentContext {

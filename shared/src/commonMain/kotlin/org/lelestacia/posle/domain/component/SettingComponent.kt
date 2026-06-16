@@ -4,6 +4,7 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.update
+import com.arkivanov.essenty.instancekeeper.getOrCreateSimple
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
@@ -18,9 +19,9 @@ class SettingComponent(
     private val settingManager: SettingManager
 ) : ComponentContext by componentContext {
 
-    private val scope = CoroutineScope(Dispatchers.Main.immediate)
+    private val scope = instanceKeeper.getOrCreateSimple { CoroutineScope(Dispatchers.Main.immediate) }
 
-    val state: Value<SettingState> = MutableValue(SettingState())
+    val state: Value<SettingState> = instanceKeeper.getOrCreateSimple { MutableValue(SettingState()) }
 
     init {
         settingManager.readSettings()

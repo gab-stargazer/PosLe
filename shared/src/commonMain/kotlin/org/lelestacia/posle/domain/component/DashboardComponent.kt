@@ -9,7 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.lelestacia.posle.domain.state_event.DashboardComponentEvent
-import org.lelestacia.posle.domain.state_event.DashboardStateEvent
+import org.lelestacia.posle.domain.state_event.DashboardComponentState
 import org.lelestacia.posle.navigation.Config
 import org.lelestacia.posle.navigation.NavChild
 import org.lelestacia.posle.navigation.NavConfig
@@ -19,12 +19,12 @@ class DashboardComponent(
     componentContext: ComponentContext,
     val children: Value<ChildStack<NavConfig, NavChild>>,
     val onNavigation: (DashboardNavigation) -> Unit,
-) : ComponentContext by componentContext {
+) : ComponentContext by componentContext{
 
     val scope = CoroutineScope(Dispatchers.Main.immediate)
 
-    val state: Value<DashboardStateEvent>
-        field = MutableValue(DashboardStateEvent())
+    val state: Value<DashboardComponentState>
+        field = MutableValue(DashboardComponentState())
 
     fun onEvent(event: DashboardComponentEvent) = scope.launch {
         when (event) {
@@ -42,7 +42,7 @@ class DashboardComponent(
 }
 
 sealed interface DashboardNavigation {
-    data class BottomNav(val navConfig: NavConfig): DashboardNavigation
-    data class Nav(val config: Config): DashboardNavigation
+    data class BottomNav(val navConfig: NavConfig) : DashboardNavigation
+    data class Nav(val config: Config) : DashboardNavigation
 }
 

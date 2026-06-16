@@ -29,6 +29,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.component.product_add_edit.ProductAddVariantViewComponent
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.state_event.product_add.ProductVariantViewEvent
@@ -36,6 +37,11 @@ import org.lelestacia.posle.domain.state_event.product_add.ProductVariantViewEve
 import org.lelestacia.posle.domain.state_event.product_add.ProductVariationAddState
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
+import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.btn_add_variation
+import posle.shared.generated.resources.btn_save_selection
+import posle.shared.generated.resources.label_all
+import posle.shared.generated.resources.label_selected_count
 
 @Composable
 fun ProductAddVariationViewScreen(
@@ -101,7 +107,7 @@ fun ProductAddVariationViewScreen(
                     },
                     text = {
                         Text(
-                            text = "Semua",
+                            text = stringResource(Res.string.label_all),
                             style = MaterialTheme.typography.titleSmall
                         )
                     }
@@ -114,7 +120,7 @@ fun ProductAddVariationViewScreen(
                     },
                     text = {
                         Text(
-                            text = "Dipilih (${state.selectedVariant.size})",
+                            text = stringResource(Res.string.label_selected_count, state.selectedVariant.size),
                             style = MaterialTheme.typography.titleSmall
                         )
                     }
@@ -180,7 +186,7 @@ fun ProductAddVariationViewScreen(
                         .fillMaxWidth()
                         .padding(vertical = 12.dp, horizontal = 12.dp)
                 ) {
-                    Text("Simpan Pilihan")
+                    Text(stringResource(Res.string.btn_save_selection))
                 }
 
                 Button(
@@ -198,7 +204,7 @@ fun ProductAddVariationViewScreen(
                         .padding(horizontal = 12.dp)
                         .padding(bottom = 12.dp)
                 ) {
-                    Text("Tambah Varian")
+                    Text(stringResource(Res.string.btn_add_variation))
                 }
             }
         }

@@ -2,30 +2,30 @@ package org.lelestacia.posle.screen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.SubdirectoryArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -61,7 +61,12 @@ import org.lelestacia.posle.util.printTransaction
 import org.lelestacia.posle.util.toFormattedDateTime
 import org.lelestacia.posle.util.toRupiah
 import posle.shared.generated.resources.Res
-import posle.shared.generated.resources.label_variant
+import posle.shared.generated.resources.btn_print
+import posle.shared.generated.resources.btn_recap
+import posle.shared.generated.resources.label_customer
+import posle.shared.generated.resources.label_total
+import posle.shared.generated.resources.label_transaction_date
+import posle.shared.generated.resources.label_transaction_detail
 import java.math.BigDecimal
 import kotlin.math.roundToInt
 
@@ -102,7 +107,7 @@ fun TransactionUI(
             TopAppBar(
                 title = {
                     Text(
-                        "Detail Transaksi",
+                        stringResource(Res.string.label_transaction_detail),
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.Bold
                         )
@@ -149,8 +154,7 @@ fun TransactionUI(
             ) {
                 items(items = state.transaction.items, key = { it.id }) { item ->
                     TransactionViewItem(
-                        item = item,
-                        isLast = item == state.transaction.items.last()
+                        item = item
                     )
                 }
             }
@@ -178,7 +182,7 @@ fun TransactionUI(
                             .fillMaxWidth()
                     ) {
                         Text(
-                            "Tanggal Transaksi:",
+                            "${stringResource(Res.string.label_transaction_date)}:",
                             style = MaterialTheme.typography.bodyMedium
                         )
 
@@ -198,7 +202,7 @@ fun TransactionUI(
                                 .fillMaxWidth()
                         ) {
                             Text(
-                                "Pelanggan:",
+                                "${stringResource(Res.string.label_customer)}:",
                                 style = MaterialTheme.typography.bodyMedium
                             )
 
@@ -217,7 +221,7 @@ fun TransactionUI(
                             .fillMaxWidth()
                     ) {
                         Text(
-                            "Total:",
+                            "${stringResource(Res.string.label_total)}:",
                             style = MaterialTheme.typography.bodyMedium
                         )
 
@@ -235,6 +239,8 @@ fun TransactionUI(
 
                     AnimatedVisibility(
                         !state.transaction.isRecapped && state.settings.isTransactionRecapNeeded,
+                        enter = expandVertically(expandFrom = Alignment.Bottom) + fadeIn(),
+                        exit = shrinkVertically(shrinkTowards = Alignment.Bottom) + fadeOut(),
                         modifier = Modifier.padding(top = 12.dp)
                     ) {
                         Button(
@@ -248,7 +254,7 @@ fun TransactionUI(
                             shape = RoundedCornerShape(25F),
                             modifier = modifier.fillMaxWidth()
                         ) {
-                            Text("Rekap")
+                            Text(stringResource(Res.string.btn_recap))
                         }
                     }
 
@@ -269,7 +275,7 @@ fun TransactionUI(
                             )
                             .fillMaxWidth()
                     ) {
-                        Text("Cetak")
+                        Text(stringResource(Res.string.btn_print))
                     }
                 }
             }
@@ -280,9 +286,16 @@ fun TransactionUI(
 @Composable
 fun TransactionViewItem(
     item: TransactionItem,
-    isLast: Boolean,
     modifier: Modifier = Modifier
 ) {
+
+    val amount =
+        if (item.productAmount.value % 1 == 0F) {
+            item.productAmount.value.roundToInt()
+        } else {
+            item.productAmount.value
+        }
+
     Column(
         modifier = modifier.fillMaxWidth()
     ) {
@@ -298,92 +311,32 @@ fun TransactionViewItem(
             )
 
             Text(
+                text = "$amount ${item.productUnit.value}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Text(
                 text = item.productPrice.value.toRupiah(),
                 style = MaterialTheme.typography.bodyMedium
             )
         }
 
-        Row(
+        Text(
+            text = (item.productAmount.value.toBigDecimal() * item.productPrice.value).toRupiah(),
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.End
+            ),
             modifier = Modifier.fillMaxWidth()
-        ) {
-            Spacer(Modifier.weight(1F))
-
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.weight(2F)
-            ) {
-                Text(
-                    text = "${
-                        item.productAmount.value.toBigDecimal().stripTrailingZeros()
-                    } ${item.productUnit.value}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-
-                Text(
-                    text = (item.productAmount.value.toBigDecimal() * item.productPrice.value).toRupiah(),
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-            }
-        }
+        )
 
         if (item.variants.isNotEmpty()) {
-            Text(
-                stringResource(Res.string.label_variant),
-                style = MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = FontWeight.Bold
-                ),
-                modifier = Modifier.padding(start = 12.dp)
-            )
-
-            item.variants.forEach { variant ->
-                Row(
-                    verticalAlignment = Alignment.Bottom,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 24.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.Bottom) {
-                        Icon(
-                            imageVector = Icons.Default.SubdirectoryArrowRight,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp)
-                        )
-
-                        Text(
-                            text = "${variant.name.value} x ${item.productAmount.value.roundToInt()}",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-
-                    Text(
-                        text = variant.priceAdjustment.value.toRupiah(),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-            }
-        }
-
-        if (item.variants.isNotEmpty()) {
-            Text(
-                text = (item.variants.sumOf { item.productAmount.value.toBigDecimal() * it.priceAdjustment.value } + (item.productAmount.value.toBigDecimal() * item.productPrice.value)).toRupiah(),
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    textAlign = TextAlign.End,
-                    fontWeight = FontWeight.Bold
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
-        }
-
-        if (!isLast) {
-            HorizontalDivider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp)
-                    .padding(top = 12.dp)
+            TransactionViewVariantSection(
+                variants = item.variants,
+                amount = amount,
+                totalPrice = (item.variants.sumOf {
+                    item.productAmount.value.toBigDecimal() * it.priceAdjustment.value
+                } + (item.productAmount.value.toBigDecimal() * item.productPrice.value)).toRupiah()
             )
         }
     }

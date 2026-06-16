@@ -37,8 +37,13 @@ import org.lelestacia.posle.util.SampleData
 import org.lelestacia.posle.util.toFormattedDateTime
 import org.lelestacia.posle.util.toRupiah
 import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.label_customer
 import posle.shared.generated.resources.label_not_recapped
+import posle.shared.generated.resources.label_other_products
+import posle.shared.generated.resources.label_product
 import posle.shared.generated.resources.label_recapped
+import posle.shared.generated.resources.label_total
+import posle.shared.generated.resources.label_transaction_time
 
 @Composable
 fun TransactionItem(
@@ -60,13 +65,13 @@ fun TransactionItem(
                 .weight(1F)
         ) {
             Text(
-                "Waktu Transaksi: ${transaction.createdAt.toFormattedDateTime()}",
+                "${stringResource(Res.string.label_transaction_time)}: ${transaction.createdAt.toFormattedDateTime()}",
                 style = MaterialTheme.typography.bodyMedium
             )
 
             val customerStringBuilder = buildAnnotatedString {
                 withStyle(MaterialTheme.typography.bodyMedium.toSpanStyle()) {
-                    append("Pelanggan: ")
+                    append("${stringResource(Res.string.label_customer)}: ")
                 }
 
                 withStyle(
@@ -84,7 +89,7 @@ fun TransactionItem(
 
             val totalStringBuilder = buildAnnotatedString {
                 withStyle(MaterialTheme.typography.bodyMedium.toSpanStyle()) {
-                    append("Total: ")
+                    append("${stringResource(Res.string.label_total)}: ")
                 }
 
                 withStyle(
@@ -105,7 +110,7 @@ fun TransactionItem(
 
             val productsStringBuilder = buildAnnotatedString {
                 withStyle(MaterialTheme.typography.bodyMedium.toSpanStyle()) {
-                    append("Barang: ")
+                    append("${stringResource(Res.string.label_product)}: ")
                 }
 
                 withStyle(
@@ -118,7 +123,7 @@ fun TransactionItem(
 
                 withStyle(MaterialTheme.typography.bodyMedium.toSpanStyle()) {
                     if ((transaction.items.size > 1)) {
-                        append(", dan ${transaction.items.size - 1} lainnya")
+                        append(", ${stringResource(Res.string.label_other_products, transaction.items.size - 1)}")
                     }
                 }
             }

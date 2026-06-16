@@ -3,7 +3,7 @@ package org.lelestacia.posle.domain.state_event
 import org.lelestacia.posle.navigation.NavConfig
 import org.lelestacia.posle.util.SelectedTabIndex
 
-data class DashboardStateEvent(
+data class DashboardComponentState(
     val selectedTab: SelectedTabIndex = SelectedTabIndex(0)
 )
 

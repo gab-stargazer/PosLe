@@ -33,6 +33,7 @@ import org.lelestacia.posle.domain.component.TransactionHistoryComponent
 import org.lelestacia.posle.navigation.Config
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.btn_add_transaction
+import posle.shared.generated.resources.label_transaction_history
 
 @Composable
 fun TransactionHistoryScreen(
@@ -48,7 +49,7 @@ fun TransactionHistoryScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Riwayat Transaksi",
+                        stringResource(Res.string.label_transaction_history),
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold
                         )

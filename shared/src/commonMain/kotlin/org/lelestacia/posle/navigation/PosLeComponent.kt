@@ -76,7 +76,7 @@ class PosLeComponent(
                     componentContext = context,
                     settingManager = settingManager,
                     repository = transactionRepository,
-                    onNavigation = { rootNavigation.pushNew(it) }
+                    onNavigation = rootNavigation::pushNew
                 )
             )
             NavConfig.Setting -> Setting(
@@ -110,7 +110,7 @@ class PosLeComponent(
                     productRepository = productRepository,
                     transactionRepository = transactionRepository,
                     settingManager = settingManager,
-                    onNavigateTo = { rootNavigation.replaceCurrent(it) },
+                    onNavigateTo = rootNavigation::replaceCurrent,
                     onNavigateToProductConfig = { product, onConfirmed ->
                         rootNavigation.pushNew(Config.TransactionProductConfig(product))
                         this.onProductConfigConfirmed = onConfirmed
@@ -134,7 +134,7 @@ class PosLeComponent(
             Config.TransactionList -> Child.TransactionList(
                 TransactionListComponent(
                     componentContext = context,
-                    onNavigateTo = { rootNavigation.pushToFront(it) }
+                    onNavigateTo = rootNavigation::pushToFront
                 )
             )
 
@@ -163,9 +163,7 @@ class PosLeComponent(
                         onVariantsSelected = onResult
                         rootNavigation.pushNew(Config.VariantView(selectedVariants))
                     },
-                    onPop = {
-                        rootNavigation.pop()
-                    }
+                    onPop = rootNavigation::pop
                 )
             )
 

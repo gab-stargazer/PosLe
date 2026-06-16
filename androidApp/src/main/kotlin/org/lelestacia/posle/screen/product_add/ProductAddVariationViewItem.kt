@@ -52,7 +52,7 @@ fun VariantViewItemAdd(
             )
 
             Column(
-                modifier = Modifier.padding(start = 12.dp)
+                modifier = Modifier.padding(start = 6.dp)
             ) {
                 Text(
                     "Nama Variasi: ${variant.name.value}",

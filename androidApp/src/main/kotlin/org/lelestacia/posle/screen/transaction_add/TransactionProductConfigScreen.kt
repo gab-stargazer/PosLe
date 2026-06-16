@@ -39,6 +39,8 @@ import org.lelestacia.posle.domain.component.TransactionProductConfigEvent
 import org.lelestacia.posle.screen.product_add.VariantViewItemAdd
 import org.lelestacia.posle.util.RupiahOutputTransformation
 import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.btn_add_to_cart
+import posle.shared.generated.resources.label_config_product_desc
 import posle.shared.generated.resources.label_product_amount
 import posle.shared.generated.resources.label_product_price_latest
 
@@ -73,7 +75,7 @@ fun TransactionProductConfigScreen(
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "Pilih variasi dan atur jumlah untuk produk ini",
+                            text = stringResource(Res.string.label_config_product_desc),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -207,7 +209,7 @@ fun TransactionProductConfigScreen(
                     .padding(16.dp),
                 shape = RoundedCornerShape(25f)
             ) {
-                Text("Tambah ke Keranjang")
+                Text(stringResource(Res.string.btn_add_to_cart))
             }
         }
     }

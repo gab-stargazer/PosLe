@@ -5,12 +5,13 @@ import org.lelestacia.posle.data.PosLeSettings
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.TransactionItem
 import org.lelestacia.posle.domain.model.Variant
+import org.lelestacia.posle.util.CartItems
 
 data class TransactionAddState(
     val searchQuery: TextFieldState = TextFieldState(),
     val customerName: TextFieldState = TextFieldState(),
     val settings: PosLeSettings = PosLeSettings(),
-    val carts: List<TransactionItem> = emptyList(),
+    val cartItems: CartItems = emptyList(),
     val currentTab: Int = 0,
 )
 

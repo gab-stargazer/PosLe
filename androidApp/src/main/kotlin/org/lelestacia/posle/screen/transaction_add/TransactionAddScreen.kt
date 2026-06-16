@@ -43,6 +43,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.data.PosLeSettings
 import org.lelestacia.posle.domain.component.TransactionAddComponent
 import org.lelestacia.posle.domain.model.Product
@@ -52,6 +53,12 @@ import org.lelestacia.posle.domain.state_event.TransactionAddEvent.OnTabChanged
 import org.lelestacia.posle.domain.state_event.TransactionAddState
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.util.SampleData
+import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.btn_save_transaction
+import posle.shared.generated.resources.label_cart_count
+import posle.shared.generated.resources.label_customer_name
+import posle.shared.generated.resources.label_product
+import posle.shared.generated.resources.label_search_product
 
 @Composable
 fun TransactionAddScreen(
@@ -94,7 +101,7 @@ fun TransactionAddUI(
                     onClick = { onEvent(OnTabChanged(0)) },
                     text = {
                         Text(
-                            text = "Produk",
+                            text = stringResource(Res.string.label_product),
                             style = MaterialTheme.typography.titleSmall
                         )
                     }
@@ -105,7 +112,7 @@ fun TransactionAddUI(
                     onClick = { onEvent(OnTabChanged(1)) },
                     text = {
                         Text(
-                            text = "Keranjang (${state.carts.size})",
+                            text = stringResource(Res.string.label_cart_count, state.cartItems.size),
                             style = MaterialTheme.typography.titleSmall
                         )
                     }
@@ -124,7 +131,7 @@ fun TransactionAddUI(
                     state = state.searchQuery,
                     placeholder = {
                         Text(
-                            text = "Cari Produk",
+                            text = stringResource(Res.string.label_search_product),
                             style = MaterialTheme.typography.bodyMedium
                         )
                     },
@@ -171,7 +178,7 @@ fun TransactionAddUI(
                     modifier = Modifier.weight(1F),
                 ) {
                     items(
-                        items = state.carts,
+                        items = state.cartItems,
                     ) { item ->
                         Column(
                             modifier = Modifier.animateItem()
@@ -207,7 +214,7 @@ fun TransactionAddUI(
                             ),
                             label = {
                                 Text(
-                                    text = "Nama Pelanggan",
+                                    text = stringResource(Res.string.label_customer_name),
                                     style = MaterialTheme.typography.labelMediumEmphasized.copy(
                                         fontWeight = FontWeight.SemiBold
                                     )
@@ -239,7 +246,7 @@ fun TransactionAddUI(
                             .fillMaxWidth()
                             .padding(12.dp)
                     ) {
-                        Text("Simpan Transaksi")
+                        Text(stringResource(Res.string.btn_save_transaction))
                     }
                 }
             }

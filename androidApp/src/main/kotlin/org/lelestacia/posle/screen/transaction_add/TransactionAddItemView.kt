@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.SubdirectoryArrowRight
@@ -30,6 +31,7 @@ import org.lelestacia.posle.util.toRupiah
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.label_variant
 import java.math.BigDecimal
+import kotlin.math.roundToInt
 import org.lelestacia.posle.util.Unit as PosLeUnit
 
 @Composable
@@ -66,19 +68,19 @@ fun TransactionAddItemView(
                     )
                 }
 
-                val amount = transactionItem.productAmount.value
-                val amountText = if (appSetting.isAmountPrecise) {
-                    amount.toString()
-                } else {
-                    amount.toInt().toString()
-                }
+                val amount =
+                    if (transactionItem.productAmount.value % 1 == 0F) {
+                        transactionItem.productAmount.value.roundToInt()
+                    } else {
+                        transactionItem.productAmount.value
+                    }
 
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = "${amountText} ${transactionItem.productUnit.value}",
+                        text = "$amount ${transactionItem.productUnit.value}",
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(start = 12.dp)
                     )
@@ -114,12 +116,13 @@ fun TransactionAddItemView(
 
         transactionItem.variants.forEachIndexed { index, variant ->
             Row(
-                verticalAlignment = Alignment.Bottom,
+                verticalAlignment = Alignment.Top,
                 modifier = Modifier.padding(start = 12.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.SubdirectoryArrowRight,
-                    contentDescription = null
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp)
                 )
                 Text(
                     variant.name.value,

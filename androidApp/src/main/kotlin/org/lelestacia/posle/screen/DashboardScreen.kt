@@ -25,7 +25,7 @@ import org.lelestacia.posle.domain.component.DashboardComponent
 import org.lelestacia.posle.domain.component.DashboardNavigation
 import org.lelestacia.posle.domain.state_event.DashboardComponentEvent
 import org.lelestacia.posle.domain.state_event.DashboardComponentEvent.OnNavigateTo
-import org.lelestacia.posle.domain.state_event.DashboardStateEvent
+import org.lelestacia.posle.domain.state_event.DashboardComponentState
 import org.lelestacia.posle.navigation.Config
 import org.lelestacia.posle.navigation.NavChild
 import org.lelestacia.posle.navigation.NavDestination
@@ -85,7 +85,7 @@ fun DashboardScreen(
 
 @Composable
 fun DashboardUI(
-    state: DashboardStateEvent,
+    state: DashboardComponentState,
     onEvent: (DashboardComponentEvent) -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable (PaddingValues) -> Unit
@@ -135,7 +135,7 @@ fun DashboardUI(
 private fun PreviewDashboardUI() {
     AppTheme {
         DashboardUI(
-            state = DashboardStateEvent(),
+            state = DashboardComponentState(),
             onEvent = {}
         ) { paddingValues ->
             Box(

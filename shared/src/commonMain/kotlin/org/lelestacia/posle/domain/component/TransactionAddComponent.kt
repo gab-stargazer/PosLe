@@ -63,7 +63,7 @@ class TransactionAddComponent(
     ) { state, settings ->
         TransactionAddState(
             searchQuery = state.searchQuery,
-            carts = state.carts,
+            cartItems = state.cartItems,
             customerName = state.customerName,
             settings = settings,
             currentTab = state.currentTab
@@ -91,7 +91,7 @@ class TransactionAddComponent(
                     scope.launch {
                         _state.update { currentState ->
 
-                            val cartItems = currentState.carts.toMutableList()
+                            val cartItems = currentState.cartItems.toMutableList()
                             cartItems.add(
                                 TransactionItem(
                                     id = 0,
@@ -104,7 +104,7 @@ class TransactionAddComponent(
                             )
 
                             currentState.copy(
-                                carts = cartItems
+                                cartItems = cartItems
                             )
                         }
                     }
@@ -112,16 +112,16 @@ class TransactionAddComponent(
             }
 
             is TransactionAddEvent.OnRemoveProduct -> _state.update { currentState ->
-                val carts = currentState.carts.toMutableList()
-                carts.remove(event.product)
-                currentState.copy(carts = carts)
+                val cartItems = currentState.cartItems.toMutableList()
+                cartItems.remove(event.product)
+                currentState.copy(cartItems = cartItems)
             }
 
             TransactionAddEvent.OnAddTransactionClicked -> {
                 val transaction = Transaction(
                     id = 0,
                     customerName = Name(state.value.customerName.text.toString()),
-                    items = state.value.carts,
+                    items = state.value.cartItems,
                     createdAt = Clock.System.now().toEpochMilliseconds()
                 )
 

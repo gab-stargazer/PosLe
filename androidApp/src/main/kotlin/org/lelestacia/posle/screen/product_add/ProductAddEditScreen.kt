@@ -2,9 +2,7 @@ package org.lelestacia.posle.screen.product_add
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,14 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.SubdirectoryArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -31,17 +25,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -64,7 +55,6 @@ import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.RupiahOutputTransformation
 import org.lelestacia.posle.util.handleImagePick
-import org.lelestacia.posle.util.toRupiah
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.btn_add_product
 import posle.shared.generated.resources.btn_delete_product
@@ -211,75 +201,12 @@ private fun ProductAddEditUI(
                     .padding(top = 12.dp)
             )
 
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp)
-                    .padding(top = 6.dp)
-            ) {
-                Text(
-                    "Varian/Tambahan",
-                    style = MaterialTheme.typography.labelMediumEmphasized.copy(
-                        fontWeight = FontWeight.Bold
-                    ),
-                    modifier = Modifier
-                        .padding(start = 6.dp)
-                )
-
-                IconButton(
-                    onClick = {
-                        onEvent(ProductAddEditEvent.OnNavigateToViewVariant)
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = null
-                    )
+            ProductAddEditVariantSection(
+                variants = state.variants,
+                onAddVariantClicked = {
+                    onEvent(ProductAddEditEvent.OnNavigateToViewVariant)
                 }
-            }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp)
-            ) {
-                state.variants.forEach { variant ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(Icons.Default.SubdirectoryArrowRight, null)
-                        Column(
-                            modifier = Modifier
-                                .weight(1F)
-                                .padding(start = 12.dp)
-                        ) {
-                            Text(
-                                variant.name.value,
-                                style = MaterialTheme.typography.bodyMedium.copy(
-                                    fontWeight = FontWeight.Bold
-                                )
-                            )
-                            val priceSb = buildAnnotatedString {
-                                withStyle(MaterialTheme.typography.bodyMedium.toSpanStyle()) {
-                                    append("Harga Tambahan: ")
-                                }
-
-                                withStyle(
-                                    MaterialTheme.typography.bodyMedium.copy(
-                                        fontWeight = FontWeight.Bold
-                                    ).toSpanStyle()
-                                ) {
-                                    append(variant.priceAdjustment.value.toRupiah())
-                                }
-                            }
-
-                            Text(priceSb)
-                        }
-                    }
-                }
-            }
+            )
 
             Button(
                 onClick = {
@@ -338,10 +265,28 @@ private fun PreviewProductAddEditUI() {
             mutableStateOf(
                 ProductAddEditState(
                     mode = Add,
+                    name = TextFieldState("Nasi Goreng"),
+                    unit = TextFieldState("Porsi"),
+                    price = TextFieldState("10000"),
                     variants = listOf(
                         Variant(
-                            id = 0,
-                            name = Name("Karung"),
+                            id = 2,
+                            name = Name("Pedas"),
+                            priceAdjustment = Price(BigDecimal(2000))
+                        ),
+                        Variant(
+                            id = 3,
+                            name = Name("Ekstra Nasi"),
+                            priceAdjustment = Price(BigDecimal(5000))
+                        ),
+                        Variant(
+                            id = 4,
+                            name = Name("Telur Ceplok"),
+                            priceAdjustment = Price(BigDecimal(3000))
+                        ),
+                        Variant(
+                            id = 5,
+                            name = Name("Tanpa Bawang"),
                             priceAdjustment = Price(BigDecimal.ZERO)
                         )
                     )
