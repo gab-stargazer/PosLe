@@ -1,7 +1,6 @@
 package org.lelestacia.posle.domain.component
 
 import com.arkivanov.decompose.ComponentContext
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -14,6 +13,7 @@ import org.lelestacia.posle.domain.model.Transaction
 import org.lelestacia.posle.domain.repository.TransactionRepository
 import org.lelestacia.posle.domain.state_event.TransactionViewEvent
 import org.lelestacia.posle.domain.state_event.TransactionViewState
+import org.lelestacia.posle.util.coroutineScope
 
 class TransactionViewComponent(
     componentContext: ComponentContext,
@@ -23,8 +23,7 @@ class TransactionViewComponent(
     private val onNavigation: (TransactionViewNavigation) -> Unit
 ) : ComponentContext by componentContext {
 
-    private val scope = CoroutineScope(Dispatchers.Main.immediate)
-
+    private val scope = coroutineScope(Dispatchers.Main.immediate)
     private val settings = settingManager.readSettings()
     private val _state = MutableStateFlow(
         TransactionViewState(

@@ -7,6 +7,8 @@ import org.lelestacia.posle.domain.model.Transaction
 interface TransactionRepository {
 
     suspend fun insertAndGetTransaction(transaction: Transaction): Transaction
+    fun readTodayTransactionHistory(): Flow<List<Transaction>>
+    fun readUnRecappedTransactionHistory(): Flow<PagingData<Transaction>>
     fun readTransactionHistory(): Flow<PagingData<Transaction>>
     suspend fun updateTransaction(transaction: Transaction)
 }

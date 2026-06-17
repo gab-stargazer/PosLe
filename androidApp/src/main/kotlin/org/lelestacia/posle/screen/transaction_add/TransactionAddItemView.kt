@@ -20,7 +20,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
-import org.lelestacia.posle.data.PosLeSettings
 import org.lelestacia.posle.domain.model.TransactionItem
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.ui.theme.AppTheme
@@ -37,7 +36,6 @@ import org.lelestacia.posle.util.Unit as PosLeUnit
 @Composable
 fun TransactionAddItemView(
     transactionItem: TransactionItem,
-    appSetting: PosLeSettings,
     onRemove: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -151,9 +149,6 @@ private fun PreviewTransactionItem() {
                         priceAdjustment = Price(BigDecimal.ZERO)
                     )
                 )
-            ),
-            appSetting = PosLeSettings(
-                isAmountPrecise = false
             ),
             onRemove = {},
             modifier = Modifier

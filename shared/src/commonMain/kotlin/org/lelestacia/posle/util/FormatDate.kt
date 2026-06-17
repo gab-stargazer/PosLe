@@ -37,8 +37,6 @@ fun Long.toFormattedDate(): String {
     val month = javaLocalDateTime.month.getDisplayName(TextStyle.FULL, locale)
         .replaceFirstChar { it.uppercase() }
     val year = javaLocalDateTime.year
-    val hour = javaLocalDateTime.hour.toString().padStart(2, '0')
-    val minute = javaLocalDateTime.minute.toString().padStart(2, '0')
 
-    return "$day $month $year - $hour:$minute"
+    return "$day $month $year"
 }

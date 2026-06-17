@@ -1,7 +1,7 @@
 [versions]
 agp = "9.2.1"
 android-compileSdk = "37"
-android-minSdk = "24"
+android-minSdk = "26"
 android-targetSdk = "37"
 androidx-activity = "1.13.0"
 androidx-appcompat = "1.7.1"
@@ -17,7 +17,8 @@ material3 = "1.11.0-alpha07"
 materialIconExtended = "1.7.3"
 
 decompose = "3.5.0"
-koin-bom = "4.2.0"
+essenty = "2.5.0"
+koin-bom = "4.2.1"
 kotlinxDatetime = "0.8.0"
 ksp = "2.3.9"
 room = "2.8.4"
@@ -28,6 +29,7 @@ serializationLibrary = "1.11.0"
 filekit = "0.14.1"
 coil = "3.5.0"
 datastore = "1.2.1"
+vico = "3.2.2"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -53,6 +55,8 @@ kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-s
 #   Decompose
 decompose-core = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
 decompose-compose = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "decompose" }
+decompose-coroutine = { module = "com.arkivanov.essenty:lifecycle-coroutines", version.ref = "essenty" }
+decompose-reaktive = { module = "com.arkivanov.essenty:lifecycle-reaktive", version.ref = "essenty" }
 
 #   Koin
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
@@ -89,6 +93,8 @@ coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" 
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 
+#   Vico
+vico-compose-m3 = { group = "com.patrykandpatrick.vico", name = "compose-m3", version.ref = "vico" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

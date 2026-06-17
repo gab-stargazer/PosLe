@@ -1,6 +1,8 @@
 package org.lelestacia.posle.util
 
 import org.lelestacia.posle.domain.model.Product
+import org.lelestacia.posle.domain.model.Transaction
+import org.lelestacia.posle.domain.model.TransactionItem
 import java.math.BigDecimal
 
 object SampleData {
@@ -34,4 +36,21 @@ object SampleData {
             imageUri = null
         )
     )
+
+    val largeTransaction = List(10) { transaction ->
+        Transaction(
+            id = transaction,
+            customerName = Name("Gourmet Customer"),
+            items = List(30) {
+                TransactionItem(
+                    id = it + 1,
+                    productName = Name("Item Menu ${it + 1}"),
+                    productPrice = Price(BigDecimal((1000 * (it + 1)))),
+                    productUnit = Unit("Porsi"),
+                    productAmount = Amount(1f)
+                )
+            },
+            createdAt = 1718236800000L
+        )
+    }
 }

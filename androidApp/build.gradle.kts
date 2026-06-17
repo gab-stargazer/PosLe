@@ -22,6 +22,8 @@ dependencies {
     implementation(libs.koin.android)
 
     implementation("com.github.DantSu:ESCPOS-ThermalPrinter-Android:3.3.0")
+
+    debugImplementation ("com.squareup.leakcanary:leakcanary-android:2.14")
 }
 
 android {

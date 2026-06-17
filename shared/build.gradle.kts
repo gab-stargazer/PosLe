@@ -54,6 +54,8 @@ kotlin {
             //  Decompose
             api(libs.decompose.core)
             api(libs.decompose.compose)
+            api(libs.decompose.coroutine)
+            api(libs.decompose.reaktive)
 
             //  Datetime
             implementation(libs.kotlinx.datetime)
@@ -87,6 +89,9 @@ kotlin {
             api(libs.androidx.datastore)
             api(libs.androidx.datastore.preferences)
 
+            api(libs.vico.compose.m3)
+
+            api("io.github.koalaplot:koalaplot-core:0.11.2")
         }
 
         commonTest.dependencies {

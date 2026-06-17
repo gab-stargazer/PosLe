@@ -1,3 +1,4 @@
+
 package org.lelestacia.posle.data.dao
 
 import androidx.paging.PagingSource
@@ -6,6 +7,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
 import org.lelestacia.posle.data.entity.TransactionEntity
 import org.lelestacia.posle.data.entity.TransactionItemEntity
 import org.lelestacia.posle.data.entity.TransactionWithItems
@@ -26,6 +28,28 @@ interface TransactionDao {
     @Transaction
     @Query("SELECT * FROM `transaction` ORDER BY created_at DESC")
     fun readTransactionWithItems(): PagingSource<Int, TransactionWithItems>
+
+    @Transaction
+    @Query(
+        """
+            SELECT * FROM `transaction` 
+            WHERE is_recapped == 0
+            ORDER BY created_at DESC
+        """
+    )
+    fun readUnRecappedTransactionWithItems(): PagingSource<Int, TransactionWithItems>
+
+    @Query(
+        """
+            SELECT * FROM `transaction` 
+            WHERE created_at >= :startOfDayMs AND created_at < :endOfDayMs
+            ORDER BY created_at DESC
+        """
+    )
+    fun readTransactionsForToday(
+        startOfDayMs: Long,
+        endOfDayMs: Long
+    ): Flow<List<TransactionWithItems>>
 
     @Transaction
     suspend fun insertTransactionAndReturnTransactionItems(

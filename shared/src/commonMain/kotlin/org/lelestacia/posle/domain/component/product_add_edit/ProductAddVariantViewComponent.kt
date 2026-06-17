@@ -5,13 +5,13 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.update
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.repository.ProductRepository
 import org.lelestacia.posle.domain.state_event.product_add.ProductVariantViewEvent
 import org.lelestacia.posle.domain.state_event.product_add.ProductVariantViewState
+import org.lelestacia.posle.util.coroutineScope
 
 class ProductAddVariantViewComponent(
     componentContext: ComponentContext,
@@ -20,7 +20,7 @@ class ProductAddVariantViewComponent(
     private val repository: ProductRepository
 ) : ComponentContext by componentContext {
 
-    val scope = CoroutineScope(Dispatchers.Main.immediate)
+    private val scope = coroutineScope(Dispatchers.Main.immediate)
 
     val state: Value<ProductVariantViewState>
         field = MutableValue(

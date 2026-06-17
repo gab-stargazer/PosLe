@@ -5,7 +5,6 @@ import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.update
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.lelestacia.posle.domain.state_event.DashboardComponentEvent
@@ -14,6 +13,7 @@ import org.lelestacia.posle.navigation.Config
 import org.lelestacia.posle.navigation.NavChild
 import org.lelestacia.posle.navigation.NavConfig
 import org.lelestacia.posle.util.SelectedTabIndex
+import org.lelestacia.posle.util.coroutineScope
 
 class DashboardComponent(
     componentContext: ComponentContext,
@@ -21,7 +21,7 @@ class DashboardComponent(
     val onNavigation: (DashboardNavigation) -> Unit,
 ) : ComponentContext by componentContext{
 
-    val scope = CoroutineScope(Dispatchers.Main.immediate)
+    private val scope = coroutineScope(Dispatchers.Main.immediate)
 
     val state: Value<DashboardComponentState>
         field = MutableValue(DashboardComponentState())

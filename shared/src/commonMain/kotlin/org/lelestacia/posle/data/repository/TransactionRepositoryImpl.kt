@@ -12,6 +12,7 @@ import org.lelestacia.posle.data.entity.toDomain
 import org.lelestacia.posle.domain.model.Transaction
 import org.lelestacia.posle.domain.model.toEntity
 import org.lelestacia.posle.domain.repository.TransactionRepository
+import org.lelestacia.posle.util.getTodayRangeMilliseconds
 
 class TransactionRepositoryImpl(
     private val dao: TransactionDao
@@ -22,6 +23,30 @@ class TransactionRepositoryImpl(
             transaction = transaction.toEntity(),
             transactionItems = transaction.items.map { it.toEntity(transaction.id) }
         ).toDomain()
+    }
+
+    override fun readTodayTransactionHistory(): Flow<List<Transaction>> {
+        val time = getTodayRangeMilliseconds()
+        return dao
+            .readTransactionsForToday(time.first, time.second)
+            .map {
+                it.map(TransactionWithItems::toDomain)
+            }
+    }
+
+    override fun readUnRecappedTransactionHistory(): Flow<PagingData<Transaction>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 10,
+                initialLoadSize = 30,
+                prefetchDistance = 5
+            ),
+            pagingSourceFactory = {
+                dao.readUnRecappedTransactionWithItems()
+            }
+        ).flow.map {
+            it.map(TransactionWithItems::toDomain)
+        }
     }
 
     override fun readTransactionHistory(): Flow<PagingData<Transaction>> {

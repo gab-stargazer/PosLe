@@ -5,7 +5,6 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.update
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -14,6 +13,7 @@ import org.lelestacia.posle.data.SettingManager
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.state_event.TransactionItemState
+import org.lelestacia.posle.util.coroutineScope
 
 data class TransactionProductConfigState(
     val product: Product,
@@ -36,7 +36,7 @@ class TransactionProductConfigComponent(
     private val onConfirmed: (TransactionItemState, List<Variant>) -> Unit
 ) : ComponentContext by componentContext {
 
-    val scope = CoroutineScope(Dispatchers.Main.immediate)
+    private val scope = coroutineScope(Dispatchers.Main.immediate)
 
     val state: Value<TransactionProductConfigState>
         field = MutableValue(

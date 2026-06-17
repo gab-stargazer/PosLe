@@ -2,17 +2,15 @@ package org.lelestacia.posle.domain.component
 
 import androidx.paging.cachedIn
 import com.arkivanov.decompose.ComponentContext
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.lelestacia.posle.data.SettingManager
@@ -30,6 +28,7 @@ import org.lelestacia.posle.navigation.Config.TransactionView
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
+import org.lelestacia.posle.util.coroutineScope
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -42,7 +41,7 @@ class TransactionAddComponent(
     private val transactionRepository: TransactionRepository
 ) : ComponentContext by componentContext {
 
-    val scope = CoroutineScope(Dispatchers.Main.immediate)
+    private val scope = coroutineScope(Dispatchers.Main.immediate)
 
     private val _searchQuery = MutableStateFlow("")
 
@@ -55,26 +54,22 @@ class TransactionAddComponent(
         }
         .cachedIn(scope)
 
-    private val _state = MutableStateFlow(TransactionAddState())
-    private val settings = settingManager.readSettings()
-    val state = combine(
-        flow = _state,
-        flow2 = settings
-    ) { state, settings ->
-        TransactionAddState(
-            searchQuery = state.searchQuery,
-            cartItems = state.cartItems,
-            customerName = state.customerName,
-            settings = settings,
-            currentTab = state.currentTab
-        )
-    }.stateIn(
-        scope = scope,
-        started = SharingStarted.Lazily,
-        initialValue = TransactionAddState()
-    )
+    val state: StateFlow<TransactionAddState>
+        field = MutableStateFlow(TransactionAddState())
 
-    fun onEvent(event: TransactionAddEvent) = scope.launch {
+    init {
+        scope.launch {
+            state.update { currentState ->
+                currentState.copy(
+                    settings = settingManager
+                        .readSettings()
+                        .first()
+                )
+            }
+        }
+    }
+
+    fun onEvent(event: TransactionAddEvent) {
         when (event) {
 
             is TransactionAddEvent.OnSearchQueryChanged -> {
@@ -82,16 +77,23 @@ class TransactionAddComponent(
             }
 
             is TransactionAddEvent.OnTabChanged -> {
-                _state.update { it.copy(currentTab = event.index) }
+                state.update { it.copy(currentTab = event.index) }
             }
 
             is TransactionAddEvent.OnRequestProductConfig -> {
                 val product = event.product
                 onNavigateToProductConfig(product) { itemState: TransactionItemState, variants: List<Variant> ->
                     scope.launch {
-                        _state.update { currentState ->
+                        state.update { currentState ->
 
                             val cartItems = currentState.cartItems.toMutableList()
+
+                            //  Will Comeback later, probably needed for restaurant, might make it hard for selling fruits or something in bulk like Karung
+                            val isInCart = cartItems.any { cartItem ->
+                                cartItem.productName == product.name &&
+                                        cartItem.variants.toSet() == variants.toSet()
+                            }
+
                             cartItems.add(
                                 TransactionItem(
                                     id = 0,
@@ -103,15 +105,16 @@ class TransactionAddComponent(
                                 )
                             )
 
+
                             currentState.copy(
-                                cartItems = cartItems
+                                cartItems = cartItems.sortedBy { it.productName.value }
                             )
                         }
                     }
                 }
             }
 
-            is TransactionAddEvent.OnRemoveProduct -> _state.update { currentState ->
+            is TransactionAddEvent.OnRemoveProduct -> state.update { currentState ->
                 val cartItems = currentState.cartItems.toMutableList()
                 cartItems.remove(event.product)
                 currentState.copy(cartItems = cartItems)
@@ -125,11 +128,13 @@ class TransactionAddComponent(
                     createdAt = Clock.System.now().toEpochMilliseconds()
                 )
 
-                onNavigateTo(
-                    TransactionView(
-                        transaction = transactionRepository.insertAndGetTransaction(transaction)
+                scope.launch {
+                    onNavigateTo(
+                        TransactionView(
+                            transaction = transactionRepository.insertAndGetTransaction(transaction)
+                        )
                     )
-                )
+                }
             }
         }
     }

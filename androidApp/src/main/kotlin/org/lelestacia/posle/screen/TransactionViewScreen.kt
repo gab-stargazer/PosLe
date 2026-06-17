@@ -1,5 +1,9 @@
 package org.lelestacia.posle.screen
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandVertically
@@ -78,15 +82,34 @@ fun TransactionViewScreen(
 ) {
     val scope = rememberCoroutineScope()
     val state by component.state.collectAsStateWithLifecycle()
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val allGranted = permissions.entries.all { it.value }
+        if (allGranted) {
+            scope.launch {
+                printTransaction(transaction = state.transaction)
+            }
+        }
+    }
+
     TransactionUI(
         state = state,
         onNavigation = component::onAction,
         onEvent = component::onEvent,
         onPrint = {
-            scope.launch {
-                printTransaction(
-                    transaction = state.transaction
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                permissionLauncher.launch(
+                    arrayOf(
+                        Manifest.permission.BLUETOOTH_CONNECT,
+                        Manifest.permission.BLUETOOTH_SCAN
+                    )
                 )
+            } else {
+                scope.launch {
+                    printTransaction(transaction = state.transaction)
+                }
             }
         },
         modifier = modifier

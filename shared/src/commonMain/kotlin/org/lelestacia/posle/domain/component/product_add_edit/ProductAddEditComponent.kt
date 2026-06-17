@@ -6,7 +6,6 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.update
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
@@ -19,6 +18,7 @@ import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditState
 import org.lelestacia.posle.navigation.AddEdit
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
+import org.lelestacia.posle.util.coroutineScope
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.msg_error_name_cannot_be_empty
 import posle.shared.generated.resources.msg_error_price_cannot_be_empty
@@ -36,7 +36,7 @@ class ProductAddEditComponent(
     private val repository: ProductRepository
 ) : ComponentContext by componentContext {
 
-    val scope = CoroutineScope(Dispatchers.Main.immediate)
+    private val scope = coroutineScope(Dispatchers.Main.immediate)
 
     val state: Value<ProductAddEditState>
         field = MutableValue(

@@ -185,7 +185,6 @@ fun TransactionAddUI(
                         ) {
                             TransactionAddItemView(
                                 transactionItem = item,
-                                appSetting = state.settings,
                                 onRemove = {
                                     onEvent(TransactionAddEvent.OnRemoveProduct(item))
                                 }
