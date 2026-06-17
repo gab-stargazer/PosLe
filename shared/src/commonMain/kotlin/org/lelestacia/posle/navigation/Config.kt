@@ -1,8 +1,7 @@
 package org.lelestacia.posle.navigation
 
 import kotlinx.serialization.Serializable
-import org.lelestacia.posle.domain.component.DashboardComponent
-import org.lelestacia.posle.domain.component.TransactionAddComponent
+import org.lelestacia.posle.domain.component.DashboardComponentImpl
 import org.lelestacia.posle.domain.component.TransactionListComponent
 import org.lelestacia.posle.domain.component.TransactionProductConfigComponent
 import org.lelestacia.posle.domain.component.TransactionViewComponent
@@ -17,9 +16,6 @@ sealed interface Config {
 
     @Serializable
     data object Dashboard : Config
-
-    @Serializable
-    data object TransactionAdd : Config
 
     @Serializable
     data object TransactionList: Config
@@ -48,8 +44,7 @@ sealed interface Config {
 }
 
 sealed class Child {
-    data class Dashboard(val component: DashboardComponent) : Child()
-    data class TransactionAdd(val component: TransactionAddComponent) : Child()
+    data class Dashboard(val component: DashboardComponentImpl) : Child()
     data class TransactionList(val component: TransactionListComponent) : Child()
     data class TransactionView(val component: TransactionViewComponent) : Child()
     data class TransactionProductConfig(val component: TransactionProductConfigComponent) : Child()

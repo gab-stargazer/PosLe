@@ -2,7 +2,8 @@
     <string name="app_name">PosLe</string>
 
     <!--Nav Destination-->
-    <string name="destination_transaction_history">Transaksi</string>
+    <string name="destination_transaction_add">Transaksi</string>
+    <string name="destination_transaction_history">Riwayat Transaksi</string>
     <string name="destination_list_product">Daftar Produk</string>
     <string name="destination_settings">Pengaturan</string>
 
@@ -35,6 +36,7 @@
     <string name="label_cart_count">Keranjang (%1$d)</string>
     <string name="label_cart">Keranjang</string>
     <string name="label_history">Riwayat</string>"
+    <string name="label_menu">Menu</string>"
 
     <string name="label_setting_product_volatile">Harga Produk Volatil</string>
     <string name="msg_setting_product_volatile">Jika aktif, Anda dapat mengubah harga produk saat menambahkan transaksi.</string>

@@ -110,6 +110,7 @@ class ProductRepositoryImpl(
             )
         )
 
+        //  SHOULD BE UPDATED SOON, NOT AN EFFICIENT WAY ON DB USAGE
         variantDao.clearProductVariants(product.id)
         product.variants.forEach { variant ->
             variantDao.insertVariantToProduct(

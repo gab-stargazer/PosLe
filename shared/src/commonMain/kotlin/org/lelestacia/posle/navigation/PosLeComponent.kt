@@ -8,11 +8,10 @@ import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.pushNew
 import com.arkivanov.decompose.router.stack.pushToFront
-import com.arkivanov.decompose.router.stack.replaceCurrent
 import com.arkivanov.decompose.value.Value
 import org.koin.java.KoinJavaComponent.inject
 import org.lelestacia.posle.data.SettingManager
-import org.lelestacia.posle.domain.component.DashboardComponent
+import org.lelestacia.posle.domain.component.DashboardComponentImpl
 import org.lelestacia.posle.domain.component.DashboardNavigation
 import org.lelestacia.posle.domain.component.ProductListComponent
 import org.lelestacia.posle.domain.component.SettingComponent
@@ -28,9 +27,6 @@ import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.repository.ProductRepository
 import org.lelestacia.posle.domain.repository.TransactionRepository
 import org.lelestacia.posle.domain.state_event.TransactionItemState
-import org.lelestacia.posle.navigation.NavChild.ProductList
-import org.lelestacia.posle.navigation.NavChild.Setting
-import org.lelestacia.posle.navigation.NavChild.Transaction
 
 class PosLeComponent(
     componentContext: ComponentContext
@@ -55,7 +51,7 @@ class PosLeComponent(
     val tabChildren: Value<ChildStack<NavConfig, NavChild>> = childStack(
         source = tabNavigation,
         serializer = NavConfig.serializer(),
-        initialStack = { listOf(NavConfig.Transaction) },
+        initialStack = { listOf(NavConfig.TransactionAdd) },
         key = "tabNavigationChildStack",
         handleBackButton = false,
         childFactory = ::createTabChild
@@ -71,7 +67,7 @@ class PosLeComponent(
 
     private fun createTabChild(config: NavConfig, context: ComponentContext): NavChild =
         when (config) {
-            is NavConfig.Transaction -> Transaction(
+            is NavConfig.TransactionHistory -> NavChild.TransactionHistory(
                 TransactionHistoryComponent(
                     componentContext = context,
                     settingManager = settingManager,
@@ -79,17 +75,33 @@ class PosLeComponent(
                     onNavigation = rootNavigation::pushNew
                 )
             )
-            NavConfig.Setting -> Setting(
+            NavConfig.Setting -> NavChild.Setting(
                 SettingComponent(
                     componentContext = context,
                     settingManager = settingManager
                 )
             )
 
-            NavConfig.ProductList -> ProductList(
+            NavConfig.ProductList -> NavChild.ProductList(
                 ProductListComponent(
                     componentContext = context,
                     repository = productRepository
+                )
+            )
+
+            NavConfig.TransactionAdd -> NavChild.TransactionAdd(
+                TransactionAddComponent(
+                    componentContext = context,
+                    productRepository = productRepository,
+                    transactionRepository = transactionRepository,
+                    settingManager = settingManager,
+                    onNavigateTo = {
+                        rootNavigation.pushToFront(it)
+                    },
+                    onNavigateToProductConfig = { product, onConfirmed ->
+                        rootNavigation.pushNew(Config.TransactionProductConfig(product))
+                        this.onProductConfigConfirmed = onConfirmed
+                    }
                 )
             )
         }
@@ -97,24 +109,10 @@ class PosLeComponent(
     private fun createChild(config: Config, context: ComponentContext): Child =
         when (config) {
             Config.Dashboard -> Child.Dashboard(
-                DashboardComponent(
+                DashboardComponentImpl(
                     componentContext = context,
-                    children = tabChildren,
+                    navChildren = tabChildren,
                     onNavigation = ::handleDashboardNavigation
-                )
-            )
-
-            Config.TransactionAdd -> Child.TransactionAdd(
-                TransactionAddComponent(
-                    componentContext = context,
-                    productRepository = productRepository,
-                    transactionRepository = transactionRepository,
-                    settingManager = settingManager,
-                    onNavigateTo = rootNavigation::replaceCurrent,
-                    onNavigateToProductConfig = { product, onConfirmed ->
-                        rootNavigation.pushNew(Config.TransactionProductConfig(product))
-                        this.onProductConfigConfirmed = onConfirmed
-                    }
                 )
             )
 

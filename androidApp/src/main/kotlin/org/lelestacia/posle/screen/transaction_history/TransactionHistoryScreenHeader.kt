@@ -12,7 +12,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import org.lelestacia.posle.domain.component.TransactionHistoryScreenState
 import org.lelestacia.posle.util.toFormattedDate
-import kotlin.math.roundToInt
+import org.lelestacia.posle.util.toRupiah
 import kotlin.time.Clock
 
 @Composable
@@ -20,10 +20,13 @@ fun TransactionHistoryScreenHeader(
     state: TransactionHistoryScreenState,
     modifier: Modifier = Modifier
 ) {
-    val total = state.todayTransactions
-        .flatMap { it.items }
-        .map { it.productAmount.value }
-        .sum()
+    val totalTransaction = state.todayTransactions
+        .size
+
+    val totalTransactionValue = state.todayTransactions
+        .sumOf {
+            it.items.sumOf { item -> item.productAmount.value.toBigDecimal() * item.productPrice.value }
+        }
 
     val mostSoldItemToday =
         state.todayTransactions
@@ -32,14 +35,6 @@ fun TransactionHistoryScreenHeader(
             .eachCount()
             .maxByOrNull { it.value }
             ?.key
-
-
-    val totalText =
-        if (total % 1F == 0F) {
-            total.roundToInt().toString()
-        } else {
-            total.toString()
-        }
 
     Column(
         modifier = modifier
@@ -66,20 +61,6 @@ fun TransactionHistoryScreenHeader(
         }
         Text(dateSb)
 
-        val totalSb = buildAnnotatedString {
-            withStyle(MaterialTheme.typography.bodyMedium.toSpanStyle()) {
-                append("Total Transaksi: ")
-            }
-
-            withStyle(
-                MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
-                    .toSpanStyle()
-            ) {
-                append("$totalText Produk")
-            }
-        }
-        Text(totalSb)
-
         val mostSaleSb = buildAnnotatedString {
             withStyle(MaterialTheme.typography.bodyMedium.toSpanStyle()) {
                 append("Item Terlaris: ")
@@ -89,9 +70,37 @@ fun TransactionHistoryScreenHeader(
                 MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
                     .toSpanStyle()
             ) {
-                append(mostSoldItemToday?.value)
+                append(mostSoldItemToday?.value ?: "Belum ada data")
             }
         }
         Text(mostSaleSb)
+
+        val totalSb = buildAnnotatedString {
+            withStyle(MaterialTheme.typography.bodyMedium.toSpanStyle()) {
+                append("Total Transaksi: ")
+            }
+
+            withStyle(
+                MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                    .toSpanStyle()
+            ) {
+                append("$totalTransaction Transaksi")
+            }
+        }
+        Text(totalSb)
+
+        val totalValueSb = buildAnnotatedString {
+            withStyle(MaterialTheme.typography.bodyMedium.toSpanStyle()) {
+                append("Total Uang: ")
+            }
+
+            withStyle(
+                MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                    .toSpanStyle()
+            ) {
+                append(totalTransactionValue.toRupiah())
+            }
+        }
+        Text(totalValueSb)
     }
 }

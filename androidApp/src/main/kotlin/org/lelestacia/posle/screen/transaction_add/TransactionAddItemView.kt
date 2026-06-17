@@ -57,7 +57,8 @@ fun TransactionAddItemView(
                 ) {
                     Text(
                         text = transactionItem.productName.value,
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.weight(1F)
                     )
 
                     Text(
@@ -114,17 +115,54 @@ fun TransactionAddItemView(
 
         transactionItem.variants.forEach { variant ->
             Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top,
-                modifier = Modifier.padding(start = 12.dp)
+                modifier = Modifier
+                    .fillMaxWidth(0.85F)
+                    .padding(start = 12.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.SubdirectoryArrowRight,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp)
-                )
+                Row {
+                    Icon(
+                        imageVector = Icons.Default.SubdirectoryArrowRight,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+
+                    Text(
+                        variant.name.value,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+
                 Text(
-                    variant.name.value,
+                    variant.priceAdjustment.value.toRupiah(),
                     style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+
+        if (transactionItem.variants.isNotEmpty()) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth(0.85F)
+                    .padding(top = 6.dp)
+            ) {
+                Text(
+                    text = "Subtotal:",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+
+                val sumVariant = transactionItem.variants.sumOf { it.priceAdjustment.value * transactionItem.productAmount.value.toBigDecimal() }
+                val sumItem = transactionItem.productAmount.value.toBigDecimal() * transactionItem.productPrice.value
+
+
+
+                Text(
+                    (sumVariant + sumItem).toRupiah(),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
                 )
             }
         }
@@ -146,7 +184,7 @@ private fun PreviewTransactionItem() {
                     Variant(
                         id = 0,
                         name = Name("Karung"),
-                        priceAdjustment = Price(BigDecimal.ZERO)
+                        priceAdjustment = Price(BigDecimal(0))
                     )
                 )
             ),

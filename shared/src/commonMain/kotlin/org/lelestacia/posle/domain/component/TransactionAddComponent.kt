@@ -1,10 +1,12 @@
 package org.lelestacia.posle.domain.component
 
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.paging.cachedIn
 import com.arkivanov.decompose.ComponentContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.debounce
@@ -134,6 +136,16 @@ class TransactionAddComponent(
                             transaction = transactionRepository.insertAndGetTransaction(transaction)
                         )
                     )
+
+                    delay(500.milliseconds)
+                    state.update {
+                        it.copy(
+                            searchQuery = TextFieldState(),
+                            customerName = TextFieldState(),
+                            cartItems = emptyList(),
+                            currentTab = 0
+                        )
+                    }
                 }
             }
         }

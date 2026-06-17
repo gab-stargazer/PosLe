@@ -14,7 +14,6 @@ import org.lelestacia.posle.screen.DashboardScreen
 import org.lelestacia.posle.screen.TransactionViewScreen
 import org.lelestacia.posle.screen.product_add.ProductAddEditScreen
 import org.lelestacia.posle.screen.product_add.ProductAddVariationViewScreen
-import org.lelestacia.posle.screen.transaction_add.TransactionAddScreen
 import org.lelestacia.posle.screen.transaction_add.TransactionProductConfigScreen
 
 @Composable
@@ -40,7 +39,6 @@ fun RootContent(
                 is Child.Dashboard -> DashboardScreen(component = child.component)
 
                 //  Transaction
-                is Child.TransactionAdd -> TransactionAddScreen(component = child.component)
                 is Child.TransactionList -> {
 
                 }

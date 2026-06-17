@@ -7,6 +7,8 @@ import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.update
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.lelestacia.posle.domain.component.DashboardNavigation.BottomNav
+import org.lelestacia.posle.domain.component.DashboardNavigation.Nav
 import org.lelestacia.posle.domain.state_event.DashboardComponentEvent
 import org.lelestacia.posle.domain.state_event.DashboardComponentState
 import org.lelestacia.posle.navigation.Config
@@ -15,30 +17,43 @@ import org.lelestacia.posle.navigation.NavConfig
 import org.lelestacia.posle.util.SelectedTabIndex
 import org.lelestacia.posle.util.coroutineScope
 
-class DashboardComponent(
+class DashboardComponentImpl(
     componentContext: ComponentContext,
-    val children: Value<ChildStack<NavConfig, NavChild>>,
+    private val navChildren: Value<ChildStack<NavConfig, NavChild>>,
     val onNavigation: (DashboardNavigation) -> Unit,
-) : ComponentContext by componentContext{
+) : ComponentContext by componentContext, DashboardComponent {
 
     private val scope = coroutineScope(Dispatchers.Main.immediate)
 
-    val state: Value<DashboardComponentState>
+    override val children: Value<ChildStack<NavConfig, NavChild>>
+        get() = navChildren
+
+    override val state: Value<DashboardComponentState>
         field = MutableValue(DashboardComponentState())
 
-    fun onEvent(event: DashboardComponentEvent) = scope.launch {
-        when (event) {
-            is DashboardComponentEvent.OnNavigateTo -> {
-                state.update { currentState ->
-                    currentState.copy(
-                        selectedTab = SelectedTabIndex(event.index)
-                    )
+    override fun onEvent(event: DashboardComponentEvent) {
+        scope.launch {
+            when (event) {
+                is DashboardComponentEvent.OnMenuNavigateTo -> {
+                    state.update { currentState ->
+                        currentState.copy(
+                            selectedTab = SelectedTabIndex(event.index)
+                        )
+                    }
+
+                    onNavigation(BottomNav(event.destination))
                 }
 
-                onNavigation(DashboardNavigation.BottomNav(event.destination))
+                is DashboardComponentEvent.OnNavigateTo -> onNavigation(Nav(event.config))
             }
         }
     }
+}
+
+interface DashboardComponent {
+    val children: Value<ChildStack<NavConfig, NavChild>>
+    val state: Value<DashboardComponentState>
+    fun onEvent(event: DashboardComponentEvent)
 }
 
 sealed interface DashboardNavigation {

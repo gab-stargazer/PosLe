@@ -12,5 +12,6 @@ data class Product(
     val price: Price,
     val unit: Unit,
     val imageUri: String? = null,
-    val variants: List<Variant> = emptyList()
+    val variants: List<Variant> = emptyList(),
+    val categories: List<Category> = emptyList()
 )

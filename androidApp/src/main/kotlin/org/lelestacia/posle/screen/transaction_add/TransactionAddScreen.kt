@@ -4,10 +4,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -51,8 +54,10 @@ import org.lelestacia.posle.domain.state_event.TransactionAddEvent
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent.OnAddTransactionClicked
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent.OnTabChanged
 import org.lelestacia.posle.domain.state_event.TransactionAddState
+import org.lelestacia.posle.screen.product_list.ProductItem
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.util.SampleData
+import org.lelestacia.posle.util.toRupiah
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.btn_save_transaction
 import posle.shared.generated.resources.label_cart_count
@@ -112,7 +117,10 @@ fun TransactionAddUI(
                     onClick = { onEvent(OnTabChanged(1)) },
                     text = {
                         Text(
-                            text = stringResource(Res.string.label_cart_count, state.cartItems.size),
+                            text = stringResource(
+                                Res.string.label_cart_count,
+                                state.cartItems.size
+                            ),
                             style = MaterialTheme.typography.titleSmall
                         )
                     }
@@ -143,7 +151,9 @@ fun TransactionAddUI(
                     },
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp),
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                            12.dp
+                        ),
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent
                     ),
@@ -154,19 +164,20 @@ fun TransactionAddUI(
                         .padding(top = 12.dp)
                 )
 
-                LazyColumn(
+                LazyVerticalGrid(
                     contentPadding = PaddingValues(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp),
+                    columns = GridCells.Fixed(3),
                     modifier = Modifier.weight(1F),
                 ) {
                     items(count = products.itemCount, key = products.itemKey { it.id }) {
                         products[it]?.let { product ->
-                            TransactionAddItem(
+                            ProductItem(
                                 product = product,
-                                onAdd = {
+                                onEdit = {
                                     onEvent(TransactionAddEvent.OnRequestProductConfig(product))
-                                },
-                                modifier = Modifier.animateItem()
+                                }
                             )
                         }
                     }
@@ -203,6 +214,37 @@ fun TransactionAddUI(
 
                 ) {
 
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp)
+                    ) {
+                        Text(
+                            text = "Total Harga:",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        )
+
+                        Text(
+                            text = state.cartItems.sumOf {
+
+                                val variants =
+                                    it.variants.sumOf { variant -> variant.priceAdjustment.value }
+
+                                (variants * it.productAmount.value.toBigDecimal()) + (it.productPrice.value * it.productAmount.value.toBigDecimal())
+
+
+                            }.toRupiah(),
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        )
+                    }
+
                     if (state.settings.isCustomerNameNeeded) {
                         TextField(
                             state = state.customerName,
@@ -232,7 +274,6 @@ fun TransactionAddUI(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 12.dp)
-                                .padding(top = 12.dp)
                         )
                     }
 
@@ -265,6 +306,7 @@ private fun PreviewTransactionAddUI() {
         TransactionAddUI(
             products = productsLazyPagingItems,
             state = TransactionAddState(
+                currentTab = 1,
                 settings = PosLeSettings(
                     isCustomerNameNeeded = true,
                     isProductVolatile = true

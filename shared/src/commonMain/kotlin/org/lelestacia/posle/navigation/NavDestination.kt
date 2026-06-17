@@ -4,15 +4,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.StringResource
 import org.lelestacia.posle.domain.component.ProductListComponent
 import org.lelestacia.posle.domain.component.SettingComponent
+import org.lelestacia.posle.domain.component.TransactionAddComponent
 import org.lelestacia.posle.domain.component.TransactionHistoryComponent
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.destination_list_product
 import posle.shared.generated.resources.destination_settings
+import posle.shared.generated.resources.destination_transaction_add
 import posle.shared.generated.resources.destination_transaction_history
 
 enum class NavDestination(
@@ -21,7 +24,12 @@ enum class NavDestination(
     val title: StringResource
 ) {
     Transaction(
-        NavConfig.Transaction,
+        NavConfig.TransactionAdd,
+        Icons.Default.ShoppingCart,
+        Res.string.destination_transaction_add
+    ),
+    TransactionHistory(
+        NavConfig.TransactionHistory,
         Icons.Default.History,
         Res.string.destination_transaction_history
     ),
@@ -41,7 +49,10 @@ enum class NavDestination(
 sealed interface NavConfig {
 
     @Serializable
-    data object Transaction : NavConfig
+    data object TransactionAdd: NavConfig
+
+    @Serializable
+    data object TransactionHistory : NavConfig
 
     @Serializable
     data object ProductList : NavConfig
@@ -51,7 +62,8 @@ sealed interface NavConfig {
 }
 
 sealed class NavChild {
-    data class Transaction(val component: TransactionHistoryComponent) : NavChild()
+    data class TransactionAdd(val component: TransactionAddComponent) : NavChild()
+    data class TransactionHistory(val component: TransactionHistoryComponent) : NavChild()
     data class ProductList(val component: ProductListComponent) : NavChild()
     data class Setting(val component: SettingComponent) : NavChild()
 }
