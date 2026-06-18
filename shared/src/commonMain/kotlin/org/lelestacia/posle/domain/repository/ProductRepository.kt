@@ -10,6 +10,11 @@ interface ProductRepository {
     suspend fun addVariant(variant: Variant)
     fun readProduct(searchQuery: String): Flow<PagingData<Product>>
     fun readVariant(): Flow<PagingData<Variant>>
-    suspend fun updateProduct(product: Product, imageByteArray: ByteArray?)
+    suspend fun updateProduct(
+        product: Product,
+        variantsToAdd: List<Variant>,
+        variantsToRemove: List<Variant>,
+        imageByteArray: ByteArray?
+    )
     suspend fun deleteProduct(product: Product)
 }

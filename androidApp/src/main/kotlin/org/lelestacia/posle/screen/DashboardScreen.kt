@@ -85,8 +85,13 @@ fun DashboardScreen(
                         onClick = {
                             component.onEvent(
                                 DashboardComponentEvent.OnMenuNavigateTo(
-                                    index,
-                                    destination.config
+                                    index = index,
+                                    destination = destination.config,
+                                    callbacks = {
+                                        scope.launch {
+                                            drawerState.close()
+                                        }
+                                    }
                                 )
                             )
                         },

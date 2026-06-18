@@ -70,13 +70,27 @@ class ProductAddEditComponent(
                                     imageByteArray = state.value.productImageByteArray
                                 )
 
-                                AddEdit.Edit -> repository.updateProduct(
-                                    product = buildProduct(
-                                        id = product?.id
-                                            ?: throw Exception("Data isn't being passed from previous screen")
-                                    ),
-                                    imageByteArray = state.value.productImageByteArray
-                                )
+                                AddEdit.Edit -> {
+                                    val original: Map<Int, Variant> = product
+                                        ?.variants
+                                        ?.associateBy { it.id }
+                                        ?: return@validate
+
+                                    val modified = state
+                                        .value
+                                        .variants
+                                        .associateBy { it.id }
+
+                                    val variantsToAdd = modified.filter { it.key !in original }.map { it.value }
+                                    val variantsToRemove = original.filter { it.key !in modified }.map { it.value }
+
+                                    repository.updateProduct(
+                                        product = buildProduct(id = product.id),
+                                        variantsToAdd = variantsToAdd.toList(),
+                                        variantsToRemove = variantsToRemove.toList(),
+                                        imageByteArray = state.value.productImageByteArray
+                                    )
+                                }
                             }
                             onPop()
                         }

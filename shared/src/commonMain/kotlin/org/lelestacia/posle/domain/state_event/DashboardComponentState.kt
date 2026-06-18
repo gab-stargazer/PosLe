@@ -9,6 +9,6 @@ data class DashboardComponentState(
 )
 
 sealed interface DashboardComponentEvent {
-    data class OnMenuNavigateTo(val index: Int, val destination: NavConfig): DashboardComponentEvent
+    data class OnMenuNavigateTo(val index: Int, val destination: NavConfig, val callbacks: () -> Unit): DashboardComponentEvent
     data class OnNavigateTo(val config: Config): DashboardComponentEvent
 }

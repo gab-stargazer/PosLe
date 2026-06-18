@@ -89,6 +89,8 @@ class ProductRepositoryImpl(
 
     override suspend fun updateProduct(
         product: Product,
+        variantsToAdd: List<Variant>,
+        variantsToRemove: List<Variant>,
         imageByteArray: ByteArray?
     ) {
         var newImageUri = imageByteArray?.let {
@@ -110,15 +112,20 @@ class ProductRepositoryImpl(
             )
         )
 
-        //  SHOULD BE UPDATED SOON, NOT AN EFFICIENT WAY ON DB USAGE
-        variantDao.clearProductVariants(product.id)
-        product.variants.forEach { variant ->
+        variantsToAdd.forEach { variant ->
             variantDao.insertVariantToProduct(
                 VariantJunction(
                     id = 0,
                     productId = product.id,
                     variantId = variant.id
                 )
+            )
+        }
+
+        variantsToRemove.forEach { variant ->
+            variantDao.deleteVariantToProduct(
+                variantId = variant.id,
+                productId = product.id
             )
         }
     }

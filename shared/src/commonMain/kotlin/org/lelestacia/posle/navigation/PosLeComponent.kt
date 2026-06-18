@@ -8,6 +8,7 @@ import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.pushNew
 import com.arkivanov.decompose.router.stack.pushToFront
+import com.arkivanov.decompose.router.stack.replaceCurrent
 import com.arkivanov.decompose.value.Value
 import org.koin.java.KoinJavaComponent.inject
 import org.lelestacia.posle.data.SettingManager
@@ -181,7 +182,9 @@ class PosLeComponent(
 
     private fun handleDashboardNavigation(navigation: DashboardNavigation) {
         when (navigation) {
-            is DashboardNavigation.BottomNav -> tabNavigation.pushToFront(navigation.navConfig)
+            is DashboardNavigation.DrawerNav -> {
+                tabNavigation.replaceCurrent(navigation.navConfig, onComplete = navigation.callbacks)
+            }
             is DashboardNavigation.Nav -> rootNavigation.pushNew(navigation.config)
         }
     }

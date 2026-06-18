@@ -27,6 +27,14 @@ interface VariantDao {
     @Insert
     suspend fun insertVariantToProduct(variant: VariantJunction)
 
+    @Query(
+        """
+            DELETE FROM variant_junction
+            WHERE product_id == :productId AND variant_id == :variantId
+        """
+    )
+    suspend fun deleteVariantToProduct(variantId: Int, productId: Int)
+
     @Query("DELETE FROM variant_junction WHERE product_id = :productId")
     suspend fun clearProductVariants(productId: Int)
 
