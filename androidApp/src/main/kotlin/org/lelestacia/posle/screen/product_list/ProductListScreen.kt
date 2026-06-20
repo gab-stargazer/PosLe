@@ -174,7 +174,7 @@ fun ProductListScreen(
                 categorized(
                     searchQuery = state.searchQuery,
                     categories = categories,
-                    categorizedProducts = component::productsForCategory,
+                    categorizedProducts = component::productsInCategory,
                     productsNotInCategory = component::productsNotInCategory,
                     onEvent = component::onEvent
                 )

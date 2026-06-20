@@ -53,8 +53,8 @@ class ProductListComponentImpl(
     override val productPagingFlows: MutableMap<Pair<String, Int>, Flow<PagingData<Product>>> =
         mutableMapOf()
 
-    override val uncategorizedProducts: Flow<PagingData<Product>>
-        get() = searchQuery.flatMapLatest { query ->
+    val uncategorizedProducts: Flow<PagingData<Product>> = searchQuery
+        .flatMapLatest { query ->
             productRepository.readProductWithoutCategories(query)
         }.cachedIn(scope)
 
@@ -172,7 +172,7 @@ class ProductListComponentImpl(
         }
     }
 
-    override fun productsForCategory(
+    override fun productsInCategory(
         searchQuery: String,
         categoryId: Int
     ): Flow<PagingData<Product>> {
@@ -200,9 +200,8 @@ class ProductListComponentImpl(
 interface ProductListComponent {
     val state: StateFlow<ProductListComponentState>
     val productPagingFlows: MutableMap<Pair<String, Int>, Flow<PagingData<Product>>>
-    val uncategorizedProducts: Flow<PagingData<Product>>
     fun onEvent(event: ProductListComponentEvent)
-    fun productsForCategory(searchQuery: String, categoryId: Int): Flow<PagingData<Product>>
+    fun productsInCategory(searchQuery: String, categoryId: Int): Flow<PagingData<Product>>
     fun productsNotInCategory(searchQuery: String, categoryId: Int): Flow<PagingData<Product>>
 }
 
