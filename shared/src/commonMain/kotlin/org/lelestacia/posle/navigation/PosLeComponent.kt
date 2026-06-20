@@ -14,7 +14,7 @@ import org.koin.java.KoinJavaComponent.inject
 import org.lelestacia.posle.data.SettingManager
 import org.lelestacia.posle.domain.component.DashboardComponentImpl
 import org.lelestacia.posle.domain.component.DashboardNavigation
-import org.lelestacia.posle.domain.component.ProductListComponent
+import org.lelestacia.posle.domain.component.ProductListComponentImpl
 import org.lelestacia.posle.domain.component.SettingComponent
 import org.lelestacia.posle.domain.component.TransactionAddComponent
 import org.lelestacia.posle.domain.component.TransactionHistoryComponent
@@ -23,10 +23,12 @@ import org.lelestacia.posle.domain.component.TransactionProductConfigComponent
 import org.lelestacia.posle.domain.component.TransactionViewComponent
 import org.lelestacia.posle.domain.component.TransactionViewNavigation
 import org.lelestacia.posle.domain.component.product_add_edit.ProductAddEditComponent
-import org.lelestacia.posle.domain.component.product_add_edit.ProductAddVariantViewComponent
+import org.lelestacia.posle.domain.component.product_add_edit.ProductAddVariantsViewComponent
 import org.lelestacia.posle.domain.model.Variant
+import org.lelestacia.posle.domain.repository.CategoryRepository
 import org.lelestacia.posle.domain.repository.ProductRepository
 import org.lelestacia.posle.domain.repository.TransactionRepository
+import org.lelestacia.posle.domain.repository.VariantRepository
 import org.lelestacia.posle.domain.state_event.TransactionItemState
 
 class PosLeComponent(
@@ -38,6 +40,8 @@ class PosLeComponent(
     // Dependencies
     private val settingManager by inject<SettingManager>(SettingManager::class.java)
     private val productRepository by inject<ProductRepository>(ProductRepository::class.java)
+    private val categoryRepository by inject<CategoryRepository>(CategoryRepository::class.java)
+    private val variantRepository by inject<VariantRepository>(VariantRepository::class.java)
     private val transactionRepository by inject<TransactionRepository>(TransactionRepository::class.java)
 
 
@@ -76,6 +80,7 @@ class PosLeComponent(
                     onNavigation = rootNavigation::pushNew
                 )
             )
+
             NavConfig.Setting -> NavChild.Setting(
                 SettingComponent(
                     componentContext = context,
@@ -84,9 +89,11 @@ class PosLeComponent(
             )
 
             NavConfig.ProductList -> NavChild.ProductList(
-                ProductListComponent(
+                ProductListComponentImpl(
                     componentContext = context,
-                    repository = productRepository
+                    productRepository = productRepository,
+                    categoryRepository = categoryRepository,
+                    onNavigate = rootNavigation::pushToFront
                 )
             )
 
@@ -157,7 +164,8 @@ class PosLeComponent(
                     mode = config.addEdit,
                     product = config.product,
                     snackbarHostState = snackbarHostState,
-                    repository = productRepository,
+                    productRepository = productRepository,
+                    variantRepository = variantRepository,
                     onNavigateToVariantSelection = { selectedVariants, onResult ->
                         onVariantsSelected = onResult
                         rootNavigation.pushNew(Config.VariantView(selectedVariants))
@@ -167,7 +175,7 @@ class PosLeComponent(
             )
 
             is Config.VariantView -> Child.VariantView(
-                ProductAddVariantViewComponent(
+                ProductAddVariantsViewComponent(
                     componentContext = context,
                     initialSelectedVariants = config.selectedVariants,
                     onVariantsConfirmed = {
@@ -175,7 +183,11 @@ class PosLeComponent(
                         onVariantsSelected = null
                         rootNavigation.pop()
                     },
-                    repository = productRepository
+                    onPop = {
+                        onVariantsSelected = null
+                        rootNavigation.pop()
+                    },
+                    repository = variantRepository
                 )
             )
         }
@@ -183,8 +195,12 @@ class PosLeComponent(
     private fun handleDashboardNavigation(navigation: DashboardNavigation) {
         when (navigation) {
             is DashboardNavigation.DrawerNav -> {
-                tabNavigation.replaceCurrent(navigation.navConfig, onComplete = navigation.callbacks)
+                tabNavigation.replaceCurrent(
+                    navigation.navConfig,
+                    onComplete = navigation.callbacks
+                )
             }
+
             is DashboardNavigation.Nav -> rootNavigation.pushNew(navigation.config)
         }
     }

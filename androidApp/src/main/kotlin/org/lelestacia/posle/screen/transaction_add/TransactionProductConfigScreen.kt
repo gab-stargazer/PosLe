@@ -36,6 +36,7 @@ import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.component.TransactionProductConfigComponent
 import org.lelestacia.posle.domain.component.TransactionProductConfigEvent
+import org.lelestacia.posle.domain.component.TransactionProductConfigEvent.OnVariantClicked
 import org.lelestacia.posle.screen.product_add.VariantViewItemAdd
 import org.lelestacia.posle.util.RupiahOutputTransformation
 import posle.shared.generated.resources.Res
@@ -95,9 +96,12 @@ fun TransactionProductConfigScreen(
                         VariantViewItemAdd(
                             variant = variant,
                             isSelected = variant in state.selectedVariants,
-                            onAdd = {
-                                component.onEvent(TransactionProductConfigEvent.OnVariantClicked(variant))
-                            }
+                            isEnableContextMenu = false,
+                            onCheckedChange = { variant, isChecked ->
+                                component.onEvent(OnVariantClicked(variant, isChecked))
+                            },
+                            onEdit = {},
+                            onDelete = {}
                         )
                         HorizontalDivider()
                     }
@@ -151,8 +155,11 @@ fun TransactionProductConfigScreen(
 
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     IconButton(onClick = {
-                                        val current = state.amountState.text.toString().toFloatOrNull() ?: 0f
-                                        if (current > 1) component.onEvent(TransactionProductConfigEvent.OnAmountChanged(current - 1))
+                                        val current =
+                                            state.amountState.text.toString().toFloatOrNull() ?: 0f
+                                        if (current > 1) component.onEvent(
+                                            TransactionProductConfigEvent.OnAmountChanged(current - 1)
+                                        )
                                     }) {
                                         Icon(Icons.Default.Remove, contentDescription = null)
                                     }
@@ -163,8 +170,13 @@ fun TransactionProductConfigScreen(
                                         modifier = Modifier.padding(horizontal = 12.dp)
                                     )
                                     IconButton(onClick = {
-                                        val current = state.amountState.text.toString().toFloatOrNull() ?: 0f
-                                        component.onEvent(TransactionProductConfigEvent.OnAmountChanged(current + 1))
+                                        val current =
+                                            state.amountState.text.toString().toFloatOrNull() ?: 0f
+                                        component.onEvent(
+                                            TransactionProductConfigEvent.OnAmountChanged(
+                                                current + 1
+                                            )
+                                        )
                                     }) {
                                         Icon(Icons.Default.Add, contentDescription = null)
                                     }

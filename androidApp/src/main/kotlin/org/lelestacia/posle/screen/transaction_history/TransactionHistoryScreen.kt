@@ -61,22 +61,6 @@ fun TransactionHistoryScreen(
 
     Scaffold(
         contentWindowInsets = WindowInsets(),
-        topBar = {
-//            TopAppBar(
-//                title = {
-//                    Text(
-//                        stringResource(Res.string.label_transaction_history),
-//                        style = MaterialTheme.typography.titleMedium.copy(
-//                            fontWeight = FontWeight.Bold
-//                        )
-//                    )
-//                },
-//                colors = TopAppBarDefaults.topAppBarColors(
-//                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-//                    titleContentColor = MaterialTheme.colorScheme.onSurface
-//                )
-//            )
-        },
         modifier = modifier
     ) { paddingValues ->
         Column(

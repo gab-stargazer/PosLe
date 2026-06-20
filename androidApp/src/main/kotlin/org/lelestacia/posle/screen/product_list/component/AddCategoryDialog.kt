@@ -1,4 +1,4 @@
-package org.lelestacia.posle.screen.product_add
+package org.lelestacia.posle.screen.product_list.component
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,57 +21,47 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
-import org.lelestacia.posle.domain.state_event.product_add.ProductVariantViewState.VariantAddEditState
+import org.lelestacia.posle.domain.component.ProductListComponentEvent
+import org.lelestacia.posle.domain.component.ProductListComponentEvent.AddCategoryEvent.OnSaveClicked
+import org.lelestacia.posle.domain.component.ProductListComponentState
 import org.lelestacia.posle.ui.theme.AppTheme
-import org.lelestacia.posle.util.RupiahOutputTransformation
 import posle.shared.generated.resources.Res
-import posle.shared.generated.resources.btn_save_variant
-import posle.shared.generated.resources.label_variation_and_addition
-import posle.shared.generated.resources.label_variation_name
-import posle.shared.generated.resources.label_variation_price_adjustment
+import posle.shared.generated.resources.btn_save_category
+import posle.shared.generated.resources.label_category_name
+import posle.shared.generated.resources.title_add_category
 
 @Composable
-fun ProductAddVariationDialog(
-    state: VariantAddEditState,
-    onSaveClicked: () -> Unit,
+fun AddCategoryDialog(
+    state: ProductListComponentState.AddCategoryState,
+    onEvent: (ProductListComponentEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
 
     ElevatedCard(
-        shape = RoundedCornerShape(25F),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            contentColor = MaterialTheme.colorScheme.onSurface
         ),
+        shape = RoundedCornerShape(25F),
         modifier = modifier
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(all = 12.dp)
+            modifier = Modifier.padding(12.dp)
         ) {
             Text(
-                stringResource(Res.string.label_variation_and_addition),
+                stringResource(Res.string.title_add_category),
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold
                 )
             )
 
             TextField(
-                state = state.variantNameState,
-                label = {
-                    Text(
-                        stringResource(Res.string.label_variation_name),
-                        style = MaterialTheme.typography.labelMediumEmphasized.copy(
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-                },
-                textStyle = MaterialTheme.typography.bodyMedium,
-                shape = RoundedCornerShape(25F),
+                state = state.categoryName,
                 colors = TextFieldDefaults.colors(
                     unfocusedIndicatorColor = Color.Transparent,
                     focusedIndicatorColor = Color.Transparent,
@@ -80,67 +70,46 @@ fun ProductAddVariationDialog(
                     unfocusedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     focusedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    focusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    focusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
                 ),
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Done
-                ),
-                onKeyboardAction = {
-                    focusManager.clearFocus(true)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp)
-            )
-
-            TextField(
-                state = state.variantPriceState,
                 label = {
                     Text(
-                        stringResource(Res.string.label_variation_price_adjustment),
-                        style = MaterialTheme.typography.labelMediumEmphasized.copy(
+                        text = stringResource(Res.string.label_category_name),
+                        style = MaterialTheme.typography.labelMedium.copy(
                             fontWeight = FontWeight.Bold
                         )
                     )
                 },
-                textStyle = MaterialTheme.typography.bodyMedium,
-                shape = RoundedCornerShape(25F),
-                colors = TextFieldDefaults.colors(
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    focusedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    focusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                textStyle = MaterialTheme.typography.bodyMedium.copy(
+                    fontWeight = FontWeight.Bold
                 ),
+                shape = RoundedCornerShape(25F),
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Done
                 ),
                 onKeyboardAction = {
                     focusManager.clearFocus(true)
                 },
-                outputTransformation = RupiahOutputTransformation(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 12.dp)
             )
 
             Button(
-                onClick = onSaveClicked,
                 shape = RoundedCornerShape(25F),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
+                onClick = {
+                    onEvent(OnSaveClicked(state.categoryName.text.toString()))
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 12.dp)
             ) {
                 Text(
-                    stringResource(Res.string.btn_save_variant),
+                    text = stringResource(resource = Res.string.btn_save_category),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.Bold
                     )
@@ -150,16 +119,15 @@ fun ProductAddVariationDialog(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
-private fun PreviewProductAddVariationDialog() {
+private fun PreviewAddCategoryDialog() {
     AppTheme {
-        ProductAddVariationDialog(
-            state = VariantAddEditState(
-                variantNameState = TextFieldState("Karung"),
-                variantPriceState = TextFieldState("0")
+        AddCategoryDialog(
+            state = ProductListComponentState.AddCategoryState(
+                categoryName = TextFieldState("Makanan")
             ),
-            onSaveClicked = {}
+            onEvent = {}
         )
     }
 }

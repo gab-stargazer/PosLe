@@ -1,10 +1,12 @@
 package org.lelestacia.posle.domain.model
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.Serializable
 import org.lelestacia.posle.data.entity.VariantEntity
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
 
+@Immutable
 @Serializable
 data class Variant(
     val id: Int,

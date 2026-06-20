@@ -2,10 +2,11 @@ package org.lelestacia.posle.domain.component
 
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.ChildStack
-import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
-import com.arkivanov.decompose.value.update
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.lelestacia.posle.domain.component.DashboardNavigation.DrawerNav
 import org.lelestacia.posle.domain.component.DashboardNavigation.Nav
@@ -28,8 +29,8 @@ class DashboardComponentImpl(
     override val children: Value<ChildStack<NavConfig, NavChild>>
         get() = navChildren
 
-    override val state: Value<DashboardComponentState>
-        field = MutableValue(DashboardComponentState())
+    override val state: StateFlow<DashboardComponentState>
+        field = MutableStateFlow(DashboardComponentState())
 
     override fun onEvent(event: DashboardComponentEvent) {
         scope.launch {
@@ -52,7 +53,7 @@ class DashboardComponentImpl(
 
 interface DashboardComponent {
     val children: Value<ChildStack<NavConfig, NavChild>>
-    val state: Value<DashboardComponentState>
+    val state: StateFlow<DashboardComponentState>
     fun onEvent(event: DashboardComponentEvent)
 }
 

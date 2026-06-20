@@ -13,7 +13,7 @@
     <string name="label_product_amount">Jumlah Produk</string>
     <string name="label_product_price">Harga Produk</string>
     <string name="label_product_price_latest">Harga Produk Terbaru</string>
-    <string name="label_variation_name">Nama Variasi</string>
+    <string name="label_variation_name">Nama Varian</string>
     <string name="label_variation_price_adjustment">Harga Tambahan</string>
     <string name="label_variant">Varian: </string>
     <string name="label_transaction_history">Riwayat Transaksi</string>
@@ -23,20 +23,31 @@
     <string name="label_customer">Pelanggan</string>
     <string name="label_total">Total</string>
     <string name="label_product">Barang</string>
-    <string name="label_other_products">dan %1$d lainnya</string>
+    <string name="label_other_products">, dan %1$d lainnya</string>
     <string name="label_all">Semua</string>
     <string name="label_selected">Dipilih</string>
     <string name="label_selected_count">Dipilih (%1$d)</string>
-    <string name="label_config_product_desc">Pilih variasi dan atur jumlah untuk produk ini</string>
-    <string name="label_variation">Variasi</string>
+    <string name="label_config_product_desc">Pilih varian dan atur jumlah untuk produk ini</string>
+    <string name="label_variation">Varian</string>
     <string name="label_additional_price">Harga Tambahan: </string>
-    <string name="label_variation_and_addition">Variasi/Tambahan</string>
+    <string name="label_variation_and_addition">Varian/Tambahan</string>
     <string name="label_search_product">Cari Produk</string>
     <string name="label_customer_name">Nama Pelanggan</string>
     <string name="label_cart_count">Keranjang (%1$d)</string>
     <string name="label_cart">Keranjang</string>
     <string name="label_history">Riwayat</string>"
     <string name="label_menu">Menu</string>"
+    <string name="label_category_name">Nama Kategori:</string>
+
+    <!--Variant-->
+    <string name="item_variant_name">Nama Varian/Tambahan: %1$s</string>
+    <string name="item_variant_price">Harga Varian/Tambahan: %1$s</string>
+    <string name="item_variant_menu_edit">Edit Varian/Tambahan</string>
+    <string name="item_variant_menu_delete">Hapus Varian/Tambahan</string>
+
+    <!--Title-->
+    <string name="title_add_category">Tambah Kategori</string>
+    <string name="title_choose_variant">Pilih Varian/Tambahan</string>
 
     <string name="label_setting_product_volatile">Harga Produk Volatil</string>
     <string name="msg_setting_product_volatile">Jika aktif, Anda dapat mengubah harga produk saat menambahkan transaksi.</string>
@@ -48,14 +59,18 @@
     <string name="msg_setting_recap_transaction">Jika aktif, transaksi akan memiliki status rekap untuk membantu anda melakukan rekap manual.</string>
     <string name="label_recapped">Direkap</string>
     <string name="label_not_recapped">Belum Direkap</string>
+    <string name="label_variant_name">Nama Varian/Tambahan</string>
+    <string name="label_variant_price_adjustment">Harga Tambahan</string>
 
     <!--Button-->
     <string name="btn_add_product">Tambah Produk</string>
-    <string name="btn_add_variation">Tambah Variasi</string>
+    <string name="btn_add_category">Tambah Kategori</string>
+    <string name="btn_save_variant">Simpan Varian/Tambahan</string>
     <string name="btn_update_product">Ubah Produk</string>
     <string name="btn_delete_product">Hapus Produk</string>
     <string name="btn_add_transaction">Tambah Transaksi</string>
     <string name="btn_save_selection">Simpan Pilihan</string>
+    <string name="btn_save_category">Simpan Category</string>
     <string name="btn_add_to_cart">Tambah ke Keranjang</string>
     <string name="btn_delete">Hapus</string>
     <string name="btn_recap">Rekap</string>
@@ -63,6 +78,10 @@
     <string name="btn_save_transaction">Simpan Transaksi</string>
 
     <!--Item-->
+
+    <!--Title-->
+    <string name="title_no_category">Tanpa Kategori</string>
+    <string name="title_add_item_to_category">Tambahkan Produk kedalam Kategori</string>
 
 
     <!--Error-->

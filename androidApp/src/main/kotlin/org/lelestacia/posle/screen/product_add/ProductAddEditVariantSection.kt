@@ -49,7 +49,7 @@ fun ProductAddEditVariantSection(
         ) {
             Text(
                 stringResource(Res.string.label_variation_and_addition),
-                style = MaterialTheme.typography.labelMediumEmphasized.copy(
+                style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold
                 ),
                 modifier = Modifier

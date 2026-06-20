@@ -24,7 +24,7 @@ data class TransactionProductConfigState(
 )
 
 sealed interface TransactionProductConfigEvent {
-    data class OnVariantClicked(val variant: Variant) : TransactionProductConfigEvent
+    data class OnVariantClicked(val variant: Variant, val isChecked: Boolean) : TransactionProductConfigEvent
     data class OnAmountChanged(val amount: Float) : TransactionProductConfigEvent
     data object OnConfirmed : TransactionProductConfigEvent
 }
@@ -57,11 +57,16 @@ class TransactionProductConfigComponent(
         when (event) {
             is TransactionProductConfigEvent.OnVariantClicked -> {
                 val selected = state.value.selectedVariants.toMutableList()
-                if (event.variant in selected) {
-                    selected.remove(event.variant)
-                } else {
-                    selected.add(event.variant)
+                when(event.isChecked) {
+                    true -> {
+                        selected.add(event.variant)
+                    }
+
+                    false -> {
+                        selected.remove(event.variant)
+                    }
                 }
+
                 state.update { it.copy(selectedVariants = selected) }
             }
 

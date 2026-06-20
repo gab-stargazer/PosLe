@@ -6,7 +6,7 @@ import org.lelestacia.posle.domain.component.TransactionListComponent
 import org.lelestacia.posle.domain.component.TransactionProductConfigComponent
 import org.lelestacia.posle.domain.component.TransactionViewComponent
 import org.lelestacia.posle.domain.component.product_add_edit.ProductAddEditComponent
-import org.lelestacia.posle.domain.component.product_add_edit.ProductAddVariantViewComponent
+import org.lelestacia.posle.domain.component.product_add_edit.ProductAddVariantsViewComponent
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.Transaction
 import org.lelestacia.posle.domain.model.Variant
@@ -49,7 +49,7 @@ sealed class Child {
     data class TransactionView(val component: TransactionViewComponent) : Child()
     data class TransactionProductConfig(val component: TransactionProductConfigComponent) : Child()
     data class ProductAdd(val component: ProductAddEditComponent) : Child()
-    data class VariantView(val component: ProductAddVariantViewComponent): Child()
+    data class VariantView(val component: ProductAddVariantsViewComponent): Child()
 }
 
 @Serializable

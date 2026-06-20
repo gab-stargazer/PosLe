@@ -54,7 +54,7 @@ import org.lelestacia.posle.domain.state_event.TransactionAddEvent
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent.OnAddTransactionClicked
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent.OnTabChanged
 import org.lelestacia.posle.domain.state_event.TransactionAddState
-import org.lelestacia.posle.screen.product_list.ProductItem
+import org.lelestacia.posle.screen.product_list.component.ProductItem
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.util.SampleData
 import org.lelestacia.posle.util.toRupiah
@@ -175,7 +175,7 @@ fun TransactionAddUI(
                         products[it]?.let { product ->
                             ProductItem(
                                 product = product,
-                                onEdit = {
+                                onClick = {
                                     onEvent(TransactionAddEvent.OnRequestProductConfig(product))
                                 }
                             )

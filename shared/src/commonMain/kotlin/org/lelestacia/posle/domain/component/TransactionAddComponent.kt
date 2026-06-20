@@ -52,7 +52,7 @@ class TransactionAddComponent(
         .debounce(300.milliseconds)
         .distinctUntilChanged()
         .flatMapLatest { query ->
-            productRepository.readProduct(query)
+            productRepository.readProducts(query)
         }
         .cachedIn(scope)
 

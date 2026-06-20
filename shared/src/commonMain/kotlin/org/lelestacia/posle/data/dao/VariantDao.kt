@@ -6,6 +6,8 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
 import org.lelestacia.posle.data.entity.VariantEntity
 import org.lelestacia.posle.data.entity.VariantJunction
 
@@ -24,6 +26,16 @@ interface VariantDao {
     )
     fun readVariant(): PagingSource<Int, VariantEntity>
 
+    @Query(
+        """
+            SELECT variant.* FROM variant
+            INNER JOIN variant_junction 
+            ON variant.id = variant_junction.variant_id
+            WHERE variant_junction.product_id = :productId
+        """
+    )
+    fun readVariantByProductId(productId: Int): Flow<List<VariantEntity>>
+
     @Insert
     suspend fun insertVariantToProduct(variant: VariantJunction)
 
@@ -38,6 +50,17 @@ interface VariantDao {
     @Query("DELETE FROM variant_junction WHERE product_id = :productId")
     suspend fun clearProductVariants(productId: Int)
 
+    @Update
+    suspend fun updateVariant(variant: VariantEntity)
+
     @Delete
-    suspend fun deleteVariantToProduct(variant: VariantJunction)
+    suspend fun deleteVariant(variant: VariantEntity)
+
+    @Query(
+        """
+            DELETE FROM variant_junction
+            WHERE variant_id == :variantId
+        """
+    )
+    suspend fun deleteVariantJunction(variantId: Int)
 }

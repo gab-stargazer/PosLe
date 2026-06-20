@@ -26,16 +26,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.fade
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
-import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.component.DashboardComponent
 import org.lelestacia.posle.domain.state_event.DashboardComponentEvent
-import org.lelestacia.posle.domain.state_event.DashboardComponentEvent.OnNavigateTo
-import org.lelestacia.posle.navigation.Config.ProductAddEdit
 import org.lelestacia.posle.navigation.NavChild
 import org.lelestacia.posle.navigation.NavDestination
 import org.lelestacia.posle.screen.product_list.ProductListScreen
@@ -51,7 +49,7 @@ fun DashboardScreen(
 ) {
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val state by component.state.subscribeAsState()
+    val state by component.state.collectAsStateWithLifecycle()
 
     BackHandler(drawerState.isOpen) {
         scope.launch {
@@ -114,7 +112,16 @@ fun DashboardScreen(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = {},
+                    title = {
+                        Text(
+                            stringResource(
+                                NavDestination.entries[state.selectedTab.value].title
+                            ),
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
+                    },
                     navigationIcon = {
                         IconButton(
                             onClick = {
@@ -145,16 +152,6 @@ fun DashboardScreen(
                 when (val child = it.instance) {
                     is NavChild.ProductList -> {
                         ProductListScreen(
-                            onNavigateToAddProduct = { addEdit, product ->
-                                component.onEvent(
-                                    OnNavigateTo(
-                                        ProductAddEdit(
-                                            addEdit = addEdit,
-                                            product = product
-                                        )
-                                    )
-                                )
-                            },
                             component = child.component
                         )
                     }

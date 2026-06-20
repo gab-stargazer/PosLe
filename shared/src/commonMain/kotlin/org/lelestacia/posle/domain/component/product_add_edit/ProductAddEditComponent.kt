@@ -7,12 +7,14 @@ import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.update
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.repository.ProductRepository
+import org.lelestacia.posle.domain.repository.VariantRepository
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditState
 import org.lelestacia.posle.navigation.AddEdit
@@ -33,10 +35,27 @@ class ProductAddEditComponent(
     private val onNavigateToVariantSelection: (selectedVariants: List<Variant>, onResult: (List<Variant>) -> Unit) -> Unit,
     private val product: Product?,
     private val snackbarHostState: SnackbarHostState,
-    private val repository: ProductRepository
+    private val productRepository: ProductRepository,
+    private val variantRepository: VariantRepository,
 ) : ComponentContext by componentContext {
 
     private val scope = coroutineScope(Dispatchers.Main.immediate)
+
+    init {
+        if (product != null) {
+            scope.launch {
+                variantRepository
+                    .readVariantByProductId(product.id)
+                    .collectLatest { variants ->
+                        state.update {
+                            it.copy(
+                                variants = variants
+                            )
+                        }
+                    }
+            }
+        }
+    }
 
     val state: Value<ProductAddEditState>
         field = MutableValue(
@@ -65,7 +84,7 @@ class ProductAddEditComponent(
                     validate(
                         onSuccess = {
                             when (state.value.mode) {
-                                AddEdit.Add -> repository.addProduct(
+                                AddEdit.Add -> productRepository.addProduct(
                                     product = buildProduct(id = 0),
                                     imageByteArray = state.value.productImageByteArray
                                 )
@@ -81,10 +100,12 @@ class ProductAddEditComponent(
                                         .variants
                                         .associateBy { it.id }
 
-                                    val variantsToAdd = modified.filter { it.key !in original }.map { it.value }
-                                    val variantsToRemove = original.filter { it.key !in modified }.map { it.value }
+                                    val variantsToAdd =
+                                        modified.filter { it.key !in original }.map { it.value }
+                                    val variantsToRemove =
+                                        original.filter { it.key !in modified }.map { it.value }
 
-                                    repository.updateProduct(
+                                    productRepository.updateProduct(
                                         product = buildProduct(id = product.id),
                                         variantsToAdd = variantsToAdd.toList(),
                                         variantsToRemove = variantsToRemove.toList(),
@@ -112,7 +133,7 @@ class ProductAddEditComponent(
 
             ProductAddEditEvent.OnDeleteProductClicked -> {
                 scope.launch {
-                    repository.deleteProduct(
+                    productRepository.deleteProduct(
                         product = buildProduct(id = product?.id ?: return@launch)
                     )
 

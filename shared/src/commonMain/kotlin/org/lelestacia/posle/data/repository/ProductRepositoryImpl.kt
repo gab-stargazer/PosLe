@@ -1,25 +1,23 @@
 package org.lelestacia.posle.data.repository
 
 import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.PagingSource
 import androidx.paging.map
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.lelestacia.posle.data.dao.ProductDao
 import org.lelestacia.posle.data.dao.VariantDao
 import org.lelestacia.posle.data.entity.ProductEntity
-import org.lelestacia.posle.data.entity.VariantEntity
+import org.lelestacia.posle.data.entity.ProductWithVariants
 import org.lelestacia.posle.data.entity.VariantJunction
 import org.lelestacia.posle.data.entity.toDomain
-import org.lelestacia.posle.data.entity.toEntity
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.Variant
-import org.lelestacia.posle.domain.model.toDomain
 import org.lelestacia.posle.domain.repository.ProductRepository
 import org.lelestacia.posle.util.FileStorage
+import org.lelestacia.posle.util.Util.pagingConfig
 import kotlin.time.Clock
-
 
 class ProductRepositoryImpl(
     private val storage: FileStorage,
@@ -28,20 +26,20 @@ class ProductRepositoryImpl(
 ) : ProductRepository {
 
     override suspend fun addProduct(product: Product, imageByteArray: ByteArray?) {
-        val newImageUri = imageByteArray?.let {
+        val newImageUri = imageByteArray?.let { imageByteArray ->
             storage.saveImage(fileName = "${product.name.value}.png", imageByteArray)
         }
 
-        val productId = productDao.addProduct(
-            ProductEntity(
-                id = 0,
-                name = product.name,
-                price = product.price,
-                unit = product.unit,
-                imageUri = newImageUri,
-                createdAt = Clock.System.now().toEpochMilliseconds()
-            )
-        ).toInt()
+        val entity = ProductEntity(
+            id = 0,
+            name = product.name,
+            price = product.price,
+            unit = product.unit,
+            imageUri = newImageUri,
+            createdAt = Clock.System.now().toEpochMilliseconds()
+        )
+
+        val productId = productDao.addProduct(entity).toInt()
 
         product.variants.forEach { variant ->
             variantDao.insertVariantToProduct(
@@ -53,38 +51,18 @@ class ProductRepositoryImpl(
         }
     }
 
-    override suspend fun addVariant(variant: Variant) {
-        variantDao.insertVariant(variant.toEntity())
+    override fun readProducts(searchQuery: String): Flow<PagingData<Product>> {
+        return Pager(
+            config = pagingConfig,
+            pagingSourceFactory = { productDao.readProductWithVariants(searchQuery) }
+        ).flow.map { it.map { entity -> entity.toDomain() } }
     }
 
-    override fun readProduct(searchQuery: String): Flow<PagingData<Product>> {
+    override fun readProductWithoutCategories(searchQuery: String): Flow<PagingData<Product>> {
         return Pager(
-            config = PagingConfig(
-                pageSize = 15,
-                prefetchDistance = 10,
-                initialLoadSize = 30
-            ),
-            pagingSourceFactory = {
-                productDao.readProductWithVariants(searchQuery)
-            }
-        ).flow.map { pagingData ->
-            pagingData.map { it.toDomain() }
-        }
-    }
-
-    override fun readVariant(): Flow<PagingData<Variant>> {
-        return Pager(
-            config = PagingConfig(
-                pageSize = 15,
-                prefetchDistance = 10,
-                initialLoadSize = 30
-            ),
-            pagingSourceFactory = {
-                variantDao.readVariant()
-            }
-        ).flow.map { pagingData ->
-            pagingData.map(VariantEntity::toDomain)
-        }
+            config = pagingConfig,
+            pagingSourceFactory = { productDao.readProductWithoutCategories(searchQuery) }
+        ).flow.map { it.map { entity -> entity.toDomain() } }
     }
 
     override suspend fun updateProduct(
@@ -93,12 +71,14 @@ class ProductRepositoryImpl(
         variantsToRemove: List<Variant>,
         imageByteArray: ByteArray?
     ) {
-        var newImageUri = imageByteArray?.let {
-            storage.saveImage(fileName = "${product.name.value}.png", imageByteArray)
-        }
+        val finalImageUri = when {
+            imageByteArray != null -> storage.saveImage(
+                fileName = "${product.name.value}.png",
+                imageByteArray
+            )
 
-        if (product.imageUri != null && imageByteArray == null) {
-            newImageUri = product.imageUri
+            product.imageUri != null -> product.imageUri
+            else -> product.imageUri
         }
 
         productDao.update(
@@ -107,7 +87,7 @@ class ProductRepositoryImpl(
                 name = product.name,
                 price = product.price,
                 unit = product.unit,
-                imageUri = newImageUri,
+                imageUri = finalImageUri,
                 createdAt = Clock.System.now().toEpochMilliseconds()
             )
         )
@@ -133,5 +113,19 @@ class ProductRepositoryImpl(
     override suspend fun deleteProduct(product: Product) {
         storage.deleteImage(fileName = "${product.name.value}.png")
         productDao.delete(product.id)
+    }
+
+    override fun readProductWithCategories(
+        searchQuery: String,
+        categoryId: Int
+    ): PagingSource<Int, ProductWithVariants> {
+        return productDao.readProductWithCategories(searchQuery, categoryId)
+    }
+
+    override fun readProductNotInCategory(
+        searchQuery: String,
+        categoryId: Int
+    ): PagingSource<Int, ProductWithVariants> {
+        return productDao.readProductNotInCategory(searchQuery, categoryId)
     }
 }

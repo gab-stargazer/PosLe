@@ -1,12 +1,12 @@
-package org.lelestacia.posle.screen.product_list
+package org.lelestacia.posle.screen.product_list.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
@@ -30,19 +30,19 @@ import java.math.BigDecimal
 @Composable
 fun ProductItem(
     product: Product,
-    onEdit: () -> Unit,
+    onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
+
     ElevatedCard(
         shape = RoundedCornerShape(25F),
         modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onEdit)
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .fillMaxWidth()
         ) {
             if (product.imageUri != null) {
                 AsyncImage(
@@ -50,13 +50,13 @@ fun ProductItem(
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .widthIn(max = 256.dp)
                         .aspectRatio(1F)
                 )
             } else {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .widthIn(max = 256.dp)
                         .aspectRatio(1F)
                         .background(MaterialTheme.colorScheme.surfaceVariant)
                 )
@@ -89,12 +89,11 @@ private fun PreviewProductItem() {
             product = Product(
                 id = 0,
                 name = Name("Salak"),
-                unit = org.lelestacia.posle.util.Unit("Kg"),
+                unit = org.lelestacia.posle.util.Unit(value = "Kg"),
                 price = Price(BigDecimal("100000"))
             ),
-            onEdit = {
-
-            },
+            onClick = {},
+            onLongClick = {},
             modifier = Modifier.padding(12.dp)
         )
     }

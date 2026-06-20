@@ -118,12 +118,34 @@ fun TransactionItem(
                         fontWeight = FontWeight.Bold
                     ).toSpanStyle()
                 ) {
-                    append(transaction.items.first().productName.value)
+                    val name = transaction.items
+                        .groupBy { it.productName }
+                        .map {
+                            it.key
+                        }
+                        .first()
+
+                    append(name.value)
                 }
 
                 withStyle(MaterialTheme.typography.bodyMedium.toSpanStyle()) {
                     if ((transaction.items.size > 1)) {
-                        append(", ${stringResource(Res.string.label_other_products, transaction.items.size - 1)}")
+                        val uniqueName = transaction.items
+                            .groupBy { it.productName }
+                            .map {
+                                it.key
+                            }
+
+                        append(
+                            if(uniqueName.size == 1) {
+                                ""
+                            } else {
+                                stringResource(
+                                    Res.string.label_other_products,
+                                    uniqueName.size - 1
+                                )
+                            }
+                        )
                     }
                 }
             }

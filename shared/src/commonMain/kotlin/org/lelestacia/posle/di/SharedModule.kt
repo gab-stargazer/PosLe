@@ -5,13 +5,18 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import org.lelestacia.posle.data.PosLeDB
 import org.lelestacia.posle.data.SettingManager
+import org.lelestacia.posle.data.dao.CategoryDao
 import org.lelestacia.posle.data.dao.ProductDao
 import org.lelestacia.posle.data.dao.TransactionDao
 import org.lelestacia.posle.data.dao.VariantDao
+import org.lelestacia.posle.data.repository.CategoryRepositoryImpl
 import org.lelestacia.posle.data.repository.ProductRepositoryImpl
 import org.lelestacia.posle.data.repository.TransactionRepositoryImpl
+import org.lelestacia.posle.data.repository.VariantRepositoryImpl
+import org.lelestacia.posle.domain.repository.CategoryRepository
 import org.lelestacia.posle.domain.repository.ProductRepository
 import org.lelestacia.posle.domain.repository.TransactionRepository
+import org.lelestacia.posle.domain.repository.VariantRepository
 
 val sharedModule = module {
 
@@ -28,10 +33,22 @@ val sharedModule = module {
         get<PosLeDB>().variantDao()
     }
 
+    single<CategoryDao> {
+        get<PosLeDB>().categoryDao()
+    }
+
     singleOf(::SettingManager)
 
     singleOf(::ProductRepositoryImpl) {
         binds(listOf(ProductRepository::class))
+    }
+
+    singleOf(::CategoryRepositoryImpl) {
+        binds(listOf(CategoryRepository::class))
+    }
+
+    singleOf(::VariantRepositoryImpl) {
+        binds(listOf(VariantRepository::class))
     }
 
     singleOf(::TransactionRepositoryImpl) {

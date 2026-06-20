@@ -8,7 +8,7 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.StringResource
-import org.lelestacia.posle.domain.component.ProductListComponent
+import org.lelestacia.posle.domain.component.ProductListComponentImpl
 import org.lelestacia.posle.domain.component.SettingComponent
 import org.lelestacia.posle.domain.component.TransactionAddComponent
 import org.lelestacia.posle.domain.component.TransactionHistoryComponent
@@ -64,7 +64,7 @@ sealed interface NavConfig {
 sealed class NavChild {
     data class TransactionAdd(val component: TransactionAddComponent) : NavChild()
     data class TransactionHistory(val component: TransactionHistoryComponent) : NavChild()
-    data class ProductList(val component: ProductListComponent) : NavChild()
+    data class ProductList(val component: ProductListComponentImpl) : NavChild()
     data class Setting(val component: SettingComponent) : NavChild()
 }
 

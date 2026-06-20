@@ -13,7 +13,7 @@ import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import org.lelestacia.posle.screen.DashboardScreen
 import org.lelestacia.posle.screen.TransactionViewScreen
 import org.lelestacia.posle.screen.product_add.ProductAddEditScreen
-import org.lelestacia.posle.screen.product_add.ProductAddVariationViewScreen
+import org.lelestacia.posle.screen.product_add.ProductAddVariantsViewScreen
 import org.lelestacia.posle.screen.transaction_add.TransactionProductConfigScreen
 
 @Composable
@@ -47,7 +47,7 @@ fun RootContent(
                 is Child.TransactionProductConfig -> TransactionProductConfigScreen(component = child.component)
 
                 is Child.ProductAdd -> ProductAddEditScreen(component = child.component)
-                is Child.VariantView -> ProductAddVariationViewScreen(component = child.component)
+                is Child.VariantView -> ProductAddVariantsViewScreen(component = child.component)
             }
         }
     }
