@@ -17,6 +17,7 @@ import org.lelestacia.posle.domain.component.DashboardNavigation
 import org.lelestacia.posle.domain.component.ProductListComponentImpl
 import org.lelestacia.posle.domain.component.SettingComponent
 import org.lelestacia.posle.domain.component.TransactionAddComponent
+import org.lelestacia.posle.domain.component.TransactionAddNavigation
 import org.lelestacia.posle.domain.component.TransactionHistoryComponent
 import org.lelestacia.posle.domain.component.TransactionListComponent
 import org.lelestacia.posle.domain.component.TransactionProductConfigComponent
@@ -24,6 +25,7 @@ import org.lelestacia.posle.domain.component.TransactionViewComponent
 import org.lelestacia.posle.domain.component.TransactionViewNavigation
 import org.lelestacia.posle.domain.component.product_add_edit.ProductAddEditComponent
 import org.lelestacia.posle.domain.component.product_add_edit.ProductAddVariantsViewComponent
+import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.repository.CategoryRepository
 import org.lelestacia.posle.domain.repository.ProductRepository
@@ -104,12 +106,18 @@ class PosLeComponent(
                     productRepository = productRepository,
                     transactionRepository = transactionRepository,
                     settingManager = settingManager,
-                    onNavigateTo = {
-                        rootNavigation.pushToFront(it)
-                    },
-                    onNavigateToProductConfig = { product, onConfirmed ->
-                        rootNavigation.pushNew(Config.TransactionProductConfig(product))
-                        this.onProductConfigConfirmed = onConfirmed
+                    navigation = object : TransactionAddNavigation {
+                        override fun onNavigateTo(config: Config, onComplete: () -> Unit) {
+                            rootNavigation.pushToFront(config, onComplete = onComplete)
+                        }
+
+                        override fun onNavigateToProductConfig(
+                            product: Product,
+                            onConfirmed: (TransactionItemState, List<Variant>) -> Unit
+                        ) {
+                            rootNavigation.pushNew(Config.TransactionProductConfig(product))
+                            this@PosLeComponent.onProductConfigConfirmed = onConfirmed
+                        }
                     }
                 )
             )

@@ -103,11 +103,21 @@ private fun ProductAddEditUI(
             scrollState.value > 0
         }
     }
+
     val appBarContainerColor by animateColorAsState(
         targetValue = if (isScrolled) {
-            MaterialTheme.colorScheme.surfaceContainerHigh
+            MaterialTheme.colorScheme.primaryContainer
         } else {
             MaterialTheme.colorScheme.surfaceContainerLow
+        },
+        label = "ProductAddEditAppBarContainerColor"
+    )
+
+    val appBarContentColor by animateColorAsState(
+        targetValue = if (isScrolled) {
+            MaterialTheme.colorScheme.onPrimaryContainer
+        } else {
+            MaterialTheme.colorScheme.onSurfaceVariant
         },
         label = "ProductAddEditAppBarContainerColor"
     )
@@ -141,8 +151,8 @@ private fun ProductAddEditUI(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = appBarContainerColor,
-                    titleContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    titleContentColor = appBarContentColor,
+                    navigationIconContentColor = appBarContentColor
                 ),
                 navigationIcon = {
                     IconButton(

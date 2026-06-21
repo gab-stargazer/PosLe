@@ -6,7 +6,6 @@ import com.arkivanov.decompose.ComponentContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.debounce
@@ -34,12 +33,20 @@ import org.lelestacia.posle.util.coroutineScope
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 
+interface TransactionAddNavigation {
+    fun onNavigateTo(config: Config, onComplete: () -> Unit = {})
+
+    fun onNavigateToProductConfig(
+        product: Product,
+        onConfirmed: (TransactionItemState, List<Variant>) -> Unit
+    )
+}
+
 class TransactionAddComponent(
     componentContext: ComponentContext,
     productRepository: ProductRepository,
     private val settingManager: SettingManager,
-    private val onNavigateTo: (Config) -> Unit,
-    private val onNavigateToProductConfig: (Product, onConfirmed: (TransactionItemState, List<Variant>) -> Unit) -> Unit,
+    private val navigation: TransactionAddNavigation,
     private val transactionRepository: TransactionRepository
 ) : ComponentContext by componentContext {
 
@@ -84,7 +91,7 @@ class TransactionAddComponent(
 
             is TransactionAddEvent.OnRequestProductConfig -> {
                 val product = event.product
-                onNavigateToProductConfig(product) { itemState: TransactionItemState, variants: List<Variant> ->
+                navigation.onNavigateToProductConfig(product) { itemState: TransactionItemState, variants: List<Variant> ->
                     scope.launch {
                         state.update { currentState ->
 
@@ -100,13 +107,17 @@ class TransactionAddComponent(
                                 TransactionItem(
                                     id = 0,
                                     productName = product.name,
-                                    productPrice = Price(itemState.priceState.text.toString().ifBlank { "0" }.toBigDecimal()),
+                                    productPrice = Price(
+                                        itemState.priceState.text.toString().ifBlank { "0" }
+                                            .toBigDecimal()
+                                    ),
                                     productUnit = product.unit,
-                                    productAmount = Amount(itemState.amountState.text.toString().toFloat()),
+                                    productAmount = Amount(
+                                        itemState.amountState.text.toString().toFloat()
+                                    ),
                                     variants = variants
                                 )
                             )
-
 
                             currentState.copy(
                                 cartItems = cartItems.sortedBy { it.productName.value }
@@ -131,20 +142,19 @@ class TransactionAddComponent(
                 )
 
                 scope.launch {
-                    onNavigateTo(
+                    navigation.onNavigateTo(
                         TransactionView(
                             transaction = transactionRepository.insertAndGetTransaction(transaction)
                         )
-                    )
-
-                    delay(500.milliseconds)
-                    state.update {
-                        it.copy(
-                            searchQuery = TextFieldState(),
-                            customerName = TextFieldState(),
-                            cartItems = emptyList(),
-                            currentTab = 0
-                        )
+                    ) {
+                        state.update {
+                            it.copy(
+                                searchQuery = TextFieldState(),
+                                customerName = TextFieldState(),
+                                cartItems = emptyList(),
+                                currentTab = 0
+                            )
+                        }
                     }
                 }
             }

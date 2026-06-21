@@ -18,7 +18,7 @@ import org.lelestacia.posle.util.coroutineScope
 data class TransactionProductConfigState(
     val product: Product,
     val selectedVariants: List<Variant> = emptyList(),
-    val amountState: TextFieldState = TextFieldState(),
+    val amountState: TextFieldState = TextFieldState("1"),
     val priceState: TextFieldState = TextFieldState(),
     val settings: PosLeSettings = PosLeSettings()
 )
