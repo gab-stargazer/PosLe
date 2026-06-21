@@ -1,11 +1,13 @@
 package org.lelestacia.posle.domain.state_event
 
+import org.lelestacia.posle.data.PosLeSettings
 import org.lelestacia.posle.navigation.Config
 import org.lelestacia.posle.navigation.NavConfig
 import org.lelestacia.posle.util.SelectedTabIndex
 
 data class DashboardComponentState(
-    val selectedTab: SelectedTabIndex = SelectedTabIndex(0)
+    val selectedTab: SelectedTabIndex = SelectedTabIndex(0),
+    val settings: PosLeSettings = PosLeSettings()
 )
 
 sealed interface DashboardComponentEvent {

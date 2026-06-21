@@ -25,6 +25,7 @@ import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.O
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditNavigation
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditState
 import org.lelestacia.posle.navigation.AddEdit
+import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.coroutineScope
@@ -34,6 +35,7 @@ import posle.shared.generated.resources.msg_error_price_cannot_be_empty
 import posle.shared.generated.resources.msg_error_price_cannot_contain_alphabet
 import posle.shared.generated.resources.msg_error_unit_cannot_be_empty
 import java.math.BigDecimal
+import org.lelestacia.posle.util.Unit as PosLeUnit
 
 class ProductAddEditComponent(
     componentContext: ComponentContext,
@@ -175,7 +177,8 @@ class ProductAddEditComponent(
             id = id,
             name = Name(currentState.name.text.toString()),
             price = Price(BigDecimal(currentState.price.text.toString())),
-            unit = org.lelestacia.posle.util.Unit(currentState.unit.text.toString()),
+            stock = Amount(0F),
+            unit = PosLeUnit(currentState.unit.text.toString()),
             imageUri = currentState.productImageUri,
             variants = currentState.variants
         )

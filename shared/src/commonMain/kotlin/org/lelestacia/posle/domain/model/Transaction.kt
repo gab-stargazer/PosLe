@@ -21,6 +21,7 @@ data class Transaction(
 @Serializable
 data class TransactionItem(
     val id: Int,
+    val productId: Int,
     val productName: Name,
     val productPrice: Price,
     val productUnit: Unit,
@@ -38,6 +39,7 @@ fun Transaction.toEntity() = TransactionEntity(
 
 fun TransactionItem.toEntity(transactionId: Int) = TransactionItemEntity(
     id = id,
+    productId = productId,
     transactionId = transactionId,
     productName = productName,
     productPrice = productPrice,

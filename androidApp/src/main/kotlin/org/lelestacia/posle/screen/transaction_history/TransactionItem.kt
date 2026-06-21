@@ -217,6 +217,7 @@ private fun PreviewTransactionItem() {
                     SampleData.products.map {
                         TransactionItem(
                             id = it.id,
+                            productId = it.id,
                             productName = it.name,
                             productPrice = it.price,
                             productUnit = it.unit,

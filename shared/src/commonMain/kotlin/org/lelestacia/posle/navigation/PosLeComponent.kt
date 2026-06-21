@@ -14,6 +14,7 @@ import org.koin.java.KoinJavaComponent.inject
 import org.lelestacia.posle.data.SettingManager
 import org.lelestacia.posle.domain.component.DashboardComponentImpl
 import org.lelestacia.posle.domain.component.DashboardNavigation
+import org.lelestacia.posle.domain.component.ProductInboundOutboundComponentImpl
 import org.lelestacia.posle.domain.component.ProductListComponentImpl
 import org.lelestacia.posle.domain.component.SettingComponent
 import org.lelestacia.posle.domain.component.TransactionAddComponent
@@ -29,10 +30,17 @@ import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.repository.CategoryRepository
 import org.lelestacia.posle.domain.repository.ProductRepository
+import org.lelestacia.posle.domain.repository.StockRepository
 import org.lelestacia.posle.domain.repository.TransactionRepository
 import org.lelestacia.posle.domain.repository.VariantRepository
 import org.lelestacia.posle.domain.state_event.TransactionItemState
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditNavigation
+import org.lelestacia.posle.navigation.Config.TransactionProductConfig
+import org.lelestacia.posle.navigation.NavChild.ProductInboundOutbound
+import org.lelestacia.posle.navigation.NavChild.ProductList
+import org.lelestacia.posle.navigation.NavChild.Setting
+import org.lelestacia.posle.navigation.NavChild.TransactionAdd
+import org.lelestacia.posle.navigation.NavChild.TransactionHistory
 
 class PosLeComponent(
     componentContext: ComponentContext
@@ -45,6 +53,7 @@ class PosLeComponent(
     private val productRepository by inject<ProductRepository>(ProductRepository::class.java)
     private val categoryRepository by inject<CategoryRepository>(CategoryRepository::class.java)
     private val variantRepository by inject<VariantRepository>(VariantRepository::class.java)
+    private val stockRepository by inject<StockRepository>(StockRepository::class.java)
     private val transactionRepository by inject<TransactionRepository>(TransactionRepository::class.java)
 
 
@@ -75,7 +84,7 @@ class PosLeComponent(
 
     private fun createTabChild(config: NavConfig, context: ComponentContext): NavChild =
         when (config) {
-            is NavConfig.TransactionHistory -> NavChild.TransactionHistory(
+            is NavConfig.TransactionHistory -> TransactionHistory(
                 TransactionHistoryComponent(
                     componentContext = context,
                     settingManager = settingManager,
@@ -84,14 +93,14 @@ class PosLeComponent(
                 )
             )
 
-            NavConfig.Setting -> NavChild.Setting(
+            NavConfig.Setting -> Setting(
                 SettingComponent(
                     componentContext = context,
                     settingManager = settingManager
                 )
             )
 
-            NavConfig.ProductList -> NavChild.ProductList(
+            NavConfig.ProductList -> ProductList(
                 ProductListComponentImpl(
                     componentContext = context,
                     productRepository = productRepository,
@@ -100,7 +109,7 @@ class PosLeComponent(
                 )
             )
 
-            NavConfig.TransactionAdd -> NavChild.TransactionAdd(
+            NavConfig.TransactionAdd -> TransactionAdd(
                 TransactionAddComponent(
                     componentContext = context,
                     productRepository = productRepository,
@@ -115,10 +124,19 @@ class PosLeComponent(
                             product: Product,
                             onConfirmed: (TransactionItemState, List<Variant>) -> Unit
                         ) {
-                            rootNavigation.pushNew(Config.TransactionProductConfig(product))
+                            rootNavigation.pushNew(TransactionProductConfig(product))
                             this@PosLeComponent.onProductConfigConfirmed = onConfirmed
                         }
                     }
+                )
+            )
+
+            NavConfig.ProductInboundOutbound -> ProductInboundOutbound(
+                component = ProductInboundOutboundComponentImpl(
+                    componentContext = context,
+                    settingManager = settingManager,
+                    stockRepository = stockRepository,
+                    productRepository = productRepository
                 )
             )
         }
@@ -129,6 +147,7 @@ class PosLeComponent(
                 DashboardComponentImpl(
                     componentContext = context,
                     navChildren = tabChildren,
+                    settingManager = settingManager,
                     onNavigation = ::handleDashboardNavigation
                 )
             )

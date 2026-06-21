@@ -177,6 +177,7 @@ private fun PreviewTransactionItem() {
             transactionItem = TransactionItem(
                 id = 0,
                 productName = Name("Salak Pondoh"),
+                productId = 1,
                 productPrice = Price(BigDecimal(15000)),
                 productUnit = PosLeUnit("Kg"),
                 productAmount = Amount(50F),

@@ -5,6 +5,7 @@
     <string name="destination_transaction_add">Transaksi</string>
     <string name="destination_transaction_history">Riwayat Transaksi</string>
     <string name="destination_list_product">Daftar Produk</string>
+    <string name="destination_list_inbound_outbound">Keluar Masuk Produk</string>
     <string name="destination_settings">Pengaturan</string>
 
     <!--Label-->
@@ -57,6 +58,8 @@
     <string name="msg_setting_customer_name">Jika aktif, Anda dapat menambahkan nama pelanggan pada transaksi.</string>
     <string name="label_setting_recap_transaction">Rekap Transaksi Manual</string>
     <string name="msg_setting_recap_transaction">Jika aktif, transaksi akan memiliki status rekap untuk membantu anda melakukan rekap manual.</string>
+    <string name="label_setting_stock_tracked">Lacak Stok Barang</string>
+    <string name="msg_setting_stock_tracked">Jika aktif, stok keluar masuk barang dan menu yang sesuai akan tersedia.</string>
     <string name="label_recapped">Direkap</string>
     <string name="label_not_recapped">Belum Direkap</string>
     <string name="label_variant_name">Nama Varian/Tambahan</string>
@@ -79,12 +82,16 @@
     <string name="btn_save_transaction">Simpan Transaksi</string>
 
     <!--Item-->
+    <string name="txt_product_inbound">Produk %1$s masuk sejumlah %2$s %3$s</string>
+    <string name="txt_product_outbound">Produk %1$s keluar sejumlah %2$s %3$s</string>
 
     <!--Title-->
     <string name="title_no_category">Tanpa Kategori</string>
     <string name="title_additional_information">Informasi Tambahan</string>
     <string name="title_add_product_to_category">Tambahkan Produk kedalam Kategori</string>
     <string name="title_add_product_to_category_shorts">Tambahkan Produk</string>
+    <string name="title_outbound_purchase">Penjualan</string>
+    <string name="title_inbound">Barang Masuk</string>
 
     <!--Placeholder-->
     <string name="placeholder_store_name">Masukkan Nama Toko</string>

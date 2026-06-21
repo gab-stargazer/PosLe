@@ -22,3 +22,7 @@ value class Amount(val value: Float)
 
 @JvmInline
 value class SelectedTabIndex(val value: Int)
+
+@Serializable
+@JvmInline
+value class SkuNumber(val value: String)

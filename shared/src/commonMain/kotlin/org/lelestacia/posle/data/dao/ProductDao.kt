@@ -6,8 +6,9 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
 import org.lelestacia.posle.data.entity.ProductEntity
-import org.lelestacia.posle.data.entity.ProductWithVariants
+import org.lelestacia.posle.data.entity.ProductWithVariantsAndStock
 
 @Dao
 interface ProductDao {
@@ -18,9 +19,12 @@ interface ProductDao {
     @Query("SELECT * FROM product WHERE name LIKE '%' || :name || '%' ORDER BY name ASC")
     fun readProduct(name: String = ""): PagingSource<Int, ProductEntity>
 
+    @Query("SELECT * FROM product WHERE id = :id")
+    suspend fun readProductById(id: Int): ProductEntity?
+
     @Transaction
     @Query("SELECT * FROM product WHERE name LIKE '%' || :name || '%' ORDER BY name ASC")
-    fun readProductWithVariants(name: String = ""): PagingSource<Int, ProductWithVariants>
+    fun readProductWithVariants(name: String = ""): PagingSource<Int, ProductWithVariantsAndStock>
 
     @Transaction
     @Query(
@@ -33,7 +37,7 @@ interface ProductDao {
             ORDER BY name ASC
         """
     )
-    fun readProductWithoutCategories(searchQuery: String): PagingSource<Int, ProductWithVariants>
+    fun readProductWithoutCategories(searchQuery: String): PagingSource<Int, ProductWithVariantsAndStock>
 
     @Transaction
     @Query(
@@ -46,7 +50,7 @@ interface ProductDao {
             ORDER BY name ASC
         """
     )
-    fun readProductWithCategories(searchQuery: String, categoryId: Int): PagingSource<Int, ProductWithVariants>
+    fun readProductWithCategories(searchQuery: String, categoryId: Int): PagingSource<Int, ProductWithVariantsAndStock>
 
     @Transaction
     @Query(
@@ -59,7 +63,22 @@ interface ProductDao {
             ORDER BY name ASC
         """
     )
-    fun readProductNotInCategory(searchQuery: String, categoryId: Int): PagingSource<Int, ProductWithVariants>
+    fun readProductNotInCategory(searchQuery: String, categoryId: Int): PagingSource<Int, ProductWithVariantsAndStock>
+
+    @Transaction
+    @Query(
+        """
+            SELECT *
+            FROM product
+            LEFT JOIN product_category_junction
+            ON product.id = product_category_junction.product_id
+            LEFT JOIN stock
+            ON product.id = stock.product_id
+            WHERE product.name LIKE '%' || :searchQuery || '%'
+            ORDER BY product.name ASC
+        """
+    )
+    fun getAvailableProducts(searchQuery: String = ""): Flow<List<ProductWithVariantsAndStock>>
 
     @Update
     suspend fun update(product: ProductEntity)

@@ -380,6 +380,7 @@ private fun PreviewTransactionUI() {
                     items = listOf(
                         TransactionItem(
                             id = 1,
+                            productId = 1,
                             productName = Name("Sate Ayam"),
                             productPrice = Price(BigDecimal("15000")),
                             productUnit = org.lelestacia.posle.util.Unit("Porsi"),
@@ -399,6 +400,7 @@ private fun PreviewTransactionUI() {
                         ),
                         TransactionItem(
                             id = 2,
+                            productId = 2,
                             productName = Name("Es Teh Manis"),
                             productPrice = Price(BigDecimal("5000")),
                             productUnit = org.lelestacia.posle.util.Unit("Gelas"),

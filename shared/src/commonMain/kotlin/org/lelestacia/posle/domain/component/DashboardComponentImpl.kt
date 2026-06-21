@@ -6,8 +6,10 @@ import com.arkivanov.decompose.value.Value
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.lelestacia.posle.data.SettingManager
 import org.lelestacia.posle.domain.component.DashboardNavigation.DrawerNav
 import org.lelestacia.posle.domain.component.DashboardNavigation.Nav
 import org.lelestacia.posle.domain.state_event.DashboardComponentEvent
@@ -21,16 +23,28 @@ import org.lelestacia.posle.util.coroutineScope
 class DashboardComponentImpl(
     componentContext: ComponentContext,
     private val navChildren: Value<ChildStack<NavConfig, NavChild>>,
+    private val settingManager: SettingManager,
     val onNavigation: (DashboardNavigation) -> Unit,
 ) : ComponentContext by componentContext, DashboardComponent {
 
     private val scope = coroutineScope(Dispatchers.Main.immediate)
 
-    override val children: Value<ChildStack<NavConfig, NavChild>>
-        get() = navChildren
+    override val children: Value<ChildStack<NavConfig, NavChild>> = navChildren
 
     override val state: StateFlow<DashboardComponentState>
         field = MutableStateFlow(DashboardComponentState())
+
+    init {
+        scope.launch {
+            settingManager.readSettings().first().run {
+                state.update {
+                    it.copy(
+                        settings = this
+                    )
+                }
+            }
+        }
+    }
 
     override fun onEvent(event: DashboardComponentEvent) {
         scope.launch {

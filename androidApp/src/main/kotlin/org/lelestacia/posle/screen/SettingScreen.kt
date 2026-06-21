@@ -50,11 +50,13 @@ import posle.shared.generated.resources.label_setting_amount_precise
 import posle.shared.generated.resources.label_setting_customer_name
 import posle.shared.generated.resources.label_setting_product_volatile
 import posle.shared.generated.resources.label_setting_recap_transaction
+import posle.shared.generated.resources.label_setting_stock_tracked
 import posle.shared.generated.resources.label_store_name
 import posle.shared.generated.resources.msg_setting_amount_precise
 import posle.shared.generated.resources.msg_setting_customer_name
 import posle.shared.generated.resources.msg_setting_product_volatile
 import posle.shared.generated.resources.msg_setting_recap_transaction
+import posle.shared.generated.resources.msg_setting_stock_tracked
 import posle.shared.generated.resources.placeholder_store_name
 import posle.shared.generated.resources.title_additional_information
 
@@ -125,6 +127,16 @@ fun SettingUI(
                 description = stringResource(Res.string.msg_setting_recap_transaction),
                 checked = state.settings.isTransactionRecapNeeded,
                 onCheckedChange = { onEvent(SettingEvent.OnToggleTransactionRecapNeeded(it)) },
+                modifier = Modifier
+                    .padding(horizontal = 12.dp)
+                    .padding(top = 12.dp)
+            )
+
+            SettingItem(
+                title = stringResource(Res.string.label_setting_stock_tracked),
+                description = stringResource(Res.string.msg_setting_stock_tracked),
+                checked = state.settings.isProductStockTracked,
+                onCheckedChange = { onEvent(SettingEvent.OnToggleStockTracked(it)) },
                 modifier = Modifier
                     .padding(horizontal = 12.dp)
                     .padding(top = 12.dp)
@@ -217,7 +229,9 @@ private fun SettingItem(
             .padding(vertical = 8.dp)
     ) {
         Column(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 12.dp)
         ) {
             Text(
                 text = title,

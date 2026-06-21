@@ -31,6 +31,7 @@ import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.ui.theme.AppTheme
+import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.toRupiah
@@ -146,6 +147,7 @@ private fun PreviewProductItem() {
                 product = Product(
                     id = 0,
                     name = Name("Salak"),
+                    stock = Amount(0F),
                     unit = org.lelestacia.posle.util.Unit(value = "Kg"),
                     price = Price(BigDecimal("100000"))
                 ),

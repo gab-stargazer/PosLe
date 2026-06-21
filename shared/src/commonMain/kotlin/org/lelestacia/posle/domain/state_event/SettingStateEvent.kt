@@ -13,6 +13,7 @@ sealed interface SettingEvent {
     data class OnToggleAmountPrecise(val newValue: Boolean) : SettingEvent
     data class OnToggleCustomerNameNeeded(val newValue: Boolean) : SettingEvent
     data class OnToggleTransactionRecapNeeded(val newValue: Boolean) : SettingEvent
+    data class OnToggleStockTracked(val newValue: Boolean) : SettingEvent
 
     data object OnStoreNameSaved : SettingEvent
 }

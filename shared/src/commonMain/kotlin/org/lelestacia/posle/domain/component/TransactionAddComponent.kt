@@ -107,13 +107,18 @@ class TransactionAddComponent(
                                 TransactionItem(
                                     id = 0,
                                     productName = product.name,
+                                    productId = product.id,
                                     productPrice = Price(
-                                        itemState.priceState.text.toString().ifBlank { "0" }
+                                        itemState.priceState.text
+                                            .toString()
+                                            .ifBlank { "0" }
                                             .toBigDecimal()
                                     ),
                                     productUnit = product.unit,
                                     productAmount = Amount(
-                                        itemState.amountState.text.toString().toFloat()
+                                        itemState.amountState.text
+                                            .toString()
+                                            .toFloat()
                                     ),
                                     variants = variants
                                 )

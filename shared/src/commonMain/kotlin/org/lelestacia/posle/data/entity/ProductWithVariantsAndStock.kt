@@ -6,9 +6,15 @@ import androidx.room.Relation
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.toDomain
 
-data class ProductWithVariants(
+data class ProductWithVariantsAndStock(
     @Embedded
     val product: ProductEntity,
+
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "product_id"
+    )
+    val stock: StockEntity,
 
     @Relation(
         parentColumn = "id",
@@ -22,12 +28,14 @@ data class ProductWithVariants(
     val variants: List<VariantEntity>
 )
 
-fun ProductWithVariants.toDomain(): Product {
+fun ProductWithVariantsAndStock.toDomain(): Product {
     return Product(
         id = product.id,
         name = product.name,
+        stock = stock.stock,
         price = product.price,
         unit = product.unit,
+        skuNumber = product.skuNumber,
         imageUri = product.imageUri,
         variants = variants.map { it.toDomain() }.sortedBy { it.name.value }
     )

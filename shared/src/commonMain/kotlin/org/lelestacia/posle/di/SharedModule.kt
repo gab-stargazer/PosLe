@@ -7,14 +7,17 @@ import org.lelestacia.posle.data.PosLeDB
 import org.lelestacia.posle.data.SettingManager
 import org.lelestacia.posle.data.dao.CategoryDao
 import org.lelestacia.posle.data.dao.ProductDao
+import org.lelestacia.posle.data.dao.StockDao
 import org.lelestacia.posle.data.dao.TransactionDao
 import org.lelestacia.posle.data.dao.VariantDao
 import org.lelestacia.posle.data.repository.CategoryRepositoryImpl
 import org.lelestacia.posle.data.repository.ProductRepositoryImpl
+import org.lelestacia.posle.data.repository.StockRepositoryImpl
 import org.lelestacia.posle.data.repository.TransactionRepositoryImpl
 import org.lelestacia.posle.data.repository.VariantRepositoryImpl
 import org.lelestacia.posle.domain.repository.CategoryRepository
 import org.lelestacia.posle.domain.repository.ProductRepository
+import org.lelestacia.posle.domain.repository.StockRepository
 import org.lelestacia.posle.domain.repository.TransactionRepository
 import org.lelestacia.posle.domain.repository.VariantRepository
 
@@ -23,6 +26,10 @@ val sharedModule = module {
 
     single<ProductDao> {
         get<PosLeDB>().productDao()
+    }
+
+    single<StockDao> {
+        get<PosLeDB>().stockDao()
     }
 
     single<TransactionDao> {
@@ -45,6 +52,10 @@ val sharedModule = module {
 
     singleOf(::CategoryRepositoryImpl) {
         binds(listOf(CategoryRepository::class))
+    }
+
+    singleOf(::StockRepositoryImpl) {
+        binds(listOf(StockRepository::class))
     }
 
     singleOf(::VariantRepositoryImpl) {

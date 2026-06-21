@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
+import org.lelestacia.posle.util.SkuNumber
 import org.lelestacia.posle.util.Unit as PosLeUnit
 
 @Entity(
@@ -20,6 +21,8 @@ data class ProductEntity(
     val price: Price,
     @ColumnInfo("unit")
     val unit: PosLeUnit,
+    @ColumnInfo("sku_number")
+    val skuNumber: SkuNumber? = null,
     @ColumnInfo("image_uri")
     val imageUri: String? = null,
     @ColumnInfo("created_at")

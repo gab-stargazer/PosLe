@@ -36,6 +36,7 @@ import org.lelestacia.posle.domain.component.DashboardComponent
 import org.lelestacia.posle.domain.state_event.DashboardComponentEvent
 import org.lelestacia.posle.navigation.NavChild
 import org.lelestacia.posle.navigation.NavDestination
+import org.lelestacia.posle.screen.product_inbound_outbound.ProductInboundOutboundScreen
 import org.lelestacia.posle.screen.product_list.ProductListScreen
 import org.lelestacia.posle.screen.transaction_add.TransactionAddScreen
 import org.lelestacia.posle.screen.transaction_history.TransactionHistoryScreen
@@ -151,28 +152,24 @@ fun DashboardScreen(
             ) {
                 when (val child = it.instance) {
                     is NavChild.ProductList -> {
-                        ProductListScreen(
-                            component = child.component
-                        )
+                        ProductListScreen(component = child.component)
                     }
-
 
                     is NavChild.Setting -> {
                         SettingScreen(component = child.component)
                     }
 
                     is NavChild.TransactionAdd -> {
-                        TransactionAddScreen(
-                            component = child.component
-                        )
+                        TransactionAddScreen(component = child.component)
                     }
 
                     is NavChild.TransactionHistory -> {
-                        TransactionHistoryScreen(
-                            component = child.component
-                        )
+                        TransactionHistoryScreen(component = child.component)
                     }
 
+                    is NavChild.ProductInboundOutbound -> {
+                        ProductInboundOutboundScreen(component = child.component)
+                    }
                 }
             }
         }

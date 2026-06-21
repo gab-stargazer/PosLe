@@ -17,6 +17,7 @@ class SettingManager(
     val amountPreciseKey = booleanPreferencesKey("is_amount_precise")
     val customerNameKey = booleanPreferencesKey("is_customer_name_needed")
     val transactionRecapKey = booleanPreferencesKey("is_transaction_recap_needed")
+    val productStockTracked = booleanPreferencesKey("is_product_stock_tracked")
     val storeNameKey = stringPreferencesKey("store_name")
 
     fun readSettings(): Flow<PosLeSettings> {
@@ -26,6 +27,7 @@ class SettingManager(
                 isAmountPrecise = it[amountPreciseKey] ?: false,
                 isCustomerNameNeeded = it[customerNameKey] ?: false,
                 isTransactionRecapNeeded = it[transactionRecapKey] ?: false,
+                isProductStockTracked = it[productStockTracked] ?: false,
                 storeName = Name(it[storeNameKey] ?: "")
             )
         }
@@ -47,6 +49,10 @@ class SettingManager(
         dataStore.edit { it[transactionRecapKey] = newValue }
     }
 
+    suspend fun updateProductStockTracked(newValue: Boolean) {
+        dataStore.edit { it[productStockTracked] = newValue }
+    }
+
     suspend fun updateStoreName(newName: Name) {
         dataStore.edit { it[storeNameKey] = newName.value }
     }
@@ -57,6 +63,7 @@ data class PosLeSettings(
     val isAmountPrecise: Boolean = false,
     val isCustomerNameNeeded: Boolean = false,
     val isTransactionRecapNeeded: Boolean = false,
+    val isProductStockTracked: Boolean = false,
 
     //  Text Based Settings
     val storeName: Name = Name(""),

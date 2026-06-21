@@ -29,7 +29,7 @@ class SettingComponent(
             settingManager.readSettings()
                 .first()
                 .run {
-                    (state as MutableValue).update {
+                    state.update {
                         it.copy(
                             settings = this,
                             storeNameState = TextFieldState(this.storeName.value)
@@ -88,6 +88,18 @@ class SettingComponent(
                     }
 
                     settingManager.updateTransactionRecapNeeded(event.newValue)
+                }
+
+                is SettingEvent.OnToggleStockTracked -> {
+                    state.update { currentState ->
+                        currentState.copy(
+                            settings = currentState.settings.copy(
+                                isProductStockTracked = event.newValue
+                            )
+                        )
+                    }
+
+                    settingManager.updateProductStockTracked(event.newValue)
                 }
 
                 SettingEvent.OnStoreNameSaved -> {

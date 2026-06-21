@@ -1,0 +1,207 @@
+package org.lelestacia.posle.screen.product_inbound_outbound
+
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
+import com.skydoves.compose.stability.runtime.TraceRecomposition
+import org.lelestacia.posle.domain.component.ProductInboundOutboundComponent
+import org.lelestacia.posle.domain.component.ProductInboundOutboundComponentEvent.OnTabSelected
+import org.lelestacia.posle.domain.component.ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnToggleDialog
+import org.lelestacia.posle.domain.model.Product
+
+@TraceRecomposition
+@Composable
+fun ProductInboundOutboundScreen(
+    component: ProductInboundOutboundComponent,
+    modifier: Modifier = Modifier
+) {
+    val state by component.state.collectAsStateWithLifecycle()
+    val paging = component.priceMovement.collectAsLazyPagingItems()
+    val products = component.products.collectAsLazyPagingItems()
+
+
+    if (state.isAddStockShown) {
+        Dialog(
+            onDismissRequest = { component.onEvent(OnToggleDialog) }
+        ) {
+            ProductInboundOutboundAddStockDialog(
+                state = state.addStockState,
+                onEvent = component::onEvent
+            )
+        }
+    }
+
+    Scaffold(
+        floatingActionButton = {
+            AnimatedVisibility(state.settingState.isProductStockTracked) {
+                FloatingActionButton(
+                    onClick = { component.onEvent(OnToggleDialog) }
+                ) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                }
+            }
+        }
+    ) { paddingValues ->
+        AnimatedContent(
+            state.settingState.isProductStockTracked,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) { isStockTracked ->
+            when (isStockTracked) {
+                true -> {
+                    Column(
+                        modifier = modifier
+                            .fillMaxSize()
+                            .padding(paddingValues)
+                    ) {
+                        val tabs = listOf("Logbook", "Stok Produk")
+                        PrimaryTabRow(selectedTabIndex = state.selectedTab) {
+                            tabs.forEachIndexed { index, title ->
+                                Tab(
+                                    selected = state.selectedTab == index,
+                                    onClick = { component.onEvent(OnTabSelected(index)) },
+                                    text = {
+                                        Text(
+                                            text = title,
+                                            style = MaterialTheme.typography.titleSmall.copy(
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        )
+                                    }
+                                )
+                            }
+                        }
+
+                        AnimatedContent(state.selectedTab == 0) { isStockMovement ->
+                            when (isStockMovement) {
+                                true -> {
+                                    LazyColumn(
+                                        modifier = Modifier.fillMaxSize()
+                                    ) {
+                                        items(
+                                            paging.itemCount,
+                                            paging.itemKey { stockMovement -> stockMovement.id }) {
+                                            paging[it]?.let { stockMovement ->
+                                                Column(modifier = Modifier.animateItem()) {
+                                                    ProductInboundOutboundItem(
+                                                        stockMovement = stockMovement,
+                                                        modifier = Modifier
+                                                    )
+                                                    HorizontalDivider()
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                false -> {
+                                    LazyColumn(
+                                        modifier = Modifier.fillMaxSize()
+                                    ) {
+                                        items(
+                                            products.itemCount,
+                                            key = products.itemKey { it.id }) { index ->
+                                            products[index]?.let { product ->
+                                                Column(modifier = Modifier.animateItem()) {
+                                                    ProductStockItem(product = product)
+                                                    HorizontalDivider()
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                false -> {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(
+                            6.dp,
+                            Alignment.CenterVertically
+                        ),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primaryContainer
+                        )
+                        Text(
+                            "Silahkan aktifkan pengaturan Lacak Stok Produk untuk dapat menggunakan menu ini. Transaksi yang dilakukan sebelum menu diaktifkan tidak akan mempengaruhi stok",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                textAlign = TextAlign.Center
+                            ),
+                            modifier = Modifier.padding(horizontal = 12.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+    }
+}
+
+@Composable
+fun ProductStockItem(
+    product: Product,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(12.dp)
+    ) {
+        Column(modifier = Modifier.weight(1F)) {
+            Text(
+                text = product.name.value,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Bold
+                )
+            )
+            Text(
+                text = "Satuan: ${product.unit.value}",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+        Text(
+            text = product.stock.value.toString(),
+            style = MaterialTheme.typography.titleLarge.copy(
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+        )
+    }
+}

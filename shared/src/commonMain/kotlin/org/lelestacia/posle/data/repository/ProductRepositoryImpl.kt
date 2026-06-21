@@ -7,14 +7,17 @@ import androidx.paging.map
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.lelestacia.posle.data.dao.ProductDao
+import org.lelestacia.posle.data.dao.StockDao
 import org.lelestacia.posle.data.dao.VariantDao
 import org.lelestacia.posle.data.entity.ProductEntity
-import org.lelestacia.posle.data.entity.ProductWithVariants
+import org.lelestacia.posle.data.entity.ProductWithVariantsAndStock
+import org.lelestacia.posle.data.entity.StockEntity
 import org.lelestacia.posle.data.entity.VariantJunction
 import org.lelestacia.posle.data.entity.toDomain
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.repository.ProductRepository
+import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.FileStorage
 import org.lelestacia.posle.util.Util.pagingConfig
 import kotlin.time.Clock
@@ -23,6 +26,7 @@ class ProductRepositoryImpl(
     private val storage: FileStorage,
     private val productDao: ProductDao,
     private val variantDao: VariantDao,
+    private val stockDao: StockDao
 ) : ProductRepository {
 
     override suspend fun addProduct(product: Product, imageByteArray: ByteArray?) {
@@ -35,11 +39,20 @@ class ProductRepositoryImpl(
             name = product.name,
             price = product.price,
             unit = product.unit,
+            skuNumber = product.skuNumber,
             imageUri = newImageUri,
             createdAt = Clock.System.now().toEpochMilliseconds()
         )
 
         val productId = productDao.addProduct(entity).toInt()
+
+        val newStock = StockEntity(
+            id = 0,
+            productId = productId,
+            stock = Amount(0F),
+            updatedAt = null
+        )
+        stockDao.insertNewStock(newStock)
 
         product.variants.forEach { variant ->
             variantDao.insertVariantToProduct(
@@ -87,6 +100,7 @@ class ProductRepositoryImpl(
                 name = product.name,
                 price = product.price,
                 unit = product.unit,
+                skuNumber = product.skuNumber,
                 imageUri = finalImageUri,
                 createdAt = Clock.System.now().toEpochMilliseconds()
             )
@@ -110,22 +124,26 @@ class ProductRepositoryImpl(
         }
     }
 
-    override suspend fun deleteProduct(product: Product) {
-        storage.deleteImage(fileName = "${product.name.value}.png")
-        productDao.delete(product.id)
-    }
-
     override fun readProductWithCategories(
         searchQuery: String,
         categoryId: Int
-    ): PagingSource<Int, ProductWithVariants> {
+    ): PagingSource<Int, ProductWithVariantsAndStock> {
         return productDao.readProductWithCategories(searchQuery, categoryId)
     }
 
     override fun readProductNotInCategory(
         searchQuery: String,
         categoryId: Int
-    ): PagingSource<Int, ProductWithVariants> {
+    ): PagingSource<Int, ProductWithVariantsAndStock> {
         return productDao.readProductNotInCategory(searchQuery, categoryId)
+    }
+
+    override fun readAvailableProducts(searchQuery: String): Flow<List<Product>> {
+        return productDao.getAvailableProducts(searchQuery).map { it.map(ProductWithVariantsAndStock::toDomain) }
+    }
+
+    override suspend fun deleteProduct(product: Product) {
+        storage.deleteImage(fileName = "${product.name.value}.png")
+        productDao.delete(product.id)
     }
 }
