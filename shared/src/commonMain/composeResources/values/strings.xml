@@ -82,8 +82,9 @@
 
     <!--Title-->
     <string name="title_no_category">Tanpa Kategori</string>
-    <string name="title_add_item_to_category">Tambahkan Produk kedalam Kategori</string>
     <string name="title_additional_information">Informasi Tambahan</string>
+    <string name="title_add_product_to_category">Tambahkan Produk kedalam Kategori</string>
+    <string name="title_add_product_to_category_shorts">Tambahkan Produk</string>
 
     <!--Placeholder-->
     <string name="placeholder_store_name">Masukkan Nama Toko</string>
