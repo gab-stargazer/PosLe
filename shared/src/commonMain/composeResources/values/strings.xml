@@ -66,7 +66,7 @@
     <!--Button-->
     <string name="btn_add_product">Tambah Produk</string>
     <string name="btn_add_category">Tambah Kategori</string>
-    <string name="btn_save_variant">Simpan Varian/Tambahan</string>
+    <string name="btn_add_variant">Tambahkan Varian</string>
     <string name="btn_update_product">Ubah Produk</string>
     <string name="btn_delete_product">Hapus Produk</string>
     <string name="btn_add_transaction">Tambah Transaksi</string>

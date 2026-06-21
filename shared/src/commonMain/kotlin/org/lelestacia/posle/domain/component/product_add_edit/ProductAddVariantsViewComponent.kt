@@ -127,11 +127,6 @@ class ProductAddVariantsViewComponent(
                             return
                         }
 
-                        if (newVariant.priceAdjustment.value <= BigDecimal.ZERO) {
-
-                            return
-                        }
-
                         scope.launch {
                             repository.addVariant(newVariant)
                         }

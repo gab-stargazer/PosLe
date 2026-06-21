@@ -71,7 +71,7 @@ fun ProductsLazyHorizontalGrid(
         contentPadding = PaddingValues(horizontal = GridItemSpacing),
         modifier = modifier.height(height)
     ) {
-        if (products.itemCount == 0) {
+        if (products.itemCount == 0 && !isCategorizedProduct) {
             item { EmptyProductsCard(modifier = Modifier.fillMaxSize()) }
         }
 

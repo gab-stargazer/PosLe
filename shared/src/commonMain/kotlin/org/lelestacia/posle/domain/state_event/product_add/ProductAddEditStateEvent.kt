@@ -1,9 +1,9 @@
 package org.lelestacia.posle.domain.state_event.product_add
 
 import androidx.compose.foundation.text.input.TextFieldState
-import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.navigation.AddEdit
+import org.lelestacia.posle.navigation.Config
 
 data class ProductAddEditState(
     val name: TextFieldState = TextFieldState(),
@@ -17,12 +17,25 @@ data class ProductAddEditState(
 
     //  Mode
     val mode: AddEdit,
-): InstanceKeeper.Instance
+)
 
 sealed interface ProductAddEditEvent {
     data class OnImageChanged(val uri: String?, val bytes: ByteArray?) : ProductAddEditEvent
     data class OnVariantSelected(val variants: List<Variant>) : ProductAddEditEvent
-    data object OnNavigateToViewVariant : ProductAddEditEvent
     data object OnAddProductClicked : ProductAddEditEvent
     data object OnDeleteProductClicked : ProductAddEditEvent
+
+    sealed interface Navigation : ProductAddEditEvent {
+        data class OnNavigateToVariantView(val config: Config.VariantView) : Navigation
+        data object OnPop : Navigation
+    }
+}
+
+interface ProductAddEditNavigation {
+    fun onPop()
+
+    fun onNavigateToVariantSelection(
+        config: Config.VariantView,
+        onResult: (List<Variant>) -> Unit
+    )
 }

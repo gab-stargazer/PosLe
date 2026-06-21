@@ -29,13 +29,13 @@ import org.lelestacia.posle.domain.state_event.product_add.ProductVariantViewSta
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.util.RupiahOutputTransformation
 import posle.shared.generated.resources.Res
-import posle.shared.generated.resources.btn_save_variant
+import posle.shared.generated.resources.btn_add_variant
 import posle.shared.generated.resources.label_variation_and_addition
 import posle.shared.generated.resources.label_variation_name
 import posle.shared.generated.resources.label_variation_price_adjustment
 
 @Composable
-fun ProductAddVariationDialog(
+fun ProductAddVariantDialog(
     state: VariantAddEditState,
     onSaveClicked: () -> Unit,
     modifier: Modifier = Modifier
@@ -140,7 +140,7 @@ fun ProductAddVariationDialog(
                     .padding(top = 12.dp)
             ) {
                 Text(
-                    stringResource(Res.string.btn_save_variant),
+                    stringResource(Res.string.btn_add_variant),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.Bold
                     )
@@ -152,9 +152,9 @@ fun ProductAddVariationDialog(
 
 @Preview
 @Composable
-private fun PreviewProductAddVariationDialog() {
+private fun PreviewProductAddVariantDialog() {
     AppTheme {
-        ProductAddVariationDialog(
+        ProductAddVariantDialog(
             state = VariantAddEditState(
                 variantNameState = TextFieldState("Karung"),
                 variantPriceState = TextFieldState("0")

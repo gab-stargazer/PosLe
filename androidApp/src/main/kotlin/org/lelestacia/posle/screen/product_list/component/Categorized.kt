@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.paging.PagingData
@@ -94,6 +95,7 @@ fun LazyListScope.categorized(
                                     searchQuery,
                                     category.id
                                 ).collectAsLazyPagingItems()
+
                                 ProductsLazyHorizontalGrid(
                                     products = filteredProducts,
                                     onClick = { product ->
@@ -221,7 +223,11 @@ fun CategoryMenu(
 ) {
     DropdownMenu(
         expanded = isExpanded,
-        onDismissRequest = onDismiss
+        onDismissRequest = onDismiss,
+        offset = DpOffset(
+            x = (-12).dp,
+            y = 0.dp
+        )
     ) {
 
         DropdownMenuItem(

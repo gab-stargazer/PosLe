@@ -1,6 +1,7 @@
 package org.lelestacia.posle.screen.product_list
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -20,12 +22,15 @@ import androidx.compose.material3.FloatingActionButtonMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -64,6 +69,16 @@ fun ProductListScreen(
 
     val categories = state.categories.collectAsLazyPagingItems()
     val uncategorizedProducts = state.uncategorizedProducts.collectAsLazyPagingItems()
+    val listState = rememberLazyListState()
+    val isListScrolled by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0
+        }
+    }
+    val searchBarElevation by animateDpAsState(
+        targetValue = if (isListScrolled) 8.dp else 0.dp,
+        label = "ProductListSearchBarElevation"
+    )
 
     if (state.isAddCategoryDisplayed) {
         Dialog(
@@ -136,37 +151,44 @@ fun ProductListScreen(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surfaceContainerLowest)
         ) {
-            TextField(
-                value = state.searchQuery,
-                onValueChange = { newQuery ->
-                    component.onEvent(OnQueryChanged(newQuery))
-                },
-                placeholder = {
-                    Text(
-                        text = stringResource(Res.string.label_search_product),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = null
-                    )
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp),
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp),
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                ),
-                shape = RoundedCornerShape(25F),
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceContainerLowest,
+                shadowElevation = searchBarElevation,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 12.dp)
-                    .padding(top = 12.dp)
-            )
+            ) {
+                TextField(
+                    value = state.searchQuery,
+                    onValueChange = { newQuery ->
+                        component.onEvent(OnQueryChanged(newQuery))
+                    },
+                    placeholder = {
+                        Text(
+                            text = stringResource(Res.string.label_search_product),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = null
+                        )
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp),
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    shape = RoundedCornerShape(25F),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(all = 12.dp)
+                )
+            }
 
             LazyColumn(
+                state = listState,
                 modifier = Modifier.weight(1F)
             ) {
 

@@ -40,8 +40,8 @@ import org.lelestacia.posle.domain.state_event.product_add.ProductVariantViewEve
 import org.lelestacia.posle.domain.state_event.product_add.ProductVariantViewEvent.OnSaveVariant
 import org.lelestacia.posle.domain.state_event.product_add.ProductVariantViewEvent.OnVariantDialogDismissed
 import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.btn_add_variant
 import posle.shared.generated.resources.btn_save_selection
-import posle.shared.generated.resources.btn_save_variant
 import posle.shared.generated.resources.title_choose_variant
 
 @Composable
@@ -61,7 +61,7 @@ fun ProductAddVariantsViewScreen(
                 dismissOnClickOutside = false
             )
         ) {
-            ProductAddVariationDialog(
+            ProductAddVariantDialog(
                 state = state.addEditVariantDialogState,
                 onSaveClicked = {
                     component.onEvent(OnSaveVariant)
@@ -168,7 +168,7 @@ fun ProductAddVariantsViewScreen(
                         .padding(horizontal = 12.dp)
                         .padding(bottom = 12.dp)
                 ) {
-                    Text(stringResource(Res.string.btn_save_variant))
+                    Text(stringResource(Res.string.btn_add_variant))
                 }
             }
         }

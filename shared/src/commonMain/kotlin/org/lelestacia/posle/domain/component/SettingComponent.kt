@@ -21,7 +21,8 @@ class SettingComponent(
 
     private val scope = coroutineScope(Dispatchers.Main.immediate)
 
-    val state: Value<SettingState> = MutableValue(SettingState())
+    val state: Value<SettingState>
+        field = MutableValue(SettingState())
 
     init {
         scope.launch {
@@ -42,18 +43,50 @@ class SettingComponent(
         scope.launch {
             when (event) {
                 is SettingEvent.OnToggleProductVolatile -> {
+                    state.update { currentState ->
+                        currentState.copy(
+                            settings = currentState.settings.copy(
+                                isProductVolatile = event.newValue
+                            )
+                        )
+                    }
+
                     settingManager.updateProductVolatile(event.newValue)
                 }
 
                 is SettingEvent.OnToggleAmountPrecise -> {
+                    state.update { currentState ->
+                        currentState.copy(
+                            settings = currentState.settings.copy(
+                                isAmountPrecise = event.newValue
+                            )
+                        )
+                    }
+
                     settingManager.updateAmountPrecise(event.newValue)
                 }
 
                 is SettingEvent.OnToggleCustomerNameNeeded -> {
+                    state.update { currentState ->
+                        currentState.copy(
+                            settings = currentState.settings.copy(
+                                isCustomerNameNeeded = event.newValue
+                            )
+                        )
+                    }
+
                     settingManager.updateCustomerNameNeeded(event.newValue)
                 }
 
                 is SettingEvent.OnToggleTransactionRecapNeeded -> {
+                    state.update { currentState ->
+                        currentState.copy(
+                            settings = currentState.settings.copy(
+                                isTransactionRecapNeeded = event.newValue
+                            )
+                        )
+                    }
+
                     settingManager.updateTransactionRecapNeeded(event.newValue)
                 }
 

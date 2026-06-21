@@ -1,6 +1,7 @@
 package org.lelestacia.posle.screen.product_add
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -13,13 +14,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,12 +52,16 @@ import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.component.product_add_edit.ProductAddEditComponent
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent
+import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.Navigation.OnNavigateToVariantView
+import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.Navigation.OnPop
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnAddProductClicked
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnDeleteProductClicked
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnImageChanged
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditState
+import org.lelestacia.posle.navigation.AddEdit
 import org.lelestacia.posle.navigation.AddEdit.Add
 import org.lelestacia.posle.navigation.AddEdit.Edit
+import org.lelestacia.posle.navigation.Config
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
@@ -85,6 +97,21 @@ private fun ProductAddEditUI(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
+    val isScrolled by remember {
+        derivedStateOf {
+            scrollState.value > 0
+        }
+    }
+    val appBarContainerColor by animateColorAsState(
+        targetValue = if (isScrolled) {
+            MaterialTheme.colorScheme.surfaceContainerHigh
+        } else {
+            MaterialTheme.colorScheme.surfaceContainerLow
+        },
+        label = "ProductAddEditAppBarContainerColor"
+    )
+
     val imagePicker = rememberFilePickerLauncher(
         type = FileKitType.Image
     ) {
@@ -99,6 +126,38 @@ private fun ProductAddEditUI(
     }
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        when (state.mode) {
+                            AddEdit.Add -> "Tambahkan Produk"
+                            AddEdit.Edit -> "Edit Produk"
+                        },
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                        )
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = appBarContainerColor,
+                    titleContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                ),
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            onEvent(OnPop)
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = Icons.AutoMirrored.Filled.ArrowBack.name
+                        )
+                    }
+                }
+            )
+        },
         contentWindowInsets = WindowInsets(),
         modifier = modifier
     ) { paddingValues ->
@@ -107,7 +166,7 @@ private fun ProductAddEditUI(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surfaceContainerLowest)
                 .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
         ) {
             OutlinedTextField(
                 state = state.name,
@@ -204,7 +263,7 @@ private fun ProductAddEditUI(
             ProductAddEditVariantSection(
                 variants = state.variants,
                 onAddVariantClicked = {
-                    onEvent(ProductAddEditEvent.OnNavigateToViewVariant)
+                    onEvent(OnNavigateToVariantView(Config.VariantView(selectedVariants = state.variants)))
                 }
             )
 

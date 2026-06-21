@@ -16,6 +16,13 @@ import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.repository.ProductRepository
 import org.lelestacia.posle.domain.repository.VariantRepository
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent
+import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.Navigation
+import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.Navigation.OnPop
+import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnAddProductClicked
+import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnDeleteProductClicked
+import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnImageChanged
+import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnVariantSelected
+import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditNavigation
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditState
 import org.lelestacia.posle.navigation.AddEdit
 import org.lelestacia.posle.util.Name
@@ -31,8 +38,7 @@ import java.math.BigDecimal
 class ProductAddEditComponent(
     componentContext: ComponentContext,
     mode: AddEdit,
-    private val onPop: () -> Unit,
-    private val onNavigateToVariantSelection: (selectedVariants: List<Variant>, onResult: (List<Variant>) -> Unit) -> Unit,
+    private val navigation: ProductAddEditNavigation,
     private val product: Product?,
     private val snackbarHostState: SnackbarHostState,
     private val productRepository: ProductRepository,
@@ -72,14 +78,14 @@ class ProductAddEditComponent(
     fun onEvent(event: ProductAddEditEvent) {
         when (event) {
 
-            is ProductAddEditEvent.OnImageChanged -> state.update {
+            is OnImageChanged -> state.update {
                 it.copy(
                     productImageUri = event.uri,
                     productImageByteArray = event.bytes
                 )
             }
 
-            ProductAddEditEvent.OnAddProductClicked -> {
+            OnAddProductClicked -> {
                 scope.launch {
                     validate(
                         onSuccess = {
@@ -113,13 +119,14 @@ class ProductAddEditComponent(
                                     )
                                 }
                             }
-                            onPop()
+
+                            onNavigationEvent(OnPop)
                         }
                     )
                 }
             }
 
-            is ProductAddEditEvent.OnVariantSelected -> {
+            is OnVariantSelected -> {
                 val variants = state.value.variants.toMutableList()
                 variants.removeAll(state.value.variants)
                 variants.addAll(event.variants)
@@ -131,20 +138,33 @@ class ProductAddEditComponent(
                 }
             }
 
-            ProductAddEditEvent.OnDeleteProductClicked -> {
+            OnDeleteProductClicked -> {
                 scope.launch {
                     productRepository.deleteProduct(
                         product = buildProduct(id = product?.id ?: return@launch)
                     )
 
-                    onPop()
+                    onNavigationEvent(OnPop)
                 }
             }
 
-            ProductAddEditEvent.OnNavigateToViewVariant -> {
-                onNavigateToVariantSelection(state.value.variants) {
-                    onEvent(ProductAddEditEvent.OnVariantSelected(it))
-                }
+            is Navigation -> onNavigationEvent(event)
+        }
+    }
+
+    private fun onNavigationEvent(event: Navigation) {
+        when (event) {
+            is Navigation.OnNavigateToVariantView -> {
+                navigation.onNavigateToVariantSelection(
+                    config = event.config,
+                    onResult = { newlySelectedVariant ->
+                        onEvent(OnVariantSelected(newlySelectedVariant))
+                    }
+                )
+            }
+
+            OnPop -> {
+                navigation.onPop()
             }
         }
     }

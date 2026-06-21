@@ -30,6 +30,7 @@ import org.lelestacia.posle.domain.repository.ProductRepository
 import org.lelestacia.posle.domain.repository.TransactionRepository
 import org.lelestacia.posle.domain.repository.VariantRepository
 import org.lelestacia.posle.domain.state_event.TransactionItemState
+import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditNavigation
 
 class PosLeComponent(
     componentContext: ComponentContext
@@ -166,11 +167,19 @@ class PosLeComponent(
                     snackbarHostState = snackbarHostState,
                     productRepository = productRepository,
                     variantRepository = variantRepository,
-                    onNavigateToVariantSelection = { selectedVariants, onResult ->
-                        onVariantsSelected = onResult
-                        rootNavigation.pushNew(Config.VariantView(selectedVariants))
+                    navigation = object : ProductAddEditNavigation {
+                        override fun onPop() {
+                            rootNavigation.pop()
+                        }
+
+                        override fun onNavigateToVariantSelection(
+                            config: Config.VariantView,
+                            onResult: (List<Variant>) -> Unit
+                        ) {
+                            onVariantsSelected = onResult
+                            rootNavigation.pushNew(config)
+                        }
                     },
-                    onPop = rootNavigation::pop
                 )
             )
 
