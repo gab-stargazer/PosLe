@@ -56,8 +56,10 @@ private fun EmptyProductsCard(modifier: Modifier = Modifier) {
 fun ProductsLazyHorizontalGrid(
     modifier: Modifier = Modifier,
     products: LazyPagingItems<Product>,
+    isCategorizedProduct: Boolean = false,
     onClick: (Product) -> Unit,
-    onLongClick: ((Product) -> Unit)? = null
+    onLongClick: ((Product) -> Unit)? = null,
+    onAddProductToCategoryClicked: (() -> Unit)? = null
 ) {
     val rowCount = if (products.itemCount < 7) 1 else 2
     val height = GridItemHeight * rowCount + GridItemSpacing * (rowCount - 1)
@@ -84,6 +86,18 @@ fun ProductsLazyHorizontalGrid(
                     onLongClick = { onLongClick?.invoke(product) },
                     modifier = Modifier
                         .widthIn(max = 128.dp)
+                        .animateItem()
+                )
+            }
+        }
+
+        item {
+            if(isCategorizedProduct) {
+                ProductAddItem(
+                    onClick = {
+                        onAddProductToCategoryClicked?.invoke()
+                    },
+                    modifier = Modifier.widthIn(128.dp)
                         .animateItem()
                 )
             }

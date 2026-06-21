@@ -45,7 +45,7 @@ import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.navigation.AddEdit.Edit
 import org.lelestacia.posle.navigation.Config.ProductAddEdit
 import posle.shared.generated.resources.Res
-import posle.shared.generated.resources.title_add_item_to_category
+import posle.shared.generated.resources.title_add_product_to_category
 
 fun LazyListScope.categorized(
     searchQuery: String,
@@ -84,7 +84,7 @@ fun LazyListScope.categorized(
                                 modifier = Modifier.padding(12.dp)
                             ) {
                                 Text(
-                                    text = stringResource(resource = Res.string.title_add_item_to_category),
+                                    text = stringResource(resource = Res.string.title_add_product_to_category),
                                     style = MaterialTheme.typography.titleMedium.copy(
                                         fontWeight = FontWeight.Bold
                                     ),
@@ -146,10 +146,6 @@ fun LazyListScope.categorized(
                             onDismiss = {
                                 isExpanded = false
                             },
-                            onAddProduct = {
-                                isAddProductToCategoryShown = true
-                                isExpanded = false
-                            },
                             onEditCategory = {
                                 isExpanded = false
                             },
@@ -172,12 +168,16 @@ fun LazyListScope.categorized(
                 ) {
                     ProductsLazyHorizontalGrid(
                         products = pagingData,
+                        isCategorizedProduct = true,
                         onClick = { product ->
                             onEvent(OnNavigateTo(ProductAddEdit(Edit, product)))
                         },
                         onLongClick = { product ->
                             isRemovedItemMenuShown = true
                             selectedProduct = product
+                        },
+                        onAddProductToCategoryClicked = {
+                            isAddProductToCategoryShown = true
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -216,7 +216,6 @@ fun LazyListScope.categorized(
 fun CategoryMenu(
     isExpanded: Boolean,
     onDismiss: () -> Unit,
-    onAddProduct: () -> Unit,
     onEditCategory: () -> Unit,
     onDeleteCategory: () -> Unit
 ) {
@@ -224,17 +223,6 @@ fun CategoryMenu(
         expanded = isExpanded,
         onDismissRequest = onDismiss
     ) {
-        DropdownMenuItem(
-            text = {
-                Text(
-                    "Tambahkan Item",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-            },
-            onClick = onAddProduct
-        )
 
         DropdownMenuItem(
             text = {
