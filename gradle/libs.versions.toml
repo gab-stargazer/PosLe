@@ -29,6 +29,7 @@ serializationLibrary = "1.11.0"
 filekit = "0.14.1"
 coil = "3.5.0"
 datastore = "1.2.1"
+permissionsCompose = "1.0.5"
 vico = "3.2.2"
 
 [libraries]
@@ -92,6 +93,9 @@ coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" 
 #   DataStore
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+
+#   Permission Compose
+permissions-compose = { group = "com.meticha", name = "permissions_compose", version.ref = "permissionsCompose" }
 
 #   Vico
 vico-compose-m3 = { group = "com.patrykandpatrick.vico", name = "compose-m3", version.ref = "vico" }

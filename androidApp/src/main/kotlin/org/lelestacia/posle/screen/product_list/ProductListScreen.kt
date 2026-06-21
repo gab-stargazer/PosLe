@@ -63,7 +63,6 @@ fun ProductListScreen(
     val state by component.state.collectAsStateWithLifecycle()
 
     val categories = state.categories.collectAsLazyPagingItems()
-
     val uncategorizedProducts = state.uncategorizedProducts.collectAsLazyPagingItems()
 
     if (state.isAddCategoryDisplayed) {

@@ -4,8 +4,10 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.lelestacia.posle.util.Name
 
 class SettingManager(
     private val dataStore: DataStore<Preferences>
@@ -15,6 +17,7 @@ class SettingManager(
     val amountPreciseKey = booleanPreferencesKey("is_amount_precise")
     val customerNameKey = booleanPreferencesKey("is_customer_name_needed")
     val transactionRecapKey = booleanPreferencesKey("is_transaction_recap_needed")
+    val storeNameKey = stringPreferencesKey("store_name")
 
     fun readSettings(): Flow<PosLeSettings> {
         return dataStore.data.map {
@@ -22,7 +25,8 @@ class SettingManager(
                 isProductVolatile = it[productVolatileKey] ?: false,
                 isAmountPrecise = it[amountPreciseKey] ?: false,
                 isCustomerNameNeeded = it[customerNameKey] ?: false,
-                isTransactionRecapNeeded = it[transactionRecapKey] ?: false
+                isTransactionRecapNeeded = it[transactionRecapKey] ?: false,
+                storeName = Name(it[storeNameKey] ?: "")
             )
         }
     }
@@ -42,6 +46,10 @@ class SettingManager(
     suspend fun updateTransactionRecapNeeded(newValue: Boolean) {
         dataStore.edit { it[transactionRecapKey] = newValue }
     }
+
+    suspend fun updateStoreName(newName: Name) {
+        dataStore.edit { it[storeNameKey] = newName.value }
+    }
 }
 
 data class PosLeSettings(
@@ -49,4 +57,7 @@ data class PosLeSettings(
     val isAmountPrecise: Boolean = false,
     val isCustomerNameNeeded: Boolean = false,
     val isTransactionRecapNeeded: Boolean = false,
+
+    //  Text Based Settings
+    val storeName: Name = Name(""),
 )

@@ -47,7 +47,8 @@ class ProductListComponentImpl(
 
     private val _state = MutableStateFlow(ProductListComponentState())
 
-    val categories = categoryRepository.readCategories()
+    val categories: Flow<PagingData<Category>> = categoryRepository
+        .readCategories()
         .cachedIn(scope)
 
     override val productPagingFlows: MutableMap<Pair<String, Int>, Flow<PagingData<Product>>> =

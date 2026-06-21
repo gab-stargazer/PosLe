@@ -4,7 +4,7 @@ import com.dantsu.escposprinter.EscPosPrinter
 import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnections
 import org.lelestacia.posle.domain.model.Transaction
 
-fun printTransaction(transaction: Transaction) {
+fun printTransaction(transaction: Transaction, storeName: Name) {
     val printer = EscPosPrinter(
         BluetoothPrintersConnections.selectFirstPaired(),
         203,
@@ -12,8 +12,14 @@ fun printTransaction(transaction: Transaction) {
         32
     )
 
+    val storeName = if(storeName.value.isNotBlank()) {
+        storeName.value
+    } else {
+        "Transaksi PosLe"
+    }
+
     val text =
-                "[C]<u><font size='big'>Transaksi PosLe</font></u>\n" +
+                "[C]<u><font size='big'>$storeName</font></u>\n" +
                 "[L]\n" +
                 "[L]\n ${transaction.createdAt.toFormattedDateTime()}\n" +
                 "[C]================================\n" +

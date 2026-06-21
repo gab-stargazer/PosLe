@@ -61,6 +61,7 @@
     <string name="label_not_recapped">Belum Direkap</string>
     <string name="label_variant_name">Nama Varian/Tambahan</string>
     <string name="label_variant_price_adjustment">Harga Tambahan</string>
+    <string name="label_store_name">Nama Toko</string>
 
     <!--Button-->
     <string name="btn_add_product">Tambah Produk</string>
@@ -82,7 +83,10 @@
     <!--Title-->
     <string name="title_no_category">Tanpa Kategori</string>
     <string name="title_add_item_to_category">Tambahkan Produk kedalam Kategori</string>
+    <string name="title_additional_information">Informasi Tambahan</string>
 
+    <!--Placeholder-->
+    <string name="placeholder_store_name">Masukkan Nama Toko</string>
 
     <!--Error-->
     <string name="msg_error_name_cannot_be_empty">Nama Produk tidak boleh kosong</string>

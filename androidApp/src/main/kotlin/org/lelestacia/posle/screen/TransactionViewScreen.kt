@@ -2,8 +2,6 @@ package org.lelestacia.posle.screen
 
 import android.Manifest
 import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandVertically
@@ -47,6 +45,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.meticha.permissions_compose.AppPermission
+import com.meticha.permissions_compose.rememberAppPermissionState
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.component.TransactionViewComponent
@@ -83,32 +83,35 @@ fun TransactionViewScreen(
     val scope = rememberCoroutineScope()
     val state by component.state.collectAsStateWithLifecycle()
 
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        val allGranted = permissions.entries.all { it.value }
-        if (allGranted) {
-            scope.launch {
-                printTransaction(transaction = state.transaction)
-            }
-        }
-    }
+    val permissions = rememberAppPermissionState(
+        permissions = listOf(
+            AppPermission(
+                permission = Manifest.permission.BLUETOOTH_SCAN,
+                description = "Camera access is needed to take photos. Please grant this permission.",
+                isRequired = true
+            ),
+            AppPermission(
+                permission = Manifest.permission.BLUETOOTH_CONNECT,
+                description = "Microphone access is needed for voice recording. Please grant this permission.",
+                isRequired = false
+            ),
+        )
+    )
 
     TransactionUI(
         state = state,
         onNavigation = component::onAction,
         onEvent = component::onEvent,
         onPrint = {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                permissionLauncher.launch(
-                    arrayOf(
-                        Manifest.permission.BLUETOOTH_CONNECT,
-                        Manifest.permission.BLUETOOTH_SCAN
-                    )
-                )
+            if (Build.VERSION.SDK_INT >= 31 && permissions.allRequiredGranted()) {
+                scope.launch {
+                    printTransaction(transaction = state.transaction, storeName = state.settings.storeName)
+                }
+            } else if (Build.VERSION.SDK_INT >= 31) {
+                permissions.requestPermission()
             } else {
                 scope.launch {
-                    printTransaction(transaction = state.transaction)
+                    printTransaction(transaction = state.transaction, storeName = state.settings.storeName)
                 }
             }
         },
