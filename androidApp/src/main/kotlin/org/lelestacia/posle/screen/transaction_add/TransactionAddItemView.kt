@@ -39,6 +39,13 @@ fun TransactionAddItemView(
     onRemove: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val amount =
+        if (transactionItem.productAmount.value % 1 == 0F) {
+            transactionItem.productAmount.value.roundToInt()
+        } else {
+            transactionItem.productAmount.value
+        }
+
     Column(
         modifier = modifier
             .padding(start = 12.dp)
@@ -66,13 +73,6 @@ fun TransactionAddItemView(
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
-
-                val amount =
-                    if (transactionItem.productAmount.value % 1 == 0F) {
-                        transactionItem.productAmount.value.roundToInt()
-                    } else {
-                        transactionItem.productAmount.value
-                    }
 
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -129,7 +129,7 @@ fun TransactionAddItemView(
                     )
 
                     Text(
-                        variant.name.value,
+                        "${variant.name.value} x $amount",
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -141,30 +141,38 @@ fun TransactionAddItemView(
             }
         }
 
-        if (transactionItem.variants.isNotEmpty()) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth(0.85F)
-                    .padding(top = 6.dp)
-            ) {
-                Text(
-                    text = "Subtotal:",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.Bold
-                    )
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth(0.85F)
+                .padding(top = 6.dp)
+        ) {
+            Text(
+                text = "Subtotal:",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontWeight = FontWeight.Bold
                 )
+            )
 
-                val sumVariant = transactionItem.variants.sumOf { it.priceAdjustment.value * transactionItem.productAmount.value.toBigDecimal() }
-                val sumItem = transactionItem.productAmount.value.toBigDecimal() * transactionItem.productPrice.value
+            val sumVariant =
+                transactionItem.variants.sumOf { it.priceAdjustment.value * transactionItem.productAmount.value.toBigDecimal() }
+            val sumItem =
+                transactionItem.productAmount.value.toBigDecimal() * transactionItem.productPrice.value
 
+            Text(
+                (sumVariant + sumItem).toRupiah(),
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+            )
+        }
 
+        if (transactionItem.productNote.orEmpty().isNotBlank()) {
+            Text(
+                "Catatan:",
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.padding(top = 12.dp)
+            )
 
-                Text(
-                    (sumVariant + sumItem).toRupiah(),
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
-                )
-            }
+            Text(transactionItem.productNote.orEmpty(), style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
@@ -181,11 +189,12 @@ private fun PreviewTransactionItem() {
                 productPrice = Price(BigDecimal(15000)),
                 productUnit = PosLeUnit("Kg"),
                 productAmount = Amount(50F),
+                productNote = "1 Karung",
                 variants = listOf(
                     Variant(
                         id = 0,
                         name = Name("Karung"),
-                        priceAdjustment = Price(BigDecimal(0))
+                        priceAdjustment = Price(BigDecimal("5000"))
                     )
                 )
             ),

@@ -120,6 +120,9 @@ class TransactionAddComponent(
                                             .toString()
                                             .toFloat()
                                     ),
+                                    productNote = itemState.noteState.text
+                                        .toString()
+                                        .ifBlank { null },
                                     variants = variants
                                 )
                             )

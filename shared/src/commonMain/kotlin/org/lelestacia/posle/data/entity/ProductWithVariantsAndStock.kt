@@ -14,6 +14,12 @@ data class ProductWithVariantsAndStock(
         parentColumn = "id",
         entityColumn = "product_id"
     )
+    val priceHistorical: List<ProductPriceEntity>,
+
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "product_id"
+    )
     val stock: StockEntity,
 
     @Relation(
@@ -33,7 +39,7 @@ fun ProductWithVariantsAndStock.toDomain(): Product {
         id = product.id,
         name = product.name,
         stock = stock.stock,
-        price = product.price,
+        price = priceHistorical.maxBy { it.createdAt }.price,
         unit = product.unit,
         skuNumber = product.skuNumber,
         imageUri = product.imageUri,

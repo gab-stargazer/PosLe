@@ -313,7 +313,7 @@ fun AppTheme(
 ) {
   val colorScheme = when {
       darkTheme -> darkScheme
-      else -> mediumContrastLightColorScheme
+      else -> highContrastLightColorScheme
   }
 
   MaterialTheme(

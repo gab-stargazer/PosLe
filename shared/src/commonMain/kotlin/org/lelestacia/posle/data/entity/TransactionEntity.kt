@@ -56,6 +56,8 @@ data class TransactionItemEntity(
     val productPrice: Price,
     @ColumnInfo("product_unit")
     val productUnit: Unit,
+    @ColumnInfo("product_note")
+    val productNote: String? = null,
     @ColumnInfo("product_amount")
     val productAmount: Amount,
     @ColumnInfo("variants")
@@ -89,5 +91,6 @@ fun TransactionItemEntity.toDomain() = TransactionItem(
     productPrice = productPrice,
     productUnit = productUnit,
     productAmount = productAmount,
+    productNote = productNote,
     variants = variants
 )

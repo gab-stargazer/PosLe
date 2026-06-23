@@ -26,5 +26,6 @@ sealed interface TransactionAddEvent {
 data class TransactionItemState(
     val amountState: TextFieldState = TextFieldState(),
     val priceState: TextFieldState = TextFieldState(),
+    val noteState: TextFieldState = TextFieldState(),
     val variants: List<Variant> = emptyList()
 )

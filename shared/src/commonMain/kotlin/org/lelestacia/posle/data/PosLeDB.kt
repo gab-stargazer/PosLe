@@ -7,6 +7,9 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.execSQL
 import org.lelestacia.posle.data.converter.BigDecimalConverter
 import org.lelestacia.posle.data.converter.StockMovementTypeConverter
 import org.lelestacia.posle.data.converter.TransactionVariantConverter
@@ -18,6 +21,7 @@ import org.lelestacia.posle.data.dao.VariantDao
 import org.lelestacia.posle.data.entity.CategoryEntity
 import org.lelestacia.posle.data.entity.ProductCategoryJunction
 import org.lelestacia.posle.data.entity.ProductEntity
+import org.lelestacia.posle.data.entity.ProductPriceEntity
 import org.lelestacia.posle.data.entity.StockEntity
 import org.lelestacia.posle.data.entity.StockMovementEntity
 import org.lelestacia.posle.data.entity.TransactionEntity
@@ -28,6 +32,7 @@ import org.lelestacia.posle.data.entity.VariantJunction
 @Database(
     entities = [
         ProductEntity::class,
+        ProductPriceEntity::class,
         TransactionEntity::class,
         TransactionItemEntity::class,
         VariantEntity::class,
@@ -37,7 +42,7 @@ import org.lelestacia.posle.data.entity.VariantJunction
         StockEntity::class,
         StockMovementEntity::class
     ],
-    version = 1,
+    version = 3,
     exportSchema = true,
 )
 @ConstructedBy(AppDatabaseConstructor::class)
@@ -52,6 +57,67 @@ abstract class PosLeDB : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
     abstract fun variantDao(): VariantDao
     abstract fun categoryDao(): CategoryDao
+
+    companion object {
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+
+            override fun migrate(connection: SQLiteConnection) {
+                connection.execSQL(
+                    "ALTER TABLE transaction_item ADD COLUMN product_note TEXT DEFAULT NULL"
+                )
+            }
+        }
+
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(connection: SQLiteConnection) {
+                // 1. Create the new price history table
+                connection.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `product_price` (
+                    `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                    `product_id` INTEGER NOT NULL,
+                    `price` TEXT NOT NULL,
+                    `change_type` TEXT NOT NULL,
+                    `created_at` INTEGER NOT NULL,
+                    FOREIGN KEY(`product_id`) REFERENCES `product`(`id`) ON DELETE CASCADE)
+                    """
+                )
+                connection.execSQL("CREATE INDEX IF NOT EXISTS `index_product_price_product_id` ON `product_price` (`product_id`)")
+                connection.execSQL("CREATE INDEX IF NOT EXISTS `index_product_price_product_id_created_at` ON `product_price` (`product_id`, `created_at`)")
+
+                // 2. Backfill: one ProductCreation row per existing product
+                connection.execSQL(
+                    """
+                    INSERT INTO product_price (product_id, price, change_type, created_at)
+                    SELECT id, price, 'ProductCreation', created_at FROM product
+                    """
+                )
+
+                // 3. Recreate `product` without the `price` column
+                connection.execSQL(
+                    """
+                    CREATE TABLE `product_new` (
+                    `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                    `name` TEXT NOT NULL,
+                    `unit` TEXT NOT NULL,
+                    `sku_number` TEXT,
+                    `image_uri` TEXT,
+                    `created_at` INTEGER NOT NULL,
+                    `updated_at` INTEGER
+                    )
+                    """
+                )
+                connection.execSQL(
+                    """
+                    INSERT INTO product_new (id, name, unit, sku_number, image_uri, created_at, updated_at)
+                    SELECT id, name, unit, sku_number, image_uri, created_at, updated_at FROM product
+                    """
+                )
+                connection.execSQL("DROP TABLE product")
+                connection.execSQL("ALTER TABLE product_new RENAME TO product")
+            }
+        }
+    }
 }
 
 @Suppress("NO_ACTUAL_FOR_EXPECT")

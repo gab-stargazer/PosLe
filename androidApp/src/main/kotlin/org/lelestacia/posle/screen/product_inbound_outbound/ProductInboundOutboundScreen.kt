@@ -2,6 +2,8 @@ package org.lelestacia.posle.screen.product_inbound_outbound
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,7 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -32,10 +34,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.skydoves.compose.stability.runtime.TraceRecomposition
+import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.component.ProductInboundOutboundComponent
 import org.lelestacia.posle.domain.component.ProductInboundOutboundComponentEvent.OnTabSelected
 import org.lelestacia.posle.domain.component.ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnToggleDialog
 import org.lelestacia.posle.domain.model.Product
+import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.btn_add_product
+import kotlin.math.roundToInt
 
 @TraceRecomposition
 @Composable
@@ -61,11 +67,21 @@ fun ProductInboundOutboundScreen(
 
     Scaffold(
         floatingActionButton = {
-            AnimatedVisibility(state.settingState.isProductStockTracked) {
-                FloatingActionButton(
+            AnimatedVisibility(
+                state.settingState.isProductStockTracked,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                ExtendedFloatingActionButton(
                     onClick = { component.onEvent(OnToggleDialog) }
                 ) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                        Text(stringResource(Res.string.btn_add_product))
+                    }
                 }
             }
         }
@@ -169,7 +185,6 @@ fun ProductInboundOutboundScreen(
                 }
             }
         }
-
     }
 }
 
@@ -178,6 +193,13 @@ fun ProductStockItem(
     product: Product,
     modifier: Modifier = Modifier
 ) {
+    val amount =
+        if (product.stock.value % 1 == 0F) {
+            product.stock.value.roundToInt()
+        } else {
+            product.stock.value
+        }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
@@ -197,7 +219,7 @@ fun ProductStockItem(
             )
         }
         Text(
-            text = product.stock.value.toString(),
+            text = amount.toString(),
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary

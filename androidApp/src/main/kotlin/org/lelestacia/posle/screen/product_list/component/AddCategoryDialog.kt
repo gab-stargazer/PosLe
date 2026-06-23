@@ -80,9 +80,7 @@ fun AddCategoryDialog(
                         )
                     )
                 },
-                textStyle = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = FontWeight.Bold
-                ),
+                textStyle = MaterialTheme.typography.bodyMedium,
                 shape = RoundedCornerShape(25F),
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Done

@@ -105,13 +105,19 @@ fun TransactionViewScreen(
         onPrint = {
             if (Build.VERSION.SDK_INT >= 31 && permissions.allRequiredGranted()) {
                 scope.launch {
-                    printTransaction(transaction = state.transaction, storeName = state.settings.storeName)
+                    printTransaction(
+                        transaction = state.transaction,
+                        storeName = state.settings.storeName
+                    )
                 }
             } else if (Build.VERSION.SDK_INT >= 31) {
                 permissions.requestPermission()
             } else {
                 scope.launch {
-                    printTransaction(transaction = state.transaction, storeName = state.settings.storeName)
+                    printTransaction(
+                        transaction = state.transaction,
+                        storeName = state.settings.storeName
+                    )
                 }
             }
         },
@@ -365,6 +371,19 @@ fun TransactionViewItem(
                 } + (item.productAmount.value.toBigDecimal() * item.productPrice.value)).toRupiah()
             )
         }
+
+        if (item.productNote.orEmpty().isNotBlank()) {
+            Text(
+                "Catatan: ",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontWeight = FontWeight.Bold
+                )
+            )
+            Text(
+                item.productNote.orEmpty(),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
     }
 }
 
@@ -396,7 +415,8 @@ private fun PreviewTransactionUI() {
                                     priceAdjustment = Price(BigDecimal(5000))
                                 )
                             ),
-                            productAmount = Amount(2f)
+                            productAmount = Amount(2f),
+                            productNote = "Dibungkus"
                         ),
                         TransactionItem(
                             id = 2,
@@ -404,7 +424,8 @@ private fun PreviewTransactionUI() {
                             productName = Name("Es Teh Manis"),
                             productPrice = Price(BigDecimal("5000")),
                             productUnit = org.lelestacia.posle.util.Unit("Gelas"),
-                            productAmount = Amount(2f)
+                            productAmount = Amount(2f),
+                            productNote = null
                         )
                     ),
                     createdAt = 1718236800000L
