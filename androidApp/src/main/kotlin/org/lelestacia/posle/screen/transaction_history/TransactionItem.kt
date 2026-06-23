@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowRight
+import androidx.compose.material.icons.automirrored.filled.ArrowRight
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -198,7 +198,7 @@ fun TransactionItem(
             }
         } else {
             Icon(
-                imageVector = Icons.Default.ArrowRight,
+                imageVector = Icons.AutoMirrored.Filled.ArrowRight,
                 contentDescription = null
             )
         }
@@ -221,7 +221,8 @@ private fun PreviewTransactionItem() {
                             productName = it.name,
                             productPrice = it.price,
                             productUnit = it.unit,
-                            productAmount = Amount(1F)
+                            productAmount = Amount(1F),
+                            productNote = null
                         )
                     },
                 createdAt = kotlin.time.Clock.System.now().toEpochMilliseconds()

@@ -3,7 +3,7 @@ package org.lelestacia.posle.navigation
 import kotlinx.serialization.Serializable
 import org.lelestacia.posle.domain.component.DashboardComponentImpl
 import org.lelestacia.posle.domain.component.TransactionListComponent
-import org.lelestacia.posle.domain.component.TransactionProductConfigComponent
+import org.lelestacia.posle.domain.component.TransactionProductConfigComponentImpl
 import org.lelestacia.posle.domain.component.TransactionViewComponent
 import org.lelestacia.posle.domain.component.product_add_edit.ProductAddEditComponent
 import org.lelestacia.posle.domain.component.product_add_edit.ProductAddVariantsViewComponent
@@ -26,7 +26,7 @@ sealed interface Config {
     ): Config
 
     @Serializable
-    data class TransactionProductConfig(
+    data class TransactionProduct(
         val product: Product
     ) : Config
 
@@ -47,7 +47,7 @@ sealed class Child {
     data class Dashboard(val component: DashboardComponentImpl) : Child()
     data class TransactionList(val component: TransactionListComponent) : Child()
     data class TransactionView(val component: TransactionViewComponent) : Child()
-    data class TransactionProductConfig(val component: TransactionProductConfigComponent) : Child()
+    data class TransactionProductConfig(val component: TransactionProductConfigComponentImpl) : Child()
     data class ProductAdd(val component: ProductAddEditComponent) : Child()
     data class VariantView(val component: ProductAddVariantsViewComponent): Child()
 }

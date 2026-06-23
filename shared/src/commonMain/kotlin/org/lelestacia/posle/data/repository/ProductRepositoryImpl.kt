@@ -9,7 +9,9 @@ import kotlinx.coroutines.flow.map
 import org.lelestacia.posle.data.dao.ProductDao
 import org.lelestacia.posle.data.dao.StockDao
 import org.lelestacia.posle.data.dao.VariantDao
+import org.lelestacia.posle.data.entity.PriceChangeType
 import org.lelestacia.posle.data.entity.ProductEntity
+import org.lelestacia.posle.data.entity.ProductPriceEntity
 import org.lelestacia.posle.data.entity.ProductWithVariantsAndStock
 import org.lelestacia.posle.data.entity.StockEntity
 import org.lelestacia.posle.data.entity.VariantJunction
@@ -37,7 +39,6 @@ class ProductRepositoryImpl(
         val entity = ProductEntity(
             id = 0,
             name = product.name,
-            price = product.price,
             unit = product.unit,
             skuNumber = product.skuNumber,
             imageUri = newImageUri,
@@ -45,6 +46,16 @@ class ProductRepositoryImpl(
         )
 
         val productId = productDao.addProduct(entity).toInt()
+
+        productDao.addPrice(
+            ProductPriceEntity(
+                id = 0,
+                productId = productId,
+                price = product.price,
+                changeType = PriceChangeType.ProductCreation,
+                createdAt = Clock.System.now().toEpochMilliseconds()
+            )
+        )
 
         val newStock = StockEntity(
             id = 0,
@@ -98,10 +109,19 @@ class ProductRepositoryImpl(
             ProductEntity(
                 id = product.id,
                 name = product.name,
-                price = product.price,
                 unit = product.unit,
                 skuNumber = product.skuNumber,
                 imageUri = finalImageUri,
+                createdAt = Clock.System.now().toEpochMilliseconds()
+            )
+        )
+
+        productDao.addPrice(
+            ProductPriceEntity(
+                id = 0,
+                productId = product.id,
+                price = product.price,
+                changeType = PriceChangeType.Adjustment,
                 createdAt = Clock.System.now().toEpochMilliseconds()
             )
         )

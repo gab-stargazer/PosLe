@@ -21,7 +21,7 @@ import org.lelestacia.posle.domain.component.TransactionAddComponent
 import org.lelestacia.posle.domain.component.TransactionAddNavigation
 import org.lelestacia.posle.domain.component.TransactionHistoryComponent
 import org.lelestacia.posle.domain.component.TransactionListComponent
-import org.lelestacia.posle.domain.component.TransactionProductConfigComponent
+import org.lelestacia.posle.domain.component.TransactionProductConfigComponentImpl
 import org.lelestacia.posle.domain.component.TransactionViewComponent
 import org.lelestacia.posle.domain.component.TransactionViewNavigation
 import org.lelestacia.posle.domain.component.product_add_edit.ProductAddEditComponent
@@ -35,12 +35,17 @@ import org.lelestacia.posle.domain.repository.TransactionRepository
 import org.lelestacia.posle.domain.repository.VariantRepository
 import org.lelestacia.posle.domain.state_event.TransactionItemState
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditNavigation
-import org.lelestacia.posle.navigation.Config.TransactionProductConfig
 import org.lelestacia.posle.navigation.NavChild.ProductInboundOutbound
 import org.lelestacia.posle.navigation.NavChild.ProductList
 import org.lelestacia.posle.navigation.NavChild.Setting
 import org.lelestacia.posle.navigation.NavChild.TransactionAdd
 import org.lelestacia.posle.navigation.NavChild.TransactionHistory
+import org.lelestacia.posle.navigation.Config.Dashboard as DashboardConfig
+import org.lelestacia.posle.navigation.Config.ProductAddEdit as ProductAddEditConfig
+import org.lelestacia.posle.navigation.Config.TransactionList as TransactionListConfig
+import org.lelestacia.posle.navigation.Config.TransactionProduct as TransactionProductConfig
+import org.lelestacia.posle.navigation.Config.TransactionView as TransactionViewConfig
+import org.lelestacia.posle.navigation.Config.VariantView as VariantViewConfig
 
 class PosLeComponent(
     componentContext: ComponentContext
@@ -77,7 +82,7 @@ class PosLeComponent(
     val children: Value<ChildStack<Config, Child>> = childStack(
         source = rootNavigation,
         serializer = Config.serializer(),
-        initialStack = { listOf(Config.Dashboard) },
+        initialStack = { listOf(DashboardConfig) },
         handleBackButton = true,
         childFactory = ::createChild
     )
@@ -143,7 +148,7 @@ class PosLeComponent(
 
     private fun createChild(config: Config, context: ComponentContext): Child =
         when (config) {
-            Config.Dashboard -> Child.Dashboard(
+            DashboardConfig -> Child.Dashboard(
                 DashboardComponentImpl(
                     componentContext = context,
                     navChildren = tabChildren,
@@ -152,10 +157,11 @@ class PosLeComponent(
                 )
             )
 
-            is Config.TransactionProductConfig -> Child.TransactionProductConfig(
-                TransactionProductConfigComponent(
+            is TransactionProductConfig -> Child.TransactionProductConfig(
+                TransactionProductConfigComponentImpl(
                     componentContext = context,
                     product = config.product,
+                    snackbarHostState = snackbarHostState,
                     settingManager = settingManager,
                     onConfirmed = { itemState, variants ->
                         onProductConfigConfirmed?.invoke(itemState, variants)
@@ -165,14 +171,14 @@ class PosLeComponent(
                 )
             )
 
-            Config.TransactionList -> Child.TransactionList(
+            TransactionListConfig -> Child.TransactionList(
                 TransactionListComponent(
                     componentContext = context,
                     onNavigateTo = rootNavigation::pushToFront
                 )
             )
 
-            is Config.TransactionView -> Child.TransactionView(
+            is TransactionViewConfig -> Child.TransactionView(
                 TransactionViewComponent(
                     componentContext = context,
                     transaction = config.transaction,
@@ -186,7 +192,7 @@ class PosLeComponent(
                 )
             )
 
-            is Config.ProductAddEdit -> Child.ProductAdd(
+            is ProductAddEditConfig -> Child.ProductAdd(
                 ProductAddEditComponent(
                     componentContext = context,
                     mode = config.addEdit,
@@ -200,7 +206,7 @@ class PosLeComponent(
                         }
 
                         override fun onNavigateToVariantSelection(
-                            config: Config.VariantView,
+                            config: VariantViewConfig,
                             onResult: (List<Variant>) -> Unit
                         ) {
                             onVariantsSelected = onResult
@@ -210,7 +216,7 @@ class PosLeComponent(
                 )
             )
 
-            is Config.VariantView -> Child.VariantView(
+            is VariantViewConfig -> Child.VariantView(
                 ProductAddVariantsViewComponent(
                     componentContext = context,
                     initialSelectedVariants = config.selectedVariants,

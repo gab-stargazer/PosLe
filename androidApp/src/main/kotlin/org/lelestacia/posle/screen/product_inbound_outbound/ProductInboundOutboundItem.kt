@@ -23,6 +23,7 @@ import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Unit
+import org.lelestacia.posle.util.toFormattedDateTime
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.title_inbound
 import posle.shared.generated.resources.title_outbound_purchase
@@ -59,6 +60,11 @@ fun ProductInboundOutboundItem(
             )
 
             Text(
+                "Waktu: ${stockMovement.createdAt.toFormattedDateTime()}",
+                style = MaterialTheme.typography.bodySmall
+            )
+
+            Text(
                 stringResource(
                     when (stockMovement.movementType) {
                         StockMovementType.Inbound -> Res.string.txt_product_inbound
@@ -69,7 +75,8 @@ fun ProductInboundOutboundItem(
                     stockMovement.productUnit.value
                 ),
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(end = 12.dp)
+                modifier = Modifier
+                    .padding(end = 12.dp, top = 6.dp)
             )
         }
 

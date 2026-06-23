@@ -1,5 +1,6 @@
 package org.lelestacia.posle.data
 
+import androidx.compose.runtime.Immutable
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -58,6 +59,7 @@ class SettingManager(
     }
 }
 
+@Immutable
 data class PosLeSettings(
     val isProductVolatile: Boolean = false,
     val isAmountPrecise: Boolean = false,

@@ -1,5 +1,8 @@
 package org.lelestacia.posle.screen.product_inbound_outbound
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -7,12 +10,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -22,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -35,11 +42,13 @@ import org.lelestacia.posle.domain.component.ProductInboundOutboundComponentEven
 import org.lelestacia.posle.domain.component.ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnProductSelected
 import org.lelestacia.posle.domain.component.ProductInboundOutboundComponentState.ProductInboundOutboundAddStockState
 import org.lelestacia.posle.ui.theme.AppTheme
+import org.lelestacia.posle.ui.theme.successLight
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.SampleData
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.label_product_amount
 import posle.shared.generated.resources.label_product_name
+import posle.shared.generated.resources.title_add_product_stock
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,14 +61,23 @@ fun ProductInboundOutboundAddStockDialog(
         modifier = modifier
     ) {
         Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(12.dp)
         ) {
             var isExpanded by remember { mutableStateOf(false) }
+            Text(
+                stringResource(Res.string.title_add_product_stock),
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Bold
+                )
+            )
+
             ExposedDropdownMenuBox(
                 expanded = isExpanded,
                 onExpandedChange = {
                     isExpanded = it
-                }
+                },
+                modifier = Modifier.padding(top = 12.dp)
             ) {
                 TextField(
                     value = state.productName.value,
@@ -78,6 +96,19 @@ fun ProductInboundOutboundAddStockDialog(
                             text = stringResource(Res.string.label_product_name),
                             style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
                         )
+                    },
+                    trailingIcon = {
+                        AnimatedVisibility(
+                            state.selectedProduct != null,
+                            enter = fadeIn(),
+                            exit = fadeOut()
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = Icons.Default.Check.name,
+                                tint = successLight
+                            )
+                        }
                     },
                     textStyle = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier

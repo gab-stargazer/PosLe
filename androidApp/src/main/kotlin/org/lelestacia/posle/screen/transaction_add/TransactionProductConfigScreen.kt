@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
@@ -31,19 +32,32 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import com.arkivanov.decompose.value.MutableValue
+import com.arkivanov.decompose.value.Value
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.component.TransactionProductConfigComponent
 import org.lelestacia.posle.domain.component.TransactionProductConfigEvent
 import org.lelestacia.posle.domain.component.TransactionProductConfigEvent.OnVariantClicked
+import org.lelestacia.posle.domain.component.TransactionProductConfigState
+import org.lelestacia.posle.domain.model.Product
+import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.screen.product_add.VariantViewItemAdd
+import org.lelestacia.posle.ui.theme.AppTheme
+import org.lelestacia.posle.util.Amount
+import org.lelestacia.posle.util.Name
+import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.RupiahOutputTransformation
+import org.lelestacia.posle.util.Unit
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.btn_add_to_cart
 import posle.shared.generated.resources.label_config_product_desc
 import posle.shared.generated.resources.label_product_amount
+import posle.shared.generated.resources.label_product_note
 import posle.shared.generated.resources.label_product_price_latest
+import java.math.BigDecimal
 
 @Composable
 fun TransactionProductConfigScreen(
@@ -114,6 +128,8 @@ fun TransactionProductConfigScreen(
                             .padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
+
+
                         if (state.settings.isAmountPrecise) {
                             TextField(
                                 state = state.amountState,
@@ -210,6 +226,30 @@ fun TransactionProductConfigScreen(
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
+
+                        TextField(
+                            state = state.noteState,
+                            label = {
+                                Text(
+                                    stringResource(Res.string.label_product_note),
+                                    style = MaterialTheme.typography.labelMediumEmphasized.copy(
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                )
+                            },
+                            textStyle = MaterialTheme.typography.bodyMedium,
+                            colors = TextFieldDefaults.colors(
+                                unfocusedIndicatorColor = Color.Transparent,
+                                focusedIndicatorColor = Color.Transparent
+                            ),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Done
+                            ),
+                            onKeyboardAction = { focusManager.clearFocus() },
+                            shape = RoundedCornerShape(25F),
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
                 }
             }
@@ -224,5 +264,51 @@ fun TransactionProductConfigScreen(
                 Text(stringResource(Res.string.btn_add_to_cart))
             }
         }
+    }
+}
+
+private class TransactionProductConfigComponentPreview(
+    initialState: TransactionProductConfigState
+) : TransactionProductConfigComponent {
+
+    override val state: Value<TransactionProductConfigState> = MutableValue(initialState)
+
+    override fun onEvent(event: TransactionProductConfigEvent) {
+
+    }
+}
+
+@Preview
+@Composable
+private fun TransactionProductConfigScreenPreview() {
+    val previewProduct = Product(
+        id = 1,
+        name = Name("Es Teh Manis"),
+        price = Price(5000.0.toBigDecimal()),
+        unit = Unit("Cup"),
+        stock = Amount(5F),
+        variants = listOf(
+            Variant(
+                id = 1,
+                name = Name("Less Sugar"),
+                priceAdjustment = Price(BigDecimal.ZERO)
+            ),
+            Variant(
+                id = 2,
+                name = Name("Extra Ice"),
+                priceAdjustment = Price(BigDecimal.ZERO)
+            ),
+        )
+    )
+
+    AppTheme {
+        TransactionProductConfigScreen(
+            component = TransactionProductConfigComponentPreview(
+                initialState = TransactionProductConfigState(
+                    product = previewProduct,
+                    priceState = TextFieldState(previewProduct.price.value.toString())
+                )
+            )
+        )
     }
 }
