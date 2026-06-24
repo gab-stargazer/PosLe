@@ -96,7 +96,6 @@ class ProductListComponentImpl(
                         isFabMenuExpanded = false
                     )
                 }
-
                 onNavigate(event.config)
             }
 

@@ -12,7 +12,7 @@
     <string name="label_product_name">Nama Produk</string>
     <string name="label_product_unit">Satuan Produk</string>
     <string name="label_product_amount">Jumlah Produk</string>
-    <string name="label_product_buy_price">Harga Beli Produk</string>
+    <string name="label_product_buy_price">Harga Modal Produk</string>
     <string name="label_product_sell_price">Harga Jual Produk</string>
     <string name="label_product_price_latest">Harga Produk Terbaru</string>
     <string name="label_product_note">Catatan Produk (Opsional)</string>
@@ -95,6 +95,9 @@
     <string name="title_outbound_purchase">Penjualan</string>
     <string name="title_inbound">Barang Masuk</string>
     <string name="title_add_product_stock">Tambahkan Stok Produk</string>
+    <string name="title_buy_price_history">Histori Harga Modal</string>
+    <string name="title_sell_price_history">Histori Harga Jual</string>
+
 
     <!--Placeholder-->
     <string name="placeholder_store_name">Masukkan Nama Toko</string>

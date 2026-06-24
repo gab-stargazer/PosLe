@@ -17,10 +17,12 @@ import org.lelestacia.posle.data.entity.ProductWithVariantsAndStock
 import org.lelestacia.posle.data.entity.VariantJunction
 import org.lelestacia.posle.data.entity.toDomain
 import org.lelestacia.posle.domain.model.Product
+import org.lelestacia.posle.domain.model.ProductPriceHistory
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.repository.ProductRepository
 import org.lelestacia.posle.util.FileStorage
 import org.lelestacia.posle.util.Util.pagingConfig
+import java.math.BigDecimal
 import kotlin.time.Clock
 
 class ProductRepositoryImpl(
@@ -168,6 +170,32 @@ class ProductRepositoryImpl(
         categoryId: Int
     ): PagingSource<Int, ProductWithVariantsAndStock> {
         return productDao.readProductNotInCategory(searchQuery, categoryId)
+    }
+
+    override fun readProductBuyPriceHistory(productId: Int): Flow<List<ProductPriceHistory>> {
+        return productDao.readProductBuyPriceHistory(productId).map { list ->
+            list.map {
+                ProductPriceHistory(
+                    it.id,
+                    price = it.price,
+                    changes = BigDecimal.ZERO,
+                    createdAt = it.createdAt
+                )
+            }
+        }
+    }
+
+    override fun readProductSellPriceHistory(productId: Int): Flow<List<ProductPriceHistory>> {
+        return productDao.readProductSellPriceHistory(productId).map { list ->
+            list.map {
+                ProductPriceHistory(
+                    it.id,
+                    price = it.price,
+                    changes = BigDecimal.ZERO,
+                    createdAt = it.createdAt
+                )
+            }
+        }
     }
 
     override fun readAvailableProducts(searchQuery: String): Flow<List<Product>> {

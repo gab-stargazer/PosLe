@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -17,6 +18,7 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.SubdirectoryArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -49,13 +51,14 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.component.product_add_edit.ProductAddEditComponent
+import org.lelestacia.posle.domain.model.ProductPriceHistory
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.Navigation.OnNavigateToVariantView
@@ -65,6 +68,7 @@ import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.O
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnImageChanged
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnSellPriceTheSameAsBuyPriceCheckedChange
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditState
+import org.lelestacia.posle.navigation.AddEdit
 import org.lelestacia.posle.navigation.AddEdit.Add
 import org.lelestacia.posle.navigation.AddEdit.Edit
 import org.lelestacia.posle.navigation.Config
@@ -81,14 +85,17 @@ import posle.shared.generated.resources.label_product_buy_price
 import posle.shared.generated.resources.label_product_name
 import posle.shared.generated.resources.label_product_sell_price
 import posle.shared.generated.resources.label_product_unit
+import posle.shared.generated.resources.title_buy_price_history
+import posle.shared.generated.resources.title_sell_price_history
 import java.math.BigDecimal
+import kotlin.time.Clock
 
 @Composable
 fun ProductAddEditScreen(
     component: ProductAddEditComponent,
     modifier: Modifier = Modifier
 ) {
-    val state by component.state.subscribeAsState()
+    val state by component.state.collectAsStateWithLifecycle()
     ProductAddEditUI(
         state = state,
         onEvent = component::onEvent,
@@ -264,6 +271,61 @@ private fun ProductAddEditUI(
                     .padding(horizontal = 12.dp)
             )
 
+            if (state.mode == Edit) {
+                Row(
+                    verticalAlignment = Alignment.Top,
+                    modifier = Modifier
+                        .padding(start = 12.dp, top = 12.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.SubdirectoryArrowRight,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+
+                    Text(
+                        text = stringResource(Res.string.title_buy_price_history),
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        modifier = Modifier.padding(start = 3.dp)
+                    )
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp)
+                        .background(MaterialTheme.colorScheme.surfaceContainer)
+                        .padding(
+                            horizontal = 12.dp,
+                            vertical = 6.dp
+                        )
+                ) {
+                    Text(
+                        "Tanggal",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                        modifier = Modifier.weight(1F)
+                    )
+                    Text(
+                        "Harga",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.SemiBold,
+                        ),
+                        modifier = Modifier.weight(1F)
+                    )
+                }
+
+                PriceHistory(
+                    priceHistoryPaging = state.buyPriceHistory,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp)
+                )
+            }
+
             OutlinedTextField(
                 state = state.sellPriceState,
                 label = {
@@ -286,9 +348,62 @@ private fun ProductAddEditUI(
                 enabled = !state.isSellPriceAndBuyPriceTheSame,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 6.dp)
+                    .padding(top = 12.dp)
                     .padding(horizontal = 12.dp)
             )
+
+            if (state.mode == Edit) {
+                Row(
+                    verticalAlignment = Alignment.Top,
+                    modifier = Modifier
+                        .padding(start = 12.dp, top = 12.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.SubdirectoryArrowRight,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+
+                    Text(
+                        text = stringResource(Res.string.title_sell_price_history),
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        modifier = Modifier.padding(start = 3.dp)
+                    )
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp)
+                        .background(MaterialTheme.colorScheme.surfaceContainer)
+                        .padding(horizontal = 12.dp)
+                        .padding(top = 6.dp)
+                ) {
+                    Text(
+                        "Tanggal",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                        modifier = Modifier.weight(1F)
+                    )
+                    Text(
+                        "Harga",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.SemiBold,
+                        ),
+                        modifier = Modifier.weight(1F)
+                    )
+                }
+
+                PriceHistory(
+                    priceHistoryPaging = state.sellPriceHistory,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp)
+                )
+            }
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -300,7 +415,8 @@ private fun ProductAddEditUI(
                         state.sellPriceState.edit {
                             val oldSelection = selection
                             replace(0, length, state.buyPriceState.text.toString())
-                            selection = oldSelection.coerceIn(0, state.buyPriceState.text.toString().length)
+                            selection =
+                                oldSelection.coerceIn(0, state.buyPriceState.text.toString().length)
                         }
                     }
                 )
@@ -401,7 +517,7 @@ private fun PreviewProductAddEditUI() {
         var state by remember {
             mutableStateOf(
                 ProductAddEditState(
-                    mode = Add,
+                    mode = AddEdit.Edit,
                     name = TextFieldState("Nasi Goreng"),
                     unit = TextFieldState("Porsi"),
                     sellPriceState = TextFieldState("10000"),
@@ -426,7 +542,23 @@ private fun PreviewProductAddEditUI() {
                             name = Name("Tanpa Bawang"),
                             priceAdjustment = Price(BigDecimal.ZERO)
                         )
-                    )
+                    ),
+                    buyPriceHistory = List(3) {
+                        ProductPriceHistory(
+                            id = it,
+                            price = Price(it.toBigDecimal() * 1000.toBigDecimal()),
+                            changes = BigDecimal.ZERO,
+                            createdAt = Clock.System.now().toEpochMilliseconds()
+                        )
+                    },
+                    sellPriceHistory = List(3) {
+                        ProductPriceHistory(
+                            id = it,
+                            price = Price(it.toBigDecimal() * 1000.toBigDecimal()),
+                            changes = BigDecimal.ZERO,
+                            createdAt = Clock.System.now().toEpochMilliseconds()
+                        )
+                    }
                 )
             )
         }

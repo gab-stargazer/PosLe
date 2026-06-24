@@ -2,6 +2,7 @@ package org.lelestacia.posle.domain.state_event.product_add
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Immutable
+import org.lelestacia.posle.domain.model.ProductPriceHistory
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.navigation.AddEdit
 import org.lelestacia.posle.navigation.Config
@@ -15,9 +16,14 @@ data class ProductAddEditState(
     val isSellPriceAndBuyPriceTheSame: Boolean = false,
     val variants: List<Variant> = emptyList(),
 
+    //  Price History
+    val buyPriceHistory: List<ProductPriceHistory> = emptyList(),
+    val sellPriceHistory: List<ProductPriceHistory> = emptyList(),
+
     //  Image Section
     val productImageUri: String? = null,
     val productImageByteArray: ByteArray? = null,
+
 
     //  Mode
     val mode: AddEdit,

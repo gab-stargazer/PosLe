@@ -15,7 +15,7 @@ data class ProductWithVariantsAndStock(
         parentColumn = "id",
         entityColumn = "product_id"
     )
-    val buyPriceHistorical: List<ProductSellPriceEntity>,
+    val buyPriceHistorical: List<ProductBuyPriceEntity>,
 
     @Relation(
         parentColumn = "id",

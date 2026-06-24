@@ -7,6 +7,7 @@ import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.SkuNumber
 import org.lelestacia.posle.util.Unit
+import java.math.BigDecimal
 
 @Immutable
 @Serializable
@@ -21,4 +22,10 @@ data class Product(
     val imageUri: String? = null,
     val variants: List<Variant> = emptyList(),
     val categories: List<Category> = emptyList()
+)
+data class ProductPriceHistory(
+    val id: Int,
+    val price: Price,
+    val changes: BigDecimal,
+    val createdAt: Long
 )

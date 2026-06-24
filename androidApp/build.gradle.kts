@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.google.crashlytic)
+    alias(libs.plugins.google.gms)
     alias(libs.plugins.stability.analyzer)
 }
 
@@ -26,6 +28,11 @@ dependencies {
 
     debugImplementation ("com.squareup.leakcanary:leakcanary-android:2.14")
 
+    //  Google
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytic)
+    implementation(libs.firebase.crashlytic)
+
     //  Permission Compose
     implementation(libs.permissions.compose)
 }
@@ -38,19 +45,27 @@ android {
         applicationId = "org.lelestacia.posle"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 7
+        versionCode = 8
         versionName = "1.2.2"
     }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11

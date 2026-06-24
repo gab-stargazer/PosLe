@@ -3,11 +3,14 @@ package org.lelestacia.posle.domain.component.product_add_edit
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.SnackbarHostState
 import com.arkivanov.decompose.ComponentContext
-import com.arkivanov.decompose.value.MutableValue
-import com.arkivanov.decompose.value.Value
-import com.arkivanov.decompose.value.update
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
@@ -26,6 +29,7 @@ import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.O
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditNavigation
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditState
 import org.lelestacia.posle.navigation.AddEdit
+import org.lelestacia.posle.navigation.AddEdit.Add
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
@@ -50,13 +54,19 @@ class ProductAddEditComponent(
 
     private val scope = coroutineScope(Dispatchers.Main.immediate)
 
+    private val buyPriceHistory = productRepository
+        .readProductBuyPriceHistory(product?.id ?: 0)
+
+    private val sellPriceHistory = productRepository
+        .readProductBuyPriceHistory(product?.id ?: 0)
+
     init {
         if (product != null) {
             scope.launch {
                 variantRepository
                     .readVariantByProductId(product.id)
                     .collectLatest { variants ->
-                        state.update {
+                        _state.update {
                             it.copy(
                                 variants = variants
                             )
@@ -66,33 +76,50 @@ class ProductAddEditComponent(
         }
     }
 
-    val state: Value<ProductAddEditState>
-        field = MutableValue(
-            ProductAddEditState(
-                name = TextFieldState(product?.name?.value.orEmpty()),
-                unit = TextFieldState(product?.unit?.value.orEmpty()),
-                buyPriceState = TextFieldState(product?.buyPrice?.value?.toString() ?: ""),
-                sellPriceState = TextFieldState(product?.sellPrice?.value?.toString() ?: ""),
-                variants = product?.variants ?: emptyList(),
-                productImageUri = product?.imageUri,
-                mode = mode
-            )
+    private val _state = MutableStateFlow(
+        ProductAddEditState(
+            name = TextFieldState(product?.name?.value.orEmpty()),
+            unit = TextFieldState(product?.unit?.value.orEmpty()),
+            buyPriceState = TextFieldState(product?.buyPrice?.value?.toString() ?: ""),
+            sellPriceState = TextFieldState(product?.sellPrice?.value?.toString() ?: ""),
+            productImageUri = product?.imageUri,
+            variants = product?.variants ?: emptyList(),
+            mode = mode
         )
+    )
+    val state: StateFlow<ProductAddEditState> = combine(
+        flow = _state,
+        flow2 = buyPriceHistory,
+        flow3 = sellPriceHistory
+    ) { state, buyPrice, sellPrice ->
+        state.copy(
+            buyPriceHistory = buyPrice,
+            sellPriceHistory = sellPrice
+        )
+    }.stateIn(
+        scope = scope,
+        started = SharingStarted.Lazily,
+        initialValue = ProductAddEditState(mode = Add)
+    )
 
     fun onEvent(event: ProductAddEditEvent) {
         when (event) {
 
-            is OnSellPriceTheSameAsBuyPriceCheckedChange -> state.update { currentState ->
-                currentState.copy(
-                    isSellPriceAndBuyPriceTheSame = event.newState
-                )
+            is OnSellPriceTheSameAsBuyPriceCheckedChange -> {
+                _state.update { currentState ->
+                    currentState.copy(
+                        isSellPriceAndBuyPriceTheSame = event.newState
+                    )
+                }
             }
 
-            is OnImageChanged -> state.update { currentState ->
-                currentState.copy(
-                    productImageUri = event.uri,
-                    productImageByteArray = event.bytes
-                )
+            is OnImageChanged -> {
+                _state.update { currentState ->
+                    currentState.copy(
+                        productImageUri = event.uri,
+                        productImageByteArray = event.bytes
+                    )
+                }
             }
 
             OnAddProductClicked -> {
@@ -100,10 +127,12 @@ class ProductAddEditComponent(
                     validate(
                         onSuccess = {
                             when (state.value.mode) {
-                                AddEdit.Add -> productRepository.addProduct(
-                                    product = buildProduct(id = 0),
-                                    imageByteArray = state.value.productImageByteArray
-                                )
+                                Add -> {
+                                    productRepository.addProduct(
+                                        product = buildProduct(id = 0),
+                                        imageByteArray = state.value.productImageByteArray
+                                    )
+                                }
 
                                 AddEdit.Edit -> {
                                     val original: Map<Int, Variant> = product
@@ -117,9 +146,14 @@ class ProductAddEditComponent(
                                         .associateBy { it.id }
 
                                     val variantsToAdd =
-                                        modified.filter { it.key !in original }.map { it.value }
+                                        modified
+                                            .filter { it.key !in original }
+                                            .map { it.value }
+
                                     val variantsToRemove =
-                                        original.filter { it.key !in modified }.map { it.value }
+                                        original
+                                            .filter { it.key !in modified }
+                                            .map { it.value }
 
                                     productRepository.updateProduct(
                                         product = buildProduct(id = product.id),
@@ -141,7 +175,7 @@ class ProductAddEditComponent(
                 variants.removeAll(state.value.variants)
                 variants.addAll(event.variants)
 
-                state.update { currentState ->
+                _state.update { currentState ->
                     currentState.copy(
                         variants = variants.distinctBy { it.id }
                     )
@@ -158,7 +192,9 @@ class ProductAddEditComponent(
                 }
             }
 
-            is Navigation -> onNavigationEvent(event)
+            is Navigation -> {
+                onNavigationEvent(event)
+            }
         }
     }
 

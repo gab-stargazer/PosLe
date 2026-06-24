@@ -7,7 +7,7 @@ androidx-activity = "1.13.0"
 androidx-appcompat = "1.7.1"
 androidx-core = "1.19.0"
 androidx-espresso = "3.7.0"
-androidx-lifecycle = "2.11.0-beta01"
+androidx-lifecycle = "2.11.0-beta02"
 androidx-testExt = "1.3.0"
 composeMultiplatform = "1.11.1"
 junit = "4.13.2"
@@ -18,19 +18,22 @@ materialIconExtended = "1.7.3"
 
 decompose = "3.5.0"
 essenty = "2.5.0"
-koin-bom = "4.2.1"
+koin-bom = "4.2.2"
 kotlinxDatetime = "0.8.0"
+google-crashlytic = "3.0.7"
+google-gms = "4.5.0"
+google-firebase-bom = "34.15.0"
 ksp = "2.3.9"
 room = "2.8.4"
 sqlite = "2.6.2"
 paging = "3.5.0"
 serializationPlugin = "2.4.0"
 serializationLibrary = "1.11.0"
-filekit = "0.14.1"
+filekit = "0.14.2"
 coil = "3.5.0"
 datastore = "1.2.1"
 permissionsCompose = "1.0.5"
-vico = "3.2.2"
+vico = "3.2.3"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -47,7 +50,7 @@ androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeMultiplatform" }
 compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeMultiplatform" }
 compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3" }
-compose-material-icon-extended = {module="org.jetbrains.compose.material:material-icons-extended", version.ref="materialIconExtended"}
+compose-material-icon-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "materialIconExtended" }
 compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatform" }
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
@@ -58,6 +61,11 @@ decompose-core = { module = "com.arkivanov.decompose:decompose", version.ref = "
 decompose-compose = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "decompose" }
 decompose-coroutine = { module = "com.arkivanov.essenty:lifecycle-coroutines", version.ref = "essenty" }
 decompose-reaktive = { module = "com.arkivanov.essenty:lifecycle-reaktive", version.ref = "essenty" }
+
+#   Firebase
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "google-firebase-bom" }
+firebase-analytic = { module = "com.google.firebase:firebase-analytics" }
+firebase-crashlytic = { module = "com.google.firebase:firebase-crashlytics" }
 
 #   Koin
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
@@ -70,7 +78,7 @@ koin-test = { module = "io.insert-koin:koin-test" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 
 #   Kotlin Serialization
-kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref="serializationLibrary" }
+kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serializationLibrary" }
 
 #   Room
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
@@ -106,8 +114,10 @@ androidMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library",
 androidx-room = { id = "androidx.room", version.ref = "room" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+google-crashlytic = { id = "com.google.firebase.crashlytics", version.ref = "google-crashlytic" }
+google-gms = { id = "com.google.gms.google-services", version.ref = "google-gms" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
-kotlinxSerialization = {id ="org.jetbrains.kotlin.plugin.serialization",version.ref="serializationPlugin"}
+kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "serializationPlugin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 stability-analyzer = { id = "com.github.skydoves.compose.stability.analyzer", version = "0.10.0" }
