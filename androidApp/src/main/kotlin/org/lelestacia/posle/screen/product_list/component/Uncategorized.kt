@@ -20,6 +20,7 @@ import posle.shared.generated.resources.title_no_category
 
 fun LazyListScope.unCategorized(
     uncategorizedProducts: LazyPagingItems<Product>,
+    isStockTracked: Boolean,
     onEvent: (ProductListComponentEvent) -> Unit,
 ) {
     item {
@@ -34,6 +35,7 @@ fun LazyListScope.unCategorized(
 
             ProductsLazyHorizontalGrid(
                 products = uncategorizedProducts,
+                isStockShown = isStockTracked,
                 onClick = { product ->
                     onEvent(OnNavigateTo(ProductAddEdit(Edit, product)))
                 }

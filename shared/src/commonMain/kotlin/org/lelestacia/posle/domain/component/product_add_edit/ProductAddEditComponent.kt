@@ -21,6 +21,7 @@ import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.N
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnAddProductClicked
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnDeleteProductClicked
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnImageChanged
+import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnSellPriceTheSameAsBuyPriceCheckedChange
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnVariantSelected
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditNavigation
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditState
@@ -70,7 +71,8 @@ class ProductAddEditComponent(
             ProductAddEditState(
                 name = TextFieldState(product?.name?.value.orEmpty()),
                 unit = TextFieldState(product?.unit?.value.orEmpty()),
-                price = TextFieldState(product?.price?.value?.toString() ?: ""),
+                buyPriceState = TextFieldState(product?.buyPrice?.value?.toString() ?: ""),
+                sellPriceState = TextFieldState(product?.sellPrice?.value?.toString() ?: ""),
                 variants = product?.variants ?: emptyList(),
                 productImageUri = product?.imageUri,
                 mode = mode
@@ -80,8 +82,14 @@ class ProductAddEditComponent(
     fun onEvent(event: ProductAddEditEvent) {
         when (event) {
 
-            is OnImageChanged -> state.update {
-                it.copy(
+            is OnSellPriceTheSameAsBuyPriceCheckedChange -> state.update { currentState ->
+                currentState.copy(
+                    isSellPriceAndBuyPriceTheSame = event.newState
+                )
+            }
+
+            is OnImageChanged -> state.update { currentState ->
+                currentState.copy(
                     productImageUri = event.uri,
                     productImageByteArray = event.bytes
                 )
@@ -176,7 +184,8 @@ class ProductAddEditComponent(
         return Product(
             id = id,
             name = Name(currentState.name.text.toString()),
-            price = Price(BigDecimal(currentState.price.text.toString())),
+            buyPrice = Price(BigDecimal(currentState.buyPriceState.text.toString())),
+            sellPrice = Price(BigDecimal(currentState.sellPriceState.text.toString())),
             stock = Amount(0F),
             unit = PosLeUnit(currentState.unit.text.toString()),
             imageUri = currentState.productImageUri,
@@ -202,10 +211,16 @@ class ProductAddEditComponent(
             currentState.unit.text.toString().isBlank() ->
                 Res.string.msg_error_unit_cannot_be_empty
 
-            currentState.price.text.toString().isBlank() ->
+            currentState.buyPriceState.text.toString().isBlank() ->
                 Res.string.msg_error_price_cannot_be_empty
 
-            currentState.price.text.toString().any { it.isLetter() } ->
+            currentState.sellPriceState.text.toString().isBlank() ->
+                Res.string.msg_error_price_cannot_be_empty
+
+            currentState.buyPriceState.text.toString().any { it.isLetter() } ->
+                Res.string.msg_error_price_cannot_contain_alphabet
+
+            currentState.sellPriceState.text.toString().any { it.isLetter() } ->
                 Res.string.msg_error_price_cannot_contain_alphabet
 
             else -> null

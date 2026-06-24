@@ -22,6 +22,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.lelestacia.posle.data.PosLeSettings
+import org.lelestacia.posle.data.SettingManager
 import org.lelestacia.posle.data.entity.toDomain
 import org.lelestacia.posle.domain.component.ProductListComponentEvent.CategoryEvent.OnAddCategoryMenuClicked
 import org.lelestacia.posle.domain.component.ProductListComponentEvent.CategoryEvent.OnDeleteCategory
@@ -37,6 +39,7 @@ import org.lelestacia.posle.util.coroutineScope
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 class ProductListComponentImpl(
     componentContext: ComponentContext,
+    private val settingManager: SettingManager,
     private val productRepository: ProductRepository,
     private val categoryRepository: CategoryRepository,
     private val onNavigate: (Config) -> Unit,
@@ -63,7 +66,8 @@ class ProductListComponentImpl(
         combine(
             flow = _state,
             flow2 = searchQuery,
-        ) { state, searchQuery ->
+            flow3 = settingManager.readSettings()
+        ) { state, searchQuery, settings ->
             ProductListComponentState(
                 searchQuery = searchQuery,
                 isFabMenuExpanded = state.isFabMenuExpanded,
@@ -71,7 +75,9 @@ class ProductListComponentImpl(
                 addCategoryState = state.addCategoryState,
 
                 categories = categories,
-                uncategorizedProducts = uncategorizedProducts
+                uncategorizedProducts = uncategorizedProducts,
+
+                settings = settings
             )
         }.stateIn(
             scope = scope,
@@ -217,7 +223,10 @@ data class ProductListComponentState(
 
     //  Paging
     val uncategorizedProducts: Flow<PagingData<Product>> = flowOf(),
-    val categories: Flow<PagingData<Category>> = flowOf()
+    val categories: Flow<PagingData<Category>> = flowOf(),
+
+    //  Setting
+    val settings: PosLeSettings = PosLeSettings()
 ) {
 
     @Immutable

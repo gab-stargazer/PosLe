@@ -39,10 +39,6 @@ class StockRepositoryImpl(
         note: String?
     ) {
         val product = productDao.readProductById(productId) ?: return
-        val currentStock = dao.getStockByProductId(productId)
-        val newStockValue = currentStock.stock.value + amount.value
-        
-        dao.updateStock(currentStock.copy(stock = Amount(newStockValue), updatedAt = Clock.System.now().toEpochMilliseconds()))
         
         dao.insertStockMovement(
             StockMovementEntity(

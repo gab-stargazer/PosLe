@@ -94,7 +94,7 @@ fun TransactionAddItem(
                 ) {
                     Text(product.name.value, style = MaterialTheme.typography.labelMedium)
                     Text(
-                        "${product.price.value.toRupiah()}/${product.unit.value}",
+                        "${product.sellPrice.value.toRupiah()}/${product.unit.value}",
                         style = MaterialTheme.typography.labelMedium,
                         modifier = Modifier.padding(top = 6.dp)
                     )

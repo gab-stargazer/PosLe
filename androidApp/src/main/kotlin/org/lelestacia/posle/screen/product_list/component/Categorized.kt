@@ -50,6 +50,7 @@ import posle.shared.generated.resources.title_add_product_to_category
 
 fun LazyListScope.categorized(
     searchQuery: String,
+    isStockTracked: Boolean,
     categories: LazyPagingItems<Category>,
     categorizedProducts: (String, Int) -> Flow<PagingData<Product>>,
     productsNotInCategory: (String, Int) -> Flow<PagingData<Product>>,
@@ -98,6 +99,7 @@ fun LazyListScope.categorized(
 
                                 ProductsLazyHorizontalGrid(
                                     products = filteredProducts,
+                                    isStockShown = isStockTracked,
                                     onClick = { product ->
                                         onEvent(
                                             OnAddProductToCategory(
@@ -171,6 +173,7 @@ fun LazyListScope.categorized(
                     ProductsLazyHorizontalGrid(
                         products = pagingData,
                         isCategorizedProduct = true,
+                        isStockShown = isStockTracked,
                         onClick = { product ->
                             onEvent(OnNavigateTo(ProductAddEdit(Edit, product)))
                         },

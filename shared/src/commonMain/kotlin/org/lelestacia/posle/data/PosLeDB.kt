@@ -19,9 +19,10 @@ import org.lelestacia.posle.data.dao.StockDao
 import org.lelestacia.posle.data.dao.TransactionDao
 import org.lelestacia.posle.data.dao.VariantDao
 import org.lelestacia.posle.data.entity.CategoryEntity
+import org.lelestacia.posle.data.entity.ProductBuyPriceEntity
 import org.lelestacia.posle.data.entity.ProductCategoryJunction
 import org.lelestacia.posle.data.entity.ProductEntity
-import org.lelestacia.posle.data.entity.ProductPriceEntity
+import org.lelestacia.posle.data.entity.ProductSellPriceEntity
 import org.lelestacia.posle.data.entity.StockEntity
 import org.lelestacia.posle.data.entity.StockMovementEntity
 import org.lelestacia.posle.data.entity.TransactionEntity
@@ -32,7 +33,8 @@ import org.lelestacia.posle.data.entity.VariantJunction
 @Database(
     entities = [
         ProductEntity::class,
-        ProductPriceEntity::class,
+        ProductSellPriceEntity::class,
+        ProductBuyPriceEntity::class,
         TransactionEntity::class,
         TransactionItemEntity::class,
         VariantEntity::class,
@@ -42,7 +44,7 @@ import org.lelestacia.posle.data.entity.VariantJunction
         StockEntity::class,
         StockMovementEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = true,
 )
 @ConstructedBy(AppDatabaseConstructor::class)
@@ -115,6 +117,46 @@ abstract class PosLeDB : RoomDatabase() {
                 )
                 connection.execSQL("DROP TABLE product")
                 connection.execSQL("ALTER TABLE product_new RENAME TO product")
+            }
+        }
+
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(connection: SQLiteConnection) {
+                // 1. Rename existing price table to product_sell_price
+                connection.execSQL("ALTER TABLE product_price RENAME TO product_sell_price")
+
+                connection.execSQL("DROP INDEX IF EXISTS index_product_price_product_id")
+                connection.execSQL("DROP INDEX IF EXISTS index_product_price_product_id_created_at")
+                connection.execSQL("CREATE INDEX IF NOT EXISTS index_product_sell_price_product_id ON product_sell_price(product_id)")
+                connection.execSQL("CREATE INDEX IF NOT EXISTS index_product_sell_price_product_id_created_at ON product_sell_price(product_id, created_at)")
+
+                // 2. Create new product_buy_price table
+                connection.execSQL("""
+            CREATE TABLE IF NOT EXISTS `product_buy_price` (
+                `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                `product_id` INTEGER NOT NULL,
+                `price` TEXT NOT NULL,
+                `change_type` TEXT NOT NULL,
+                `created_at` INTEGER NOT NULL,
+                FOREIGN KEY(`product_id`) REFERENCES `product`(`id`) ON DELETE CASCADE
+            )
+        """)
+                connection.execSQL("CREATE INDEX IF NOT EXISTS index_product_buy_price_product_id ON product_buy_price(product_id)")
+                connection.execSQL("CREATE INDEX IF NOT EXISTS index_product_buy_price_product_id_created_at ON product_buy_price(product_id, created_at)")
+
+                // 3. Seed product_buy_price with only the LATEST sell price per product,
+                //    forcing change_type to ProductCreation
+                connection.execSQL("""
+            INSERT INTO product_buy_price (product_id, price, change_type, created_at)
+            SELECT sp.product_id, sp.price, 'ProductCreation', sp.created_at
+            FROM product_sell_price sp
+            WHERE sp.id = (
+                SELECT id FROM product_sell_price
+                WHERE product_id = sp.product_id
+                ORDER BY created_at DESC, id DESC
+                LIMIT 1
+            )
+        """)
             }
         }
     }

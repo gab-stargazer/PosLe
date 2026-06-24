@@ -176,7 +176,9 @@ fun ProductListScreen(
                     },
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp),
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                            12.dp
+                        ),
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent
                     ),
@@ -195,6 +197,7 @@ fun ProductListScreen(
                 categorized(
                     searchQuery = state.searchQuery,
                     categories = categories,
+                    isStockTracked = state.settings.isProductStockTracked,
                     categorizedProducts = component::productsInCategory,
                     productsNotInCategory = component::productsNotInCategory,
                     onEvent = component::onEvent
@@ -202,6 +205,7 @@ fun ProductListScreen(
 
                 unCategorized(
                     uncategorizedProducts = uncategorizedProducts,
+                    isStockTracked = state.settings.isProductStockTracked,
                     onEvent = component::onEvent
                 )
             }

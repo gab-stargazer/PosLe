@@ -10,6 +10,6 @@ object Util {
         initialLoadSize = 30
     )
 
-    val GridItemHeight = 192.dp
+    val GridItemHeight = 128.dp
     val GridItemSpacing = 12.dp
 }

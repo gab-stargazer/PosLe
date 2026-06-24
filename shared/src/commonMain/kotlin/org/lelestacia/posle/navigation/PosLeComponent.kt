@@ -108,6 +108,7 @@ class PosLeComponent(
             NavConfig.ProductList -> ProductList(
                 ProductListComponentImpl(
                     componentContext = context,
+                    settingManager = settingManager,
                     productRepository = productRepository,
                     categoryRepository = categoryRepository,
                     onNavigate = rootNavigation::pushToFront

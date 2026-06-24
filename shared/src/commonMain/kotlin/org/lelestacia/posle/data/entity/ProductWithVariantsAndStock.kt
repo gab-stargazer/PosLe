@@ -5,6 +5,7 @@ import androidx.room.Junction
 import androidx.room.Relation
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.toDomain
+import org.lelestacia.posle.util.Amount
 
 data class ProductWithVariantsAndStock(
     @Embedded
@@ -14,13 +15,19 @@ data class ProductWithVariantsAndStock(
         parentColumn = "id",
         entityColumn = "product_id"
     )
-    val priceHistorical: List<ProductPriceEntity>,
+    val buyPriceHistorical: List<ProductSellPriceEntity>,
 
     @Relation(
         parentColumn = "id",
         entityColumn = "product_id"
     )
-    val stock: StockEntity,
+    val sellPriceHistorical: List<ProductSellPriceEntity>,
+
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "product_id"
+    )
+    val stock: List<StockMovementEntity>,
 
     @Relation(
         parentColumn = "id",
@@ -38,8 +45,9 @@ fun ProductWithVariantsAndStock.toDomain(): Product {
     return Product(
         id = product.id,
         name = product.name,
-        stock = stock.stock,
-        price = priceHistorical.maxBy { it.createdAt }.price,
+        stock = Amount(stock.sumOf { it.amount.value.toBigDecimal() }.toFloat()),
+        buyPrice = buyPriceHistorical.maxBy { it.createdAt }.price,
+        sellPrice = sellPriceHistorical.maxBy { it.createdAt }.price,
         unit = product.unit,
         skuNumber = product.skuNumber,
         imageUri = product.imageUri,

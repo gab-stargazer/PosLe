@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,16 +29,20 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.coerceIn
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -57,8 +63,8 @@ import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.N
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnAddProductClicked
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnDeleteProductClicked
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnImageChanged
+import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnSellPriceTheSameAsBuyPriceCheckedChange
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditState
-import org.lelestacia.posle.navigation.AddEdit
 import org.lelestacia.posle.navigation.AddEdit.Add
 import org.lelestacia.posle.navigation.AddEdit.Edit
 import org.lelestacia.posle.navigation.Config
@@ -71,8 +77,9 @@ import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.btn_add_product
 import posle.shared.generated.resources.btn_delete_product
 import posle.shared.generated.resources.btn_update_product
+import posle.shared.generated.resources.label_product_buy_price
 import posle.shared.generated.resources.label_product_name
-import posle.shared.generated.resources.label_product_price
+import posle.shared.generated.resources.label_product_sell_price
 import posle.shared.generated.resources.label_product_unit
 import java.math.BigDecimal
 
@@ -95,12 +102,23 @@ private fun ProductAddEditUI(
     onEvent: (ProductAddEditEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val focusManager = LocalFocusManager.current
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
     val isScrolled by remember {
         derivedStateOf {
             scrollState.value > 0
+        }
+    }
+
+    LaunchedEffect(state.buyPriceState.text) {
+        if (state.isSellPriceAndBuyPriceTheSame) {
+            state.sellPriceState.edit {
+                val oldSelection = selection
+                replace(0, length, state.buyPriceState.text.toString())
+                selection = oldSelection.coerceIn(0, state.buyPriceState.text.toString().length)
+            }
         }
     }
 
@@ -141,8 +159,8 @@ private fun ProductAddEditUI(
                 title = {
                     Text(
                         when (state.mode) {
-                            AddEdit.Add -> "Tambahkan Produk"
-                            AddEdit.Edit -> "Edit Produk"
+                            Add -> "Tambahkan Produk"
+                            Edit -> "Edit Produk"
                         },
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.Bold,
@@ -222,10 +240,10 @@ private fun ProductAddEditUI(
             )
 
             OutlinedTextField(
-                state = state.price,
+                state = state.buyPriceState,
                 label = {
                     Text(
-                        text = stringResource(Res.string.label_product_price),
+                        text = stringResource(Res.string.label_product_buy_price),
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontWeight = FontWeight.Bold
                         )
@@ -237,11 +255,61 @@ private fun ProductAddEditUI(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Done
                 ),
+                onKeyboardAction = {
+                    focusManager.clearFocus(true)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 6.dp)
                     .padding(horizontal = 12.dp)
             )
+
+            OutlinedTextField(
+                state = state.sellPriceState,
+                label = {
+                    Text(
+                        text = stringResource(Res.string.label_product_sell_price),
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
+                },
+                outputTransformation = RupiahOutputTransformation(),
+                textStyle = MaterialTheme.typography.bodyMedium,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done
+                ),
+                onKeyboardAction = {
+                    focusManager.clearFocus(true)
+                },
+                enabled = !state.isSellPriceAndBuyPriceTheSame,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 6.dp)
+                    .padding(horizontal = 12.dp)
+            )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Checkbox(
+                    checked = state.isSellPriceAndBuyPriceTheSame,
+                    onCheckedChange = { newState ->
+                        onEvent(OnSellPriceTheSameAsBuyPriceCheckedChange(newState))
+                        state.sellPriceState.edit {
+                            val oldSelection = selection
+                            replace(0, length, state.buyPriceState.text.toString())
+                            selection = oldSelection.coerceIn(0, state.buyPriceState.text.toString().length)
+                        }
+                    }
+                )
+
+                Text(
+                    "Harga Jual sama dengan Harga Beli",
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
+                )
+            }
 
             AnimatedVisibility(state.productImageUri != null) {
                 AsyncImage(
@@ -336,7 +404,7 @@ private fun PreviewProductAddEditUI() {
                     mode = Add,
                     name = TextFieldState("Nasi Goreng"),
                     unit = TextFieldState("Porsi"),
-                    price = TextFieldState("10000"),
+                    sellPriceState = TextFieldState("10000"),
                     variants = listOf(
                         Variant(
                             id = 2,

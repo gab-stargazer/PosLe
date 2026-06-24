@@ -14,7 +14,6 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -58,6 +57,7 @@ fun ProductsLazyHorizontalGrid(
     modifier: Modifier = Modifier,
     products: LazyPagingItems<Product>,
     isCategorizedProduct: Boolean = false,
+    isStockShown: Boolean,
     onClick: (Product) -> Unit,
     onLongClick: ((Product) -> Unit)? = null,
     onAddProductToCategoryClicked: (() -> Unit)? = null
@@ -81,16 +81,12 @@ fun ProductsLazyHorizontalGrid(
             key = products.itemKey { it.id }
         ) { index ->
             products[index]?.let { product ->
-                LaunchedEffect(Unit) {
-                    println("Product: $product")
-                }
-
                 ProductItem(
                     product = product,
+                    isStockTracked = isStockShown,
                     onClick = { onClick(product) },
                     onLongClick = { onLongClick?.invoke(product) },
                     modifier = Modifier
-                        .widthIn(max = 128.dp)
                         .animateItem()
                 )
             }

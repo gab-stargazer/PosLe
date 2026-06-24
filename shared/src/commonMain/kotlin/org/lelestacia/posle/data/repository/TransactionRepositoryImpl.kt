@@ -54,13 +54,6 @@ class TransactionRepositoryImpl(
                         createdAt = Clock.System.now().toEpochMilliseconds()
                     )
                 )
-
-                val currentStock = stockDao.getStockByProductId(productId = it.key)
-                stockDao.updateStock(
-                    currentStock.copy(
-                        stock = Amount(currentStock.stock.value - totalAmount)
-                    )
-                )
             }
         }
 

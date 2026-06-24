@@ -12,7 +12,8 @@
     <string name="label_product_name">Nama Produk</string>
     <string name="label_product_unit">Satuan Produk</string>
     <string name="label_product_amount">Jumlah Produk</string>
-    <string name="label_product_price">Harga Produk</string>
+    <string name="label_product_buy_price">Harga Beli Produk</string>
+    <string name="label_product_sell_price">Harga Jual Produk</string>
     <string name="label_product_price_latest">Harga Produk Terbaru</string>
     <string name="label_product_note">Catatan Produk (Opsional)</string>
     <string name="label_variation_name">Nama Varian</string>

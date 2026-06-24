@@ -3,13 +3,18 @@ package org.lelestacia.posle.screen.product_list.component
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -28,21 +33,26 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.skydoves.compose.stability.runtime.TraceRecomposition
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
+import org.lelestacia.posle.util.Util
 import org.lelestacia.posle.util.toRupiah
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.title_add_product_to_category_shorts
 import java.math.BigDecimal
+import kotlin.math.roundToInt
 
+@TraceRecomposition
 @Composable
 fun ProductItem(
     modifier: Modifier = Modifier,
     product: Product,
+    isStockTracked: Boolean,
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null
 ) {
@@ -51,44 +61,67 @@ fun ProductItem(
         shape = RoundedCornerShape(25F),
         modifier = modifier
             .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+            .height(IntrinsicSize.Min)
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-        ) {
+        Row {
             if (product.imageUri != null) {
                 AsyncImage(
                     model = product.imageUri,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .widthIn(max = 256.dp)
+                        .size(128.dp)
                         .aspectRatio(1F)
                 )
             } else {
                 Box(
                     modifier = Modifier
-                        .widthIn(max = 256.dp)
+                        .size(128.dp)
                         .aspectRatio(1F)
                         .background(MaterialTheme.colorScheme.surfaceVariant)
                 )
             }
 
-            Text(
-                text = product.name.value,
-                style = MaterialTheme.typography.labelLarge,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(top = 8.dp)
-            )
+            Column(
+                verticalArrangement = Arrangement.SpaceBetween,
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(all = 12.dp)
+            ) {
 
-            Text(
-                text = "${product.price.value.toRupiah()}/${product.unit.value}",
-                style = MaterialTheme.typography.labelSmall,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
+
+                Text(
+                    text = product.name.value,
+                    style = MaterialTheme.typography.labelLarge,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+
+                Column {
+                    Text(
+                        text = "Harga: ${product.sellPrice.value.toRupiah()}",
+                        style = MaterialTheme.typography.labelSmall,
+                        textAlign = TextAlign.Center,
+                    )
+
+                    val stock =
+                        if (product.stock.value % 1F == 0F) {
+                            product.stock.value.roundToInt()
+                        } else {
+                            product.stock.value
+                        }
+
+                    if (isStockTracked) {
+                        Text(
+                            text = "Stok: $stock ${product.unit.value}",
+                            style = MaterialTheme.typography.labelSmall,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -107,7 +140,7 @@ fun ProductAddItem(
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .widthIn(max = 256.dp)
+                .width(128.dp)
                 .aspectRatio(0.7F)
                 .background(MaterialTheme.colorScheme.primaryContainer)
         ) {
@@ -141,16 +174,20 @@ fun ProductAddItem(
 private fun PreviewProductItem() {
     AppTheme {
         Row(
-            modifier = Modifier.height(IntrinsicSize.Min)
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(Util.GridItemHeight + Util.GridItemSpacing)
         ) {
             ProductItem(
                 product = Product(
                     id = 0,
                     name = Name("Salak"),
-                    stock = Amount(0F),
+                    stock = Amount(100F),
                     unit = org.lelestacia.posle.util.Unit(value = "Kg"),
-                    price = Price(BigDecimal("100000"))
+                    buyPrice = Price(BigDecimal("15000")),
+                    sellPrice = Price(BigDecimal("15000")),
                 ),
+                isStockTracked = true,
                 onClick = {},
                 onLongClick = {},
                 modifier = Modifier.padding(12.dp)

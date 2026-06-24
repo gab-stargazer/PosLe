@@ -10,16 +10,15 @@ import org.lelestacia.posle.data.dao.ProductDao
 import org.lelestacia.posle.data.dao.StockDao
 import org.lelestacia.posle.data.dao.VariantDao
 import org.lelestacia.posle.data.entity.PriceChangeType
+import org.lelestacia.posle.data.entity.ProductBuyPriceEntity
 import org.lelestacia.posle.data.entity.ProductEntity
-import org.lelestacia.posle.data.entity.ProductPriceEntity
+import org.lelestacia.posle.data.entity.ProductSellPriceEntity
 import org.lelestacia.posle.data.entity.ProductWithVariantsAndStock
-import org.lelestacia.posle.data.entity.StockEntity
 import org.lelestacia.posle.data.entity.VariantJunction
 import org.lelestacia.posle.data.entity.toDomain
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.repository.ProductRepository
-import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.FileStorage
 import org.lelestacia.posle.util.Util.pagingConfig
 import kotlin.time.Clock
@@ -47,23 +46,23 @@ class ProductRepositoryImpl(
 
         val productId = productDao.addProduct(entity).toInt()
 
-        productDao.addPrice(
-            ProductPriceEntity(
-                id = 0,
+        productDao.addBuyPrice(
+            ProductBuyPriceEntity(
                 productId = productId,
-                price = product.price,
+                price = product.buyPrice,
                 changeType = PriceChangeType.ProductCreation,
                 createdAt = Clock.System.now().toEpochMilliseconds()
             )
         )
 
-        val newStock = StockEntity(
-            id = 0,
-            productId = productId,
-            stock = Amount(0F),
-            updatedAt = null
+        productDao.addSellPrice(
+            ProductSellPriceEntity(
+                productId = productId,
+                price = product.sellPrice,
+                changeType = PriceChangeType.ProductCreation,
+                createdAt = Clock.System.now().toEpochMilliseconds()
+            )
         )
-        stockDao.insertNewStock(newStock)
 
         product.variants.forEach { variant ->
             variantDao.insertVariantToProduct(
@@ -116,16 +115,6 @@ class ProductRepositoryImpl(
             )
         )
 
-        productDao.addPrice(
-            ProductPriceEntity(
-                id = 0,
-                productId = product.id,
-                price = product.price,
-                changeType = PriceChangeType.Adjustment,
-                createdAt = Clock.System.now().toEpochMilliseconds()
-            )
-        )
-
         variantsToAdd.forEach { variant ->
             variantDao.insertVariantToProduct(
                 VariantJunction(
@@ -140,6 +129,29 @@ class ProductRepositoryImpl(
             variantDao.deleteVariantToProduct(
                 variantId = variant.id,
                 productId = product.id
+            )
+        }
+
+
+        if (product.buyPrice != productDao.getLatestBuyPriceByProductId(product.id).price) {
+            productDao.addBuyPrice(
+                ProductBuyPriceEntity(
+                    productId = product.id,
+                    price = product.buyPrice,
+                    changeType = PriceChangeType.Adjustment,
+                    createdAt = Clock.System.now().toEpochMilliseconds()
+                )
+            )
+        }
+
+        if (product.sellPrice != productDao.getLatestSellPriceByProductId(product.id).price) {
+            productDao.addSellPrice(
+                ProductSellPriceEntity(
+                    productId = product.id,
+                    price = product.sellPrice,
+                    changeType = PriceChangeType.Adjustment,
+                    createdAt = Clock.System.now().toEpochMilliseconds()
+                )
             )
         }
     }
@@ -159,7 +171,8 @@ class ProductRepositoryImpl(
     }
 
     override fun readAvailableProducts(searchQuery: String): Flow<List<Product>> {
-        return productDao.getAvailableProducts(searchQuery).map { it.map(ProductWithVariantsAndStock::toDomain) }
+        return productDao.getAvailableProducts(searchQuery)
+            .map { it.map(ProductWithVariantsAndStock::toDomain) }
     }
 
     override suspend fun deleteProduct(product: Product) {

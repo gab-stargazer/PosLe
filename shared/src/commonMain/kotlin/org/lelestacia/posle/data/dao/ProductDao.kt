@@ -7,8 +7,9 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+import org.lelestacia.posle.data.entity.ProductBuyPriceEntity
 import org.lelestacia.posle.data.entity.ProductEntity
-import org.lelestacia.posle.data.entity.ProductPriceEntity
+import org.lelestacia.posle.data.entity.ProductSellPriceEntity
 import org.lelestacia.posle.data.entity.ProductWithVariantsAndStock
 
 @Dao
@@ -18,7 +19,10 @@ interface ProductDao {
     suspend fun addProduct(product: ProductEntity): Long
 
     @Insert
-    suspend fun addPrice(price: ProductPriceEntity)
+    suspend fun addSellPrice(price: ProductSellPriceEntity)
+
+    @Insert
+    suspend fun addBuyPrice(price: ProductBuyPriceEntity)
 
     @Query("SELECT * FROM product WHERE name LIKE '%' || :name || '%' ORDER BY name ASC")
     fun readProduct(name: String = ""): PagingSource<Int, ProductEntity>
@@ -35,7 +39,9 @@ interface ProductDao {
         """
             SELECT DISTINCT product.* FROM product
             LEFT JOIN product_category_junction ON product.id = product_category_junction.product_id
-            INNER JOIN product_price ON product.id = product_price.product_id
+            INNER JOIN product_buy_price ON product.id = product_buy_price.product_id
+            INNER JOIN product_sell_price ON product.id = product_sell_price.product_id
+            LEFT JOIN stock_movement ON product.id = stock_movement.product_id
             WHERE product_category_junction.category_id IS NULL 
             AND name LIKE '%' || :searchQuery || '%'
             ORDER BY name ASC
@@ -48,7 +54,9 @@ interface ProductDao {
         """
             SELECT DISTINCT product.* FROM product
             INNER JOIN product_category_junction ON product.id = product_category_junction.product_id
-            INNER JOIN product_price ON product.id = product_price.product_id
+            INNER JOIN product_buy_price ON product.id = product_buy_price.product_id
+            INNER JOIN product_sell_price ON product.id = product_sell_price.product_id
+            LEFT JOIN stock_movement ON product.id = stock_movement.product_id
             WHERE product_category_junction.category_id = :categoryId
             AND name LIKE '%' || :searchQuery || '%'
             ORDER BY name ASC
@@ -83,6 +91,12 @@ interface ProductDao {
         """
     )
     fun getAvailableProducts(searchQuery: String = ""): Flow<List<ProductWithVariantsAndStock>>
+
+    @Query("SELECT * FROM product_sell_price WHERE product_id = :productId ORDER BY created_at DESC LIMIT 1")
+    suspend fun getLatestSellPriceByProductId(productId: Int): ProductSellPriceEntity
+
+    @Query("SELECT * FROM product_buy_price WHERE product_id = :productId ORDER BY created_at DESC LIMIT 1")
+    suspend fun getLatestBuyPriceByProductId(productId: Int): ProductBuyPriceEntity
 
     @Update
     suspend fun update(product: ProductEntity)

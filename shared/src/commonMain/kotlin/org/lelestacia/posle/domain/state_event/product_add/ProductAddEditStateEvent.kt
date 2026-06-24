@@ -1,14 +1,18 @@
 package org.lelestacia.posle.domain.state_event.product_add
 
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.runtime.Immutable
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.navigation.AddEdit
 import org.lelestacia.posle.navigation.Config
 
+@Immutable
 data class ProductAddEditState(
     val name: TextFieldState = TextFieldState(),
     val unit: TextFieldState = TextFieldState(),
-    val price: TextFieldState = TextFieldState(),
+    val buyPriceState: TextFieldState = TextFieldState(),
+    val sellPriceState: TextFieldState = TextFieldState(),
+    val isSellPriceAndBuyPriceTheSame: Boolean = false,
     val variants: List<Variant> = emptyList(),
 
     //  Image Section
@@ -20,6 +24,7 @@ data class ProductAddEditState(
 )
 
 sealed interface ProductAddEditEvent {
+    data class OnSellPriceTheSameAsBuyPriceCheckedChange(val newState: Boolean): ProductAddEditEvent
     data class OnImageChanged(val uri: String?, val bytes: ByteArray?) : ProductAddEditEvent
     data class OnVariantSelected(val variants: List<Variant>) : ProductAddEditEvent
     data object OnAddProductClicked : ProductAddEditEvent

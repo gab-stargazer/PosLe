@@ -219,7 +219,7 @@ private fun PreviewTransactionItem() {
                             id = it.id,
                             productId = it.id,
                             productName = it.name,
-                            productPrice = it.price,
+                            productPrice = it.sellPrice,
                             productUnit = it.unit,
                             productAmount = Amount(1F),
                             productNote = null

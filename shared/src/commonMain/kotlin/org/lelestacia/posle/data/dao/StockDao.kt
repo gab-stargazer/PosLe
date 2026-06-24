@@ -27,11 +27,12 @@ interface StockDao {
 
     @Query(
         """
-            SELECT * FROM stock
+            SELECT COALESCE(SUM(amount), 0.0) AS currentStock
+            FROM stock_movement
             WHERE product_id = :productId
         """
     )
-    suspend fun getStockByProductId(productId: Int): StockEntity
+    suspend fun getStockByProductId(productId: Int): Float
 
     @Update
     suspend fun updateStock(stock: StockEntity)

@@ -17,6 +17,7 @@ import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.state_event.TransactionItemState
 import org.lelestacia.posle.util.coroutineScope
 import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.msg_error_price_cannot_be_empty
 import posle.shared.generated.resources.msg_error_unit_cannot_be_empty
 
 data class TransactionProductConfigState(
@@ -83,7 +84,8 @@ class TransactionProductConfigComponentImpl(
                     replace(
                         start = 0,
                         end = length,
-                        text = if (event.amount % 1 == 0f) event.amount.toInt().toString() else event.amount.toString()
+                        text = if (event.amount % 1 == 0f) event.amount.toInt()
+                            .toString() else event.amount.toString()
                     )
                 }
             }
@@ -106,13 +108,32 @@ class TransactionProductConfigComponentImpl(
                     }
                 }
 
+                if (
+                    currentState.settings.isProductVolatile && currentState.priceState.text
+                        .toString()
+                        .isBlank()
+                ) {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            getString(Res.string.msg_error_price_cannot_be_empty)
+                        )
+                    }
+                    return
+                }
+
+                val productPrice =
+                    when (currentState.settings.isProductVolatile) {
+                        true -> currentState.priceState
+                        false -> TextFieldState(currentState.product.sellPrice.value.toString())
+                    }
+
                 onConfirmed(
                     TransactionItemState(
-                        amountState = state.value.amountState,
-                        priceState = state.value.priceState,
-                        noteState = state.value.noteState
+                        amountState = currentState.amountState,
+                        priceState = productPrice,
+                        noteState = currentState.noteState
                     ),
-                    state.value.selectedVariants
+                    currentState.selectedVariants
                 )
             }
         }

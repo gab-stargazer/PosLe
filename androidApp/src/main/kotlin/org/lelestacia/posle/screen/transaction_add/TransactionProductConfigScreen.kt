@@ -284,7 +284,8 @@ private fun TransactionProductConfigScreenPreview() {
     val previewProduct = Product(
         id = 1,
         name = Name("Es Teh Manis"),
-        price = Price(5000.0.toBigDecimal()),
+        buyPrice = Price(BigDecimal("15000")),
+        sellPrice = Price(BigDecimal("15000")),
         unit = Unit("Cup"),
         stock = Amount(5F),
         variants = listOf(
@@ -306,7 +307,7 @@ private fun TransactionProductConfigScreenPreview() {
             component = TransactionProductConfigComponentPreview(
                 initialState = TransactionProductConfigState(
                     product = previewProduct,
-                    priceState = TextFieldState(previewProduct.price.value.toString())
+                    priceState = TextFieldState(previewProduct.sellPrice.value.toString())
                 )
             )
         )
