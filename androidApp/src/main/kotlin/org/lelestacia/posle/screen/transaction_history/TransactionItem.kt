@@ -33,6 +33,7 @@ import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.successLight
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
+import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.SampleData
 import org.lelestacia.posle.util.toFormattedDateTime
 import org.lelestacia.posle.util.toRupiah
@@ -44,6 +45,7 @@ import posle.shared.generated.resources.label_product
 import posle.shared.generated.resources.label_recapped
 import posle.shared.generated.resources.label_total
 import posle.shared.generated.resources.label_transaction_time
+import java.math.BigDecimal
 
 @Composable
 fun TransactionItem(
@@ -100,7 +102,7 @@ fun TransactionItem(
                     append(
                         transaction
                             .items
-                            .sumOf { it.productAmount.value.toBigDecimal() * it.productPrice.value }
+                            .sumOf { it.productAmount.value.toBigDecimal() * it.productSellPrice.value }
                             .toRupiah()
                     )
                 }
@@ -219,7 +221,8 @@ private fun PreviewTransactionItem() {
                             id = it.id,
                             productId = it.id,
                             productName = it.name,
-                            productPrice = it.sellPrice,
+                            productBuyPrice = Price(BigDecimal.ZERO),
+                            productSellPrice = it.sellPrice,
                             productUnit = it.unit,
                             productAmount = Amount(1F),
                             productNote = null

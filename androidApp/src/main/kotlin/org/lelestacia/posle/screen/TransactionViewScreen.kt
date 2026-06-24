@@ -49,6 +49,7 @@ import com.meticha.permissions_compose.AppPermission
 import com.meticha.permissions_compose.rememberAppPermissionState
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
+import org.lelestacia.posle.data.PosLeSettings
 import org.lelestacia.posle.domain.component.TransactionViewComponent
 import org.lelestacia.posle.domain.component.TransactionViewNavigation
 import org.lelestacia.posle.domain.model.Transaction
@@ -69,6 +70,7 @@ import posle.shared.generated.resources.btn_print
 import posle.shared.generated.resources.btn_recap
 import posle.shared.generated.resources.label_customer
 import posle.shared.generated.resources.label_total
+import posle.shared.generated.resources.label_total_profit
 import posle.shared.generated.resources.label_transaction_date
 import posle.shared.generated.resources.label_transaction_detail
 import java.math.BigDecimal
@@ -247,6 +249,20 @@ fun TransactionUI(
                         }
                     }
 
+                    val totalTransaction = state
+                        .transaction
+                        .items
+                        .sumOf { transaction ->
+                            val variantsTotal = transaction
+                                    .variants
+                                    .sumOf { it.priceAdjustment.value * transaction.productAmount.value.toBigDecimal() }
+                            val subtotal = transaction.productAmount.value.toBigDecimal() * transaction.productSellPrice.value
+                            subtotal + variantsTotal
+                        }
+
+                    val totalCost = state.transaction.items
+                        .sumOf { it.productAmount.value.toBigDecimal() * it.productBuyPrice.value }
+
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier
@@ -258,15 +274,31 @@ fun TransactionUI(
                         )
 
                         Text(
-                            state
-                                .transaction
-                                .items
-                                .sumOf { it.productAmount.value.toBigDecimal() * it.productPrice.value }
-                                .toRupiah(),
+                            totalTransaction.toRupiah(),
                             style = MaterialTheme.typography.bodyMediumEmphasized.copy(
                                 fontWeight = FontWeight.SemiBold
                             )
                         )
+                    }
+
+                    if (state.settings.isProductStockTracked) {
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ) {
+                            Text(
+                                "${stringResource(Res.string.label_total_profit)}:",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+
+                            Text(
+                                (totalTransaction - totalCost).toRupiah(),
+                                style = MaterialTheme.typography.bodyMediumEmphasized.copy(
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            )
+                        }
                     }
 
                     AnimatedVisibility(
@@ -348,13 +380,13 @@ fun TransactionViewItem(
             )
 
             Text(
-                text = item.productPrice.value.toRupiah(),
+                text = item.productSellPrice.value.toRupiah(),
                 style = MaterialTheme.typography.bodyMedium
             )
         }
 
         Text(
-            text = (item.productAmount.value.toBigDecimal() * item.productPrice.value).toRupiah(),
+            text = (item.productAmount.value.toBigDecimal() * item.productSellPrice.value).toRupiah(),
             style = MaterialTheme.typography.bodyMedium.copy(
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.End
@@ -363,12 +395,18 @@ fun TransactionViewItem(
         )
 
         if (item.variants.isNotEmpty()) {
+            val totalVariants = item.variants
+                .sumOf {
+                    item.productAmount.value.toBigDecimal() * it.priceAdjustment.value
+                }
+
+            val subtotalWithoutVariants =
+                item.productAmount.value.toBigDecimal() * item.productSellPrice.value
+
             TransactionViewVariantSection(
                 variants = item.variants,
                 amount = amount,
-                totalPrice = (item.variants.sumOf {
-                    item.productAmount.value.toBigDecimal() * it.priceAdjustment.value
-                } + (item.productAmount.value.toBigDecimal() * item.productPrice.value)).toRupiah()
+                totalPrice = (totalVariants + subtotalWithoutVariants).toRupiah()
             )
         }
 
@@ -401,7 +439,8 @@ private fun PreviewTransactionUI() {
                             id = 1,
                             productId = 1,
                             productName = Name("Sate Ayam"),
-                            productPrice = Price(BigDecimal("15000")),
+                            productBuyPrice = Price(BigDecimal("8000")),
+                            productSellPrice = Price(BigDecimal("15000")),
                             productUnit = org.lelestacia.posle.util.Unit("Porsi"),
                             variants = listOf(
                                 Variant(
@@ -422,14 +461,16 @@ private fun PreviewTransactionUI() {
                             id = 2,
                             productId = 2,
                             productName = Name("Es Teh Manis"),
-                            productPrice = Price(BigDecimal("5000")),
+                            productBuyPrice = Price(BigDecimal("2000")),
+                            productSellPrice = Price(BigDecimal("5000")),
                             productUnit = org.lelestacia.posle.util.Unit("Gelas"),
                             productAmount = Amount(2f),
                             productNote = null
                         )
                     ),
                     createdAt = 1718236800000L
-                )
+                ),
+                settings = PosLeSettings(isProductStockTracked = true)
             ),
             onNavigation = {},
             onEvent = {},

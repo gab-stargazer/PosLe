@@ -25,7 +25,7 @@ fun TransactionHistoryScreenHeader(
 
     val totalTransactionValue = state.todayTransactions
         .sumOf {
-            it.items.sumOf { item -> item.productAmount.value.toBigDecimal() * item.productPrice.value }
+            it.items.sumOf { item -> item.productAmount.value.toBigDecimal() * item.productSellPrice.value }
         }
 
     val mostSoldItemToday =

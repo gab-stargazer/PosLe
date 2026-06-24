@@ -52,8 +52,10 @@ data class TransactionItemEntity(
     val productId: Int,
     @ColumnInfo("product_name")
     val productName: Name,
-    @ColumnInfo("product_price")
-    val productPrice: Price,
+    @ColumnInfo("product_buy_price")
+    val productBuyPrice: Price,
+    @ColumnInfo("product_sell_price")
+    val productSellPrice: Price,
     @ColumnInfo("product_unit")
     val productUnit: Unit,
     @ColumnInfo("product_note")
@@ -88,7 +90,8 @@ fun TransactionItemEntity.toDomain() = TransactionItem(
     id = id,
     productId = productId,
     productName = productName,
-    productPrice = productPrice,
+    productBuyPrice = productBuyPrice,
+    productSellPrice = productSellPrice,
     productUnit = productUnit,
     productAmount = productAmount,
     productNote = productNote,

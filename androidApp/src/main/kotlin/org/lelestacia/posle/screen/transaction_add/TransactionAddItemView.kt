@@ -69,7 +69,7 @@ fun TransactionAddItemView(
                     )
 
                     Text(
-                        text = transactionItem.productPrice.value.toRupiah(),
+                        text = transactionItem.productSellPrice.value.toRupiah(),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -85,7 +85,7 @@ fun TransactionAddItemView(
                     )
 
                     Text(
-                        text = (transactionItem.productPrice.value * transactionItem.productAmount.value.toBigDecimal()).toRupiah(),
+                        text = (transactionItem.productSellPrice.value * transactionItem.productAmount.value.toBigDecimal()).toRupiah(),
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontWeight = FontWeight.Bold
                         )
@@ -157,7 +157,7 @@ fun TransactionAddItemView(
             val sumVariant =
                 transactionItem.variants.sumOf { it.priceAdjustment.value * transactionItem.productAmount.value.toBigDecimal() }
             val sumItem =
-                transactionItem.productAmount.value.toBigDecimal() * transactionItem.productPrice.value
+                transactionItem.productAmount.value.toBigDecimal() * transactionItem.productSellPrice.value
 
             Text(
                 (sumVariant + sumItem).toRupiah(),
@@ -186,7 +186,8 @@ private fun PreviewTransactionItem() {
                 id = 0,
                 productName = Name("Salak Pondoh"),
                 productId = 1,
-                productPrice = Price(BigDecimal(15000)),
+                productBuyPrice = Price(BigDecimal.ZERO),
+                productSellPrice = Price(BigDecimal(15000)),
                 productUnit = PosLeUnit("Kg"),
                 productAmount = Amount(50F),
                 productNote = "1 Karung",

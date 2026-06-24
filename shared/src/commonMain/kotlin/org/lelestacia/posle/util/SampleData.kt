@@ -54,7 +54,8 @@ object SampleData {
                     id = it + 1,
                     productId = it + 1,
                     productName = Name("Item Menu ${it + 1}"),
-                    productPrice = Price(BigDecimal((1000 * (it + 1)))),
+                    productBuyPrice = Price(BigDecimal.ZERO),
+                    productSellPrice = Price(BigDecimal((1000 * (it + 1)))),
                     productUnit = Unit("Porsi"),
                     productAmount = Amount(1f),
                     productNote = null

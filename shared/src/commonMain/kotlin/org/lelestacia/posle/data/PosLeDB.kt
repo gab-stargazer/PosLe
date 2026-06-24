@@ -44,7 +44,7 @@ import org.lelestacia.posle.data.entity.VariantJunction
         StockEntity::class,
         StockMovementEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = true,
 )
 @ConstructedBy(AppDatabaseConstructor::class)
@@ -157,6 +157,40 @@ abstract class PosLeDB : RoomDatabase() {
                 LIMIT 1
             )
         """)
+            }
+        }
+
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(connection: SQLiteConnection) {
+                connection.execSQL("""
+            CREATE TABLE transaction_item_new (
+                id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                transaction_id INTEGER NOT NULL,
+                product_id INTEGER NOT NULL,
+                product_name TEXT NOT NULL,
+                product_buy_price TEXT NOT NULL,
+                product_sell_price TEXT NOT NULL,
+                product_unit TEXT NOT NULL,
+                product_note TEXT,
+                product_amount REAL NOT NULL,
+                variants TEXT NOT NULL,
+                FOREIGN KEY(transaction_id) REFERENCES transaction_entity(id) ON DELETE CASCADE
+            )
+        """.trimIndent())
+
+                connection.execSQL("""
+            INSERT INTO transaction_item_new 
+            (id, transaction_id, product_id, product_name, product_buy_price, product_sell_price, product_unit, product_note, product_amount, variants)
+            SELECT id, transaction_id, product_id, product_name, product_price, product_price, product_unit, product_note, product_amount, variants
+            FROM transaction_item
+        """.trimIndent())
+
+                connection.execSQL("DROP TABLE transaction_item")
+                connection.execSQL("ALTER TABLE transaction_item_new RENAME TO transaction_item")
+
+                connection.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_transaction_item_transaction_id ON transaction_item(transaction_id)"
+                )
             }
         }
     }

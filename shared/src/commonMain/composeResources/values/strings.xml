@@ -25,6 +25,7 @@
     <string name="label_transaction_date">Tanggal Transaksi</string>
     <string name="label_customer">Pelanggan</string>
     <string name="label_total">Total</string>
+    <string name="label_total_profit">Total Keuntungan Kotor</string>
     <string name="label_product">Barang</string>
     <string name="label_other_products">, dan %1$d lainnya</string>
     <string name="label_all">Semua</string>

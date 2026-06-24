@@ -299,7 +299,7 @@ fun TransactionAddUI(
                                 val variants =
                                     it.variants.sumOf { variant -> variant.priceAdjustment.value }
 
-                                (variants * it.productAmount.value.toBigDecimal()) + (it.productPrice.value * it.productAmount.value.toBigDecimal())
+                                (variants * it.productAmount.value.toBigDecimal()) + (it.productSellPrice.value * it.productAmount.value.toBigDecimal())
 
 
                             }.toRupiah(),

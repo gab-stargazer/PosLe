@@ -108,7 +108,8 @@ class TransactionAddComponent(
                                     id = 0,
                                     productName = product.name,
                                     productId = product.id,
-                                    productPrice = Price(
+                                    productBuyPrice = product.buyPrice,
+                                    productSellPrice = Price(
                                         itemState.priceState.text
                                             .toString()
                                             .ifBlank { "0" }

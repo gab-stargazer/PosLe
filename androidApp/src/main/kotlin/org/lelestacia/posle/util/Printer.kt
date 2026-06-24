@@ -27,13 +27,13 @@ fun printTransaction(transaction: Transaction, storeName: Name) {
     val sb = StringBuilder(text)
     transaction.items.forEach {
         sb.append(
-            "[L]${it.productName.value}[R]${it.productPrice.value.toRupiah()}\n"
+            "[L]${it.productName.value}[R]${it.productSellPrice.value.toRupiah()}\n"
         )
         sb.append(
             "[L]  + ${
                 it.productAmount.value.toBigDecimal()
                     .stripTrailingZeros()
-            } ${it.productUnit.value}[R]${(it.productAmount.value.toBigDecimal() * it.productPrice.value).toRupiah()}\n"
+            } ${it.productUnit.value}[R]${(it.productAmount.value.toBigDecimal() * it.productSellPrice.value).toRupiah()}\n"
         )
         sb.append(
             "[L]\n"
@@ -44,7 +44,7 @@ fun printTransaction(transaction: Transaction, storeName: Name) {
         "[C]--------------------------------\n" +
         "[R]TOTAL HARGA :[R]${
             transaction.items
-                .sumOf { it.productAmount.value.toBigDecimal() * it.productPrice.value }
+                .sumOf { it.productAmount.value.toBigDecimal() * it.productSellPrice.value }
                 .toRupiah()}\n"
     )
 
