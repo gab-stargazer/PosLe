@@ -1,7 +1,11 @@
 package org.lelestacia.posle.screen
 
 import android.Manifest
+import android.content.ContentValues
+import android.graphics.Bitmap
 import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandVertically
@@ -12,14 +16,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
@@ -36,10 +37,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,6 +57,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.meticha.permissions_compose.AppPermission
 import com.meticha.permissions_compose.rememberAppPermissionState
+import com.skydoves.compose.stability.runtime.TraceRecomposition
+import com.smarttoolfactory.screenshot.rememberScreenshotState
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.data.PosLeSettings
@@ -58,6 +71,7 @@ import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.state_event.TransactionViewEvent
 import org.lelestacia.posle.domain.state_event.TransactionViewEvent.OnRecapClicked
 import org.lelestacia.posle.domain.state_event.TransactionViewState
+import org.lelestacia.posle.screen.transaction_history.TransactionReceipt
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
@@ -75,6 +89,7 @@ import posle.shared.generated.resources.label_transaction_date
 import posle.shared.generated.resources.label_transaction_detail
 import java.math.BigDecimal
 import kotlin.math.roundToInt
+import kotlin.time.Clock
 
 
 @Composable
@@ -127,6 +142,7 @@ fun TransactionViewScreen(
     )
 }
 
+@TraceRecomposition
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionUI(
@@ -136,6 +152,49 @@ fun TransactionUI(
     onPrint: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val screenshotState = rememberScreenshotState()
+    val context = LocalContext.current
+
+    val graphicsLayer = rememberGraphicsLayer()
+
+    var isCaptured by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isCaptured) {
+        if (isCaptured) {
+            val bitmap = graphicsLayer.toImageBitmap().asAndroidBitmap()
+
+            val values = ContentValues().apply {
+                put(
+                    MediaStore.Images.Media.DISPLAY_NAME,
+                    "Transaksi-${
+                        Clock.System.now().toEpochMilliseconds().toFormattedDateTime()
+                    }.png"
+                )
+                put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+                put(
+                    MediaStore.Images.Media.RELATIVE_PATH,
+                    Environment.DIRECTORY_PICTURES + "/PosLe"
+                )
+            }
+
+            val uri = context.contentResolver.insert(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                values
+            )
+
+
+
+            uri?.let {
+                context.contentResolver.openOutputStream(it)?.use { stream ->
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+                    stream.close()
+
+                    isCaptured = false
+                }
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -176,21 +235,26 @@ fun TransactionUI(
                 .background(MaterialTheme.colorScheme.surfaceContainerLowest)
                 .padding(paddingValues)
         ) {
-            LazyColumn(
-                contentPadding = PaddingValues(
-                    start = 12.dp,
-                    top = 12.dp,
-                    end = 12.dp,
-                    bottom = 100.dp
-                ),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.matchParentSize()
+
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .drawWithContent {
+                        graphicsLayer.record {
+                            this@drawWithContent.drawContent()
+                        }
+
+                        drawLayer(graphicsLayer)
+                    }
+                    .matchParentSize()
             ) {
-                items(items = state.transaction.items, key = { it.id }) { item ->
-                    TransactionViewItem(
-                        item = item
-                    )
-                }
+                TransactionReceipt(
+                    storeName = state.settings.storeName,
+                    customerName = state.transaction.customerName,
+                    transactionProduct = state.transaction.items.toImmutableList(),
+                    modifier = Modifier
+
+                )
             }
 
             ElevatedCard(
@@ -254,9 +318,10 @@ fun TransactionUI(
                         .items
                         .sumOf { transaction ->
                             val variantsTotal = transaction
-                                    .variants
-                                    .sumOf { it.priceAdjustment.value * transaction.productAmount.value.toBigDecimal() }
-                            val subtotal = transaction.productAmount.value.toBigDecimal() * transaction.productSellPrice.value
+                                .variants
+                                .sumOf { it.priceAdjustment.value * transaction.productAmount.value.toBigDecimal() }
+                            val subtotal =
+                                transaction.productAmount.value.toBigDecimal() * transaction.productSellPrice.value
                             subtotal + variantsTotal
                         }
 
@@ -302,7 +367,7 @@ fun TransactionUI(
                     }
 
                     AnimatedVisibility(
-                        !state.transaction.isRecapped && state.settings.isTransactionRecapNeeded,
+                        (!state.transaction.isRecapped && state.settings.isTransactionRecapNeeded),
                         enter = expandVertically(expandFrom = Alignment.Bottom) + fadeIn(),
                         exit = shrinkVertically(shrinkTowards = Alignment.Bottom) + fadeOut(),
                         modifier = Modifier.padding(top = 12.dp)
@@ -323,7 +388,9 @@ fun TransactionUI(
                     }
 
                     Button(
-                        onClick = onPrint,
+                        onClick = {
+                            isCaptured = true
+                        },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.secondaryContainer,
                             contentColor = MaterialTheme.colorScheme.onSecondaryContainer

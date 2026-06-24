@@ -26,7 +26,7 @@ dependencies {
 
     implementation("com.github.DantSu:ESCPOS-ThermalPrinter-Android:3.3.0")
 
-    debugImplementation ("com.squareup.leakcanary:leakcanary-android:2.14")
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.14")
 
     //  Google
     implementation(platform(libs.firebase.bom))
@@ -35,6 +35,8 @@ dependencies {
 
     //  Permission Compose
     implementation(libs.permissions.compose)
+
+    implementation("com.github.SmartToolFactory:Compose-Screenshot:1.0.3")
 }
 
 android {
@@ -45,7 +47,7 @@ android {
         applicationId = "org.lelestacia.posle"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 8
+        versionCode = 9
         versionName = "1.2.2"
     }
 
