@@ -98,6 +98,10 @@
     <string name="title_buy_price_history">Histori Harga Modal</string>
     <string name="title_sell_price_history">Histori Harga Jual</string>
 
+    <!--Subtitle-->
+    <string name="subtitle_price">Harga</string>
+    <string name="subtitle_date">Tanggal</string>
+
 
     <!--Placeholder-->
     <string name="placeholder_store_name">Masukkan Nama Toko</string>
@@ -108,4 +112,7 @@
     <string name="msg_error_price_cannot_be_empty">Harga Produk tidak boleh kosong</string>
     <string name="msg_error_price_cannot_contain_alphabet">Harga Produk harus berisi angka</string>
     <string name="msg_error_quantity_exceeded">Jumlah yang akan digunakan melebihi stok yang ada</string>
+
+<!--Msg-->
+    <string name="msg_stock_added">Stok untuk produk %1$s berhasil ditambahkan sejumlah %2$s %3$s</string>
 </resources>

@@ -18,10 +18,13 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.SubdirectoryArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -51,6 +54,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import io.github.vinceglb.filekit.dialogs.FileKitType
@@ -64,6 +68,7 @@ import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.Navigation.OnNavigateToVariantView
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.Navigation.OnPop
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnAddProductClicked
+import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnAddStockEvent
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnDeleteProductClicked
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnImageChanged
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnSellPriceTheSameAsBuyPriceCheckedChange
@@ -85,6 +90,7 @@ import posle.shared.generated.resources.label_product_buy_price
 import posle.shared.generated.resources.label_product_name
 import posle.shared.generated.resources.label_product_sell_price
 import posle.shared.generated.resources.label_product_unit
+import posle.shared.generated.resources.title_add_product_stock
 import posle.shared.generated.resources.title_buy_price_history
 import posle.shared.generated.resources.title_sell_price_history
 import java.math.BigDecimal
@@ -160,6 +166,19 @@ private fun ProductAddEditUI(
         }
     }
 
+    if(state.isDialogAddStockShown) {
+        Dialog(
+            onDismissRequest = {
+                onEvent(OnAddStockEvent.OnDismiss)
+            }
+        ) {
+            ProductAddStockDialog(
+                state= state.dialogAddStockState,
+                onEvent = onEvent
+            )
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -179,6 +198,40 @@ private fun ProductAddEditUI(
                     titleContentColor = appBarContentColor,
                     navigationIconContentColor = appBarContentColor
                 ),
+                actions = {
+                    var isExpanded by remember { mutableStateOf(false) }
+                    if (state.mode == Edit) {
+                        IconButton(
+                            onClick = {
+                                isExpanded = true
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = null
+                            )
+                        }
+                    }
+
+                    DropdownMenu(
+                        expanded = isExpanded,
+                        onDismissRequest = {
+                            isExpanded = false
+                        }
+                    ) {
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    stringResource(Res.string.title_add_product_stock),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            },
+                            onClick = {
+                                onEvent(OnAddStockEvent.OnShown)
+                            }
+                        )
+                    }
+                },
                 navigationIcon = {
                     IconButton(
                         onClick = {
@@ -292,32 +345,6 @@ private fun ProductAddEditUI(
                     )
                 }
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp)
-                        .background(MaterialTheme.colorScheme.surfaceContainer)
-                        .padding(
-                            horizontal = 12.dp,
-                            vertical = 6.dp
-                        )
-                ) {
-                    Text(
-                        "Tanggal",
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontWeight = FontWeight.SemiBold
-                        ),
-                        modifier = Modifier.weight(1F)
-                    )
-                    Text(
-                        "Harga",
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontWeight = FontWeight.SemiBold,
-                        ),
-                        modifier = Modifier.weight(1F)
-                    )
-                }
-
                 PriceHistory(
                     priceHistoryPaging = state.buyPriceHistory,
                     modifier = Modifier
@@ -370,30 +397,6 @@ private fun ProductAddEditUI(
                             fontWeight = FontWeight.Bold
                         ),
                         modifier = Modifier.padding(start = 3.dp)
-                    )
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp)
-                        .background(MaterialTheme.colorScheme.surfaceContainer)
-                        .padding(horizontal = 12.dp)
-                        .padding(top = 6.dp)
-                ) {
-                    Text(
-                        "Tanggal",
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontWeight = FontWeight.SemiBold
-                        ),
-                        modifier = Modifier.weight(1F)
-                    )
-                    Text(
-                        "Harga",
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontWeight = FontWeight.SemiBold,
-                        ),
-                        modifier = Modifier.weight(1F)
                     )
                 }
 
@@ -496,7 +499,7 @@ private fun ProductAddEditUI(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 12.dp)
-                        .padding(top = 6.dp)
+                        .padding(top = 6.dp, bottom = 128.dp)
                 ) {
                     Text(
                         text = stringResource(Res.string.btn_delete_product),

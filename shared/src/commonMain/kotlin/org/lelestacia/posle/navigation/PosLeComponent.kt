@@ -201,6 +201,7 @@ class PosLeComponent(
                     snackbarHostState = snackbarHostState,
                     productRepository = productRepository,
                     variantRepository = variantRepository,
+                    stockRepository = stockRepository,
                     navigation = object : ProductAddEditNavigation {
                         override fun onPop() {
                             rootNavigation.pop()

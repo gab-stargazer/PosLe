@@ -14,14 +14,17 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
+import org.lelestacia.posle.data.entity.StockMovementType
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.repository.ProductRepository
+import org.lelestacia.posle.domain.repository.StockRepository
 import org.lelestacia.posle.domain.repository.VariantRepository
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.Navigation
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.Navigation.OnPop
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnAddProductClicked
+import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnAddStockEvent
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnDeleteProductClicked
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnImageChanged
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnSellPriceTheSameAsBuyPriceCheckedChange
@@ -39,7 +42,9 @@ import posle.shared.generated.resources.msg_error_name_cannot_be_empty
 import posle.shared.generated.resources.msg_error_price_cannot_be_empty
 import posle.shared.generated.resources.msg_error_price_cannot_contain_alphabet
 import posle.shared.generated.resources.msg_error_unit_cannot_be_empty
+import posle.shared.generated.resources.msg_stock_added
 import java.math.BigDecimal
+import kotlin.math.roundToInt
 import org.lelestacia.posle.util.Unit as PosLeUnit
 
 class ProductAddEditComponent(
@@ -49,6 +54,7 @@ class ProductAddEditComponent(
     private val product: Product?,
     private val snackbarHostState: SnackbarHostState,
     private val productRepository: ProductRepository,
+    private val stockRepository: StockRepository,
     private val variantRepository: VariantRepository,
 ) : ComponentContext by componentContext {
 
@@ -195,6 +201,10 @@ class ProductAddEditComponent(
             is Navigation -> {
                 onNavigationEvent(event)
             }
+
+            is OnAddStockEvent -> {
+                onAddStockEvent(event)
+            }
         }
     }
 
@@ -211,6 +221,67 @@ class ProductAddEditComponent(
 
             OnPop -> {
                 navigation.onPop()
+            }
+        }
+    }
+
+    private fun onAddStockEvent(event: OnAddStockEvent) {
+        when (event) {
+            OnAddStockEvent.OnConfirm -> {
+                scope.launch {
+                    val stock =
+                        state.value
+                            .dialogAddStockState
+                            .amountAdded
+                            .text
+                            .toString()
+                            .toFloatOrNull()
+                            ?: return@launch
+
+                    stockRepository.addStock(
+                        productId = product?.id ?: return@launch,
+                        amount = Amount(
+                            state.value.dialogAddStockState
+                                .amountAdded
+                                .text
+                                .toString()
+                                .toFloatOrNull() ?: return@launch
+                        ),
+                        movementType = StockMovementType.Inbound,
+                    )
+
+                    _state.update { currentState ->
+                        currentState.copy(
+                            isDialogAddStockShown = false,
+                            dialogAddStockState = ProductAddEditState.ProductAddStockDialogState()
+                        )
+                    }
+
+                    snackbarHostState.showSnackbar(
+                        getString(
+                            Res.string.msg_stock_added,
+                            product.name.value,
+                            stock.roundToInt().toString(),
+                            product.unit.value
+                        )
+                    )
+                }
+            }
+
+            OnAddStockEvent.OnDismiss -> {
+                _state.update { currentState ->
+                    currentState.copy(
+                        isDialogAddStockShown = false
+                    )
+                }
+            }
+
+            OnAddStockEvent.OnShown -> {
+                _state.update { currentState ->
+                    currentState.copy(
+                        isDialogAddStockShown = true
+                    )
+                }
             }
         }
     }

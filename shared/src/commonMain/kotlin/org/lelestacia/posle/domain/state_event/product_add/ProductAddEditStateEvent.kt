@@ -24,13 +24,23 @@ data class ProductAddEditState(
     val productImageUri: String? = null,
     val productImageByteArray: ByteArray? = null,
 
+    //  Dialog
+    val isDialogAddStockShown: Boolean = false,
+    val dialogAddStockState: ProductAddStockDialogState = ProductAddStockDialogState(),
 
     //  Mode
     val mode: AddEdit,
-)
+) {
+    @Immutable
+    data class ProductAddStockDialogState(
+        val amountAdded: TextFieldState = TextFieldState(),
+    )
+}
 
 sealed interface ProductAddEditEvent {
-    data class OnSellPriceTheSameAsBuyPriceCheckedChange(val newState: Boolean): ProductAddEditEvent
+    data class OnSellPriceTheSameAsBuyPriceCheckedChange(val newState: Boolean) :
+        ProductAddEditEvent
+
     data class OnImageChanged(val uri: String?, val bytes: ByteArray?) : ProductAddEditEvent
     data class OnVariantSelected(val variants: List<Variant>) : ProductAddEditEvent
     data object OnAddProductClicked : ProductAddEditEvent
@@ -39,6 +49,12 @@ sealed interface ProductAddEditEvent {
     sealed interface Navigation : ProductAddEditEvent {
         data class OnNavigateToVariantView(val config: Config.VariantView) : Navigation
         data object OnPop : Navigation
+    }
+
+    sealed interface OnAddStockEvent : ProductAddEditEvent {
+        data object OnShown : OnAddStockEvent
+        data object OnDismiss : OnAddStockEvent
+        data object OnConfirm : OnAddStockEvent
     }
 }
 
