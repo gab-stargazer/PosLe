@@ -64,7 +64,7 @@ class ProductAddEditComponent(
         .readProductBuyPriceHistory(product?.id ?: 0)
 
     private val sellPriceHistory = productRepository
-        .readProductBuyPriceHistory(product?.id ?: 0)
+        .readProductSellPriceHistory(product?.id ?: 0)
 
     init {
         if (product != null) {

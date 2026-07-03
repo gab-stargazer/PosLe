@@ -12,7 +12,7 @@ import org.jetbrains.compose.resources.StringResource
 import org.lelestacia.posle.domain.component.ProductInboundOutboundComponent
 import org.lelestacia.posle.domain.component.ProductListComponentImpl
 import org.lelestacia.posle.domain.component.SettingComponent
-import org.lelestacia.posle.domain.component.TransactionAddComponent
+import org.lelestacia.posle.domain.component.TransactionAddComponentImpl
 import org.lelestacia.posle.domain.component.TransactionHistoryComponent
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.destination_list_inbound_outbound
@@ -73,7 +73,7 @@ sealed interface NavConfig {
 }
 
 sealed class NavChild {
-    data class TransactionAdd(val component: TransactionAddComponent) : NavChild()
+    data class TransactionAdd(val component: TransactionAddComponentImpl) : NavChild()
     data class TransactionHistory(val component: TransactionHistoryComponent) : NavChild()
     data class ProductList(val component: ProductListComponentImpl) : NavChild()
     data class ProductInboundOutbound(val component: ProductInboundOutboundComponent) : NavChild()

@@ -32,7 +32,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,8 +40,8 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -51,23 +50,28 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.PagingData
-import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import coil3.compose.AsyncImage
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
-import org.lelestacia.posle.data.PosLeSettings
 import org.lelestacia.posle.domain.component.TransactionAddComponent
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent
+import org.lelestacia.posle.domain.state_event.TransactionAddEvent.DialogEvent.OnDismiss
+import org.lelestacia.posle.domain.state_event.TransactionAddEvent.DialogEvent.OnShown
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent.OnAddTransactionClicked
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent.OnTabChanged
 import org.lelestacia.posle.domain.state_event.TransactionAddState
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.util.SampleData
+import org.lelestacia.posle.util.Util
 import org.lelestacia.posle.util.toRupiah
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.btn_save_transaction
@@ -81,29 +85,28 @@ fun TransactionAddScreen(
     component: TransactionAddComponent,
     modifier: Modifier = Modifier
 ) {
+    val focusManager = LocalFocusManager.current
     val products = component.products.collectAsLazyPagingItems()
     val state by component.state.collectAsStateWithLifecycle()
 
-    TransactionAddUI(
-        products = products,
-        state = state,
-        onEvent = component::onEvent,
-        modifier = modifier
-    )
-}
-
-@Composable
-fun TransactionAddUI(
-    products: LazyPagingItems<Product>,
-    state: TransactionAddState,
-    onEvent: (TransactionAddEvent) -> Unit,
-    modifier: Modifier = Modifier
-) {
     LaunchedEffect(state.searchQuery) {
         snapshotFlow { state.searchQuery.text }
             .collect { query ->
-                onEvent(TransactionAddEvent.OnSearchQueryChanged(query.toString()))
+                component.onEvent(TransactionAddEvent.OnSearchQueryChanged(query.toString()))
             }
+    }
+
+    if (state.isDialogShown) {
+        Dialog(
+            onDismissRequest = {
+                component.onEvent(OnDismiss)
+            }
+        ) {
+            TransactionAddProductDialog(
+                state = state.dialogState,
+                onEvent = component::onEvent
+            )
+        }
     }
 
     Scaffold(
@@ -114,7 +117,7 @@ fun TransactionAddUI(
             ) {
                 Tab(
                     selected = state.currentTab == 0,
-                    onClick = { onEvent(OnTabChanged(0)) },
+                    onClick = { component.onEvent(OnTabChanged(0)) },
                     text = {
                         Text(
                             text = stringResource(Res.string.label_product),
@@ -125,7 +128,7 @@ fun TransactionAddUI(
 
                 Tab(
                     selected = state.currentTab == 1,
-                    onClick = { onEvent(OnTabChanged(1)) },
+                    onClick = { component.onEvent(OnTabChanged(1)) },
                     text = {
                         Text(
                             text = stringResource(
@@ -160,15 +163,15 @@ fun TransactionAddUI(
                             contentDescription = null
                         )
                     },
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp),
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
-                            12.dp
-                        ),
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
+                    colors = Util.defaultTextFieldColor(),
+                    shape = Util.defaultShape,
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Words,
+                        imeAction = ImeAction.Done
                     ),
-                    shape = RoundedCornerShape(25F),
+                    onKeyboardAction = {
+                        focusManager.clearFocus(true)
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 12.dp)
@@ -191,13 +194,11 @@ fun TransactionAddUI(
                                 ),
                                 modifier = Modifier
                                     .height(IntrinsicSize.Min)
-                                    .clickable(onClick = {
-                                        onEvent(
-                                            TransactionAddEvent.OnRequestProductConfig(
-                                                product
-                                            )
-                                        )
-                                    })
+                                    .clickable(
+                                        onClick = {
+                                            component.onEvent(OnShown(product))
+                                        }
+                                    )
                             ) {
                                 Column {
                                     if (product.imageUri != null) {
@@ -262,7 +263,7 @@ fun TransactionAddUI(
                             TransactionAddItemView(
                                 transactionItem = item,
                                 onRemove = {
-                                    onEvent(TransactionAddEvent.OnRemoveProduct(item))
+                                    component.onEvent(TransactionAddEvent.OnRemoveProduct(item))
                                 }
                             )
                         }
@@ -327,15 +328,8 @@ fun TransactionAddUI(
                                 )
                             },
                             textStyle = MaterialTheme.typography.bodyMedium,
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent,
-                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface
-                            ),
-                            shape = RoundedCornerShape(25F),
+                            colors = Util.defaultTextFieldColor(),
+                            shape = Util.defaultShape,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 12.dp)
@@ -344,7 +338,7 @@ fun TransactionAddUI(
 
                     Button(
                         onClick = {
-                            onEvent(OnAddTransactionClicked)
+                            component.onEvent(OnAddTransactionClicked)
                         },
                         shape = RoundedCornerShape(25F),
                         modifier = Modifier
@@ -361,23 +355,23 @@ fun TransactionAddUI(
 
 @Preview(showBackground = true)
 @Composable
-private fun PreviewTransactionAddUI() {
+private fun PreviewTransactionAddScreen() {
     AppTheme {
 
         val products = SampleData.products
-        val productsLazyPagingItems =
-            MutableStateFlow(PagingData.from(products)).collectAsLazyPagingItems()
 
-        TransactionAddUI(
-            products = productsLazyPagingItems,
-            state = TransactionAddState(
-                currentTab = 1,
-                settings = PosLeSettings(
-                    isCustomerNameNeeded = true,
-                    isProductVolatile = true
-                )
-            ),
-            onEvent = {}
+        TransactionAddScreen(
+            component = object : TransactionAddComponent {
+                override val products: Flow<PagingData<Product>>
+                    get() = flowOf(PagingData.from(products))
+
+                override val state: StateFlow<TransactionAddState>
+                    get() = MutableStateFlow(TransactionAddState())
+
+                override fun onEvent(event: TransactionAddEvent) {
+                    TODO("Not yet implemented")
+                }
+            }
         )
     }
 }

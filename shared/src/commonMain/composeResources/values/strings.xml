@@ -42,16 +42,13 @@
     <string name="label_history">Riwayat</string>"
     <string name="label_menu">Menu</string>"
     <string name="label_category_name">Nama Kategori:</string>
+    <string name="label_sell_price_equal_to_buy_price">Harga Jual sama dengan Harga Beli</string>
 
     <!--Variant-->
     <string name="item_variant_name">Nama Varian/Tambahan: %1$s</string>
     <string name="item_variant_price">Harga Varian/Tambahan: %1$s</string>
     <string name="item_variant_menu_edit">Edit Varian/Tambahan</string>
     <string name="item_variant_menu_delete">Hapus Varian/Tambahan</string>
-
-    <!--Title-->
-    <string name="title_add_category">Tambah Kategori</string>
-    <string name="title_choose_variant">Pilih Varian/Tambahan</string>
 
     <string name="label_setting_product_volatile">Harga Produk Volatil</string>
     <string name="msg_setting_product_volatile">Jika aktif, Anda dapat mengubah harga produk saat menambahkan transaksi.</string>
@@ -68,6 +65,8 @@
     <string name="label_variant_name">Nama Varian/Tambahan</string>
     <string name="label_variant_price_adjustment">Harga Tambahan</string>
     <string name="label_store_name">Nama Toko</string>
+    <string name="label_product_choosen">Produk Dipilih</string>
+    <string name="label_product_available">Tersedia: %1$s %2$s</string>
 
     <!--Button-->
     <string name="btn_add_product">Tambah Produk</string>
@@ -89,6 +88,9 @@
     <string name="txt_product_outbound">Produk %1$s keluar sejumlah %2$s %3$s</string>
 
     <!--Title-->
+    <string name="title_add_category">Tambah Kategori</string>
+    <string name="title_add_product">Tambahkan Produk</string>
+    <string name="title_choose_variant">Pilih Varian/Tambahan</string>
     <string name="title_no_category">Tanpa Kategori</string>
     <string name="title_additional_information">Informasi Tambahan</string>
     <string name="title_add_product_to_category">Tambahkan Produk kedalam Kategori</string>
@@ -113,6 +115,7 @@
     <string name="msg_error_price_cannot_be_empty">Harga Produk tidak boleh kosong</string>
     <string name="msg_error_price_cannot_contain_alphabet">Harga Produk harus berisi angka</string>
     <string name="msg_error_quantity_exceeded">Jumlah yang akan digunakan melebihi stok yang ada</string>
+    <string name="msg_error_amount_cannot_be_empty">Jumlah tidak boleh kosong</string>
 
 <!--Msg-->
     <string name="msg_stock_added">Stok untuk produk %1$s berhasil ditambahkan sejumlah %2$s %3$s</string>

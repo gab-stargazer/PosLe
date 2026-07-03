@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import org.lelestacia.posle.App
 
 @Composable
-fun AddEditDeleteImageButton(
+fun ProductAddEditDeleteImageButton(
     isEditMode: Boolean,
     onAddOrChange: () -> Unit,
     onDelete: () -> Unit,
@@ -121,9 +121,9 @@ fun AddEditDeleteImageButton(
 
 @Preview(showBackground = true)
 @Composable
-private fun PreviewAddEditDeleteImageButton() {
+private fun PreviewProductAddEditDeleteImageButton() {
     App {
-        AddEditDeleteImageButton(
+        ProductAddEditDeleteImageButton(
             isEditMode = false,
             onAddOrChange = {},
             onDelete = {},
@@ -134,9 +134,9 @@ private fun PreviewAddEditDeleteImageButton() {
 
 @Preview(showBackground = true)
 @Composable
-private fun PreviewEditEditDeleteImageButton() {
+private fun PreviewEditEditDeleteImageButtonProduct() {
     App {
-        AddEditDeleteImageButton(
+        ProductAddEditDeleteImageButton(
             isEditMode = true,
             onAddOrChange = {},
             onDelete = {},

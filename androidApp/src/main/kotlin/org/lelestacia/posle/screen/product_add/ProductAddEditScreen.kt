@@ -4,13 +4,11 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -19,10 +17,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.SubdirectoryArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -41,7 +37,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -65,34 +60,26 @@ import org.lelestacia.posle.domain.component.product_add_edit.ProductAddEditComp
 import org.lelestacia.posle.domain.model.ProductPriceHistory
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent
-import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.Navigation.OnNavigateToVariantView
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.Navigation.OnPop
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnAddProductClicked
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnAddStockEvent
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnDeleteProductClicked
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnImageChanged
-import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnSellPriceTheSameAsBuyPriceCheckedChange
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditState
 import org.lelestacia.posle.navigation.AddEdit
 import org.lelestacia.posle.navigation.AddEdit.Add
 import org.lelestacia.posle.navigation.AddEdit.Edit
-import org.lelestacia.posle.navigation.Config
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
-import org.lelestacia.posle.util.RupiahOutputTransformation
 import org.lelestacia.posle.util.handleImagePick
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.btn_add_product
 import posle.shared.generated.resources.btn_delete_product
 import posle.shared.generated.resources.btn_update_product
-import posle.shared.generated.resources.label_product_buy_price
 import posle.shared.generated.resources.label_product_name
-import posle.shared.generated.resources.label_product_sell_price
 import posle.shared.generated.resources.label_product_unit
 import posle.shared.generated.resources.title_add_product_stock
-import posle.shared.generated.resources.title_buy_price_history
-import posle.shared.generated.resources.title_sell_price_history
 import java.math.BigDecimal
 import kotlin.time.Clock
 
@@ -299,136 +286,10 @@ private fun ProductAddEditUI(
                     .padding(horizontal = 12.dp)
             )
 
-            OutlinedTextField(
-                state = state.buyPriceState,
-                label = {
-                    Text(
-                        text = stringResource(Res.string.label_product_buy_price),
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-                },
-                outputTransformation = RupiahOutputTransformation(),
-                textStyle = MaterialTheme.typography.bodyMedium,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Done
-                ),
-                onKeyboardAction = {
-                    focusManager.clearFocus(true)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 6.dp)
-                    .padding(horizontal = 12.dp)
-            )
 
-            if (state.mode == Edit) {
-                Row(
-                    verticalAlignment = Alignment.Top,
-                    modifier = Modifier
-                        .padding(start = 12.dp, top = 12.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.SubdirectoryArrowRight,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-
-                    Text(
-                        text = stringResource(Res.string.title_buy_price_history),
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontWeight = FontWeight.Bold
-                        ),
-                        modifier = Modifier.padding(start = 3.dp)
-                    )
-                }
-
-                PriceHistory(
-                    priceHistoryPaging = state.buyPriceHistory,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp)
-                )
-            }
-
-            OutlinedTextField(
-                state = state.sellPriceState,
-                label = {
-                    Text(
-                        text = stringResource(Res.string.label_product_sell_price),
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-                },
-                outputTransformation = RupiahOutputTransformation(),
-                textStyle = MaterialTheme.typography.bodyMedium,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Done
-                ),
-                onKeyboardAction = {
-                    focusManager.clearFocus(true)
-                },
-                enabled = !state.isSellPriceAndBuyPriceTheSame,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp)
-                    .padding(horizontal = 12.dp)
-            )
-
-            if (state.mode == Edit) {
-                Row(
-                    verticalAlignment = Alignment.Top,
-                    modifier = Modifier
-                        .padding(start = 12.dp, top = 12.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.SubdirectoryArrowRight,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-
-                    Text(
-                        text = stringResource(Res.string.title_sell_price_history),
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontWeight = FontWeight.Bold
-                        ),
-                        modifier = Modifier.padding(start = 3.dp)
-                    )
-                }
-
-                PriceHistory(
-                    priceHistoryPaging = state.sellPriceHistory,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp)
-                )
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Checkbox(
-                    checked = state.isSellPriceAndBuyPriceTheSame,
-                    onCheckedChange = { newState ->
-                        onEvent(OnSellPriceTheSameAsBuyPriceCheckedChange(newState))
-                        state.sellPriceState.edit {
-                            val oldSelection = selection
-                            replace(0, length, state.buyPriceState.text.toString())
-                            selection =
-                                oldSelection.coerceIn(0, state.buyPriceState.text.toString().length)
-                        }
-                    }
-                )
-
-                Text(
-                    "Harga Jual sama dengan Harga Beli",
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
-                )
-            }
+            ProductAddEditSectionBuyPrice(state)
+            
+            ProductAddEditSectionSellPrice(state, onEvent)
 
             AnimatedVisibility(state.productImageUri != null) {
                 AsyncImage(
@@ -444,7 +305,7 @@ private fun ProductAddEditUI(
                 )
             }
 
-            AddEditDeleteImageButton(
+            ProductAddEditDeleteImageButton(
                 isEditMode = state.productImageUri != null,
                 onAddOrChange = {
                     imagePicker.launch()
@@ -455,13 +316,6 @@ private fun ProductAddEditUI(
                 modifier = Modifier
                     .padding(horizontal = 12.dp)
                     .padding(top = 12.dp)
-            )
-
-            ProductAddEditVariantSection(
-                variants = state.variants,
-                onAddVariantClicked = {
-                    onEvent(OnNavigateToVariantView(Config.VariantView(selectedVariants = state.variants)))
-                }
             )
 
             Button(

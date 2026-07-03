@@ -1,6 +1,7 @@
 package org.lelestacia.posle.navigation
 
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Scaffold
@@ -27,6 +28,8 @@ fun RootContent(
         },
         contentWindowInsets = WindowInsets(),
         modifier = modifier
+            .statusBarsPadding()
+            .navigationBarsPadding()
     ) { paddingValues ->
         Children(
             stack = component.children,

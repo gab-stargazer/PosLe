@@ -82,6 +82,7 @@ fun ProductAddEditVariantSection(
                         modifier = Modifier
                             .size(16.dp)
                     )
+
                     Column(
                         modifier = Modifier
                             .weight(1F)

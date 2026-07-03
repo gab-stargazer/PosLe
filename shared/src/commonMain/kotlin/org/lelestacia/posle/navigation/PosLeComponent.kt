@@ -17,7 +17,7 @@ import org.lelestacia.posle.domain.component.DashboardNavigation
 import org.lelestacia.posle.domain.component.ProductInboundOutboundComponentImpl
 import org.lelestacia.posle.domain.component.ProductListComponentImpl
 import org.lelestacia.posle.domain.component.SettingComponent
-import org.lelestacia.posle.domain.component.TransactionAddComponent
+import org.lelestacia.posle.domain.component.TransactionAddComponentImpl
 import org.lelestacia.posle.domain.component.TransactionAddNavigation
 import org.lelestacia.posle.domain.component.TransactionHistoryComponent
 import org.lelestacia.posle.domain.component.TransactionListComponent
@@ -116,7 +116,7 @@ class PosLeComponent(
             )
 
             NavConfig.TransactionAdd -> TransactionAdd(
-                TransactionAddComponent(
+                TransactionAddComponentImpl(
                     componentContext = context,
                     productRepository = productRepository,
                     transactionRepository = transactionRepository,

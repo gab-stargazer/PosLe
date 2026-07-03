@@ -5,30 +5,37 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.model.ProductPriceHistory
+import org.lelestacia.posle.ui.theme.AppTheme
+import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.toFormattedDate
 import org.lelestacia.posle.util.toRupiah
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.subtitle_date
 import posle.shared.generated.resources.subtitle_price
+import java.math.BigDecimal
+import kotlin.time.Clock
 
 @Composable
-fun PriceHistory(
+fun ProductAddEditPriceHistory(
     priceHistoryPaging: List<ProductPriceHistory>,
     modifier: Modifier = Modifier
 ) {
-    Column {
+    Column(modifier = modifier) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp)
+                .clip(RoundedCornerShape(topStart = 25F, topEnd = 25F))
                 .background(MaterialTheme.colorScheme.surfaceContainer)
                 .padding(horizontal = 12.dp)
                 .padding(vertical = 6.dp)
@@ -50,8 +57,9 @@ fun PriceHistory(
         }
 
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
+                .clip(RoundedCornerShape(bottomStart = 25F, bottomEnd = 25F))
                 .background(MaterialTheme.colorScheme.surfaceContainerLow)
         ) {
             priceHistoryPaging.forEach {
@@ -75,5 +83,22 @@ fun PriceHistory(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewProductAddEditPriceHistory() {
+    AppTheme {
+        ProductAddEditPriceHistory(
+            priceHistoryPaging = List(10) {
+                ProductPriceHistory(
+                    id = it,
+                    price = Price(BigDecimal.ZERO),
+                    changes = BigDecimal.ZERO,
+                    createdAt = Clock.System.now().toEpochMilliseconds()
+                )
+            }
+        )
     }
 }

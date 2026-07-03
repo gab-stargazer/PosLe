@@ -150,6 +150,34 @@ fun TransactionReceipt(
             maxLines = 1
         )
 
+        val totalPrice = transactionProduct.sumOf {
+            it.productSellPrice.value * it.productAmount.value.toBigDecimal()
+        }
+
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                "Total Belanja:",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontFamily = FontFamily.Monospace
+                ),
+                overflow = TextOverflow.Clip,
+                maxLines = 1
+            )
+
+            Text(
+                totalPrice.toRupiah(),
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontFamily = FontFamily.Monospace
+                ),
+                overflow = TextOverflow.Clip,
+                maxLines = 1
+            )
+        }
+
+
         Text(
             "Terimakasih telah berbelanja",
             style = MaterialTheme.typography.titleMedium.copy(
