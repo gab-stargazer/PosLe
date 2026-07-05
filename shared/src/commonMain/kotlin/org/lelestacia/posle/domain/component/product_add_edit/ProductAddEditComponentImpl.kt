@@ -33,9 +33,11 @@ import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditNavigat
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditState
 import org.lelestacia.posle.navigation.AddEdit
 import org.lelestacia.posle.navigation.AddEdit.Add
+import org.lelestacia.posle.navigation.Config
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
+import org.lelestacia.posle.util.SkuNumber
 import org.lelestacia.posle.util.coroutineScope
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.msg_error_name_cannot_be_empty
@@ -47,7 +49,12 @@ import java.math.BigDecimal
 import kotlin.math.roundToInt
 import org.lelestacia.posle.util.Unit as PosLeUnit
 
-class ProductAddEditComponent(
+interface ProductAddEditComponent {
+    val state: StateFlow<ProductAddEditState>
+    fun onEvent(event: ProductAddEditEvent)
+}
+
+class ProductAddEditComponentImpl(
     componentContext: ComponentContext,
     mode: AddEdit,
     private val navigation: ProductAddEditNavigation,
@@ -56,7 +63,7 @@ class ProductAddEditComponent(
     private val productRepository: ProductRepository,
     private val stockRepository: StockRepository,
     private val variantRepository: VariantRepository,
-) : ComponentContext by componentContext {
+) : ComponentContext by componentContext, ProductAddEditComponent {
 
     private val scope = coroutineScope(Dispatchers.Main.immediate)
 
@@ -86,6 +93,7 @@ class ProductAddEditComponent(
         ProductAddEditState(
             name = TextFieldState(product?.name?.value.orEmpty()),
             unit = TextFieldState(product?.unit?.value.orEmpty()),
+            skuNumber = product?.skuNumber?.value.orEmpty(),
             buyPriceState = TextFieldState(product?.buyPrice?.value?.toString() ?: ""),
             sellPriceState = TextFieldState(product?.sellPrice?.value?.toString() ?: ""),
             productImageUri = product?.imageUri,
@@ -93,7 +101,8 @@ class ProductAddEditComponent(
             mode = mode
         )
     )
-    val state: StateFlow<ProductAddEditState> = combine(
+
+    override val state: StateFlow<ProductAddEditState> = combine(
         flow = _state,
         flow2 = buyPriceHistory,
         flow3 = sellPriceHistory
@@ -108,7 +117,7 @@ class ProductAddEditComponent(
         initialValue = ProductAddEditState(mode = Add)
     )
 
-    fun onEvent(event: ProductAddEditEvent) {
+    override fun onEvent(event: ProductAddEditEvent) {
         when (event) {
 
             is OnSellPriceTheSameAsBuyPriceCheckedChange -> {
@@ -219,9 +228,23 @@ class ProductAddEditComponent(
                 )
             }
 
+            is Navigation.OnNavigateToQrScanner -> {
+                navigation.onNavigateToQRScanner(
+                    config = Config.QrScanner,
+                    onResult = { qrData ->
+                        _state.update { currentState ->
+                            currentState.copy(
+                                skuNumber = qrData
+                            )
+                        }
+                    }
+                )
+            }
+
             OnPop -> {
                 navigation.onPop()
             }
+
         }
     }
 
@@ -295,6 +318,7 @@ class ProductAddEditComponent(
             sellPrice = Price(BigDecimal(currentState.sellPriceState.text.toString())),
             stock = Amount(0F),
             unit = PosLeUnit(currentState.unit.text.toString()),
+            skuNumber = SkuNumber(currentState.skuNumber),
             imageUri = currentState.productImageUri,
             variants = currentState.variants
         )

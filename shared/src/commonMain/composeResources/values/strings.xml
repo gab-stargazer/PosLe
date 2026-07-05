@@ -10,6 +10,7 @@
 
     <!--Label-->
     <string name="label_product_name">Nama Produk</string>
+    <string name="label_product_sku_number">Nomor SKU(Opsional)</string>
     <string name="label_product_unit">Satuan Produk</string>
     <string name="label_product_amount">Jumlah Produk</string>
     <string name="label_product_buy_price">Harga Modal Produk</string>

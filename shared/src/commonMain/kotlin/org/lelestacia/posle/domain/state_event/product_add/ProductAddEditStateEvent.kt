@@ -11,6 +11,7 @@ import org.lelestacia.posle.navigation.Config
 data class ProductAddEditState(
     val name: TextFieldState = TextFieldState(),
     val unit: TextFieldState = TextFieldState(),
+    val skuNumber: String = "",
     val buyPriceState: TextFieldState = TextFieldState(),
     val sellPriceState: TextFieldState = TextFieldState(),
     val isSellPriceAndBuyPriceTheSame: Boolean = false,
@@ -48,6 +49,7 @@ sealed interface ProductAddEditEvent {
 
     sealed interface Navigation : ProductAddEditEvent {
         data class OnNavigateToVariantView(val config: Config.VariantView) : Navigation
+        data object OnNavigateToQrScanner : Navigation
         data object OnPop : Navigation
     }
 
@@ -64,5 +66,10 @@ interface ProductAddEditNavigation {
     fun onNavigateToVariantSelection(
         config: Config.VariantView,
         onResult: (List<Variant>) -> Unit
+    )
+
+    fun onNavigateToQRScanner(
+        config: Config.QrScanner,
+        onResult: (String) -> Unit
     )
 }

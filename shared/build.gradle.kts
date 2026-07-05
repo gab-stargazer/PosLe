@@ -95,6 +95,9 @@ kotlin {
             api("io.github.koalaplot:koalaplot-core:0.11.2")
 
             api("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.5.0")
+
+            //  QR Kit
+            api(libs.qr.kit)
         }
 
         commonTest.dependencies {

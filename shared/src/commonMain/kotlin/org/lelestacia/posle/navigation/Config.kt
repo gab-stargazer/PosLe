@@ -5,8 +5,9 @@ import org.lelestacia.posle.domain.component.DashboardComponentImpl
 import org.lelestacia.posle.domain.component.TransactionListComponent
 import org.lelestacia.posle.domain.component.TransactionProductConfigComponentImpl
 import org.lelestacia.posle.domain.component.TransactionViewComponent
-import org.lelestacia.posle.domain.component.product_add_edit.ProductAddEditComponent
+import org.lelestacia.posle.domain.component.product_add_edit.ProductAddEditComponentImpl
 import org.lelestacia.posle.domain.component.product_add_edit.ProductAddVariantsViewComponent
+import org.lelestacia.posle.domain.component.qr_scanner.QrScannerComponentImpl
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.Transaction
 import org.lelestacia.posle.domain.model.Variant
@@ -37,6 +38,9 @@ sealed interface Config {
     ) : Config
 
     @Serializable
+    data object QrScanner : Config
+
+    @Serializable
     data class VariantView(
         val selectedVariants: List<Variant> = emptyList()
     ) : Config
@@ -48,7 +52,8 @@ sealed class Child {
     data class TransactionList(val component: TransactionListComponent) : Child()
     data class TransactionView(val component: TransactionViewComponent) : Child()
     data class TransactionProductConfig(val component: TransactionProductConfigComponentImpl) : Child()
-    data class ProductAdd(val component: ProductAddEditComponent) : Child()
+    data class ProductAddEdit(val component: ProductAddEditComponentImpl) : Child()
+    data class QrScanner(val component: QrScannerComponentImpl): Child()
     data class VariantView(val component: ProductAddVariantsViewComponent): Child()
 }
 

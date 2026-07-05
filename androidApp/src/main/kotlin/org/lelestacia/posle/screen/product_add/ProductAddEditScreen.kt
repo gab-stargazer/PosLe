@@ -1,5 +1,6 @@
 package org.lelestacia.posle.screen.product_add
 
+import android.Manifest
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
@@ -17,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
@@ -41,7 +43,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.coerceIn
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -52,14 +53,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import com.meticha.permissions_compose.AppPermission
+import com.meticha.permissions_compose.rememberAppPermissionState
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.component.product_add_edit.ProductAddEditComponent
 import org.lelestacia.posle.domain.model.ProductPriceHistory
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent
+import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.Navigation.OnNavigateToQrScanner
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.Navigation.OnPop
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnAddProductClicked
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnAddStockEvent
@@ -78,6 +84,7 @@ import posle.shared.generated.resources.btn_add_product
 import posle.shared.generated.resources.btn_delete_product
 import posle.shared.generated.resources.btn_update_product
 import posle.shared.generated.resources.label_product_name
+import posle.shared.generated.resources.label_product_sku_number
 import posle.shared.generated.resources.label_product_unit
 import posle.shared.generated.resources.title_add_product_stock
 import java.math.BigDecimal
@@ -89,20 +96,10 @@ fun ProductAddEditScreen(
     modifier: Modifier = Modifier
 ) {
     val state by component.state.collectAsStateWithLifecycle()
-    ProductAddEditUI(
-        state = state,
-        onEvent = component::onEvent,
-        modifier = modifier
+    val cameraPermission = rememberAppPermissionState(
+        listOf(AppPermission(Manifest.permission.CAMERA, "Izin Kamera", isRequired = true))
     )
-}
 
-@Composable
-private fun ProductAddEditUI(
-    state: ProductAddEditState,
-    onEvent: (ProductAddEditEvent) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val focusManager = LocalFocusManager.current
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
@@ -147,21 +144,21 @@ private fun ProductAddEditUI(
             context.handleImagePick(
                 file = it,
                 onPicked = { uri, bytes ->
-                    onEvent(OnImageChanged(uri, bytes))
+                    component.onEvent(OnImageChanged(uri, bytes))
                 }
             )
         }
     }
 
-    if(state.isDialogAddStockShown) {
+    if (state.isDialogAddStockShown) {
         Dialog(
             onDismissRequest = {
-                onEvent(OnAddStockEvent.OnDismiss)
+                component.onEvent(OnAddStockEvent.OnDismiss)
             }
         ) {
             ProductAddStockDialog(
-                state= state.dialogAddStockState,
-                onEvent = onEvent
+                state = state.dialogAddStockState,
+                onEvent = component::onEvent
             )
         }
     }
@@ -214,7 +211,7 @@ private fun ProductAddEditUI(
                                 )
                             },
                             onClick = {
-                                onEvent(OnAddStockEvent.OnShown)
+                                component.onEvent(OnAddStockEvent.OnShown)
                             }
                         )
                     }
@@ -222,7 +219,7 @@ private fun ProductAddEditUI(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            onEvent(OnPop)
+                            component.onEvent(OnPop)
                         }
                     ) {
                         Icon(
@@ -266,6 +263,41 @@ private fun ProductAddEditUI(
             )
 
             OutlinedTextField(
+                value = state.skuNumber,
+                onValueChange = {},
+                readOnly = true,
+                label = {
+                    Text(
+                        text = stringResource(Res.string.label_product_sku_number),
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
+                },
+                trailingIcon = {
+                    IconButton(
+                        onClick = {
+                            if (cameraPermission.allRequiredGranted()) {
+                                component.onEvent(OnNavigateToQrScanner)
+                            } else {
+                                cameraPermission.requestPermission()
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.QrCodeScanner,
+                            contentDescription = Icons.Default.QrCodeScanner.name
+                        )
+                    }
+                },
+                textStyle = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 6.dp)
+                    .padding(horizontal = 12.dp)
+            )
+
+            OutlinedTextField(
                 state = state.unit,
                 label = {
                     Text(
@@ -288,8 +320,8 @@ private fun ProductAddEditUI(
 
 
             ProductAddEditSectionBuyPrice(state)
-            
-            ProductAddEditSectionSellPrice(state, onEvent)
+
+            ProductAddEditSectionSellPrice(state, component::onEvent)
 
             AnimatedVisibility(state.productImageUri != null) {
                 AsyncImage(
@@ -311,7 +343,7 @@ private fun ProductAddEditUI(
                     imagePicker.launch()
                 },
                 onDelete = {
-                    onEvent(OnImageChanged(null, null))
+                    component.onEvent(OnImageChanged(null, null))
                 },
                 modifier = Modifier
                     .padding(horizontal = 12.dp)
@@ -320,7 +352,7 @@ private fun ProductAddEditUI(
 
             Button(
                 onClick = {
-                    onEvent(OnAddProductClicked)
+                    component.onEvent(OnAddProductClicked)
                 },
                 shape = RoundedCornerShape(25F),
                 modifier = Modifier
@@ -343,7 +375,7 @@ private fun ProductAddEditUI(
             if (state.mode == Edit) {
                 Button(
                     onClick = {
-                        onEvent(OnDeleteProductClicked)
+                        component.onEvent(OnDeleteProductClicked)
                     },
                     shape = RoundedCornerShape(25F),
                     colors = ButtonDefaults.buttonColors(
@@ -420,9 +452,15 @@ private fun PreviewProductAddEditUI() {
             )
         }
 
-        ProductAddEditUI(
-            state = state,
-            onEvent = {},
+        ProductAddEditScreen(
+            component = object : ProductAddEditComponent {
+                override val state: StateFlow<ProductAddEditState>
+                    get() = MutableStateFlow(state)
+
+                override fun onEvent(event: ProductAddEditEvent) {
+
+                }
+            }
         )
     }
 }

@@ -12,6 +12,7 @@ import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.fade
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import org.lelestacia.posle.screen.DashboardScreen
+import org.lelestacia.posle.screen.QrScannerScreen
 import org.lelestacia.posle.screen.TransactionViewScreen
 import org.lelestacia.posle.screen.product_add.ProductAddEditScreen
 import org.lelestacia.posle.screen.product_add.ProductAddVariantsViewScreen
@@ -39,18 +40,34 @@ fun RootContent(
                 .padding(paddingValues = paddingValues)
         ) {
             when (val child = it.instance) {
-                is Child.Dashboard -> DashboardScreen(component = child.component)
+                is Child.Dashboard -> {
+                    DashboardScreen(component = child.component)
+                }
 
                 //  Transaction
                 is Child.TransactionList -> {
 
                 }
 
-                is Child.TransactionView -> TransactionViewScreen(component = child.component)
-                is Child.TransactionProductConfig -> TransactionProductConfigScreen(component = child.component)
 
-                is Child.ProductAdd -> ProductAddEditScreen(component = child.component)
-                is Child.VariantView -> ProductAddVariantsViewScreen(component = child.component)
+
+                is Child.TransactionView -> {
+                    TransactionViewScreen(component = child.component)
+                }
+                is Child.TransactionProductConfig -> {
+                    TransactionProductConfigScreen(component = child.component)
+                }
+
+                is Child.ProductAddEdit -> {
+                    ProductAddEditScreen(component = child.component)
+                }
+                is Child.VariantView -> {
+                    ProductAddVariantsViewScreen(component = child.component)
+                }
+
+                is Child.QrScanner -> {
+                    QrScannerScreen(component = child.component)
+                }
             }
         }
     }

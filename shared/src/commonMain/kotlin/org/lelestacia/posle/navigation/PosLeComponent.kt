@@ -24,8 +24,9 @@ import org.lelestacia.posle.domain.component.TransactionListComponent
 import org.lelestacia.posle.domain.component.TransactionProductConfigComponentImpl
 import org.lelestacia.posle.domain.component.TransactionViewComponent
 import org.lelestacia.posle.domain.component.TransactionViewNavigation
-import org.lelestacia.posle.domain.component.product_add_edit.ProductAddEditComponent
+import org.lelestacia.posle.domain.component.product_add_edit.ProductAddEditComponentImpl
 import org.lelestacia.posle.domain.component.product_add_edit.ProductAddVariantsViewComponent
+import org.lelestacia.posle.domain.component.qr_scanner.QrScannerComponentImpl
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.repository.CategoryRepository
@@ -42,6 +43,7 @@ import org.lelestacia.posle.navigation.NavChild.TransactionAdd
 import org.lelestacia.posle.navigation.NavChild.TransactionHistory
 import org.lelestacia.posle.navigation.Config.Dashboard as DashboardConfig
 import org.lelestacia.posle.navigation.Config.ProductAddEdit as ProductAddEditConfig
+import org.lelestacia.posle.navigation.Config.QrScanner as QrScannerConfig
 import org.lelestacia.posle.navigation.Config.TransactionList as TransactionListConfig
 import org.lelestacia.posle.navigation.Config.TransactionProduct as TransactionProductConfig
 import org.lelestacia.posle.navigation.Config.TransactionView as TransactionViewConfig
@@ -69,6 +71,7 @@ class PosLeComponent(
     //  Helper
     private var onVariantsSelected: ((List<Variant>) -> Unit)? = null
     private var onProductConfigConfirmed: ((TransactionItemState, List<Variant>) -> Unit)? = null
+    private var onQrScanned: ((String) -> Unit)? = null
 
     val tabChildren: Value<ChildStack<NavConfig, NavChild>> = childStack(
         source = tabNavigation,
@@ -193,8 +196,8 @@ class PosLeComponent(
                 )
             )
 
-            is ProductAddEditConfig -> Child.ProductAdd(
-                ProductAddEditComponent(
+            is ProductAddEditConfig -> Child.ProductAddEdit(
+                ProductAddEditComponentImpl(
                     componentContext = context,
                     mode = config.addEdit,
                     product = config.product,
@@ -214,7 +217,26 @@ class PosLeComponent(
                             onVariantsSelected = onResult
                             rootNavigation.pushNew(config)
                         }
+
+                        override fun onNavigateToQRScanner(
+                            config: QrScannerConfig,
+                            onResult: (String) -> Unit
+                        ) {
+                            onQrScanned = onResult
+                            rootNavigation.pushNew(config)
+                        }
                     },
+                )
+            )
+
+            QrScannerConfig -> Child.QrScanner(
+                component = QrScannerComponentImpl(
+                    componentContext = context,
+                    onQrScanned = {
+                        onQrScanned?.invoke(it)
+                        onQrScanned = null
+                        rootNavigation.pop()
+                    }
                 )
             )
 
