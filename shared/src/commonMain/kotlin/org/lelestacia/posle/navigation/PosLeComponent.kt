@@ -16,16 +16,16 @@ import org.lelestacia.posle.domain.component.DashboardComponentImpl
 import org.lelestacia.posle.domain.component.DashboardNavigation
 import org.lelestacia.posle.domain.component.ProductInboundOutboundComponentImpl
 import org.lelestacia.posle.domain.component.ProductListComponentImpl
-import org.lelestacia.posle.domain.component.SettingComponent
+import org.lelestacia.posle.domain.component.SettingComponentImpl
 import org.lelestacia.posle.domain.component.TransactionAddComponentImpl
 import org.lelestacia.posle.domain.component.TransactionAddNavigation
-import org.lelestacia.posle.domain.component.TransactionHistoryComponent
-import org.lelestacia.posle.domain.component.TransactionListComponent
+import org.lelestacia.posle.domain.component.TransactionHistoryComponentImpl
+import org.lelestacia.posle.domain.component.TransactionListComponentImpl
 import org.lelestacia.posle.domain.component.TransactionProductConfigComponentImpl
-import org.lelestacia.posle.domain.component.TransactionViewComponent
+import org.lelestacia.posle.domain.component.TransactionViewComponentImpl
 import org.lelestacia.posle.domain.component.TransactionViewNavigation
 import org.lelestacia.posle.domain.component.product_add_edit.ProductAddEditComponentImpl
-import org.lelestacia.posle.domain.component.product_add_edit.ProductAddVariantsViewComponent
+import org.lelestacia.posle.domain.component.product_add_edit.ProductAddVariantsViewComponentImpl
 import org.lelestacia.posle.domain.component.qr_scanner.QrScannerComponentImpl
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.Variant
@@ -93,7 +93,7 @@ class PosLeComponent(
     private fun createTabChild(config: NavConfig, context: ComponentContext): NavChild =
         when (config) {
             is NavConfig.TransactionHistory -> TransactionHistory(
-                TransactionHistoryComponent(
+                TransactionHistoryComponentImpl(
                     componentContext = context,
                     settingManager = settingManager,
                     repository = transactionRepository,
@@ -102,7 +102,7 @@ class PosLeComponent(
             )
 
             NavConfig.Setting -> Setting(
-                SettingComponent(
+                SettingComponentImpl(
                     componentContext = context,
                     settingManager = settingManager
                 )
@@ -176,14 +176,14 @@ class PosLeComponent(
             )
 
             TransactionListConfig -> Child.TransactionList(
-                TransactionListComponent(
+                TransactionListComponentImpl(
                     componentContext = context,
                     onNavigateTo = rootNavigation::pushToFront
                 )
             )
 
             is TransactionViewConfig -> Child.TransactionView(
-                TransactionViewComponent(
+                TransactionViewComponentImpl(
                     componentContext = context,
                     transaction = config.transaction,
                     settingManager = settingManager,
@@ -241,7 +241,7 @@ class PosLeComponent(
             )
 
             is VariantViewConfig -> Child.VariantView(
-                ProductAddVariantsViewComponent(
+                ProductAddVariantsViewComponentImpl(
                     componentContext = context,
                     initialSelectedVariants = config.selectedVariants,
                     onVariantsConfirmed = {

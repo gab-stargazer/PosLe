@@ -10,7 +10,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
-import org.lelestacia.posle.data.PosLeSettings
 import org.lelestacia.posle.data.SettingManager
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.Variant
@@ -19,23 +18,6 @@ import org.lelestacia.posle.util.coroutineScope
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.msg_error_price_cannot_be_empty
 import posle.shared.generated.resources.msg_error_unit_cannot_be_empty
-
-data class TransactionProductConfigState(
-    val product: Product,
-    val selectedVariants: List<Variant> = emptyList(),
-    val amountState: TextFieldState = TextFieldState("1"),
-    val priceState: TextFieldState = TextFieldState(),
-    val noteState: TextFieldState = TextFieldState(),
-    val settings: PosLeSettings = PosLeSettings()
-)
-
-sealed interface TransactionProductConfigEvent {
-    data class OnVariantClicked(val variant: Variant, val isChecked: Boolean) :
-        TransactionProductConfigEvent
-
-    data class OnAmountChanged(val amount: Float) : TransactionProductConfigEvent
-    data object OnConfirmed : TransactionProductConfigEvent
-}
 
 class TransactionProductConfigComponentImpl(
     componentContext: ComponentContext,
@@ -138,9 +120,4 @@ class TransactionProductConfigComponentImpl(
             }
         }
     }
-}
-
-interface TransactionProductConfigComponent {
-    val state: Value<TransactionProductConfigState>
-    fun onEvent(event: TransactionProductConfigEvent)
 }

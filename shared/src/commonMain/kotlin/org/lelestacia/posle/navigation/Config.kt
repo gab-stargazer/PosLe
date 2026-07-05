@@ -1,13 +1,13 @@
 package org.lelestacia.posle.navigation
 
 import kotlinx.serialization.Serializable
-import org.lelestacia.posle.domain.component.DashboardComponentImpl
+import org.lelestacia.posle.domain.component.DashboardComponent
 import org.lelestacia.posle.domain.component.TransactionListComponent
-import org.lelestacia.posle.domain.component.TransactionProductConfigComponentImpl
+import org.lelestacia.posle.domain.component.TransactionProductConfigComponent
 import org.lelestacia.posle.domain.component.TransactionViewComponent
-import org.lelestacia.posle.domain.component.product_add_edit.ProductAddEditComponentImpl
+import org.lelestacia.posle.domain.component.product_add_edit.ProductAddEditComponent
 import org.lelestacia.posle.domain.component.product_add_edit.ProductAddVariantsViewComponent
-import org.lelestacia.posle.domain.component.qr_scanner.QrScannerComponentImpl
+import org.lelestacia.posle.domain.component.qr_scanner.QrScannerComponent
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.Transaction
 import org.lelestacia.posle.domain.model.Variant
@@ -48,12 +48,12 @@ sealed interface Config {
 }
 
 sealed class Child {
-    data class Dashboard(val component: DashboardComponentImpl) : Child()
+    data class Dashboard(val component: DashboardComponent) : Child()
     data class TransactionList(val component: TransactionListComponent) : Child()
     data class TransactionView(val component: TransactionViewComponent) : Child()
-    data class TransactionProductConfig(val component: TransactionProductConfigComponentImpl) : Child()
-    data class ProductAddEdit(val component: ProductAddEditComponentImpl) : Child()
-    data class QrScanner(val component: QrScannerComponentImpl): Child()
+    data class TransactionProductConfig(val component: TransactionProductConfigComponent) : Child()
+    data class ProductAddEdit(val component: ProductAddEditComponent) : Child()
+    data class QrScanner(val component: QrScannerComponent): Child()
     data class VariantView(val component: ProductAddVariantsViewComponent): Child()
 }
 

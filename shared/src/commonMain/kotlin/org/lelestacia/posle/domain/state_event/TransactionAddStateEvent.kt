@@ -50,7 +50,7 @@ fun DialogState.validate(): DialogState {
     }
 
     val priceError = when {
-        price.isBlank() -> Res.string.msg_error_price_cannot_be_empty
+        price.isBlank() && settings.isProductVolatile -> Res.string.msg_error_price_cannot_be_empty
         else -> null
     }
 

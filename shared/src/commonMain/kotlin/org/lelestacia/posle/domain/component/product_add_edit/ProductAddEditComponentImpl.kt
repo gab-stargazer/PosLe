@@ -49,11 +49,6 @@ import java.math.BigDecimal
 import kotlin.math.roundToInt
 import org.lelestacia.posle.util.Unit as PosLeUnit
 
-interface ProductAddEditComponent {
-    val state: StateFlow<ProductAddEditState>
-    fun onEvent(event: ProductAddEditEvent)
-}
-
 class ProductAddEditComponentImpl(
     componentContext: ComponentContext,
     mode: AddEdit,

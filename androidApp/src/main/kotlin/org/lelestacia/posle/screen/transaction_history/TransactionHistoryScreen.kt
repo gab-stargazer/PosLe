@@ -32,7 +32,7 @@ import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.data.PosLeSettings
-import org.lelestacia.posle.domain.component.TransactionHistoryScreenComponent
+import org.lelestacia.posle.domain.component.TransactionHistoryComponent
 import org.lelestacia.posle.domain.component.TransactionHistoryScreenEvent
 import org.lelestacia.posle.domain.component.TransactionHistoryScreenEvent.OnNavigate
 import org.lelestacia.posle.domain.component.TransactionHistoryScreenEvent.OnTabSelected
@@ -48,7 +48,7 @@ import posle.shared.generated.resources.label_not_recapped
 @OptIn(ExperimentalKoalaPlotApi::class)
 @Composable
 fun TransactionHistoryScreen(
-    component: TransactionHistoryScreenComponent,
+    component: TransactionHistoryComponent,
     modifier: Modifier = Modifier
 ) {
     val state by component.state.collectAsStateWithLifecycle()
@@ -226,7 +226,7 @@ fun TransactionHistoryScreen(
 private fun PreviewTransactionHistoryScreen() {
     AppTheme {
         TransactionHistoryScreen(
-            component = object : TransactionHistoryScreenComponent {
+            component = object : TransactionHistoryComponent {
 
                 override val unRecappedHistory: Flow<PagingData<Transaction>>
                     get() = flowOf(PagingData.from(SampleData.largeTransaction))

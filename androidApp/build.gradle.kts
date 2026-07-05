@@ -47,7 +47,7 @@ android {
         applicationId = "org.lelestacia.posle"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 11
+        versionCode = 12
         versionName = "1.2.2"
     }
 

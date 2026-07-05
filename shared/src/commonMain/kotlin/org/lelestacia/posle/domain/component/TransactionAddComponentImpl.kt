@@ -1,16 +1,13 @@
 package org.lelestacia.posle.domain.component
 
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.arkivanov.decompose.ComponentContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -19,7 +16,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.lelestacia.posle.data.SettingManager
-import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.Transaction
 import org.lelestacia.posle.domain.model.TransactionItem
 import org.lelestacia.posle.domain.model.Variant
@@ -30,7 +26,6 @@ import org.lelestacia.posle.domain.state_event.TransactionAddState
 import org.lelestacia.posle.domain.state_event.TransactionAddState.DialogState
 import org.lelestacia.posle.domain.state_event.TransactionItemState
 import org.lelestacia.posle.domain.state_event.validate
-import org.lelestacia.posle.navigation.Config
 import org.lelestacia.posle.navigation.Config.TransactionView
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
@@ -39,22 +34,7 @@ import org.lelestacia.posle.util.coroutineScope
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 
-interface TransactionAddNavigation {
-    fun onNavigateTo(config: Config, onComplete: () -> Unit = {})
-
-    fun onNavigateToProductConfig(
-        product: Product,
-        onConfirmed: (TransactionItemState, List<Variant>) -> Unit
-    )
-}
-
-interface TransactionAddComponent {
-    val products: Flow<PagingData<Product>>
-    val state: StateFlow<TransactionAddState>
-    fun onEvent(event: TransactionAddEvent)
-}
-
-class TransactionAddComponentImpl(
+class  TransactionAddComponentImpl(
     componentContext: ComponentContext,
     productRepository: ProductRepository,
     private val settingManager: SettingManager,
@@ -111,7 +91,7 @@ class TransactionAddComponentImpl(
 
                             val cartItems = currentState.cartItems.toMutableList()
 
-                            //  Will Comeback later, probably needed for restaurant, might make it hard for selling fruits or something in bulk like Karung
+                            //  Will Come back later, probably needed for restaurant, might make it hard for selling fruits or something in bulk like Karung
                             val isInCart = cartItems.any { cartItem ->
                                 cartItem.productName == product.name &&
                                         cartItem.variants.toSet() == variants.toSet()
@@ -220,11 +200,13 @@ class TransactionAddComponentImpl(
                     val selectedProduct = currentState.dialogState.selectedProduct
                         ?: throw Exception("Product didn't get passed properly")
 
-                    //  Will Comeback later, probably needed for restaurant, might make it hard for selling fruits or something in bulk like Karung
+                    //  Will Come back later, probably needed for restaurant, might make it hard for selling fruits or something in bulk like Karung
                     val isInCart = cartItems.any { cartItem ->
                         cartItem.productName == selectedProduct.name
                     }
 
+
+                    println("CurrentState: ${currentState.dialogState}")
                     val validationResult = currentState.dialogState.validate()
                     val errors = listOf(
                         validationResult.amountError,
@@ -243,17 +225,24 @@ class TransactionAddComponentImpl(
                                 productId = selectedProduct.id,
                                 productBuyPrice = selectedProduct.buyPrice,
                                 productSellPrice = Price(
-                                    currentState.dialogState.priceState.text
-                                        .toString()
-                                        .ifBlank { "0" }
-                                        .toBigDecimal()
+                                    when(state.value.settings.isProductVolatile) {
+                                        true -> {
+                                            currentState.dialogState.price
+                                                .ifBlank { "0" }
+                                                .toBigDecimal()
+                                        }
+
+                                        false -> {
+                                            selectedProduct.sellPrice.value
+                                        }
+                                    }
                                 ),
                                 productUnit = selectedProduct.unit,
                                 productAmount = Amount(
                                     currentState.dialogState.amount
                                         .toFloat()
                                 ),
-                                productNote = currentState.dialogState.noteState.text
+                                productNote = state.value.dialogState.noteState.text
                                     .toString()
                                     .ifBlank { null },
                             )
@@ -278,18 +267,14 @@ class TransactionAddComponentImpl(
             }
 
             is TransactionAddEvent.DialogEvent.OnShown -> {
+                println("Settings: ${state.value.settings}")
+                println("Sell Price: ${event.selectedProduct.sellPrice.value}")
+
                 _state.update { currentState ->
                     currentState.copy(
                         isDialogShown = true,
                         dialogState = DialogState(
-                            selectedProduct = event.selectedProduct,
-                            priceState = TextFieldState(
-                                initialText =
-                                    when (state.value.settings.isProductVolatile) {
-                                        true -> ""
-                                        false -> event.selectedProduct.sellPrice.value.toString()
-                                    }
-                            )
+                            selectedProduct = event.selectedProduct
                         )
                     )
                 }

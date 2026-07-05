@@ -1,0 +1,200 @@
+package org.lelestacia.posle.domain.component
+
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import androidx.paging.map
+import com.arkivanov.decompose.ComponentContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import org.lelestacia.posle.data.SettingManager
+import org.lelestacia.posle.data.entity.toDomain
+import org.lelestacia.posle.domain.component.ProductListComponentEvent.CategoryEvent.OnAddCategoryMenuClicked
+import org.lelestacia.posle.domain.component.ProductListComponentEvent.CategoryEvent.OnDeleteCategory
+import org.lelestacia.posle.domain.component.ProductListComponentState.AddCategoryState
+import org.lelestacia.posle.domain.model.Category
+import org.lelestacia.posle.domain.model.Product
+import org.lelestacia.posle.domain.repository.CategoryRepository
+import org.lelestacia.posle.domain.repository.ProductRepository
+import org.lelestacia.posle.navigation.Config
+import org.lelestacia.posle.util.Name
+import org.lelestacia.posle.util.coroutineScope
+
+@OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+class ProductListComponentImpl(
+    componentContext: ComponentContext,
+    private val settingManager: SettingManager,
+    private val productRepository: ProductRepository,
+    private val categoryRepository: CategoryRepository,
+    private val onNavigate: (Config) -> Unit,
+) : ComponentContext by componentContext, ProductListComponent {
+
+    private val scope = coroutineScope(Dispatchers.Main.immediate)
+    private val searchQuery = MutableStateFlow("")
+
+    private val _state = MutableStateFlow(ProductListComponentState())
+
+    val categories: Flow<PagingData<Category>> = categoryRepository
+        .readCategories()
+        .cachedIn(scope)
+
+    override val productPagingFlows: MutableMap<Pair<String, Int>, Flow<PagingData<Product>>> =
+        mutableMapOf()
+
+    val uncategorizedProducts: Flow<PagingData<Product>> = searchQuery
+        .flatMapLatest { query ->
+            productRepository.readProductWithoutCategories(query)
+        }.cachedIn(scope)
+
+    override val state: StateFlow<ProductListComponentState> =
+        combine(
+            flow = _state,
+            flow2 = searchQuery,
+            flow3 = settingManager.readSettings()
+        ) { state, searchQuery, settings ->
+            ProductListComponentState(
+                searchQuery = searchQuery,
+                isFabMenuExpanded = state.isFabMenuExpanded,
+                isAddCategoryDisplayed = state.isAddCategoryDisplayed,
+                addCategoryState = state.addCategoryState,
+
+                categories = categories,
+                uncategorizedProducts = uncategorizedProducts,
+
+                settings = settings
+            )
+        }.stateIn(
+            scope = scope,
+            started = SharingStarted.Lazily,
+            initialValue = ProductListComponentState()
+        )
+
+
+    override fun onEvent(event: ProductListComponentEvent) {
+        when (event) {
+            is ProductListComponentEvent.OnQueryChanged -> searchQuery.update { event.newQuery }
+
+            is ProductListComponentEvent.OnNavigateTo -> {
+                _state.update { currentState ->
+                    currentState.copy(
+                        isFabMenuExpanded = false
+                    )
+                }
+                onNavigate(event.config)
+            }
+
+
+            ProductListComponentEvent.OnToggleFabMenu -> {
+                _state.update {
+                    it.copy(
+                        isFabMenuExpanded = !it.isFabMenuExpanded
+                    )
+                }
+            }
+
+            //=====Category Finish=====
+
+            is ProductListComponentEvent.AddCategoryEvent.OnSaveClicked -> {
+                scope.launch {
+                    categoryRepository.addCategory(
+                        Category(
+                            id = 0,
+                            name = Name(state.value.addCategoryState.categoryName.text.toString())
+                        )
+                    )
+
+                    _state.update { currentState ->
+                        currentState.copy(
+                            addCategoryState = AddCategoryState(),
+                            isAddCategoryDisplayed = false
+                        )
+                    }
+                }
+            }
+
+            is ProductListComponentEvent.CategoryEvent -> onCategoryEvent(event)
+        }
+    }
+
+    private fun onCategoryEvent(event: ProductListComponentEvent.CategoryEvent) {
+        when (event) {
+            OnAddCategoryMenuClicked -> {
+                _state.update { currentState ->
+                    currentState.copy(
+                        isFabMenuExpanded = false,
+                        isAddCategoryDisplayed = true
+                    )
+                }
+            }
+
+            ProductListComponentEvent.CategoryEvent.OnAddCategoryMenuDismissed -> {
+                _state.update { currentState ->
+                    currentState.copy(
+                        isAddCategoryDisplayed = false,
+                        addCategoryState = AddCategoryState()
+                    )
+                }
+            }
+
+            is OnDeleteCategory -> {
+                scope.launch {
+                    categoryRepository.deleteCategory(categoryId = event.categoryId)
+                }
+            }
+
+            is ProductListComponentEvent.CategoryEvent.OnAddProductToCategory -> {
+                scope.launch {
+                    categoryRepository.addProductToCategory(
+                        productId = event.productId,
+                        categoryId = event.categoryId
+                    )
+                }
+            }
+
+            is ProductListComponentEvent.CategoryEvent.OnRemoveProductFromCategory -> {
+                scope.launch {
+                    categoryRepository.removeProductFromCategory(
+                        productId = event.productId,
+                        categoryId = event.categoryId
+                    )
+                }
+            }
+        }
+    }
+
+    override fun productsInCategory(
+        searchQuery: String,
+        categoryId: Int
+    ): Flow<PagingData<Product>> {
+        return productPagingFlows.getOrPut(Pair(searchQuery, categoryId)) {
+            Pager(
+                config = PagingConfig(pageSize = 20)
+            ) {
+                productRepository.readProductWithCategories(searchQuery, categoryId)
+            }.flow.map { it.map { it.toDomain() } }.cachedIn(scope)
+        }
+    }
+
+    override fun productsNotInCategory(
+        searchQuery: String,
+        categoryId: Int
+    ): Flow<PagingData<Product>> {
+        return Pager(
+            config = PagingConfig(pageSize = 20)
+        ) {
+            productRepository.readProductNotInCategory(searchQuery, categoryId)
+        }.flow.map { it.map { it.toDomain() } }.cachedIn(scope)
+    }
+}
