@@ -1,4 +1,4 @@
-package org.lelestacia.posle.domain.component
+package org.lelestacia.posle.domain.component.product_inbound_outbound
 
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
@@ -16,11 +16,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.lelestacia.posle.data.SettingManager
 import org.lelestacia.posle.data.entity.StockMovementType
-import org.lelestacia.posle.domain.component.ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnAddStockClicked
-import org.lelestacia.posle.domain.component.ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnProductNameChanged
-import org.lelestacia.posle.domain.component.ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnProductSelected
-import org.lelestacia.posle.domain.component.ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnToggleDialog
-import org.lelestacia.posle.domain.component.ProductInboundOutboundComponentState.ProductInboundOutboundAddStockState
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.StockMovement
 import org.lelestacia.posle.domain.repository.ProductRepository
@@ -76,7 +71,7 @@ class ProductInboundOutboundComponentImpl(
 
     override fun onEvent(event: ProductInboundOutboundComponentEvent) {
         when (event) {
-            is OnProductNameChanged -> {
+            is ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnProductNameChanged -> {
                 searchQuery.update { event.newProductName.value }
                 _state.update { currentState ->
                     currentState.copy(
@@ -87,14 +82,14 @@ class ProductInboundOutboundComponentImpl(
                 }
             }
 
-            OnToggleDialog -> _state.update { currentState ->
+            ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnToggleDialog -> _state.update { currentState ->
                 currentState.copy(
                     isAddStockShown = !currentState.isAddStockShown,
-                    addStockState = ProductInboundOutboundAddStockState()
+                    addStockState = ProductInboundOutboundComponentState.ProductInboundOutboundAddStockState()
                 )
             }
 
-            OnAddStockClicked -> {
+            ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnAddStockClicked -> {
                 val currentState = _state.value.addStockState
                 val product = currentState.selectedProduct ?: return
                 val amountString = currentState.amountAdded.text.toString()
@@ -107,11 +102,11 @@ class ProductInboundOutboundComponentImpl(
                         movementType = StockMovementType.Inbound
                     )
 
-                    onEvent(OnToggleDialog)
+                    onEvent(ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnToggleDialog)
                 }
             }
 
-            is OnProductSelected -> _state.update { currentState ->
+            is ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnProductSelected -> _state.update { currentState ->
                 currentState.copy(
                     addStockState = currentState.addStockState.copy(
                         selectedProduct = event.product,

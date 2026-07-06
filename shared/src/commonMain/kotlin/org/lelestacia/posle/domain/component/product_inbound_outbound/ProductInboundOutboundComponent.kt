@@ -1,4 +1,4 @@
-package org.lelestacia.posle.domain.component
+package org.lelestacia.posle.domain.component.product_inbound_outbound
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Immutable

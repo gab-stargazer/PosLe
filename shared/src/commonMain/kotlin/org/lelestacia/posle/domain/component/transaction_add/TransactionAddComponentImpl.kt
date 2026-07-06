@@ -1,4 +1,4 @@
-package org.lelestacia.posle.domain.component
+package org.lelestacia.posle.domain.component.transaction_add
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.paging.cachedIn
@@ -34,11 +34,11 @@ import org.lelestacia.posle.util.coroutineScope
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 
-class  TransactionAddComponentImpl(
+class TransactionAddComponentImpl(
     componentContext: ComponentContext,
-    productRepository: ProductRepository,
     private val settingManager: SettingManager,
     private val navigation: TransactionAddNavigation,
+    private val productRepository: ProductRepository,
     private val transactionRepository: TransactionRepository
 ) : ComponentContext by componentContext, TransactionAddComponent {
 
@@ -164,6 +164,24 @@ class  TransactionAddComponentImpl(
                 }
             }
 
+            TransactionAddEvent.OnNavigateToQrScanner -> {
+                navigation.onNavigateToQRScanner { skuNumber ->
+                    scope.launch {
+                        productRepository.getProductBySkuNumber(skuNumber)?.let { product ->
+                            _state.update { currentState ->
+                                currentState.copy(
+                                    isDialogShown = true,
+                                    dialogState = DialogState(
+                                        selectedProduct = product,
+                                        settings = state.value.settings
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
             is TransactionAddEvent.DialogEvent -> onDialogEvent(event)
         }
     }
@@ -225,7 +243,7 @@ class  TransactionAddComponentImpl(
                                 productId = selectedProduct.id,
                                 productBuyPrice = selectedProduct.buyPrice,
                                 productSellPrice = Price(
-                                    when(state.value.settings.isProductVolatile) {
+                                    when (state.value.settings.isProductVolatile) {
                                         true -> {
                                             currentState.dialogState.price
                                                 .ifBlank { "0" }
@@ -274,7 +292,8 @@ class  TransactionAddComponentImpl(
                     currentState.copy(
                         isDialogShown = true,
                         dialogState = DialogState(
-                            selectedProduct = event.selectedProduct
+                            selectedProduct = event.selectedProduct,
+                            settings = state.value.settings
                         )
                     )
                 }

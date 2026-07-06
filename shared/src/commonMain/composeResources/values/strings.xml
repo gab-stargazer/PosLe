@@ -93,6 +93,7 @@
     <string name="title_add_product">Tambahkan Produk</string>
     <string name="title_choose_variant">Pilih Varian/Tambahan</string>
     <string name="title_no_category">Tanpa Kategori</string>
+    <string name="title_low_stock_products">Produk dengan stok minim</string>
     <string name="title_additional_information">Informasi Tambahan</string>
     <string name="title_add_product_to_category">Tambahkan Produk kedalam Kategori</string>
     <string name="title_add_product_to_category_shorts">Tambahkan Produk</string>

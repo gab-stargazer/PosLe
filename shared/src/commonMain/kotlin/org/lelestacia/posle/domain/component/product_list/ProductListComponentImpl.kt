@@ -1,4 +1,4 @@
-package org.lelestacia.posle.domain.component
+package org.lelestacia.posle.domain.component.product_list
 
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -21,9 +21,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.lelestacia.posle.data.SettingManager
 import org.lelestacia.posle.data.entity.toDomain
-import org.lelestacia.posle.domain.component.ProductListComponentEvent.CategoryEvent.OnAddCategoryMenuClicked
-import org.lelestacia.posle.domain.component.ProductListComponentEvent.CategoryEvent.OnDeleteCategory
-import org.lelestacia.posle.domain.component.ProductListComponentState.AddCategoryState
+import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent.CategoryEvent.OnAddCategoryMenuClicked
+import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent.CategoryEvent.OnDeleteCategory
+import org.lelestacia.posle.domain.component.product_list.ProductListComponentState.AddCategoryState
 import org.lelestacia.posle.domain.model.Category
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.repository.CategoryRepository
@@ -53,6 +53,11 @@ class ProductListComponentImpl(
     override val productPagingFlows: MutableMap<Pair<String, Int>, Flow<PagingData<Product>>> =
         mutableMapOf()
 
+    val lowStocksProducts: Flow<PagingData<Product>> = searchQuery
+        .flatMapLatest { query ->
+            productRepository.readProductsWithLowStock(query)
+        }.cachedIn(scope)
+
     val uncategorizedProducts: Flow<PagingData<Product>> = searchQuery
         .flatMapLatest { query ->
             productRepository.readProductWithoutCategories(query)
@@ -72,6 +77,7 @@ class ProductListComponentImpl(
 
                 categories = categories,
                 uncategorizedProducts = uncategorizedProducts,
+                productsLowStock = lowStocksProducts,
 
                 settings = settings
             )

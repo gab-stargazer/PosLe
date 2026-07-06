@@ -3,6 +3,7 @@ package org.lelestacia.posle.data.repository
 import androidx.paging.Pager
 import androidx.paging.PagingData
 import androidx.paging.PagingSource
+import androidx.paging.filter
 import androidx.paging.map
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -74,6 +75,17 @@ class ProductRepositoryImpl(
                 )
             )
         }
+    }
+
+    override suspend fun getProductBySkuNumber(skuNumber: String): Product? {
+        return productDao.getProductBySkuNumber(skuNumber)?.toDomain()
+    }
+
+    override fun readProductsWithLowStock(searchQuery: String): Flow<PagingData<Product>> {
+        return Pager(
+            config = pagingConfig,
+            pagingSourceFactory = { productDao.readProductWithLowStocks(searchQuery) }
+        ).flow.map { it.filter { entity -> entity.stock.sumOf { stockMovement -> stockMovement.amount.value.toBigDecimal() } < 12.toBigDecimal() }.map { entity -> entity.toDomain() } }
     }
 
     override fun readProducts(searchQuery: String): Flow<PagingData<Product>> {

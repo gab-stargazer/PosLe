@@ -1,93 +1,66 @@
 package org.lelestacia.posle.screen.transaction_add
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.IndeterminateCheckBox
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemKey
-import coil3.compose.AsyncImage
+import com.meticha.permissions_compose.AppPermission
+import com.meticha.permissions_compose.rememberAppPermissionState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
-import org.lelestacia.posle.domain.component.TransactionAddComponent
+import org.lelestacia.posle.domain.component.transaction_add.TransactionAddComponent
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent.DialogEvent.OnDismiss
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent.DialogEvent.OnShown
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent.OnAddTransactionClicked
+import org.lelestacia.posle.domain.state_event.TransactionAddEvent.OnNavigateToQrScanner
+import org.lelestacia.posle.domain.state_event.TransactionAddEvent.OnRemoveProduct
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent.OnTabChanged
 import org.lelestacia.posle.domain.state_event.TransactionAddState
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.util.SampleData
-import org.lelestacia.posle.util.Util
-import org.lelestacia.posle.util.toRupiah
 import posle.shared.generated.resources.Res
-import posle.shared.generated.resources.btn_save_transaction
 import posle.shared.generated.resources.label_cart_count
-import posle.shared.generated.resources.label_customer_name
 import posle.shared.generated.resources.label_product
-import posle.shared.generated.resources.label_search_product
 
 @Composable
 fun TransactionAddScreen(
     component: TransactionAddComponent,
     modifier: Modifier = Modifier
 ) {
-    val focusManager = LocalFocusManager.current
     val products = component.products.collectAsLazyPagingItems()
     val state by component.state.collectAsStateWithLifecycle()
+    val cameraPermission = rememberAppPermissionState(
+        permissions = listOf(
+            AppPermission(android.Manifest.permission.CAMERA, "", isRequired = true)
+        )
+    )
 
     LaunchedEffect(state.searchQuery) {
         snapshotFlow { state.searchQuery.text }
@@ -141,6 +114,24 @@ fun TransactionAddScreen(
                 )
             }
         },
+        floatingActionButton = {
+            AnimatedVisibility(state.currentTab == 0) {
+                FloatingActionButton(
+                    onClick = {
+                        if (cameraPermission.allRequiredGranted()) {
+                            component.onEvent(OnNavigateToQrScanner)
+                        } else {
+                            cameraPermission.requestPermission()
+                        }
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.QrCodeScanner,
+                        contentDescription = Icons.Default.QrCodeScanner.name
+                    )
+                }
+            }
+        },
         modifier = modifier
     ) { paddingValues ->
         Column(
@@ -148,204 +139,41 @@ fun TransactionAddScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            if (state.currentTab == 0) {
-                TextField(
-                    state = state.searchQuery,
-                    placeholder = {
-                        Text(
-                            text = stringResource(Res.string.label_search_product),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = null
-                        )
-                    },
-                    colors = Util.defaultTextFieldColor(),
-                    shape = Util.defaultShape,
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Words,
-                        imeAction = ImeAction.Done
-                    ),
-                    onKeyboardAction = {
-                        focusManager.clearFocus(true)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp)
-                        .padding(top = 12.dp)
-                )
-
-                LazyVerticalGrid(
-                    contentPadding = PaddingValues(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
-                    columns = GridCells.Fixed(3),
-                    modifier = Modifier.weight(1F),
-                ) {
-                    items(count = products.itemCount, key = products.itemKey { it.id }) {
-                        products[it]?.let { product ->
-                            ElevatedCard(
-                                colors = CardDefaults.elevatedCardColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                                ),
+            AnimatedContent(state.currentTab == 0) { isProductTab ->
+                when (isProductTab) {
+                    true -> {
+                        Column {
+                            TransactionAddSearchBar(
+                                state = state.searchQuery,
                                 modifier = Modifier
-                                    .height(IntrinsicSize.Min)
-                                    .clickable(
-                                        onClick = {
-                                            component.onEvent(OnShown(product))
-                                        }
-                                    )
-                            ) {
-                                Column {
-                                    if (product.imageUri != null) {
-                                        AsyncImage(
-                                            model = product.imageUri,
-                                            contentDescription = null,
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .aspectRatio(1F)
-                                        )
-                                    } else {
-                                        Box(
-                                            contentAlignment = Alignment.Center,
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .aspectRatio(1F)
-                                                .background(MaterialTheme.colorScheme.primaryContainer)
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.IndeterminateCheckBox,
-                                                contentDescription = null,
-                                                tint = MaterialTheme.colorScheme.onPrimaryContainer
-                                            )
-                                        }
-                                    }
-                                }
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 12.dp)
+                                    .padding(top = 12.dp)
+                            )
 
-                                Column(
-                                    modifier = Modifier.padding(12.dp)
-                                ) {
-                                    Text(
-                                        text = product.name.value,
-                                        style = MaterialTheme.typography.labelLarge,
-                                        textAlign = TextAlign.Center,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                    )
-
-                                    Text(
-                                        text = "Harga: ${product.sellPrice.value.toRupiah()}",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        textAlign = TextAlign.Center,
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            } else {
-                LazyColumn(
-                    contentPadding = PaddingValues(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
-                    modifier = Modifier.weight(1F),
-                ) {
-                    items(
-                        items = state.cartItems,
-                    ) { item ->
-                        Column(
-                            modifier = Modifier.animateItem()
-                        ) {
-                            TransactionAddItemView(
-                                transactionItem = item,
-                                onRemove = {
-                                    component.onEvent(TransactionAddEvent.OnRemoveProduct(item))
-                                }
+                            TransactionAddProductGrid(
+                                products = products,
+                                onProductClick = { product ->
+                                    component.onEvent(OnShown(product))
+                                },
+                                modifier = Modifier.weight(1F)
                             )
                         }
                     }
-                }
 
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(all = 12.dp)
-                        .clip(RoundedCornerShape(25F))
-                        .background(MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp))
-
-                ) {
-
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp)
-                    ) {
-                        Text(
-                            text = "Total Harga:",
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        )
-
-                        Text(
-                            text = state.cartItems.sumOf {
-
-                                val variants =
-                                    it.variants.sumOf { variant -> variant.priceAdjustment.value }
-
-                                (variants * it.productAmount.value.toBigDecimal()) + (it.productSellPrice.value * it.productAmount.value.toBigDecimal())
-
-
-                            }.toRupiah(),
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontWeight = FontWeight.Bold,
-                            )
-                        )
-                    }
-
-                    if (state.settings.isCustomerNameNeeded) {
-                        TextField(
-                            state = state.customerName,
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Text,
-                                capitalization = KeyboardCapitalization.Words,
-                                imeAction = ImeAction.Done
-                            ),
-                            label = {
-                                Text(
-                                    text = stringResource(Res.string.label_customer_name),
-                                    style = MaterialTheme.typography.labelMediumEmphasized.copy(
-                                        fontWeight = FontWeight.SemiBold
-                                    )
-                                )
+                    false -> {
+                        TransactionAddCartContent(
+                            cartItems = state.cartItems,
+                            customerNameState = state.customerName,
+                            isCustomerNameNeeded = state.settings.isCustomerNameNeeded,
+                            onRemoveItem = { item ->
+                                component.onEvent(OnRemoveProduct(item))
                             },
-                            textStyle = MaterialTheme.typography.bodyMedium,
-                            colors = Util.defaultTextFieldColor(),
-                            shape = Util.defaultShape,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 12.dp)
+                            onSaveTransaction = {
+                                component.onEvent(OnAddTransactionClicked)
+                            },
+                            modifier = Modifier.weight(1F)
                         )
-                    }
-
-                    Button(
-                        onClick = {
-                            component.onEvent(OnAddTransactionClicked)
-                        },
-                        shape = RoundedCornerShape(25F),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp)
-                    ) {
-                        Text(stringResource(Res.string.btn_save_transaction))
                     }
                 }
             }

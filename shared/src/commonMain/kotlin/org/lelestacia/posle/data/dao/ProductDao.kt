@@ -27,6 +27,22 @@ interface ProductDao {
     @Query("SELECT * FROM product WHERE name LIKE '%' || :name || '%' ORDER BY name ASC")
     fun readProduct(name: String = ""): PagingSource<Int, ProductEntity>
 
+    @Transaction
+    @Query(
+        """
+            SELECT DISTINCT product.* FROM product
+            LEFT JOIN product_category_junction ON product.id = product_category_junction.product_id
+            INNER JOIN product_buy_price ON product.id = product_buy_price.product_id
+            INNER JOIN product_sell_price ON product.id = product_sell_price.product_id
+            LEFT JOIN stock_movement ON product.id = stock_movement.product_id
+            WHERE product_category_junction.category_id IS NULL 
+            AND sku_number = :skuNumber
+            ORDER BY name ASC
+            LIMIT 1
+        """
+    )
+    suspend fun getProductBySkuNumber(skuNumber: String): ProductWithVariantsAndStock?
+
     @Query(
         """
             SELECT * FROM product_buy_price
@@ -68,6 +84,20 @@ interface ProductDao {
         """
     )
     fun readProductWithoutCategories(searchQuery: String): PagingSource<Int, ProductWithVariantsAndStock>
+
+    @Transaction
+    @Query(
+        """
+            SELECT DISTINCT product.* FROM product
+            LEFT JOIN product_category_junction ON product.id = product_category_junction.product_id
+            INNER JOIN product_buy_price ON product.id = product_buy_price.product_id
+            INNER JOIN product_sell_price ON product.id = product_sell_price.product_id
+            LEFT JOIN stock_movement ON product.id = stock_movement.product_id
+            WHERE name LIKE '%' || :searchQuery || '%'
+            ORDER BY name ASC
+        """
+    )
+    fun readProductWithLowStocks(searchQuery: String): PagingSource<Int, ProductWithVariantsAndStock>
 
     @Transaction
     @Query(

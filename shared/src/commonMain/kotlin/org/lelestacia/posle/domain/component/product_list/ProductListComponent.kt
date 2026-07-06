@@ -1,4 +1,4 @@
-package org.lelestacia.posle.domain.component
+package org.lelestacia.posle.domain.component.product_list
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Immutable
@@ -29,6 +29,7 @@ data class ProductListComponentState(
     val addCategoryState: AddCategoryState = AddCategoryState(),
 
     //  Paging
+    val productsLowStock: Flow<PagingData<Product>> = flowOf(),
     val uncategorizedProducts: Flow<PagingData<Product>> = flowOf(),
     val categories: Flow<PagingData<Category>> = flowOf(),
 

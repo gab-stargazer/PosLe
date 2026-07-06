@@ -9,11 +9,11 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.StringResource
-import org.lelestacia.posle.domain.component.ProductInboundOutboundComponent
-import org.lelestacia.posle.domain.component.ProductListComponent
 import org.lelestacia.posle.domain.component.SettingComponent
-import org.lelestacia.posle.domain.component.TransactionAddComponent
 import org.lelestacia.posle.domain.component.TransactionHistoryComponent
+import org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInboundOutboundComponent
+import org.lelestacia.posle.domain.component.product_list.ProductListComponent
+import org.lelestacia.posle.domain.component.transaction_add.TransactionAddComponent
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.destination_list_inbound_outbound
 import posle.shared.generated.resources.destination_list_product

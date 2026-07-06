@@ -33,7 +33,6 @@ import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditNavigat
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditState
 import org.lelestacia.posle.navigation.AddEdit
 import org.lelestacia.posle.navigation.AddEdit.Add
-import org.lelestacia.posle.navigation.Config
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
@@ -225,7 +224,6 @@ class ProductAddEditComponentImpl(
 
             is Navigation.OnNavigateToQrScanner -> {
                 navigation.onNavigateToQRScanner(
-                    config = Config.QrScanner,
                     onResult = { qrData ->
                         _state.update { currentState ->
                             currentState.copy(

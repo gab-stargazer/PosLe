@@ -12,21 +12,21 @@ import com.arkivanov.decompose.router.stack.replaceCurrent
 import com.arkivanov.decompose.value.Value
 import org.koin.java.KoinJavaComponent.inject
 import org.lelestacia.posle.data.SettingManager
-import org.lelestacia.posle.domain.component.DashboardComponentImpl
-import org.lelestacia.posle.domain.component.DashboardNavigation
-import org.lelestacia.posle.domain.component.ProductInboundOutboundComponentImpl
-import org.lelestacia.posle.domain.component.ProductListComponentImpl
 import org.lelestacia.posle.domain.component.SettingComponentImpl
-import org.lelestacia.posle.domain.component.TransactionAddComponentImpl
-import org.lelestacia.posle.domain.component.TransactionAddNavigation
 import org.lelestacia.posle.domain.component.TransactionHistoryComponentImpl
 import org.lelestacia.posle.domain.component.TransactionListComponentImpl
 import org.lelestacia.posle.domain.component.TransactionProductConfigComponentImpl
 import org.lelestacia.posle.domain.component.TransactionViewComponentImpl
 import org.lelestacia.posle.domain.component.TransactionViewNavigation
+import org.lelestacia.posle.domain.component.dashboard.DashboardComponentImpl
+import org.lelestacia.posle.domain.component.dashboard.DashboardNavigation
 import org.lelestacia.posle.domain.component.product_add_edit.ProductAddEditComponentImpl
 import org.lelestacia.posle.domain.component.product_add_edit.ProductAddVariantsViewComponentImpl
+import org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInboundOutboundComponentImpl
+import org.lelestacia.posle.domain.component.product_list.ProductListComponentImpl
 import org.lelestacia.posle.domain.component.qr_scanner.QrScannerComponentImpl
+import org.lelestacia.posle.domain.component.transaction_add.TransactionAddComponentImpl
+import org.lelestacia.posle.domain.component.transaction_add.TransactionAddNavigation
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.repository.CategoryRepository
@@ -136,6 +136,11 @@ class PosLeComponent(
                             rootNavigation.pushNew(TransactionProductConfig(product))
                             this@PosLeComponent.onProductConfigConfirmed = onConfirmed
                         }
+
+                        override fun onNavigateToQRScanner(onResult: (String) -> Unit) {
+                            onQrScanned = onResult
+                            rootNavigation.pushNew(configuration = QrScannerConfig)
+                        }
                     }
                 )
             )
@@ -219,11 +224,10 @@ class PosLeComponent(
                         }
 
                         override fun onNavigateToQRScanner(
-                            config: QrScannerConfig,
                             onResult: (String) -> Unit
                         ) {
                             onQrScanned = onResult
-                            rootNavigation.pushNew(config)
+                            rootNavigation.pushNew(configuration = QrScannerConfig)
                         }
                     },
                 )

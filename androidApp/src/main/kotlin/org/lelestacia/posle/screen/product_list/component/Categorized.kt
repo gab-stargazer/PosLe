@@ -36,11 +36,11 @@ import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import kotlinx.coroutines.flow.Flow
 import org.jetbrains.compose.resources.stringResource
-import org.lelestacia.posle.domain.component.ProductListComponentEvent
-import org.lelestacia.posle.domain.component.ProductListComponentEvent.CategoryEvent.OnAddProductToCategory
-import org.lelestacia.posle.domain.component.ProductListComponentEvent.CategoryEvent.OnDeleteCategory
-import org.lelestacia.posle.domain.component.ProductListComponentEvent.CategoryEvent.OnRemoveProductFromCategory
-import org.lelestacia.posle.domain.component.ProductListComponentEvent.OnNavigateTo
+import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent
+import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent.CategoryEvent.OnAddProductToCategory
+import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent.CategoryEvent.OnDeleteCategory
+import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent.CategoryEvent.OnRemoveProductFromCategory
+import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent.OnNavigateTo
 import org.lelestacia.posle.domain.model.Category
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.navigation.AddEdit.Edit

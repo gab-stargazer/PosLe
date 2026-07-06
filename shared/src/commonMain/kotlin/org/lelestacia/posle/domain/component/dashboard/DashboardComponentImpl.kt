@@ -1,4 +1,4 @@
-package org.lelestacia.posle.domain.component
+package org.lelestacia.posle.domain.component.dashboard
 
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.ChildStack
@@ -10,8 +10,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.lelestacia.posle.data.SettingManager
-import org.lelestacia.posle.domain.component.DashboardNavigation.DrawerNav
-import org.lelestacia.posle.domain.component.DashboardNavigation.Nav
 import org.lelestacia.posle.domain.state_event.DashboardComponentEvent
 import org.lelestacia.posle.domain.state_event.DashboardComponentState
 import org.lelestacia.posle.navigation.NavChild
@@ -55,10 +53,19 @@ class DashboardComponentImpl(
                         )
                     }
 
-                    onNavigation(DrawerNav(event.destination, callbacks = event.callbacks))
+                    onNavigation(
+                        DashboardNavigation.DrawerNav(
+                            event.destination,
+                            callbacks = event.callbacks
+                        )
+                    )
                 }
 
-                is DashboardComponentEvent.OnNavigateTo -> onNavigation(Nav(event.config))
+                is DashboardComponentEvent.OnNavigateTo -> onNavigation(
+                    DashboardNavigation.Nav(
+                        event.config
+                    )
+                )
             }
         }
     }

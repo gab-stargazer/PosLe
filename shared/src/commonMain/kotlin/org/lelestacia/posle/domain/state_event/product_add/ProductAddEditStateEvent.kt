@@ -69,7 +69,6 @@ interface ProductAddEditNavigation {
     )
 
     fun onNavigateToQRScanner(
-        config: Config.QrScanner,
         onResult: (String) -> Unit
     )
 }

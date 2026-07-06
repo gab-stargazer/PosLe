@@ -16,17 +16,17 @@ import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.navigation.AddEdit.Edit
 import org.lelestacia.posle.navigation.Config.ProductAddEdit
 import posle.shared.generated.resources.Res
-import posle.shared.generated.resources.title_no_category
+import posle.shared.generated.resources.title_low_stock_products
 
-fun LazyListScope.unCategorized(
-    uncategorizedProducts: LazyPagingItems<Product>,
+fun LazyListScope.lowStock(
+    lowStockProducts: LazyPagingItems<Product>,
     isStockTracked: Boolean,
     onEvent: (ProductListComponentEvent) -> Unit,
 ) {
     item {
         Column(modifier = Modifier.animateItem()) {
             Text(
-                text = stringResource(Res.string.title_no_category),
+                text = stringResource(Res.string.title_low_stock_products),
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold
                 ),
@@ -34,7 +34,7 @@ fun LazyListScope.unCategorized(
             )
 
             ProductsLazyHorizontalGrid(
-                products = uncategorizedProducts,
+                products = lowStockProducts,
                 isStockShown = isStockTracked,
                 onClick = { product ->
                     onEvent(OnNavigateTo(ProductAddEdit(Edit, product)))

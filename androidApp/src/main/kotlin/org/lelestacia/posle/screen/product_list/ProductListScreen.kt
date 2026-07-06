@@ -41,16 +41,17 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.skydoves.compose.stability.runtime.TraceRecomposition
 import org.jetbrains.compose.resources.stringResource
-import org.lelestacia.posle.domain.component.ProductListComponent
-import org.lelestacia.posle.domain.component.ProductListComponentEvent
-import org.lelestacia.posle.domain.component.ProductListComponentEvent.CategoryEvent.OnAddCategoryMenuClicked
-import org.lelestacia.posle.domain.component.ProductListComponentEvent.CategoryEvent.OnAddCategoryMenuDismissed
-import org.lelestacia.posle.domain.component.ProductListComponentEvent.OnNavigateTo
-import org.lelestacia.posle.domain.component.ProductListComponentEvent.OnQueryChanged
+import org.lelestacia.posle.domain.component.product_list.ProductListComponent
+import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent
+import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent.CategoryEvent.OnAddCategoryMenuClicked
+import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent.CategoryEvent.OnAddCategoryMenuDismissed
+import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent.OnNavigateTo
+import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent.OnQueryChanged
 import org.lelestacia.posle.navigation.AddEdit.Add
 import org.lelestacia.posle.navigation.Config.ProductAddEdit
 import org.lelestacia.posle.screen.product_list.component.AddCategoryDialog
 import org.lelestacia.posle.screen.product_list.component.categorized
+import org.lelestacia.posle.screen.product_list.component.lowStock
 import org.lelestacia.posle.screen.product_list.component.unCategorized
 import org.lelestacia.posle.ui.component.AnimatedIcon
 import posle.shared.generated.resources.Res
@@ -68,6 +69,7 @@ fun ProductListScreen(
     val state by component.state.collectAsStateWithLifecycle()
 
     val categories = state.categories.collectAsLazyPagingItems()
+    val lowStockProducts = state.productsLowStock.collectAsLazyPagingItems()
     val uncategorizedProducts = state.uncategorizedProducts.collectAsLazyPagingItems()
     val listState = rememberLazyListState()
     val isListScrolled by remember {
@@ -193,6 +195,14 @@ fun ProductListScreen(
                 state = listState,
                 modifier = Modifier.weight(1F)
             ) {
+
+                if (state.settings.isProductStockTracked) {
+                    lowStock(
+                        lowStockProducts = lowStockProducts,
+                        isStockTracked = state.settings.isProductStockTracked,
+                        onEvent = component::onEvent
+                    )
+                }
 
                 categorized(
                     searchQuery = state.searchQuery,

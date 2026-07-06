@@ -1,4 +1,4 @@
-package org.lelestacia.posle.domain.component
+package org.lelestacia.posle.domain.component.transaction_add
 
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
@@ -16,6 +16,10 @@ interface TransactionAddNavigation {
     fun onNavigateToProductConfig(
         product: Product,
         onConfirmed: (TransactionItemState, List<Variant>) -> Unit
+    )
+
+    fun onNavigateToQRScanner(
+        onResult: (String) -> Unit
     )
 }
 

@@ -66,6 +66,7 @@ sealed interface TransactionAddEvent {
     data class OnRequestProductConfig(val product: Product) : TransactionAddEvent
     data class OnRemoveProduct(val product: TransactionItem) : TransactionAddEvent
     data object OnAddTransactionClicked : TransactionAddEvent
+    data object OnNavigateToQrScanner : TransactionAddEvent
 
     sealed interface DialogEvent : TransactionAddEvent {
         data class OnAmountChanged(val newAmount: String) : DialogEvent

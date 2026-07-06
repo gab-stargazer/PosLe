@@ -24,9 +24,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
-import org.lelestacia.posle.domain.component.ProductListComponentEvent
-import org.lelestacia.posle.domain.component.ProductListComponentEvent.AddCategoryEvent.OnSaveClicked
-import org.lelestacia.posle.domain.component.ProductListComponentState
+import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent
+import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent.AddCategoryEvent.OnSaveClicked
+import org.lelestacia.posle.domain.component.product_list.ProductListComponentState
 import org.lelestacia.posle.ui.theme.AppTheme
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.btn_save_category

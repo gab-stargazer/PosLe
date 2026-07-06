@@ -1,10 +1,10 @@
 package org.lelestacia.posle.navigation
 
 import kotlinx.serialization.Serializable
-import org.lelestacia.posle.domain.component.DashboardComponent
 import org.lelestacia.posle.domain.component.TransactionListComponent
 import org.lelestacia.posle.domain.component.TransactionProductConfigComponent
 import org.lelestacia.posle.domain.component.TransactionViewComponent
+import org.lelestacia.posle.domain.component.dashboard.DashboardComponent
 import org.lelestacia.posle.domain.component.product_add_edit.ProductAddEditComponent
 import org.lelestacia.posle.domain.component.product_add_edit.ProductAddVariantsViewComponent
 import org.lelestacia.posle.domain.component.qr_scanner.QrScannerComponent

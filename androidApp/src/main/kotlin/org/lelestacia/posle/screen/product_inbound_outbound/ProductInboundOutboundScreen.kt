@@ -30,8 +30,8 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.skydoves.compose.stability.runtime.TraceRecomposition
 import org.jetbrains.compose.resources.stringResource
-import org.lelestacia.posle.domain.component.ProductInboundOutboundComponent
-import org.lelestacia.posle.domain.component.ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnToggleDialog
+import org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInboundOutboundComponent
+import org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnToggleDialog
 import org.lelestacia.posle.domain.model.Product
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.btn_add_product

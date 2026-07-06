@@ -32,7 +32,7 @@ import com.arkivanov.decompose.extensions.compose.stack.animation.fade
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
-import org.lelestacia.posle.domain.component.DashboardComponent
+import org.lelestacia.posle.domain.component.dashboard.DashboardComponent
 import org.lelestacia.posle.domain.state_event.DashboardComponentEvent
 import org.lelestacia.posle.navigation.NavChild
 import org.lelestacia.posle.navigation.NavDestination
