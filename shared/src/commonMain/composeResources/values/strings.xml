@@ -4,6 +4,7 @@
     <!--Nav Destination-->
     <string name="destination_transaction_add">Transaksi</string>
     <string name="destination_transaction_history">Riwayat Transaksi</string>
+    <string name="destination_transaction_recap">Rekap Transaksi</string>
     <string name="destination_list_product">Daftar Produk</string>
     <string name="destination_list_inbound_outbound">Keluar Masuk Produk</string>
     <string name="destination_settings">Pengaturan</string>
@@ -26,7 +27,9 @@
     <string name="label_transaction_date">Tanggal Transaksi</string>
     <string name="label_customer">Pelanggan</string>
     <string name="label_total">Total</string>
-    <string name="label_total_profit">Total Keuntungan Kotor</string>
+    <string name="label_total_profit">Total Keuntungan</string>
+    <string name="label_total_money">Total Uang: %1$s</string>
+    <string name="label_total_transaction">Total Transaksi: %1$s Transaksi</string>
     <string name="label_product">Barang</string>
     <string name="label_other_products">, dan %1$d lainnya</string>
     <string name="label_all">Semua</string>
@@ -87,6 +90,9 @@
     <!--Item-->
     <string name="txt_product_inbound">Produk %1$s masuk sejumlah %2$s %3$s</string>
     <string name="txt_product_outbound">Produk %1$s keluar sejumlah %2$s %3$s</string>
+    <string name="txt_total_profit">Total Keuntungan: %1$s</string>
+    <string name="txt_total_product_outbound">Jumlah Keluar: %1$s</string>
+    <string name="txt_total_profit_description">*Total Keuntungan diambil dari (Harga Jual - Harga Modal)</string>
 
     <!--Title-->
     <string name="title_add_category">Tambah Kategori</string>
@@ -102,6 +108,8 @@
     <string name="title_add_product_stock">Tambahkan Stok Produk</string>
     <string name="title_buy_price_history">Histori Harga Modal</string>
     <string name="title_sell_price_history">Histori Harga Jual</string>
+    <string name="title_product_outbound">Barang Keluar</string>
+    <string name="title_transaction">Transaksi</string>
 
     <!--Subtitle-->
     <string name="subtitle_price">Harga</string>

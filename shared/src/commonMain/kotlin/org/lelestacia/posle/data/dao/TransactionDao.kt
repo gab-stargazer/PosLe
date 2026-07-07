@@ -31,6 +31,16 @@ interface TransactionDao {
 
     @Transaction
     @Query(
+        value = """
+            SELECT * FROM `transaction`
+            WHERE created_at >= :startDate AND created_at < :finishDate
+            ORDER BY created_at DESC
+        """
+    )
+    fun readTransactionWithItemsInRange(startDate: Long, finishDate: Long): Flow<List<TransactionWithItems>>
+
+    @Transaction
+    @Query(
         """
             SELECT * FROM `transaction` 
             WHERE is_recapped == 0

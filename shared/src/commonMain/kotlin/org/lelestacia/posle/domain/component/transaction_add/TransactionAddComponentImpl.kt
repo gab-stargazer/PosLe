@@ -148,7 +148,7 @@ class TransactionAddComponentImpl(
 
                 scope.launch {
                     navigation.onNavigateTo(
-                        TransactionView(
+                        config = TransactionView(
                             transaction = transactionRepository.insertAndGetTransaction(transaction)
                         )
                     ) {

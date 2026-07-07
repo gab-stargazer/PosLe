@@ -14,12 +14,14 @@ import org.lelestacia.posle.domain.component.TransactionHistoryComponent
 import org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInboundOutboundComponent
 import org.lelestacia.posle.domain.component.product_list.ProductListComponent
 import org.lelestacia.posle.domain.component.transaction_add.TransactionAddComponent
+import org.lelestacia.posle.domain.component.transaction_recap.TransactionRecapComponent
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.destination_list_inbound_outbound
 import posle.shared.generated.resources.destination_list_product
 import posle.shared.generated.resources.destination_settings
 import posle.shared.generated.resources.destination_transaction_add
 import posle.shared.generated.resources.destination_transaction_history
+import posle.shared.generated.resources.destination_transaction_recap
 
 enum class NavDestination(
     val config: NavConfig,
@@ -35,6 +37,11 @@ enum class NavDestination(
         NavConfig.TransactionHistory,
         Icons.Default.History,
         Res.string.destination_transaction_history
+    ),
+    TransactionRecap(
+        NavConfig.TransactionRecap,
+        Icons.Default.History,
+        Res.string.destination_transaction_recap
     ),
     ProductList(
         NavConfig.ProductList,
@@ -57,16 +64,19 @@ enum class NavDestination(
 sealed interface NavConfig {
 
     @Serializable
-    data object TransactionAdd: NavConfig
+    data object TransactionAdd : NavConfig
 
     @Serializable
     data object TransactionHistory : NavConfig
 
     @Serializable
+    data object TransactionRecap : NavConfig
+
+    @Serializable
     data object ProductList : NavConfig
 
     @Serializable
-    data object ProductInboundOutbound: NavConfig
+    data object ProductInboundOutbound : NavConfig
 
     @Serializable
     data object Setting : NavConfig
@@ -75,6 +85,7 @@ sealed interface NavConfig {
 sealed class NavChild {
     data class TransactionAdd(val component: TransactionAddComponent) : NavChild()
     data class TransactionHistory(val component: TransactionHistoryComponent) : NavChild()
+    data class TransactionRecap(val component: TransactionRecapComponent) : NavChild()
     data class ProductList(val component: ProductListComponent) : NavChild()
     data class ProductInboundOutbound(val component: ProductInboundOutboundComponent) : NavChild()
     data class Setting(val component: SettingComponent) : NavChild()

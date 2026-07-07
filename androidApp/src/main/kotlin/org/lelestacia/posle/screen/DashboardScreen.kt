@@ -40,6 +40,7 @@ import org.lelestacia.posle.screen.product_inbound_outbound.ProductInboundOutbou
 import org.lelestacia.posle.screen.product_list.ProductListScreen
 import org.lelestacia.posle.screen.transaction_add.TransactionAddScreen
 import org.lelestacia.posle.screen.transaction_history.TransactionHistoryScreen
+import org.lelestacia.posle.screen.transaction_recap.TransactionRecapScreen
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.label_menu
 
@@ -161,6 +162,10 @@ fun DashboardScreen(
 
                     is NavChild.TransactionAdd -> {
                         TransactionAddScreen(component = child.component)
+                    }
+
+                    is NavChild.TransactionRecap -> {
+                        TransactionRecapScreen(component = child.component)
                     }
 
                     is NavChild.TransactionHistory -> {

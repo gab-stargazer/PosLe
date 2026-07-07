@@ -27,6 +27,7 @@ import org.lelestacia.posle.domain.component.product_list.ProductListComponentIm
 import org.lelestacia.posle.domain.component.qr_scanner.QrScannerComponentImpl
 import org.lelestacia.posle.domain.component.transaction_add.TransactionAddComponentImpl
 import org.lelestacia.posle.domain.component.transaction_add.TransactionAddNavigation
+import org.lelestacia.posle.domain.component.transaction_recap.TransactionRecapComponentImpl
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.repository.CategoryRepository
@@ -48,6 +49,11 @@ import org.lelestacia.posle.navigation.Config.TransactionList as TransactionList
 import org.lelestacia.posle.navigation.Config.TransactionProduct as TransactionProductConfig
 import org.lelestacia.posle.navigation.Config.TransactionView as TransactionViewConfig
 import org.lelestacia.posle.navigation.Config.VariantView as VariantViewConfig
+import org.lelestacia.posle.navigation.NavConfig.ProductList as ProductListConfig
+import org.lelestacia.posle.navigation.NavConfig.Setting as SettingConfig
+import org.lelestacia.posle.navigation.NavConfig.TransactionAdd as TransactionAddConfig
+import org.lelestacia.posle.navigation.NavConfig.TransactionHistory as TransactionHistoryConfig
+import org.lelestacia.posle.navigation.NavConfig.TransactionRecap as TransactionRecapConfig
 
 class PosLeComponent(
     componentContext: ComponentContext
@@ -76,7 +82,7 @@ class PosLeComponent(
     val tabChildren: Value<ChildStack<NavConfig, NavChild>> = childStack(
         source = tabNavigation,
         serializer = NavConfig.serializer(),
-        initialStack = { listOf(NavConfig.TransactionAdd) },
+        initialStack = { listOf(TransactionAddConfig) },
         key = "tabNavigationChildStack",
         handleBackButton = false,
         childFactory = ::createTabChild
@@ -92,7 +98,7 @@ class PosLeComponent(
 
     private fun createTabChild(config: NavConfig, context: ComponentContext): NavChild =
         when (config) {
-            is NavConfig.TransactionHistory -> TransactionHistory(
+            is TransactionHistoryConfig -> TransactionHistory(
                 TransactionHistoryComponentImpl(
                     componentContext = context,
                     settingManager = settingManager,
@@ -101,14 +107,25 @@ class PosLeComponent(
                 )
             )
 
-            NavConfig.Setting -> Setting(
+            TransactionRecapConfig -> NavChild.TransactionRecap(
+                TransactionRecapComponentImpl(
+                    componentContext = context,
+                    settingManager = settingManager,
+                    transactionRepository = transactionRepository,
+                    onNavigateToTransactionView = {
+                        rootNavigation.pushNew(TransactionViewConfig(it))
+                    }
+                )
+            )
+
+            SettingConfig -> Setting(
                 SettingComponentImpl(
                     componentContext = context,
                     settingManager = settingManager
                 )
             )
 
-            NavConfig.ProductList -> ProductList(
+            ProductListConfig -> ProductList(
                 ProductListComponentImpl(
                     componentContext = context,
                     settingManager = settingManager,
@@ -118,7 +135,7 @@ class PosLeComponent(
                 )
             )
 
-            NavConfig.TransactionAdd -> TransactionAdd(
+            TransactionAddConfig -> TransactionAdd(
                 TransactionAddComponentImpl(
                     componentContext = context,
                     productRepository = productRepository,

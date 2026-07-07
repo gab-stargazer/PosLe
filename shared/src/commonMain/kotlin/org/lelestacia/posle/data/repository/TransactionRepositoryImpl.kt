@@ -69,6 +69,18 @@ class TransactionRepositoryImpl(
             }
     }
 
+    override fun readTransactionInRange(
+        startDate: Long,
+        finishDate: Long
+    ): Flow<List<Transaction>> {
+        return transactionDao.readTransactionWithItemsInRange(
+            startDate,
+            finishDate
+        ).map {
+            it.map(TransactionWithItems::toDomain)
+        }
+    }
+
     override fun readUnRecappedTransactionHistory(): Flow<PagingData<Transaction>> {
         return Pager(
             config = PagingConfig(
