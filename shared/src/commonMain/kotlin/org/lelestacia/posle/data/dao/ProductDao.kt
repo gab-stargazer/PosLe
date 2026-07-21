@@ -24,8 +24,11 @@ interface ProductDao {
     @Insert
     suspend fun addBuyPrice(price: ProductBuyPriceEntity)
 
+    @Query("SELECT * FROM PRODUCT WHERE id = :id")
+    suspend fun getProductById(id: Int): ProductWithVariantsAndStock
+
     @Query("SELECT * FROM product WHERE name LIKE '%' || :name || '%' ORDER BY name ASC")
-    fun readProduct(name: String = ""): PagingSource<Int, ProductEntity>
+    fun readProductsByName(name: String = ""): PagingSource<Int, ProductEntity>
 
     @Transaction
     @Query(
@@ -101,7 +104,7 @@ interface ProductDao {
 
     @Transaction
     @Query(
-        """
+        value = """
             SELECT DISTINCT product.* FROM product
             INNER JOIN product_category_junction ON product.id = product_category_junction.product_id
             INNER JOIN product_buy_price ON product.id = product_buy_price.product_id 
@@ -112,11 +115,14 @@ interface ProductDao {
             ORDER BY name ASC
         """
     )
-    fun readProductWithCategories(searchQuery: String, categoryId: Int): PagingSource<Int, ProductWithVariantsAndStock>
+    fun readProductWithCategories(
+        searchQuery: String,
+        categoryId: Int
+    ): PagingSource<Int, ProductWithVariantsAndStock>
 
     @Transaction
     @Query(
-        """
+        value = """
             SELECT * FROM product 
             WHERE id NOT IN (
                 SELECT product_id FROM product_category_junction WHERE category_id = :categoryId
@@ -125,7 +131,10 @@ interface ProductDao {
             ORDER BY name ASC
         """
     )
-    fun readProductNotInCategory(searchQuery: String, categoryId: Int): PagingSource<Int, ProductWithVariantsAndStock>
+    fun readProductNotInCategory(
+        searchQuery: String,
+        categoryId: Int
+    ): PagingSource<Int, ProductWithVariantsAndStock>
 
     @Transaction
     @Query(

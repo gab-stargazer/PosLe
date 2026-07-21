@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DrawerValue
@@ -24,12 +25,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.fade
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.component.dashboard.DashboardComponent
@@ -41,8 +44,10 @@ import org.lelestacia.posle.screen.product_list.ProductListScreen
 import org.lelestacia.posle.screen.transaction_add.TransactionAddScreen
 import org.lelestacia.posle.screen.transaction_history.TransactionHistoryScreen
 import org.lelestacia.posle.screen.transaction_recap.TransactionRecapScreen
+import org.lelestacia.posle.ui.theme.BurgundyRed
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.label_menu
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun DashboardScreen(
@@ -60,9 +65,14 @@ fun DashboardScreen(
     }
 
     ModalNavigationDrawer(
+        scrimColor = Color.Black.copy(0.5F),
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet {
+            ModalDrawerSheet(
+                drawerContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                drawerContentColor = MaterialTheme.colorScheme.onSurface,
+                windowInsets = WindowInsets()
+            ) {
                 Text(
                     text = stringResource(Res.string.label_menu),
                     style = MaterialTheme.typography.titleLarge.copy(
@@ -73,6 +83,7 @@ fun DashboardScreen(
                 Spacer(Modifier.height(12.dp))
                 NavDestination.entries.forEachIndexed { index, destination ->
                     NavigationDrawerItem(
+                        shape = RoundedCornerShape(topEnd = 25F, bottomEnd = 25F),
                         label = {
                             Text(
                                 text = stringResource(destination.title),
@@ -89,6 +100,7 @@ fun DashboardScreen(
                                     destination = destination.config,
                                     callbacks = {
                                         scope.launch {
+                                            delay(100.milliseconds)
                                             drawerState.close()
                                         }
                                     }
@@ -102,7 +114,7 @@ fun DashboardScreen(
                             )
                         },
                         colors = NavigationDrawerItemDefaults.colors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            selectedContainerColor = BurgundyRed,
                             selectedTextColor = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     )

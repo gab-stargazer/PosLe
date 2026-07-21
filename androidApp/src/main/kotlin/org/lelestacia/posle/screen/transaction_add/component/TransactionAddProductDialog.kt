@@ -1,4 +1,4 @@
-package org.lelestacia.posle.screen.transaction_add
+package org.lelestacia.posle.screen.transaction_add.component
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -24,7 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.data.PosLeSettings
-import org.lelestacia.posle.domain.state_event.TransactionAddEvent.DialogEvent
+import org.lelestacia.posle.domain.state_event.TransactionAddEvent.DialogProductEvent
 import org.lelestacia.posle.domain.state_event.TransactionAddState
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.util.RupiahVisualTransformation
@@ -33,17 +33,17 @@ import org.lelestacia.posle.util.Util
 import org.lelestacia.posle.util.toDisplayText
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.btn_add_to_cart
+import posle.shared.generated.resources.label_optional_note
 import posle.shared.generated.resources.label_product_amount
 import posle.shared.generated.resources.label_product_available
 import posle.shared.generated.resources.label_product_choosen
-import posle.shared.generated.resources.label_product_note
 import posle.shared.generated.resources.label_product_sell_price
 import posle.shared.generated.resources.title_add_product
 
 @Composable
 fun TransactionAddProductDialog(
-    state: TransactionAddState.DialogState,
-    onEvent: (DialogEvent) -> Unit,
+    state: TransactionAddState.DialogProductState,
+    onEvent: (DialogProductEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
@@ -84,7 +84,7 @@ fun TransactionAddProductDialog(
             TextField(
                 value = state.amount,
                 onValueChange = { newAmount ->
-                    onEvent(DialogEvent.OnAmountChanged(newAmount))
+                    onEvent(DialogProductEvent.OnAmountChanged(newAmount))
                 },
                 label = {
                     Text(
@@ -147,7 +147,7 @@ fun TransactionAddProductDialog(
                 TextField(
                     value = state.price,
                     onValueChange = { newPrice ->
-                        onEvent(DialogEvent.OnPriceChanged(newPrice))
+                        onEvent(DialogProductEvent.OnPriceChanged(newPrice))
                     },
                     label = {
                         Text(
@@ -199,7 +199,7 @@ fun TransactionAddProductDialog(
                 state = state.noteState,
                 label = {
                     Text(
-                        stringResource(Res.string.label_product_note),
+                        stringResource(Res.string.label_optional_note),
                         style = MaterialTheme.typography.labelMedium.copy(
                             fontWeight = FontWeight.Bold
                         )
@@ -221,7 +221,7 @@ fun TransactionAddProductDialog(
 
             Button(
                 onClick = {
-                    onEvent(DialogEvent.OnAddClicked)
+                    onEvent(DialogProductEvent.OnAddClicked)
                 },
                 shape = Util.defaultShape,
                 modifier = Modifier
@@ -244,7 +244,7 @@ fun TransactionAddProductDialog(
 private fun PreviewTransactionAddProductDialog() {
     AppTheme {
         TransactionAddProductDialog(
-            state = TransactionAddState.DialogState(
+            state = TransactionAddState.DialogProductState(
                 selectedProduct = SampleData.products.first(),
                 settings = PosLeSettings(
                     isProductVolatile = true

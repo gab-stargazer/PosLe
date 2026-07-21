@@ -241,57 +241,57 @@ private val highContrastDarkColorScheme = darkColorScheme(
 )
 
 val extendedLight = ExtendedColorScheme(
-  success = ColorFamily(
-  successLight,
-  onSuccessLight,
-  successContainerLight,
-  onSuccessContainerLight,
-  ),
+    success = ColorFamily(
+        successLight,
+        onSuccessLight,
+        successContainerLight,
+        onSuccessContainerLight,
+    ),
 )
 
 val extendedDark = ExtendedColorScheme(
-  success = ColorFamily(
-  successDark,
-  onSuccessDark,
-  successContainerDark,
-  onSuccessContainerDark,
-  ),
+    success = ColorFamily(
+        successDark,
+        onSuccessDark,
+        successContainerDark,
+        onSuccessContainerDark,
+    ),
 )
 
 val extendedLightMediumContrast = ExtendedColorScheme(
-  success = ColorFamily(
-  successLightMediumContrast,
-  onSuccessLightMediumContrast,
-  successContainerLightMediumContrast,
-  onSuccessContainerLightMediumContrast,
-  ),
+    success = ColorFamily(
+        successLightMediumContrast,
+        onSuccessLightMediumContrast,
+        successContainerLightMediumContrast,
+        onSuccessContainerLightMediumContrast,
+    ),
 )
 
 val extendedLightHighContrast = ExtendedColorScheme(
-  success = ColorFamily(
-  successLightHighContrast,
-  onSuccessLightHighContrast,
-  successContainerLightHighContrast,
-  onSuccessContainerLightHighContrast,
-  ),
+    success = ColorFamily(
+        successLightHighContrast,
+        onSuccessLightHighContrast,
+        successContainerLightHighContrast,
+        onSuccessContainerLightHighContrast,
+    ),
 )
 
 val extendedDarkMediumContrast = ExtendedColorScheme(
-  success = ColorFamily(
-  successDarkMediumContrast,
-  onSuccessDarkMediumContrast,
-  successContainerDarkMediumContrast,
-  onSuccessContainerDarkMediumContrast,
-  ),
+    success = ColorFamily(
+        successDarkMediumContrast,
+        onSuccessDarkMediumContrast,
+        successContainerDarkMediumContrast,
+        onSuccessContainerDarkMediumContrast,
+    ),
 )
 
 val extendedDarkHighContrast = ExtendedColorScheme(
-  success = ColorFamily(
-  successDarkHighContrast,
-  onSuccessDarkHighContrast,
-  successContainerDarkHighContrast,
-  onSuccessContainerDarkHighContrast,
-  ),
+    success = ColorFamily(
+        successDarkHighContrast,
+        onSuccessDarkHighContrast,
+        successContainerDarkHighContrast,
+        onSuccessContainerDarkHighContrast,
+    ),
 )
 
 @Immutable
@@ -311,14 +311,14 @@ fun AppTheme(
     darkTheme: Boolean = false,
     content: @Composable() () -> Unit
 ) {
-  val colorScheme = when {
-      darkTheme -> darkScheme
-      else -> highContrastLightColorScheme
-  }
+    val colorScheme = when {
+        darkTheme -> darkScheme
+        else -> highContrastLightColorScheme
+    }
 
-  MaterialTheme(
-    colorScheme = colorScheme,
-    content = content
-  )
+    MaterialTheme(
+        colorScheme = colorScheme,
+        content = content
+    )
 }
 

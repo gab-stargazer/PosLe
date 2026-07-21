@@ -1,11 +1,13 @@
 package org.lelestacia.posle.domain.component.transaction_add
 
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.arkivanov.decompose.ComponentContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -15,15 +17,18 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
 import org.lelestacia.posle.data.SettingManager
-import org.lelestacia.posle.domain.model.Transaction
-import org.lelestacia.posle.domain.model.TransactionItem
+import org.lelestacia.posle.domain.model.Bundle
+import org.lelestacia.posle.domain.model.CartItems
 import org.lelestacia.posle.domain.model.Variant
+import org.lelestacia.posle.domain.repository.BundleRepository
 import org.lelestacia.posle.domain.repository.ProductRepository
 import org.lelestacia.posle.domain.repository.TransactionRepository
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent
 import org.lelestacia.posle.domain.state_event.TransactionAddState
-import org.lelestacia.posle.domain.state_event.TransactionAddState.DialogState
+import org.lelestacia.posle.domain.state_event.TransactionAddState.DialogBundleState
+import org.lelestacia.posle.domain.state_event.TransactionAddState.DialogProductState
 import org.lelestacia.posle.domain.state_event.TransactionItemState
 import org.lelestacia.posle.domain.state_event.validate
 import org.lelestacia.posle.navigation.Config.TransactionView
@@ -31,13 +36,17 @@ import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.coroutineScope
-import kotlin.time.Clock
+import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.msg_error_item_not_available
+import posle.shared.generated.resources.msg_error_quantity_cannot_be_empty
+import java.math.BigDecimal
 import kotlin.time.Duration.Companion.milliseconds
 
 class TransactionAddComponentImpl(
     componentContext: ComponentContext,
     private val settingManager: SettingManager,
     private val navigation: TransactionAddNavigation,
+    private val bundleRepository: BundleRepository,
     private val productRepository: ProductRepository,
     private val transactionRepository: TransactionRepository
 ) : ComponentContext by componentContext, TransactionAddComponent {
@@ -46,30 +55,41 @@ class TransactionAddComponentImpl(
 
     private val _searchQuery = MutableStateFlow("")
 
+    @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
+    override val bundles: Flow<PagingData<Bundle>> = _searchQuery
+        .debounce(300.milliseconds)
+        .distinctUntilChanged()
+        .flatMapLatest { query ->
+            bundleRepository.readBundleByName(query)
+        }
+        .cachedIn(scope)
+
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     override val products = _searchQuery
         .debounce(300.milliseconds)
         .distinctUntilChanged()
         .flatMapLatest { query ->
-            productRepository.readProducts(query)
+            productRepository.readProductsByName(query)
         }
         .cachedIn(scope)
 
     private val _state = MutableStateFlow(TransactionAddState())
     override val state = combine(
         flow = _state,
-        flow2 = settingManager.readSettings()
-    ) { state, settings ->
+        flow2 = settingManager.readSettings(),
+        flow3 = _searchQuery
+    ) { state, settings, searchQuery ->
         state.copy(
+            searchQuery = searchQuery,
             settings = settings,
-            dialogState = state.dialogState.copy(
+            dialogProductState = state.dialogProductState.copy(
                 settings = settings
-            )
+            ),
         )
     }.stateIn(
-        scope,
-        SharingStarted.Lazily,
-        TransactionAddState()
+        scope = scope,
+        started = SharingStarted.Lazily,
+        initialValue = TransactionAddState()
     )
 
     override fun onEvent(event: TransactionAddEvent) {
@@ -87,45 +107,45 @@ class TransactionAddComponentImpl(
                 val product = event.product
                 navigation.onNavigateToProductConfig(product) { itemState: TransactionItemState, variants: List<Variant> ->
                     scope.launch {
-                        _state.update { currentState ->
-
-                            val cartItems = currentState.cartItems.toMutableList()
-
-                            //  Will Come back later, probably needed for restaurant, might make it hard for selling fruits or something in bulk like Karung
-                            val isInCart = cartItems.any { cartItem ->
-                                cartItem.productName == product.name &&
-                                        cartItem.variants.toSet() == variants.toSet()
-                            }
-
-                            cartItems.add(
-                                TransactionItem(
-                                    id = 0,
-                                    productName = product.name,
-                                    productId = product.id,
-                                    productBuyPrice = product.buyPrice,
-                                    productSellPrice = Price(
-                                        itemState.priceState.text
-                                            .toString()
-                                            .ifBlank { "0" }
-                                            .toBigDecimal()
-                                    ),
-                                    productUnit = product.unit,
-                                    productAmount = Amount(
-                                        itemState.amountState.text
-                                            .toString()
-                                            .toFloat()
-                                    ),
-                                    productNote = itemState.noteState.text
-                                        .toString()
-                                        .ifBlank { null },
-                                    variants = variants
-                                )
-                            )
-
-                            currentState.copy(
-                                cartItems = cartItems.sortedBy { it.productName.value }
-                            )
-                        }
+//                        _state.update { currentState ->
+//
+//                            val cartItems = currentState.cartItems.toMutableList()
+//
+//                            //  Will Come back later, probably needed for restaurant, might make it hard for selling fruits or something in bulk like Karung
+//                            val isInCart = cartItems.any { cartItem ->
+//                                cartItem.productName == product.name &&
+//                                        cartItem.variants.toSet() == variants.toSet()
+//                            }
+//
+//                            cartItems.add(
+//                                TransactionItem(
+//                                    id = 0,
+//                                    productName = product.name,
+//                                    productId = product.id,
+//                                    productBuyPrice = product.buyPrice,
+//                                    productSellPrice = Price(
+//                                        itemState.priceState.text
+//                                            .toString()
+//                                            .ifBlank { "0" }
+//                                            .toBigDecimal()
+//                                    ),
+//                                    productUnit = product.unit,
+//                                    productAmount = Amount(
+//                                        itemState.amountState.text
+//                                            .toString()
+//                                            .toFloat()
+//                                    ),
+//                                    productNote = itemState.noteState.text
+//                                        .toString()
+//                                        .ifBlank { null },
+//                                    variants = variants
+//                                )
+//                            )
+//
+//                            currentState.copy(
+//                                cartItems = cartItems.sortedBy { it.productName.value }
+//                            )
+//                        }
                     }
                 }
             }
@@ -133,28 +153,26 @@ class TransactionAddComponentImpl(
             is TransactionAddEvent.OnRemoveProduct -> {
                 _state.update { currentState ->
                     val cartItems = currentState.cartItems.toMutableList()
-                    cartItems.remove(event.product)
+                    cartItems.remove(event.cartItems)
                     currentState.copy(cartItems = cartItems)
                 }
             }
 
             TransactionAddEvent.OnAddTransactionClicked -> {
-                val transaction = Transaction(
-                    id = 0,
-                    customerName = Name(state.value.customerName.text.toString()),
-                    items = state.value.cartItems,
-                    createdAt = Clock.System.now().toEpochMilliseconds()
-                )
+                val customerName = Name(state.value.customerName.text.toString())
+                val cartItems = state.value.cartItems
 
                 scope.launch {
                     navigation.onNavigateTo(
                         config = TransactionView(
-                            transaction = transactionRepository.insertAndGetTransaction(transaction)
+                            transaction = transactionRepository.insertAndGetTransaction(
+                                customerName = customerName,
+                                cartItems = cartItems
+                            )
                         )
                     ) {
                         _state.update {
                             it.copy(
-                                searchQuery = TextFieldState(),
                                 customerName = TextFieldState(),
                                 cartItems = emptyList(),
                                 currentTab = 0
@@ -170,8 +188,8 @@ class TransactionAddComponentImpl(
                         productRepository.getProductBySkuNumber(skuNumber)?.let { product ->
                             _state.update { currentState ->
                                 currentState.copy(
-                                    isDialogShown = true,
-                                    dialogState = DialogState(
+                                    isDialogProductShown = true,
+                                    dialogProductState = DialogProductState(
                                         selectedProduct = product,
                                         settings = state.value.settings
                                     )
@@ -182,16 +200,17 @@ class TransactionAddComponentImpl(
                 }
             }
 
-            is TransactionAddEvent.DialogEvent -> onDialogEvent(event)
+            is TransactionAddEvent.DialogProductEvent -> onDialogEvent(event)
+            is TransactionAddEvent.DialogBundleEvent -> onDialogBundleEvent(event)
         }
     }
 
-    private fun onDialogEvent(event: TransactionAddEvent.DialogEvent) {
+    private fun onDialogEvent(event: TransactionAddEvent.DialogProductEvent) {
         when (event) {
-            is TransactionAddEvent.DialogEvent.OnAmountChanged -> {
+            is TransactionAddEvent.DialogProductEvent.OnAmountChanged -> {
                 _state.update { currentState ->
                     currentState.copy(
-                        dialogState = currentState.dialogState.copy(
+                        dialogProductState = currentState.dialogProductState.copy(
                             amount = event.newAmount,
                             amountError = null
                         )
@@ -199,10 +218,10 @@ class TransactionAddComponentImpl(
                 }
             }
 
-            is TransactionAddEvent.DialogEvent.OnPriceChanged -> {
+            is TransactionAddEvent.DialogProductEvent.OnPriceChanged -> {
                 _state.update { currentState ->
                     currentState.copy(
-                        dialogState = currentState.dialogState.copy(
+                        dialogProductState = currentState.dialogProductState.copy(
                             price = event.newPrice,
                             priceStateError = null
                         )
@@ -210,22 +229,15 @@ class TransactionAddComponentImpl(
                 }
             }
 
-            TransactionAddEvent.DialogEvent.OnAddClicked -> {
+            TransactionAddEvent.DialogProductEvent.OnAddClicked -> {
                 _state.update { currentState ->
 
                     val cartItems = currentState.cartItems.toMutableList()
 
-                    val selectedProduct = currentState.dialogState.selectedProduct
+                    val selectedProduct = currentState.dialogProductState.selectedProduct
                         ?: throw Exception("Product didn't get passed properly")
 
-                    //  Will Come back later, probably needed for restaurant, might make it hard for selling fruits or something in bulk like Karung
-                    val isInCart = cartItems.any { cartItem ->
-                        cartItem.productName == selectedProduct.name
-                    }
-
-
-                    println("CurrentState: ${currentState.dialogState}")
-                    val validationResult = currentState.dialogState.validate()
+                    val validationResult = currentState.dialogProductState.validate()
                     val errors = listOf(
                         validationResult.amountError,
                         validationResult.priceStateError
@@ -233,19 +245,22 @@ class TransactionAddComponentImpl(
 
                     if (errors.any { error -> error != null }) {
                         currentState.copy(
-                            dialogState = validationResult
+                            dialogProductState = validationResult
                         )
                     } else {
                         cartItems.add(
-                            TransactionItem(
+                            CartItems.ProductCartItem(
                                 id = 0,
                                 productName = selectedProduct.name,
                                 productId = selectedProduct.id,
-                                productBuyPrice = selectedProduct.buyPrice,
+                                skuNumber = selectedProduct.skuNumber,
+                                imageUri = selectedProduct.imageUri,
+                                //  Updated on Repository
+                                productBuyPrice = Price(BigDecimal.ZERO),
                                 productSellPrice = Price(
                                     when (state.value.settings.isProductVolatile) {
                                         true -> {
-                                            currentState.dialogState.price
+                                            currentState.dialogProductState.price
                                                 .ifBlank { "0" }
                                                 .toBigDecimal()
                                         }
@@ -256,42 +271,42 @@ class TransactionAddComponentImpl(
                                     }
                                 ),
                                 productUnit = selectedProduct.unit,
-                                productAmount = Amount(
-                                    currentState.dialogState.amount
+                                productQuantity = Amount(
+                                    currentState.dialogProductState.amount
                                         .toFloat()
                                 ),
-                                productNote = state.value.dialogState.noteState.text
+                                productNote = state.value.dialogProductState.noteState.text
                                     .toString()
                                     .ifBlank { null },
                             )
                         )
 
                         currentState.copy(
-                            isDialogShown = false,
-                            dialogState = DialogState(),
-                            cartItems = cartItems.sortedBy { it.productName.value }
+                            isDialogProductShown = false,
+                            dialogProductState = DialogProductState(),
+                            cartItems = cartItems
                         )
                     }
                 }
             }
 
-            TransactionAddEvent.DialogEvent.OnDismiss -> {
+            TransactionAddEvent.DialogProductEvent.OnDismiss -> {
                 _state.update { currentState ->
                     currentState.copy(
-                        isDialogShown = false,
-                        dialogState = DialogState()
+                        isDialogProductShown = false,
+                        dialogProductState = DialogProductState()
                     )
                 }
             }
 
-            is TransactionAddEvent.DialogEvent.OnShown -> {
+            is TransactionAddEvent.DialogProductEvent.OnShown -> {
                 println("Settings: ${state.value.settings}")
                 println("Sell Price: ${event.selectedProduct.sellPrice.value}")
 
                 _state.update { currentState ->
                     currentState.copy(
-                        isDialogShown = true,
-                        dialogState = DialogState(
+                        isDialogProductShown = true,
+                        dialogProductState = DialogProductState(
                             selectedProduct = event.selectedProduct,
                             settings = state.value.settings
                         )
@@ -299,6 +314,118 @@ class TransactionAddComponentImpl(
                 }
             }
 
+            is TransactionAddEvent.DialogBundleEvent -> onDialogBundleEvent(event)
+        }
+    }
+
+    fun onDialogBundleEvent(event: TransactionAddEvent.DialogBundleEvent) {
+        when (event) {
+            is TransactionAddEvent.DialogBundleEvent.OnShown -> _state.update { currentState ->
+                currentState.copy(
+                    isDialogBundleShown = true,
+                    dialogBundleState = DialogBundleState(
+                        selectedBundle = event.selectedBundle
+                    )
+                )
+            }
+
+            is TransactionAddEvent.DialogBundleEvent.OnQuantityChanged -> _state.update { currentState ->
+                currentState.copy(
+                    dialogBundleState = currentState.dialogBundleState.copy(
+                        quantity = event.newQuantity,
+                        quantityError = null
+                    )
+                )
+            }
+
+            TransactionAddEvent.DialogBundleEvent.OnDismiss -> _state.update { currentState ->
+                currentState.copy(
+                    isDialogBundleShown = false,
+                    dialogBundleState = DialogBundleState()
+                )
+            }
+
+            TransactionAddEvent.DialogBundleEvent.OnAddClicked -> {
+                val currentState = state.value
+                val selectedBundle = currentState.dialogBundleState.selectedBundle
+                    ?: throw Exception("Bundle didn't get passed properly")
+
+                //  Check For Product Availability
+                val bundleProductsError = mutableListOf<Name>()
+
+                scope.launch {
+                    if (currentState.dialogBundleState.quantity.isBlank() || currentState.dialogBundleState.quantity.toFloatOrNull() == null) {
+                        _state.update { currentState ->
+                            currentState.copy(
+                                dialogBundleState = currentState.dialogBundleState.copy(
+                                    quantityError = getString(
+                                        Res.string.msg_error_quantity_cannot_be_empty
+                                    )
+                                )
+                            )
+                        }
+
+                        return@launch
+                    }
+
+                    if (currentState.settings.isProductStockTracked) {
+                        selectedBundle.bundleProducts.forEach { bundleProduct ->
+                            val currentlyAvailable =
+                                productRepository.getProductAvailability(bundleProduct.productId)
+
+                            val currentlyRequested =
+                                bundleProduct.quantity.value * currentState.dialogBundleState.quantity.toFloat()
+
+                            if (currentlyAvailable < currentlyRequested) {
+                                bundleProductsError.add(bundleProduct.productName)
+                            }
+                        }
+
+                        if (bundleProductsError.isNotEmpty()) {
+                            _state.update { currentState ->
+                                currentState.copy(
+                                    dialogBundleState = currentState.dialogBundleState.copy(
+                                        quantityError = getString(
+                                            Res.string.msg_error_item_not_available,
+                                            bundleProductsError.joinToString(", ") { it.value }
+                                        )
+                                    )
+                                )
+                            }
+
+                            return@launch
+                        }
+                    }
+
+                    val cartItems = currentState.cartItems.toMutableList()
+                    cartItems.add(
+                        CartItems.BundleCartItem(
+                            id = 0,
+                            bundleId = selectedBundle.id,
+                            bundleName = selectedBundle.name,
+                            bundleQuantity = Amount(currentState.dialogBundleState.quantity.toFloat()),
+                            bundleTotalPrice = Price(
+                                selectedBundle.bundleProducts.sumOf { it.sellPrice.value * it.quantity.value.toBigDecimal() }
+                            ),
+                            bundleNote = currentState
+                                .dialogBundleState
+                                .noteState
+                                .text
+                                .toString()
+                                .ifBlank { null },
+                            bundleProducts = selectedBundle.bundleProducts
+                        )
+                    )
+
+                    _state.update { currentState ->
+                        currentState.copy(
+                            isDialogBundleShown = false,
+                            dialogBundleState = DialogBundleState(),
+                            cartItems = cartItems
+                        )
+                    }
+                }
+            }
         }
     }
 }

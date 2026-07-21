@@ -1,8 +1,11 @@
 package org.lelestacia.posle.util
 
+import org.lelestacia.posle.data.entity.TransactionItemType
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.Transaction
 import org.lelestacia.posle.domain.model.TransactionItem
+import org.lelestacia.posle.domain.model.TransactionProduct
+import org.lelestacia.posle.domain.model.Variant
 import java.math.BigDecimal
 
 object SampleData {
@@ -44,26 +47,6 @@ object SampleData {
             imageUri = null
         )
     )
-
-    val largeTransaction = List(10) { transaction ->
-        Transaction(
-            id = transaction,
-            customerName = Name("Gourmet Customer"),
-            items = List(30) {
-                TransactionItem(
-                    id = it + 1,
-                    productId = it + 1,
-                    productName = Name("Item Menu ${it + 1}"),
-                    productBuyPrice = Price(BigDecimal.ZERO),
-                    productSellPrice = Price(BigDecimal((1000 * (it + 1)))),
-                    productUnit = Unit("Porsi"),
-                    productAmount = Amount(1f),
-                    productNote = null
-                )
-            },
-            createdAt = 1718236800000L
-        )
-    }
 
     val indonesianFoodProducts = listOf(
         // 1. Nasi Goreng (Fried Rice)
@@ -339,6 +322,122 @@ object SampleData {
             unit = Unit("Plate"),
             imageUri = null,
             variants = emptyList()
+        )
+    )
+
+
+    val sampleTransaction = Transaction(
+        id = 1001,
+        customerName = Name("Budi Santoso"),
+        isRecapped = false,
+        createdAt = 1752700000000L, // ~ July 2025
+        updatedAt = null,
+        items = listOf(
+
+            // 1. Simple product purchase
+            TransactionItem(
+                id = 1,
+                type = TransactionItemType.Product,
+                referenceId = 501, // Product.id
+                name = Name("Kopi Kapal Api Sachet"),
+                quantity = Amount(3f),
+                sellPrice = Price(BigDecimal("2500")),
+                note = null,
+                createdAt = 1752700000000L,
+                updatedAt = null,
+                products = listOf(
+                    TransactionProduct(
+                        productId = 501,
+                        productName = Name("Kopi Kapal Api Sachet"),
+                        skuNumber = SkuNumber("KKA-001"),
+                        imageUri = "https://cdn.example.com/products/kapal-api.jpg",
+                        buyPrice = Price(BigDecimal("1800")),
+                        sellPrice = Price(BigDecimal("2500")),
+                        unit = Unit("Bungkus"),
+                        note = null,
+                        quantity = Amount(1f), // 1 sachet per unit purchased
+                        variants = emptyList()
+                    )
+                )
+            ),
+
+            // 2. Product with variant (e.g. size), fractional quantity example (bulk/loose item)
+            TransactionItem(
+                id = 2,
+                type = TransactionItemType.Product,
+                referenceId = 502,
+                name = Name("Gula Pasir Curah"),
+                quantity = Amount(0.5f), // 0.5 kg
+                sellPrice = Price(BigDecimal("7500")),
+                note = "Dibungkus plastik",
+                createdAt = 1752700000000L,
+                updatedAt = null,
+                products = listOf(
+                    TransactionProduct(
+                        productId = 502,
+                        productName = Name("Gula Pasir"),
+                        skuNumber = SkuNumber("GP-CURAH"),
+                        imageUri = "https://cdn.example.com/products/gula-curah.jpg",
+                        buyPrice = Price(BigDecimal("12000")),
+                        sellPrice = Price(BigDecimal("15000")),
+                        unit = Unit("Kg"),
+                        note = null,
+                        quantity = Amount(1f),
+                        variants = emptyList<Variant>()
+                    )
+                )
+            ),
+
+            // 3. Bundle purchase: "Paket Sarapan Hemat" (Breakfast Bundle)
+            TransactionItem(
+                id = 3,
+                type = TransactionItemType.Bundle,
+                referenceId = 9001, // Bundle.id
+                name = Name("Paket Sarapan Hemat"),
+                quantity = Amount(2f), // 2 bundles bought
+                sellPrice = Price(BigDecimal("15000")),
+                note = "Tanpa sambal",
+                createdAt = 1752700000000L,
+                updatedAt = null,
+                products = listOf(
+                    TransactionProduct(
+                        productId = 601,
+                        productName = Name("Indomie Goreng"),
+                        skuNumber = SkuNumber("IDG-001"),
+                        imageUri = "https://cdn.example.com/products/indomie-goreng.jpg",
+                        buyPrice = Price(BigDecimal("2500")),
+                        sellPrice = Price(BigDecimal("3500")),
+                        unit = Unit("Bungkus"),
+                        note = null,
+                        quantity = Amount(1f), // per bundle
+                        variants = emptyList()
+                    ),
+                    TransactionProduct(
+                        productId = 602,
+                        productName = Name("Telur Ayam"),
+                        skuNumber = SkuNumber("TLR-001"),
+                        imageUri = "https://cdn.example.com/products/telur.jpg",
+                        buyPrice = Price(BigDecimal("1800")),
+                        sellPrice = Price(BigDecimal("2500")),
+                        unit = Unit("Butir"),
+                        note = null,
+                        quantity = Amount(2f), // 2 eggs per bundle
+                        variants = emptyList()
+                    ),
+                    TransactionProduct(
+                        productId = 603,
+                        productName = Name("Teh Kotak"),
+                        skuNumber = SkuNumber("TK-001"),
+                        imageUri = "https://cdn.example.com/products/teh-kotak.jpg",
+                        buyPrice = Price(BigDecimal("3000")),
+                        sellPrice = Price(BigDecimal("4000")),
+                        unit = Unit("Kotak"),
+                        note = null,
+                        quantity = Amount(1f), // per bundle
+                        variants = emptyList<Variant>()
+                    )
+                )
+            )
         )
     )
 }

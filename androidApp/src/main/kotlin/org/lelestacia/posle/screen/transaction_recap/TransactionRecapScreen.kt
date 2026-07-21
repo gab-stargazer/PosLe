@@ -1,7 +1,10 @@
 package org.lelestacia.posle.screen.transaction_recap
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -30,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.jetbrains.compose.resources.stringResource
+import org.lelestacia.posle.data.entity.TransactionItemType
 import org.lelestacia.posle.domain.component.transaction_recap.TransactionRecapComponent
 import org.lelestacia.posle.domain.state_event.TransactionRecapEvent
 import org.lelestacia.posle.domain.state_event.TransactionRecapEvent.OnDateRangePickerVisibilityChanged
@@ -40,6 +45,8 @@ import org.lelestacia.posle.screen.transaction_history.TransactionItem
 import org.lelestacia.posle.screen.transaction_recap.component.TransactionRecapProductOutbound
 import org.lelestacia.posle.screen.transaction_recap.component.TransactionRecapTabRow
 import org.lelestacia.posle.ui.theme.AppTheme
+import org.lelestacia.posle.ui.theme.BurgundyRed
+import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.SampleData
 import org.lelestacia.posle.util.toFormattedDate
 import org.lelestacia.posle.util.toRupiah
@@ -55,21 +62,47 @@ fun TransactionRecapScreen(
     modifier: Modifier = Modifier
 ) {
     val state by component.state.collectAsStateWithLifecycle()
-    val productsOutbound =
+    val listOfProducts =
         state.transactionHistory
-            .flatMap { it.items }
+            .flatMap { transaction ->
+                transaction.items.map { transactionItem ->
+                    when (transactionItem.type) {
+                        TransactionItemType.Product -> {
+                            transactionItem.products
+                        }
+
+                        TransactionItemType.Bundle -> {
+                            transactionItem.products.map { product ->
+                                product.copy(
+                                    quantity = Amount(product.quantity.value * transactionItem.quantity.value)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            .flatten()
             .groupBy { it.productId }
             .map { it.value }
-            .toList()
 
-    val totalProfit = state.transactionHistory
-        .sumOf { transaction ->
-            transaction.items
-                .sumOf { product ->
-                    product.productAmount.value.toBigDecimal() * (product.productSellPrice.value - product.productBuyPrice.value)
+
+    val totalProfit =
+        state.transactionHistory
+            .map { transaction ->
+                transaction.items.sumOf { transactionItem ->
+                    when (transactionItem.type) {
+                        TransactionItemType.Product -> {
+                            transactionItem.products.sumOf { (it.sellPrice.value - it.buyPrice.value) * it.quantity.value.toBigDecimal() }
+                        }
+
+                        TransactionItemType.Bundle -> transactionItem
+                            .quantity
+                            .value
+                            .toBigDecimal() * (transactionItem.products.sumOf { (it.sellPrice.value - it.buyPrice.value) * it.quantity.value.toBigDecimal() })
+                    }
                 }
-        }
-
+            }
+            .sumOf { it }
 
     if (state.isDateRangePickerShown) {
         DatePickerDialog(
@@ -115,42 +148,73 @@ fun TransactionRecapScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            Row(
+            Column(
                 modifier = Modifier.padding(12.dp)
             ) {
-                Column {
-                    Text(
-                        when {
-                            state.isSameDay -> "Rekap ${state.startDate.toFormattedDate()}"
-                            else -> "${state.startDate.toFormattedDate()} - ${state.finishDate.toFormattedDate()}"
-                        },
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.SemiBold
+                Text(
+                    when {
+                        state.isSameDay -> "Rekap ${state.startDate.toFormattedDate()}"
+                        else -> "${state.startDate.toFormattedDate()} - ${state.finishDate.toFormattedDate()}"
+                    },
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.SemiBold
+                    )
+                )
+
+                Text(
+                    stringResource(
+                        Res.string.label_total_transaction,
+                        state.transactionHistory.size
+                    ),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Text(
+                    stringResource(Res.string.txt_total_profit, totalProfit.toRupiah()),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Text(
+                    stringResource(
+                        Res.string.txt_total_profit_description,
+                        totalProfit.toRupiah()
+                    ),
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontStyle = FontStyle.Italic
+                    )
+                )
+            }
+
+            Row {
+                PrimaryTabRow(
+                    divider = {},
+                    indicator = {
+                        TabRowDefaults.SecondaryIndicator(
+                            modifier = Modifier.tabIndicatorOffset(selectedTabIndex = state.selectedPrimaryTab),
+                            color = BurgundyRed
                         )
-                    )
-
-                    Text(
-                        stringResource(
-                            Res.string.label_total_transaction,
-                            state.transactionHistory.size
-                        ),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-
-                    Text(
-                        stringResource(Res.string.txt_total_profit, totalProfit.toRupiah()),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-
-                    Text(
-                        stringResource(
-                            Res.string.txt_total_profit_description,
-                            totalProfit.toRupiah()
-                        ),
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontStyle = FontStyle.Italic
+                    },
+                    selectedTabIndex = state.selectedPrimaryTab,
+                    modifier = Modifier.weight(1F)
+                ) {
+                    TransactionRecapTabRow.entries.forEachIndexed { index, destination ->
+                        Tab(
+                            selected = state.selectedPrimaryTab == index,
+                            onClick = {
+                                component.onEvent(OnPrimaryTabChanged(index))
+                            },
+                            text = {
+                                Text(
+                                    text = stringResource(destination.title),
+                                    style = MaterialTheme.typography.titleSmall.copy(
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                )
+                            },
+                            selectedContentColor = BurgundyRed,
+                            unselectedContentColor = MaterialTheme.colorScheme.onSurface
                         )
-                    )
+                    }
                 }
 
                 IconButton(
@@ -165,30 +229,13 @@ fun TransactionRecapScreen(
                 }
             }
 
-            PrimaryTabRow(
-                selectedTabIndex = state.selectedPrimaryTab
-            ) {
-                TransactionRecapTabRow.entries.forEachIndexed { index, destination ->
-                    Tab(
-                        selected = state.selectedPrimaryTab == index,
-                        onClick = {
-                            component.onEvent(OnPrimaryTabChanged(index))
-                        },
-                        text = {
-                            Text(
-                                text = stringResource(destination.title),
-                                style = MaterialTheme.typography.titleSmall.copy(
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            )
-                        }
-                    )
-                }
-            }
+            HorizontalDivider()
 
             AnimatedContent(
                 targetState = state.selectedPrimaryTab == 0,
-                modifier = Modifier.weight(1F)
+                modifier = Modifier
+                    .weight(1F)
+                    .background(MaterialTheme.colorScheme.surfaceContainerLowest)
             ) { isProductOutbound ->
                 when (isProductOutbound) {
                     true -> {
@@ -196,9 +243,9 @@ fun TransactionRecapScreen(
                             modifier = Modifier
                                 .fillMaxSize()
                         ) {
-                            items(count = productsOutbound.size) { index ->
+                            items(count = listOfProducts.size) { index ->
                                 TransactionRecapProductOutbound(
-                                    transactionItems = productsOutbound[index],
+                                    transactionProducts = listOfProducts[index],
                                     onClick = {
 
                                     }
@@ -209,6 +256,8 @@ fun TransactionRecapScreen(
 
                     false -> {
                         LazyColumn(
+                            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 12.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
                             modifier = Modifier
                                 .fillMaxSize()
                         ) {
@@ -226,7 +275,6 @@ fun TransactionRecapScreen(
                                         },
                                         settings = state.settings
                                     )
-                                    HorizontalDivider()
                                 }
                             }
                         }
@@ -246,7 +294,7 @@ private fun PreviewTransactionRecapScreen() {
                 override val state: MutableStateFlow<TransactionRecapState> =
                     MutableStateFlow(
                         TransactionRecapState(
-                            transactionHistory = SampleData.largeTransaction,
+                            transactionHistory = listOf(SampleData.sampleTransaction),
                             startDate = Clock.System.now().toEpochMilliseconds(),
                             finishDate = Clock.System.now().toEpochMilliseconds(),
                             isSameDay = true

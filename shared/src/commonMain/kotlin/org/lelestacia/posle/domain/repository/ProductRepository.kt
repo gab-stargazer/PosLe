@@ -11,14 +11,23 @@ import org.lelestacia.posle.domain.model.Variant
 interface ProductRepository {
     suspend fun addProduct(product: Product, imageByteArray: ByteArray?)
     suspend fun getProductBySkuNumber(skuNumber: String): Product?
-    fun readProducts(searchQuery: String): Flow<PagingData<Product>>
+    fun readProductsByName(searchQuery: String): Flow<PagingData<Product>>
     fun readProductsWithLowStock(searchQuery: String): Flow<PagingData<Product>>
     fun readProductWithoutCategories(searchQuery: String): Flow<PagingData<Product>>
-    fun readProductWithCategories(searchQuery: String, categoryId: Int): PagingSource<Int, ProductWithVariantsAndStock>
-    fun readProductNotInCategory(searchQuery: String, categoryId: Int): PagingSource<Int, ProductWithVariantsAndStock>
+    fun readProductWithCategories(
+        searchQuery: String,
+        categoryId: Int
+    ): PagingSource<Int, ProductWithVariantsAndStock>
+
+    fun readProductNotInCategory(
+        searchQuery: String,
+        categoryId: Int
+    ): PagingSource<Int, ProductWithVariantsAndStock>
+
     fun readProductBuyPriceHistory(productId: Int): Flow<List<ProductPriceHistory>>
     fun readProductSellPriceHistory(productId: Int): Flow<List<ProductPriceHistory>>
     fun readAvailableProducts(searchQuery: String = ""): Flow<List<Product>>
+    suspend fun getProductAvailability(productId: Int): Float
     suspend fun updateProduct(
         product: Product,
         variantsToAdd: List<Variant>,

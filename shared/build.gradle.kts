@@ -98,6 +98,8 @@ kotlin {
 
             //  QR Kit
             api(libs.qr.kit)
+
+            api("com.composables:ui:0.2.0")
         }
 
         commonTest.dependencies {

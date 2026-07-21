@@ -7,12 +7,11 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.Relation
-import org.lelestacia.posle.domain.model.Transaction
-import org.lelestacia.posle.domain.model.TransactionItem
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
+import org.lelestacia.posle.util.SkuNumber
 import org.lelestacia.posle.util.Unit
 
 @Entity(tableName = "transaction")
@@ -30,28 +29,64 @@ data class TransactionEntity(
     val updatedAt: Long? = null,
 )
 
+enum class TransactionItemType {
+    Product,
+    Bundle
+}
+
 @Entity(
-    tableName = "transaction_item",
-    foreignKeys = [
-        ForeignKey(
-            entity = TransactionEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["transaction_id"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ],
-    indices = [Index("transaction_id")]
+    tableName = "transaction_item"
 )
 data class TransactionItemEntity(
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo("id")
     val id: Int = 0,
     @ColumnInfo("transaction_id")
     val transactionId: Int,
+    @ColumnInfo("type")
+    val type: TransactionItemType,
+    // Product.id or Bundle.id
+    @ColumnInfo("reference_id")
+    val referenceId: Int,
+    @ColumnInfo("name")
+    val name: Name,
+    @ColumnInfo("quantity")
+    val quantity: Amount,
+    @ColumnInfo("sell_price")
+    val sellPrice: Price,
+    @ColumnInfo("note")
+    val note: String?,
+    @ColumnInfo("created_at")
+    val createdAt: Long,
+    @ColumnInfo("updated_at")
+    val updatedAt: Long? = null,
+)
+
+@Entity(
+    tableName = "transaction_item_product",
+    foreignKeys = [
+        ForeignKey(
+            entity = TransactionItemEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["transaction_item_id"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [Index("transaction_item_id")]
+)
+data class TransactionItemProductEntity(
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo("id")
+    val id: Int = 0,
+    @ColumnInfo("transaction_item_id")
+    val transactionItemId: Int,
     @ColumnInfo("product_id")
     val productId: Int,
     @ColumnInfo("product_name")
     val productName: Name,
+    @ColumnInfo("sku_number")
+    val skuNumber: SkuNumber?,
+    @ColumnInfo("image_uri")
+    val imageUri: String?,
     @ColumnInfo("product_buy_price")
     val productBuyPrice: Price,
     @ColumnInfo("product_sell_price")
@@ -66,34 +101,21 @@ data class TransactionItemEntity(
     val variants: List<Variant> = emptyList(),
 )
 
-data class TransactionWithItems(
-    @Embedded
-    val transaction: TransactionEntity,
-
+data class TransactionItemWithProducts(
+    @Embedded val item: TransactionItemEntity,
     @Relation(
+        parentColumn = "id",
+        entityColumn = "transaction_item_id"
+    )
+    val products: List<TransactionItemProductEntity>
+)
+
+data class TransactionWithItems(
+    @Embedded val transaction: TransactionEntity,
+    @Relation(
+        entity = TransactionItemEntity::class,
         parentColumn = "id",
         entityColumn = "transaction_id"
     )
-    val items: List<TransactionItemEntity>
-)
-
-fun TransactionWithItems.toDomain() = Transaction(
-    id = transaction.id,
-    customerName = transaction.customerName,
-    items = items.map { it.toDomain() },
-    isRecapped = transaction.isRecapped,
-    createdAt = transaction.createdAt,
-    updatedAt = transaction.updatedAt,
-)
-
-fun TransactionItemEntity.toDomain() = TransactionItem(
-    id = id,
-    productId = productId,
-    productName = productName,
-    productBuyPrice = productBuyPrice,
-    productSellPrice = productSellPrice,
-    productUnit = productUnit,
-    productAmount = productAmount,
-    productNote = productNote,
-    variants = variants
+    val items: List<TransactionItemWithProducts>
 )

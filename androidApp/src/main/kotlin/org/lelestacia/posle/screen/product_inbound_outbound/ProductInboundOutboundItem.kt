@@ -25,7 +25,6 @@ import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Unit
 import org.lelestacia.posle.util.toFormattedDateTime
 import posle.shared.generated.resources.Res
-import posle.shared.generated.resources.title_inbound
 import posle.shared.generated.resources.title_outbound_purchase
 import posle.shared.generated.resources.txt_product_inbound
 import posle.shared.generated.resources.txt_product_outbound
@@ -50,9 +49,9 @@ fun ProductInboundOutboundItem(
                 .padding(end = 12.dp)
         ) {
             Text(
-                when (stockMovement.movementType) {
-                    StockMovementType.Inbound -> "Barang Masuk"
-                    StockMovementType.Adjustment, StockMovementType.Purchase -> "Barang Keluar"
+                text = when (stockMovement.movementType) {
+                    StockMovementType.Purchase, StockMovementType.AdjustmentIncrease -> "Barang Masuk"
+                    StockMovementType.AdjustmentDecrease, StockMovementType.Sale, StockMovementType.Return -> "Barang Keluar"
                 },
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold
@@ -67,8 +66,8 @@ fun ProductInboundOutboundItem(
             Text(
                 stringResource(
                     when (stockMovement.movementType) {
-                        StockMovementType.Inbound -> Res.string.txt_product_inbound
-                        StockMovementType.Purchase, StockMovementType.Adjustment -> Res.string.txt_product_outbound
+                        StockMovementType.Purchase, StockMovementType.AdjustmentIncrease -> Res.string.txt_product_inbound
+                        StockMovementType.Sale, StockMovementType.AdjustmentDecrease, StockMovementType.Return -> Res.string.txt_product_outbound
                     },
                     stockMovement.productName.value,
                     abs(stockMovement.amount.value).roundToInt(),
@@ -83,27 +82,12 @@ fun ProductInboundOutboundItem(
         Card(
             shape = RoundedCornerShape(25F),
             colors = CardDefaults.cardColors(
-                containerColor = when (stockMovement.movementType) {
-                    StockMovementType.Inbound -> MaterialTheme.colorScheme.primaryContainer
-                    StockMovementType.Purchase -> MaterialTheme.colorScheme.tertiaryContainer
-                    StockMovementType.Adjustment -> MaterialTheme.colorScheme.tertiaryContainer
-                },
-                contentColor =
-                    when (stockMovement.movementType) {
-                        StockMovementType.Inbound -> MaterialTheme.colorScheme.onPrimaryContainer
-                        StockMovementType.Purchase -> MaterialTheme.colorScheme.onTertiaryContainer
-                        StockMovementType.Adjustment -> MaterialTheme.colorScheme.onTertiaryContainer
-                    }
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                contentColor =MaterialTheme.colorScheme.onTertiaryContainer
             )
         ) {
             Text(
-                text = stringResource(
-                    when (stockMovement.movementType) {
-                        StockMovementType.Inbound -> Res.string.title_inbound
-                        StockMovementType.Purchase -> Res.string.title_outbound_purchase
-                        StockMovementType.Adjustment -> Res.string.title_outbound_purchase
-                    }
-                ),
+                text = stringResource(Res.string.title_outbound_purchase ),
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontWeight = FontWeight.SemiBold
                 ),
@@ -126,7 +110,7 @@ private fun PreviewProductInboundItem() {
                 productId = 1,
                 productName = Name("Sate Ayam"),
                 productUnit = Unit("Porsi"),
-                movementType = StockMovementType.Inbound,
+                movementType = StockMovementType.Sale,
                 amount = Amount(10F),
                 createdAt = 0L
             )
@@ -162,7 +146,7 @@ private fun PreviewProductAdjustmentItem() {
                 productId = 3,
                 productName = Name("Nasi Putih"),
                 productUnit = Unit("Porsi"),
-                movementType = StockMovementType.Adjustment,
+                movementType = StockMovementType.AdjustmentDecrease,
                 amount = Amount(-2F),
                 createdAt = 0L
             )

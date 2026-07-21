@@ -65,9 +65,11 @@ data class StockMovementEntity(
 )
 
 enum class StockMovementType {
-    Inbound,
     Purchase,
-    Adjustment,
+    Sale,
+    Return,
+    AdjustmentIncrease,
+    AdjustmentDecrease
 }
 
 fun StockMovementEntity.toDomain(): StockMovement {

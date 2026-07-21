@@ -25,28 +25,28 @@ fun printTransaction(transaction: Transaction, storeName: Name) {
                 "[C]================================\n" +
                 "[L]\n"
     val sb = StringBuilder(text)
-    transaction.items.forEach {
-        sb.append(
-            "[L]${it.productName.value}[R]${it.productSellPrice.value.toRupiah()}\n"
-        )
-        sb.append(
-            "[L]  + ${
-                it.productAmount.value.toBigDecimal()
-                    .stripTrailingZeros()
-            } ${it.productUnit.value}[R]${(it.productAmount.value.toBigDecimal() * it.productSellPrice.value).toRupiah()}\n"
-        )
-        sb.append(
-            "[L]\n"
-        )
-    }
+//    transaction.items.forEach {
+//        sb.append(
+//            "[L]${it.productName.value}[R]${it.productSellPrice.value.toRupiah()}\n"
+//        )
+//        sb.append(
+//            "[L]  + ${
+//                it.productAmount.value.toBigDecimal()
+//                    .stripTrailingZeros()
+//            } ${it.productUnit.value}[R]${(it.productAmount.value.toBigDecimal() * it.productSellPrice.value).toRupiah()}\n"
+//        )
+//        sb.append(
+//            "[L]\n"
+//        )
+//    }
 
-    sb.append(
-        "[C]--------------------------------\n" +
-        "[R]TOTAL HARGA :[R]${
-            transaction.items
-                .sumOf { it.productAmount.value.toBigDecimal() * it.productSellPrice.value }
-                .toRupiah()}\n"
-    )
+//    sb.append(
+//        "[C]--------------------------------\n" +
+//        "[R]TOTAL HARGA :[R]${
+//            transaction.items
+//                .sumOf { it.productAmount.value.toBigDecimal() * it.productSellPrice.value }
+//                .toRupiah()}\n"
+//    )
 
     if (transaction.customerName.value.isNotBlank()) {
         sb.append(

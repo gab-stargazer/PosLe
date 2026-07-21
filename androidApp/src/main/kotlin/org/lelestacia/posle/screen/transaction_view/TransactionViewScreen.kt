@@ -1,9 +1,8 @@
-package org.lelestacia.posle.screen
+package org.lelestacia.posle.screen.transaction_view
 
 import android.Manifest
 import android.content.ContentValues
 import android.graphics.Bitmap
-import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import androidx.compose.animation.AnimatedVisibility
@@ -28,7 +27,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -41,7 +39,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,32 +48,20 @@ import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.meticha.permissions_compose.AppPermission
 import com.meticha.permissions_compose.rememberAppPermissionState
-import com.skydoves.compose.stability.runtime.TraceRecomposition
 import com.smarttoolfactory.screenshot.rememberScreenshotState
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
-import org.lelestacia.posle.data.PosLeSettings
 import org.lelestacia.posle.domain.component.TransactionViewComponent
 import org.lelestacia.posle.domain.component.TransactionViewNavigation
-import org.lelestacia.posle.domain.model.Transaction
-import org.lelestacia.posle.domain.model.TransactionItem
-import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.state_event.TransactionViewEvent
 import org.lelestacia.posle.domain.state_event.TransactionViewEvent.OnRecapClicked
-import org.lelestacia.posle.domain.state_event.TransactionViewState
-import org.lelestacia.posle.screen.transaction_history.TransactionReceipt
+import org.lelestacia.posle.screen.transaction_history.component.TransactionReceipt
 import org.lelestacia.posle.ui.theme.AppTheme
-import org.lelestacia.posle.util.Amount
-import org.lelestacia.posle.util.Name
-import org.lelestacia.posle.util.Price
-import org.lelestacia.posle.util.printTransaction
 import org.lelestacia.posle.util.toFormattedDateTime
 import org.lelestacia.posle.util.toRupiah
 import posle.shared.generated.resources.Res
@@ -84,11 +69,8 @@ import posle.shared.generated.resources.btn_print
 import posle.shared.generated.resources.btn_recap
 import posle.shared.generated.resources.label_customer
 import posle.shared.generated.resources.label_total
-import posle.shared.generated.resources.label_total_profit
 import posle.shared.generated.resources.label_transaction_date
 import posle.shared.generated.resources.label_transaction_detail
-import java.math.BigDecimal
-import kotlin.math.roundToInt
 import kotlin.time.Clock
 
 
@@ -97,7 +79,6 @@ fun TransactionViewScreen(
     component: TransactionViewComponent,
     modifier: Modifier = Modifier
 ) {
-    val scope = rememberCoroutineScope()
     val state by component.state.collectAsStateWithLifecycle()
 
     val permissions = rememberAppPermissionState(
@@ -115,43 +96,6 @@ fun TransactionViewScreen(
         )
     )
 
-    TransactionUI(
-        state = state,
-        onNavigation = component::onAction,
-        onEvent = component::onEvent,
-        onPrint = {
-            if (Build.VERSION.SDK_INT >= 31 && permissions.allRequiredGranted()) {
-                scope.launch {
-                    printTransaction(
-                        transaction = state.transaction,
-                        storeName = state.settings.storeName
-                    )
-                }
-            } else if (Build.VERSION.SDK_INT >= 31) {
-                permissions.requestPermission()
-            } else {
-                scope.launch {
-                    printTransaction(
-                        transaction = state.transaction,
-                        storeName = state.settings.storeName
-                    )
-                }
-            }
-        },
-        modifier = modifier
-    )
-}
-
-@TraceRecomposition
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TransactionUI(
-    state: TransactionViewState,
-    onNavigation: (TransactionViewNavigation) -> Unit,
-    onEvent: (TransactionViewEvent) -> Unit,
-    onPrint: () -> Unit,
-    modifier: Modifier = Modifier
-) {
     val screenshotState = rememberScreenshotState()
     val context = LocalContext.current
 
@@ -214,7 +158,7 @@ fun TransactionUI(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            onNavigation(TransactionViewNavigation.OnPop)
+                            component.onEvent(TransactionViewEvent.OnNavigateTo(TransactionViewNavigation.OnPop))
                         }
                     ) {
                         Icon(
@@ -252,8 +196,8 @@ fun TransactionUI(
                     storeName = state.settings.storeName,
                     customerName = state.transaction.customerName,
                     transactionProduct = state.transaction.items.toImmutableList(),
+                    transactionDate = state.transaction.createdAt,
                     modifier = Modifier
-
                 )
             }
 
@@ -316,17 +260,10 @@ fun TransactionUI(
                     val totalTransaction = state
                         .transaction
                         .items
-                        .sumOf { transaction ->
-                            val variantsTotal = transaction
-                                .variants
-                                .sumOf { it.priceAdjustment.value * transaction.productAmount.value.toBigDecimal() }
-                            val subtotal =
-                                transaction.productAmount.value.toBigDecimal() * transaction.productSellPrice.value
-                            subtotal + variantsTotal
+                        .map { transactionItem ->
+                            transactionItem.sellPrice.value * transactionItem.quantity.value.toBigDecimal()
                         }
-
-                    val totalCost = state.transaction.items
-                        .sumOf { it.productAmount.value.toBigDecimal() * it.productBuyPrice.value }
+                        .sumOf { it }
 
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -346,26 +283,6 @@ fun TransactionUI(
                         )
                     }
 
-                    if (state.settings.isProductStockTracked) {
-                        Row(
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                        ) {
-                            Text(
-                                "${stringResource(Res.string.label_total_profit)}:",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-
-                            Text(
-                                (totalTransaction - totalCost).toRupiah(),
-                                style = MaterialTheme.typography.bodyMediumEmphasized.copy(
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            )
-                        }
-                    }
-
                     AnimatedVisibility(
                         (!state.transaction.isRecapped && state.settings.isTransactionRecapNeeded),
                         enter = expandVertically(expandFrom = Alignment.Bottom) + fadeIn(),
@@ -374,7 +291,7 @@ fun TransactionUI(
                     ) {
                         Button(
                             onClick = {
-                                onEvent(OnRecapClicked)
+                                component.onEvent(OnRecapClicked)
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -414,134 +331,88 @@ fun TransactionUI(
     }
 }
 
-@Composable
-fun TransactionViewItem(
-    item: TransactionItem,
-    modifier: Modifier = Modifier
-) {
-
-    val amount =
-        if (item.productAmount.value % 1 == 0F) {
-            item.productAmount.value.roundToInt()
-        } else {
-            item.productAmount.value
-        }
-
-    Column(
-        modifier = modifier.fillMaxWidth()
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = item.productName.value,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = FontWeight.Bold
-                )
-            )
-
-            Text(
-                text = "$amount ${item.productUnit.value}",
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Text(
-                text = item.productSellPrice.value.toRupiah(),
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-
-        Text(
-            text = (item.productAmount.value.toBigDecimal() * item.productSellPrice.value).toRupiah(),
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.End
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        if (item.variants.isNotEmpty()) {
-            val totalVariants = item.variants
-                .sumOf {
-                    item.productAmount.value.toBigDecimal() * it.priceAdjustment.value
-                }
-
-            val subtotalWithoutVariants =
-                item.productAmount.value.toBigDecimal() * item.productSellPrice.value
-
-            TransactionViewVariantSection(
-                variants = item.variants,
-                amount = amount,
-                totalPrice = (totalVariants + subtotalWithoutVariants).toRupiah()
-            )
-        }
-
-        if (item.productNote.orEmpty().isNotBlank()) {
-            Text(
-                "Catatan: ",
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = FontWeight.Bold
-                )
-            )
-            Text(
-                item.productNote.orEmpty(),
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-    }
-}
+//@Composable
+//fun TransactionViewItem(
+//    item: TransactionItem,
+//    modifier: Modifier = Modifier
+//) {
+//
+//    val amount =
+//        if (item.productAmount.value % 1 == 0F) {
+//            item.productAmount.value.roundToInt()
+//        } else {
+//            item.productAmount.value
+//        }
+//
+//    Column(
+//        modifier = modifier.fillMaxWidth()
+//    ) {
+//        Row(
+//            horizontalArrangement = Arrangement.SpaceBetween,
+//            modifier = Modifier.fillMaxWidth()
+//        ) {
+//            Text(
+//                text = item.productName.value,
+//                style = MaterialTheme.typography.bodyMedium.copy(
+//                    fontWeight = FontWeight.Bold
+//                )
+//            )
+//
+//            Text(
+//                text = "$amount ${item.productUnit.value}",
+//                style = MaterialTheme.typography.bodyMedium
+//            )
+//
+//            Text(
+//                text = item.productSellPrice.value.toRupiah(),
+//                style = MaterialTheme.typography.bodyMedium
+//            )
+//        }
+//
+//        Text(
+//            text = (item.productAmount.value.toBigDecimal() * item.productSellPrice.value).toRupiah(),
+//            style = MaterialTheme.typography.bodyMedium.copy(
+//                fontWeight = FontWeight.Bold,
+//                textAlign = TextAlign.End
+//            ),
+//            modifier = Modifier.fillMaxWidth()
+//        )
+//
+//        if (item.variants.isNotEmpty()) {
+//            val totalVariants = item.variants
+//                .sumOf {
+//                    item.productAmount.value.toBigDecimal() * it.priceAdjustment.value
+//                }
+//
+//            val subtotalWithoutVariants =
+//                item.productAmount.value.toBigDecimal() * item.productSellPrice.value
+//
+//            TransactionViewVariantSection(
+//                variants = item.variants,
+//                amount = amount,
+//                totalPrice = (totalVariants + subtotalWithoutVariants).toRupiah()
+//            )
+//        }
+//
+//        if (item.productNote.orEmpty().isNotBlank()) {
+//            Text(
+//                "Catatan: ",
+//                style = MaterialTheme.typography.bodyMedium.copy(
+//                    fontWeight = FontWeight.Bold
+//                )
+//            )
+//            Text(
+//                item.productNote.orEmpty(),
+//                style = MaterialTheme.typography.bodyMedium
+//            )
+//        }
+//    }
+//}
 
 @Preview(showBackground = true)
 @Composable
 private fun PreviewTransactionUI() {
     AppTheme {
-        TransactionUI(
-            state = TransactionViewState(
-                transaction = Transaction(
-                    id = 1,
-                    customerName = Name("Budi"),
-                    items = listOf(
-                        TransactionItem(
-                            id = 1,
-                            productId = 1,
-                            productName = Name("Sate Ayam"),
-                            productBuyPrice = Price(BigDecimal("8000")),
-                            productSellPrice = Price(BigDecimal("15000")),
-                            productUnit = org.lelestacia.posle.util.Unit("Porsi"),
-                            variants = listOf(
-                                Variant(
-                                    id = 0,
-                                    name = Name("Kerupuk"),
-                                    priceAdjustment = Price(BigDecimal(5000))
-                                ),
-                                Variant(
-                                    id = 0,
-                                    name = Name("Extra Bawang"),
-                                    priceAdjustment = Price(BigDecimal(5000))
-                                )
-                            ),
-                            productAmount = Amount(2f),
-                            productNote = "Dibungkus"
-                        ),
-                        TransactionItem(
-                            id = 2,
-                            productId = 2,
-                            productName = Name("Es Teh Manis"),
-                            productBuyPrice = Price(BigDecimal("2000")),
-                            productSellPrice = Price(BigDecimal("5000")),
-                            productUnit = org.lelestacia.posle.util.Unit("Gelas"),
-                            productAmount = Amount(2f),
-                            productNote = null
-                        )
-                    ),
-                    createdAt = 1718236800000L
-                ),
-                settings = PosLeSettings(isProductStockTracked = true)
-            ),
-            onNavigation = {},
-            onEvent = {},
-            onPrint = {}
-        )
+
     }
 }

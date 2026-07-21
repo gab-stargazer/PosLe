@@ -1,4 +1,3 @@
-
 package org.lelestacia.posle.data.dao
 
 import androidx.paging.PagingSource
@@ -10,6 +9,7 @@ import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import org.lelestacia.posle.data.entity.TransactionEntity
 import org.lelestacia.posle.data.entity.TransactionItemEntity
+import org.lelestacia.posle.data.entity.TransactionItemProductEntity
 import org.lelestacia.posle.data.entity.TransactionWithItems
 
 @Dao
@@ -19,7 +19,10 @@ interface TransactionDao {
     suspend fun insertTransaction(transaction: TransactionEntity): Long
 
     @Insert
-    suspend fun insertTransactionItems(items: List<TransactionItemEntity>)
+    suspend fun insertTransactionItem(item: TransactionItemEntity): Long
+
+    @Insert
+    suspend fun insertTransactionItemProduct(products: List<TransactionItemProductEntity>)
 
     @Transaction
     @Query("SELECT * FROM `transaction` WHERE id = :transactionId")
@@ -37,7 +40,10 @@ interface TransactionDao {
             ORDER BY created_at DESC
         """
     )
-    fun readTransactionWithItemsInRange(startDate: Long, finishDate: Long): Flow<List<TransactionWithItems>>
+    fun readTransactionWithItemsInRange(
+        startDate: Long,
+        finishDate: Long
+    ): Flow<List<TransactionWithItems>>
 
     @Transaction
     @Query(
@@ -65,14 +71,16 @@ interface TransactionDao {
     suspend fun insertTransactionAndReturnTransactionItems(
         transaction: TransactionEntity,
         transactionItems: List<TransactionItemEntity>
-    ): TransactionWithItems {
+    ): List<TransactionItemEntity> {
         val transactionId = insertTransaction(transaction = transaction).toInt()
-        val mappedTransactionItems = transactionItems
+        val transactionItems = transactionItems
             .map { it.copy(transactionId = transactionId) }
+            .map { transactionItemEntity ->
+                val transactionItemId = insertTransactionItem(transactionItemEntity)
+                transactionItemEntity.copy(id = transactionItemId.toInt())
+            }
 
-        insertTransactionItems(mappedTransactionItems)
-
-        return getTransactionWithItems(transactionId)
+        return transactionItems
     }
 
     @Update

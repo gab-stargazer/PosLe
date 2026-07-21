@@ -48,6 +48,7 @@ import org.lelestacia.posle.domain.component.product_list.ProductListComponentEv
 import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent.OnNavigateTo
 import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent.OnQueryChanged
 import org.lelestacia.posle.navigation.AddEdit.Add
+import org.lelestacia.posle.navigation.Config
 import org.lelestacia.posle.navigation.Config.ProductAddEdit
 import org.lelestacia.posle.screen.product_list.component.AddCategoryDialog
 import org.lelestacia.posle.screen.product_list.component.categorized
@@ -119,6 +120,19 @@ fun ProductListScreen(
                         ElevatedButton(
                             onClick = {
                                 component.onEvent(OnNavigateTo(ProductAddEdit(Add, null)))
+                            }
+                        ) {
+                            Text(
+                                text = stringResource(resource = Res.string.btn_add_product),
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+                        }
+
+                        ElevatedButton(
+                            onClick = {
+                                component.onEvent(OnNavigateTo(Config.BundleAddEdit(Add, null)))
                             }
                         ) {
                             Text(

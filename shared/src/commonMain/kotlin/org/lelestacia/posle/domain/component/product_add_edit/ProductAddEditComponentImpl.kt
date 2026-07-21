@@ -263,7 +263,7 @@ class ProductAddEditComponentImpl(
                                 .toString()
                                 .toFloatOrNull() ?: return@launch
                         ),
-                        movementType = StockMovementType.Inbound,
+                        movementType = StockMovementType.Purchase,
                     )
 
                     _state.update { currentState ->

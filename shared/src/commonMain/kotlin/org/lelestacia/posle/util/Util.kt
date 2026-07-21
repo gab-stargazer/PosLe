@@ -30,5 +30,21 @@ object Util {
         focusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
     )
 
+    @Composable
+    fun defaultTransparentTextFieldColor() = TextFieldDefaults.colors(
+        unfocusedIndicatorColor = Color.Transparent,
+        focusedIndicatorColor = Color.Transparent,
+        errorIndicatorColor = Color.Transparent,
+        unfocusedContainerColor = Color.Transparent,
+        focusedContainerColor = Color.Transparent,
+        errorContainerColor = Color.Transparent,
+        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+        unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
+        focusedLabelColor = MaterialTheme.colorScheme.onSurface,
+        errorTextColor = MaterialTheme.colorScheme.onSurface,
+        errorLabelColor = MaterialTheme.colorScheme.error
+    )
+
     val defaultShape = RoundedCornerShape(25F)
 }

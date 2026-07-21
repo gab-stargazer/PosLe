@@ -88,7 +88,7 @@ class ProductRepositoryImpl(
         ).flow.map { it.filter { entity -> entity.stock.sumOf { stockMovement -> stockMovement.amount.value.toBigDecimal() } < 12.toBigDecimal() }.map { entity -> entity.toDomain() } }
     }
 
-    override fun readProducts(searchQuery: String): Flow<PagingData<Product>> {
+    override fun readProductsByName(searchQuery: String): Flow<PagingData<Product>> {
         return Pager(
             config = pagingConfig,
             pagingSourceFactory = { productDao.readProductWithVariants(searchQuery) }
@@ -213,6 +213,10 @@ class ProductRepositoryImpl(
     override fun readAvailableProducts(searchQuery: String): Flow<List<Product>> {
         return productDao.getAvailableProducts(searchQuery)
             .map { it.map(ProductWithVariantsAndStock::toDomain) }
+    }
+
+    override suspend fun getProductAvailability(productId: Int): Float {
+        return stockDao.getStockByProductId(productId)
     }
 
     override suspend fun deleteProduct(product: Product) {

@@ -64,9 +64,9 @@ class TransactionViewComponentImpl(
                         )
                     )
                 }
+
+                is TransactionViewEvent.OnNavigateTo -> onNavigation(event.navigation)
             }
         }
     }
-
-    override fun onAction(navigation: TransactionViewNavigation) = onNavigation(navigation)
 }

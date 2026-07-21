@@ -18,6 +18,7 @@ import org.lelestacia.posle.domain.component.TransactionListComponentImpl
 import org.lelestacia.posle.domain.component.TransactionProductConfigComponentImpl
 import org.lelestacia.posle.domain.component.TransactionViewComponentImpl
 import org.lelestacia.posle.domain.component.TransactionViewNavigation
+import org.lelestacia.posle.domain.component.bundle_add_edit.BundleAddEditComponentImpl
 import org.lelestacia.posle.domain.component.dashboard.DashboardComponentImpl
 import org.lelestacia.posle.domain.component.dashboard.DashboardNavigation
 import org.lelestacia.posle.domain.component.product_add_edit.ProductAddEditComponentImpl
@@ -28,8 +29,10 @@ import org.lelestacia.posle.domain.component.qr_scanner.QrScannerComponentImpl
 import org.lelestacia.posle.domain.component.transaction_add.TransactionAddComponentImpl
 import org.lelestacia.posle.domain.component.transaction_add.TransactionAddNavigation
 import org.lelestacia.posle.domain.component.transaction_recap.TransactionRecapComponentImpl
+import org.lelestacia.posle.domain.component.transaction_recap_product_view.TransactionRecapProductViewComponentImpl
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.Variant
+import org.lelestacia.posle.domain.repository.BundleRepository
 import org.lelestacia.posle.domain.repository.CategoryRepository
 import org.lelestacia.posle.domain.repository.ProductRepository
 import org.lelestacia.posle.domain.repository.StockRepository
@@ -37,16 +40,22 @@ import org.lelestacia.posle.domain.repository.TransactionRepository
 import org.lelestacia.posle.domain.repository.VariantRepository
 import org.lelestacia.posle.domain.state_event.TransactionItemState
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditNavigation
+import org.lelestacia.posle.navigation.Child.*
 import org.lelestacia.posle.navigation.NavChild.ProductInboundOutbound
 import org.lelestacia.posle.navigation.NavChild.ProductList
 import org.lelestacia.posle.navigation.NavChild.Setting
 import org.lelestacia.posle.navigation.NavChild.TransactionAdd
 import org.lelestacia.posle.navigation.NavChild.TransactionHistory
+import kotlin.String
+import kotlin.Unit
+import kotlin.getValue
+import org.lelestacia.posle.navigation.Config.BundleAddEdit as BundleAddEditConfig
 import org.lelestacia.posle.navigation.Config.Dashboard as DashboardConfig
 import org.lelestacia.posle.navigation.Config.ProductAddEdit as ProductAddEditConfig
 import org.lelestacia.posle.navigation.Config.QrScanner as QrScannerConfig
 import org.lelestacia.posle.navigation.Config.TransactionList as TransactionListConfig
 import org.lelestacia.posle.navigation.Config.TransactionProduct as TransactionProductConfig
+import org.lelestacia.posle.navigation.Config.TransactionRecapProductView as TransactionRecapProductViewConfig
 import org.lelestacia.posle.navigation.Config.TransactionView as TransactionViewConfig
 import org.lelestacia.posle.navigation.Config.VariantView as VariantViewConfig
 import org.lelestacia.posle.navigation.NavConfig.ProductList as ProductListConfig
@@ -68,6 +77,7 @@ class PosLeComponent(
     private val variantRepository by inject<VariantRepository>(VariantRepository::class.java)
     private val stockRepository by inject<StockRepository>(StockRepository::class.java)
     private val transactionRepository by inject<TransactionRepository>(TransactionRepository::class.java)
+    private val bundleRepository by inject<BundleRepository>(BundleRepository::class.java)
 
 
     // Navigation stacks
@@ -139,6 +149,7 @@ class PosLeComponent(
                 TransactionAddComponentImpl(
                     componentContext = context,
                     productRepository = productRepository,
+                    bundleRepository = bundleRepository,
                     transactionRepository = transactionRepository,
                     settingManager = settingManager,
                     navigation = object : TransactionAddNavigation {
@@ -174,7 +185,7 @@ class PosLeComponent(
 
     private fun createChild(config: Config, context: ComponentContext): Child =
         when (config) {
-            DashboardConfig -> Child.Dashboard(
+            DashboardConfig -> Dashboard(
                 DashboardComponentImpl(
                     componentContext = context,
                     navChildren = tabChildren,
@@ -183,7 +194,7 @@ class PosLeComponent(
                 )
             )
 
-            is TransactionProductConfig -> Child.TransactionProductConfig(
+            is TransactionProductConfig -> TransactionProductConfig(
                 TransactionProductConfigComponentImpl(
                     componentContext = context,
                     product = config.product,
@@ -197,14 +208,14 @@ class PosLeComponent(
                 )
             )
 
-            TransactionListConfig -> Child.TransactionList(
+            TransactionListConfig -> TransactionList(
                 TransactionListComponentImpl(
                     componentContext = context,
                     onNavigateTo = rootNavigation::pushToFront
                 )
             )
 
-            is TransactionViewConfig -> Child.TransactionView(
+            is TransactionViewConfig -> TransactionView(
                 TransactionViewComponentImpl(
                     componentContext = context,
                     transaction = config.transaction,
@@ -218,7 +229,7 @@ class PosLeComponent(
                 )
             )
 
-            is ProductAddEditConfig -> Child.ProductAddEdit(
+            is ProductAddEditConfig -> ProductAddEdit(
                 ProductAddEditComponentImpl(
                     componentContext = context,
                     mode = config.addEdit,
@@ -250,7 +261,7 @@ class PosLeComponent(
                 )
             )
 
-            QrScannerConfig -> Child.QrScanner(
+            QrScannerConfig -> QrScanner(
                 component = QrScannerComponentImpl(
                     componentContext = context,
                     onQrScanned = {
@@ -261,7 +272,7 @@ class PosLeComponent(
                 )
             )
 
-            is VariantViewConfig -> Child.VariantView(
+            is VariantViewConfig -> VariantView(
                 ProductAddVariantsViewComponentImpl(
                     componentContext = context,
                     initialSelectedVariants = config.selectedVariants,
@@ -275,6 +286,23 @@ class PosLeComponent(
                         rootNavigation.pop()
                     },
                     repository = variantRepository
+                )
+            )
+
+            is BundleAddEditConfig -> BundleAddEdit(
+                component = BundleAddEditComponentImpl(
+                    componentContext = context,
+                    productRepository = productRepository,
+                    bundleRepository = bundleRepository,
+                    onDone = rootNavigation::pop
+                )
+            )
+
+            is TransactionRecapProductViewConfig -> TransactionRecapProductView(
+                component = TransactionRecapProductViewComponentImpl(
+                    componentContext = context,
+                    products = config.products,
+                    onPop = rootNavigation::pop
                 )
             )
         }

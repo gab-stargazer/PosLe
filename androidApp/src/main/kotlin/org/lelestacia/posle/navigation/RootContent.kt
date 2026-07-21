@@ -1,7 +1,6 @@
 package org.lelestacia.posle.navigation
 
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Scaffold
@@ -13,10 +12,11 @@ import com.arkivanov.decompose.extensions.compose.stack.animation.fade
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import org.lelestacia.posle.screen.DashboardScreen
 import org.lelestacia.posle.screen.QrScannerScreen
-import org.lelestacia.posle.screen.TransactionViewScreen
+import org.lelestacia.posle.screen.bundle_add_edit.BundleAddEditScreen
 import org.lelestacia.posle.screen.product_add.ProductAddEditScreen
 import org.lelestacia.posle.screen.product_add.ProductAddVariantsViewScreen
 import org.lelestacia.posle.screen.transaction_add.TransactionProductConfigScreen
+import org.lelestacia.posle.screen.transaction_view.TransactionViewScreen
 
 @Composable
 fun RootContent(
@@ -30,7 +30,6 @@ fun RootContent(
         contentWindowInsets = WindowInsets(),
         modifier = modifier
             .statusBarsPadding()
-            .navigationBarsPadding()
     ) { paddingValues ->
         Children(
             stack = component.children,
@@ -67,6 +66,14 @@ fun RootContent(
 
                 is Child.QrScanner -> {
                     QrScannerScreen(component = child.component)
+                }
+
+                is Child.BundleAddEdit -> {
+                    BundleAddEditScreen(component = child.component)
+                }
+
+                is Child.TransactionRecapProductView -> {
+                    TODO()
                 }
             }
         }

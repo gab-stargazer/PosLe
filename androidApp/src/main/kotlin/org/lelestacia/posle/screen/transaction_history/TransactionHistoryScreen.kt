@@ -40,7 +40,6 @@ import org.lelestacia.posle.domain.component.TransactionHistoryScreenState
 import org.lelestacia.posle.domain.model.Transaction
 import org.lelestacia.posle.navigation.Config
 import org.lelestacia.posle.ui.theme.AppTheme
-import org.lelestacia.posle.util.SampleData
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.label_all
 import posle.shared.generated.resources.label_not_recapped
@@ -229,10 +228,10 @@ private fun PreviewTransactionHistoryScreen() {
             component = object : TransactionHistoryComponent {
 
                 override val unRecappedHistory: Flow<PagingData<Transaction>>
-                    get() = flowOf(PagingData.from(SampleData.largeTransaction))
+                    get() = flowOf()
 
                 override val allHistory: Flow<PagingData<Transaction>>
-                    get() = flowOf(PagingData.from(SampleData.largeTransaction))
+                    get() = flowOf()
 
                 override val state: StateFlow<TransactionHistoryScreenState>
                     get() = MutableStateFlow(

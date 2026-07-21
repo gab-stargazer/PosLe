@@ -12,37 +12,42 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
-import org.lelestacia.posle.domain.model.TransactionItem
+import org.lelestacia.posle.domain.model.TransactionProduct
+import org.lelestacia.posle.ui.theme.AppTheme
+import org.lelestacia.posle.ui.theme.BurgundyRed
+import org.lelestacia.posle.util.SampleData
 import org.lelestacia.posle.util.toDisplayText
 import org.lelestacia.posle.util.toRupiah
 import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.btn_view_detail
 import posle.shared.generated.resources.txt_total_product_outbound
 import posle.shared.generated.resources.txt_total_profit
 
 @Composable
 fun TransactionRecapProductOutbound(
-    transactionItems: List<TransactionItem>,
+    transactionProducts: List<TransactionProduct>,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val productName = transactionItems
+    val productName = transactionProducts
         .first()
         .productName
-        .value
 
-    val amountOut = transactionItems
-        .sumOf { it.productAmount.value.toBigDecimal() }
+    val amountOut = transactionProducts
+        .sumOf { it.quantity.value.toBigDecimal() }
         .toFloat()
         .toDisplayText()
 
-    val totalProfit = transactionItems
-        .sumOf { it.productAmount.value.toBigDecimal() * (it.productSellPrice.value - it.productBuyPrice.value) }
+    val totalProfit = transactionProducts
+        .sumOf { it.quantity.value.toBigDecimal() * (it.sellPrice.value - it.buyPrice.value) }
         .toRupiah()
 
     Column(
@@ -55,14 +60,16 @@ fun TransactionRecapProductOutbound(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp)
+                .padding(start = 12.dp)
+                .padding(vertical = 12.dp)
         ) {
             Column {
                 Column {
                     Text(
-                        productName,
-                        style = MaterialTheme.typography.titleSmall.copy(
-                            fontWeight = FontWeight.Bold
+                        productName.value,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.ExtraBold,
+                            color = BurgundyRed
                         )
                     )
 
@@ -78,12 +85,42 @@ fun TransactionRecapProductOutbound(
                 }
             }
 
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowRight,
-                contentDescription = Icons.AutoMirrored.Filled.ArrowRight.name
-            )
+            TextButton(
+                onClick = onClick
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text(
+                        stringResource(Res.string.btn_view_detail),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = BurgundyRed
+                        )
+                    )
+
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowRight,
+                        contentDescription = Icons.AutoMirrored.Filled.ArrowRight.name,
+                        tint = BurgundyRed
+                    )
+                }
+            }
         }
 
         HorizontalDivider()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewTransactionRecapProductOutbound() {
+    AppTheme {
+        TransactionRecapProductOutbound(
+            SampleData.sampleTransaction.items.flatMap { it.products }
+                .filter { it.productName.value == "Kopi Kapal Api Sachet" },
+            {}
+        )
     }
 }

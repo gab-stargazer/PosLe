@@ -7,17 +7,17 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 import androidx.room.TypeConverters
-import androidx.room.migration.Migration
-import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.execSQL
 import org.lelestacia.posle.data.converter.BigDecimalConverter
 import org.lelestacia.posle.data.converter.StockMovementTypeConverter
 import org.lelestacia.posle.data.converter.TransactionVariantConverter
+import org.lelestacia.posle.data.dao.BundleDao
 import org.lelestacia.posle.data.dao.CategoryDao
 import org.lelestacia.posle.data.dao.ProductDao
 import org.lelestacia.posle.data.dao.StockDao
 import org.lelestacia.posle.data.dao.TransactionDao
 import org.lelestacia.posle.data.dao.VariantDao
+import org.lelestacia.posle.data.entity.BundleEntity
+import org.lelestacia.posle.data.entity.BundleProductEntity
 import org.lelestacia.posle.data.entity.CategoryEntity
 import org.lelestacia.posle.data.entity.ProductBuyPriceEntity
 import org.lelestacia.posle.data.entity.ProductCategoryJunction
@@ -27,6 +27,7 @@ import org.lelestacia.posle.data.entity.StockEntity
 import org.lelestacia.posle.data.entity.StockMovementEntity
 import org.lelestacia.posle.data.entity.TransactionEntity
 import org.lelestacia.posle.data.entity.TransactionItemEntity
+import org.lelestacia.posle.data.entity.TransactionItemProductEntity
 import org.lelestacia.posle.data.entity.VariantEntity
 import org.lelestacia.posle.data.entity.VariantJunction
 
@@ -37,14 +38,17 @@ import org.lelestacia.posle.data.entity.VariantJunction
         ProductBuyPriceEntity::class,
         TransactionEntity::class,
         TransactionItemEntity::class,
+        TransactionItemProductEntity::class,
         VariantEntity::class,
         VariantJunction::class,
         CategoryEntity::class,
         ProductCategoryJunction::class,
         StockEntity::class,
-        StockMovementEntity::class
+        StockMovementEntity::class,
+        BundleEntity::class,
+        BundleProductEntity::class
     ],
-    version = 5,
+    version = 1,
     exportSchema = true,
 )
 @ConstructedBy(AppDatabaseConstructor::class)
@@ -59,140 +63,10 @@ abstract class PosLeDB : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
     abstract fun variantDao(): VariantDao
     abstract fun categoryDao(): CategoryDao
+    abstract fun bundleDao(): BundleDao
 
     companion object {
-        val MIGRATION_1_2 = object : Migration(1, 2) {
 
-            override fun migrate(connection: SQLiteConnection) {
-                connection.execSQL(
-                    "ALTER TABLE transaction_item ADD COLUMN product_note TEXT DEFAULT NULL"
-                )
-            }
-        }
-
-        val MIGRATION_2_3 = object : Migration(2, 3) {
-            override fun migrate(connection: SQLiteConnection) {
-                // 1. Create the new price history table
-                connection.execSQL(
-                    """
-                    CREATE TABLE IF NOT EXISTS `product_price` (
-                    `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                    `product_id` INTEGER NOT NULL,
-                    `price` TEXT NOT NULL,
-                    `change_type` TEXT NOT NULL,
-                    `created_at` INTEGER NOT NULL,
-                    FOREIGN KEY(`product_id`) REFERENCES `product`(`id`) ON DELETE CASCADE)
-                    """
-                )
-                connection.execSQL("CREATE INDEX IF NOT EXISTS `index_product_price_product_id` ON `product_price` (`product_id`)")
-                connection.execSQL("CREATE INDEX IF NOT EXISTS `index_product_price_product_id_created_at` ON `product_price` (`product_id`, `created_at`)")
-
-                // 2. Backfill: one ProductCreation row per existing product
-                connection.execSQL(
-                    """
-                    INSERT INTO product_price (product_id, price, change_type, created_at)
-                    SELECT id, price, 'ProductCreation', created_at FROM product
-                    """
-                )
-
-                // 3. Recreate `product` without the `price` column
-                connection.execSQL(
-                    """
-                    CREATE TABLE `product_new` (
-                    `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                    `name` TEXT NOT NULL,
-                    `unit` TEXT NOT NULL,
-                    `sku_number` TEXT,
-                    `image_uri` TEXT,
-                    `created_at` INTEGER NOT NULL,
-                    `updated_at` INTEGER
-                    )
-                    """
-                )
-                connection.execSQL(
-                    """
-                    INSERT INTO product_new (id, name, unit, sku_number, image_uri, created_at, updated_at)
-                    SELECT id, name, unit, sku_number, image_uri, created_at, updated_at FROM product
-                    """
-                )
-                connection.execSQL("DROP TABLE product")
-                connection.execSQL("ALTER TABLE product_new RENAME TO product")
-            }
-        }
-
-        val MIGRATION_3_4 = object : Migration(3, 4) {
-            override fun migrate(connection: SQLiteConnection) {
-                // 1. Rename existing price table to product_sell_price
-                connection.execSQL("ALTER TABLE product_price RENAME TO product_sell_price")
-
-                connection.execSQL("DROP INDEX IF EXISTS index_product_price_product_id")
-                connection.execSQL("DROP INDEX IF EXISTS index_product_price_product_id_created_at")
-                connection.execSQL("CREATE INDEX IF NOT EXISTS index_product_sell_price_product_id ON product_sell_price(product_id)")
-                connection.execSQL("CREATE INDEX IF NOT EXISTS index_product_sell_price_product_id_created_at ON product_sell_price(product_id, created_at)")
-
-                // 2. Create new product_buy_price table
-                connection.execSQL("""
-            CREATE TABLE IF NOT EXISTS `product_buy_price` (
-                `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                `product_id` INTEGER NOT NULL,
-                `price` TEXT NOT NULL,
-                `change_type` TEXT NOT NULL,
-                `created_at` INTEGER NOT NULL,
-                FOREIGN KEY(`product_id`) REFERENCES `product`(`id`) ON DELETE CASCADE
-            )
-        """)
-                connection.execSQL("CREATE INDEX IF NOT EXISTS index_product_buy_price_product_id ON product_buy_price(product_id)")
-                connection.execSQL("CREATE INDEX IF NOT EXISTS index_product_buy_price_product_id_created_at ON product_buy_price(product_id, created_at)")
-
-                // 3. Seed product_buy_price with only the LATEST sell price per product,
-                //    forcing change_type to ProductCreation
-                connection.execSQL("""
-            INSERT INTO product_buy_price (product_id, price, change_type, created_at)
-            SELECT sp.product_id, sp.price, 'ProductCreation', sp.created_at
-            FROM product_sell_price sp
-            WHERE sp.id = (
-                SELECT id FROM product_sell_price
-                WHERE product_id = sp.product_id
-                ORDER BY created_at DESC, id DESC
-                LIMIT 1
-            )
-        """)
-            }
-        }
-
-        val MIGRATION_4_5 = object : Migration(4, 5) {
-            override fun migrate(connection: SQLiteConnection) {
-                connection.execSQL("""
-            CREATE TABLE transaction_item_new (
-                id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                transaction_id INTEGER NOT NULL,
-                product_id INTEGER NOT NULL,
-                product_name TEXT NOT NULL,
-                product_buy_price TEXT NOT NULL,
-                product_sell_price TEXT NOT NULL,
-                product_unit TEXT NOT NULL,
-                product_note TEXT,
-                product_amount REAL NOT NULL,
-                variants TEXT NOT NULL,
-                FOREIGN KEY(transaction_id) REFERENCES transaction_entity(id) ON DELETE CASCADE
-            )
-        """.trimIndent())
-
-                connection.execSQL("""
-            INSERT INTO transaction_item_new 
-            (id, transaction_id, product_id, product_name, product_buy_price, product_sell_price, product_unit, product_note, product_amount, variants)
-            SELECT id, transaction_id, product_id, product_name, product_price, product_price, product_unit, product_note, product_amount, variants
-            FROM transaction_item
-        """.trimIndent())
-
-                connection.execSQL("DROP TABLE transaction_item")
-                connection.execSQL("ALTER TABLE transaction_item_new RENAME TO transaction_item")
-
-                connection.execSQL(
-                    "CREATE INDEX IF NOT EXISTS index_transaction_item_transaction_id ON transaction_item(transaction_id)"
-                )
-            }
-        }
     }
 }
 

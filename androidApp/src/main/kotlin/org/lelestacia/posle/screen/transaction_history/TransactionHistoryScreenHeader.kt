@@ -12,7 +12,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import org.lelestacia.posle.domain.component.TransactionHistoryScreenState
 import org.lelestacia.posle.util.toFormattedDate
-import org.lelestacia.posle.util.toRupiah
 import kotlin.time.Clock
 
 @Composable
@@ -23,18 +22,18 @@ fun TransactionHistoryScreenHeader(
     val totalTransaction = state.todayTransactions
         .size
 
-    val totalTransactionValue = state.todayTransactions
-        .sumOf {
-            it.items.sumOf { item -> item.productAmount.value.toBigDecimal() * item.productSellPrice.value }
-        }
-
-    val mostSoldItemToday =
-        state.todayTransactions
-            .flatMap { it.items }
-            .groupingBy { it.productName }
-            .eachCount()
-            .maxByOrNull { it.value }
-            ?.key
+//    val totalTransactionValue = state.todayTransactions
+//        .sumOf {
+//            it.items.sumOf { item -> item.productAmount.value.toBigDecimal() * item.productSellPrice.value }
+//        }
+//
+//    val mostSoldItemToday =
+//        state.todayTransactions
+//            .flatMap { it.items }
+//            .groupingBy { it.productName }
+//            .eachCount()
+//            .maxByOrNull { it.value }
+//            ?.key
 
     Column(
         modifier = modifier
@@ -70,7 +69,7 @@ fun TransactionHistoryScreenHeader(
                 MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
                     .toSpanStyle()
             ) {
-                append(mostSoldItemToday?.value ?: "Belum ada data")
+//                append(mostSoldItemToday?.value ?: "Belum ada data")
             }
         }
         Text(mostSaleSb)
@@ -98,7 +97,7 @@ fun TransactionHistoryScreenHeader(
                 MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
                     .toSpanStyle()
             ) {
-                append(totalTransactionValue.toRupiah())
+//                append(totalTransactionValue.toRupiah())
             }
         }
         Text(totalValueSb)

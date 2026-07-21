@@ -5,16 +5,19 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import org.lelestacia.posle.data.PosLeDB
 import org.lelestacia.posle.data.SettingManager
+import org.lelestacia.posle.data.dao.BundleDao
 import org.lelestacia.posle.data.dao.CategoryDao
 import org.lelestacia.posle.data.dao.ProductDao
 import org.lelestacia.posle.data.dao.StockDao
 import org.lelestacia.posle.data.dao.TransactionDao
 import org.lelestacia.posle.data.dao.VariantDao
+import org.lelestacia.posle.data.repository.BundleRepositoryImpl
 import org.lelestacia.posle.data.repository.CategoryRepositoryImpl
 import org.lelestacia.posle.data.repository.ProductRepositoryImpl
 import org.lelestacia.posle.data.repository.StockRepositoryImpl
 import org.lelestacia.posle.data.repository.TransactionRepositoryImpl
 import org.lelestacia.posle.data.repository.VariantRepositoryImpl
+import org.lelestacia.posle.domain.repository.BundleRepository
 import org.lelestacia.posle.domain.repository.CategoryRepository
 import org.lelestacia.posle.domain.repository.ProductRepository
 import org.lelestacia.posle.domain.repository.StockRepository
@@ -44,6 +47,10 @@ val sharedModule = module {
         get<PosLeDB>().categoryDao()
     }
 
+    single<BundleDao> {
+        get<PosLeDB>().bundleDao()
+    }
+
     singleOf(::SettingManager)
 
     singleOf(::ProductRepositoryImpl) {
@@ -64,5 +71,9 @@ val sharedModule = module {
 
     singleOf(::TransactionRepositoryImpl) {
         binds(listOf(TransactionRepository::class))
+    }
+
+    singleOf(::BundleRepositoryImpl) {
+        binds(listOf(BundleRepository::class))
     }
 }

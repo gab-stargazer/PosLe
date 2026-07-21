@@ -54,8 +54,8 @@ import org.lelestacia.posle.util.Unit
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.btn_add_to_cart
 import posle.shared.generated.resources.label_config_product_desc
+import posle.shared.generated.resources.label_optional_note
 import posle.shared.generated.resources.label_product_amount
-import posle.shared.generated.resources.label_product_note
 import posle.shared.generated.resources.label_product_price_latest
 import java.math.BigDecimal
 
@@ -231,7 +231,7 @@ fun TransactionProductConfigScreen(
                             state = state.noteState,
                             label = {
                                 Text(
-                                    stringResource(Res.string.label_product_note),
+                                    stringResource(Res.string.label_optional_note),
                                     style = MaterialTheme.typography.labelMediumEmphasized.copy(
                                         fontWeight = FontWeight.SemiBold
                                     )

@@ -4,6 +4,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.arkivanov.decompose.ComponentContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,6 +35,8 @@ class ProductInboundOutboundComponentImpl(
     private val scope = coroutineScope(Dispatchers.Main.immediate)
 
     private val searchQuery = MutableStateFlow("")
+
+    @OptIn(ExperimentalCoroutinesApi::class)
     private val availableProducts = searchQuery
         .flatMapLatest { query ->
             productRepository.readAvailableProducts(query)
@@ -42,7 +45,7 @@ class ProductInboundOutboundComponentImpl(
     private val _settings = settingManager.readSettings()
 
     override val products: Flow<PagingData<Product>> = productRepository
-        .readProducts("")
+        .readProductsByName("")
         .cachedIn(scope)
 
     private val _state = MutableStateFlow(ProductInboundOutboundComponentState())
@@ -99,7 +102,7 @@ class ProductInboundOutboundComponentImpl(
                     stockRepository.addStock(
                         productId = product.id,
                         amount = Amount(amount),
-                        movementType = StockMovementType.Inbound
+                        movementType = StockMovementType.Purchase
                     )
 
                     onEvent(ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnToggleDialog)

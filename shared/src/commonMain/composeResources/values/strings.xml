@@ -13,24 +13,24 @@
     <string name="label_product_name">Nama Produk</string>
     <string name="label_product_sku_number">Nomor SKU(Opsional)</string>
     <string name="label_product_unit">Satuan Produk</string>
-    <string name="label_product_amount">Jumlah Produk</string>
-    <string name="label_product_buy_price">Harga Modal Produk</string>
-    <string name="label_product_sell_price">Harga Jual Produk</string>
+    <string name="label_product_amount">Jumlah </string>
+    <string name="label_product_buy_price">Harga Modal </string>
+    <string name="label_product_sell_price">Harga Jual </string>
+    <string name="label_product_sell_price_promo">Harga Jual Promo</string>
     <string name="label_product_price_latest">Harga Produk Terbaru</string>
-    <string name="label_product_note">Catatan Produk (Opsional)</string>
+    <string name="label_optional_note">Catatan (Opsional)</string>
     <string name="label_variation_name">Nama Varian</string>
     <string name="label_variation_price_adjustment">Harga Tambahan</string>
     <string name="label_variant">Varian: </string>
     <string name="label_transaction_history">Riwayat Transaksi</string>
     <string name="label_transaction_detail">Detail Transaksi</string>
-    <string name="label_transaction_time">Waktu Transaksi</string>
     <string name="label_transaction_date">Tanggal Transaksi</string>
     <string name="label_customer">Pelanggan</string>
     <string name="label_total">Total</string>
     <string name="label_total_profit">Total Keuntungan</string>
     <string name="label_total_money">Total Uang: %1$s</string>
     <string name="label_total_transaction">Total Transaksi: %1$s Transaksi</string>
-    <string name="label_product">Barang</string>
+    <string name="label_product">Produk</string>
     <string name="label_other_products">, dan %1$d lainnya</string>
     <string name="label_all">Semua</string>
     <string name="label_selected">Dipilih</string>
@@ -71,6 +71,7 @@
     <string name="label_store_name">Nama Toko</string>
     <string name="label_product_choosen">Produk Dipilih</string>
     <string name="label_product_available">Tersedia: %1$s %2$s</string>
+    <string name="label_bundle_name">Nama Paket</string>
 
     <!--Button-->
     <string name="btn_add_product">Tambah Produk</string>
@@ -81,11 +82,15 @@
     <string name="btn_add_transaction">Tambah Transaksi</string>
     <string name="btn_save_selection">Simpan Pilihan</string>
     <string name="btn_save_category">Simpan Category</string>
-    <string name="btn_add_to_cart">Tambah ke Keranjang</string>
     <string name="btn_delete">Hapus</string>
     <string name="btn_recap">Rekap</string>
     <string name="btn_print">Cetak</string>
     <string name="btn_save_transaction">Simpan Transaksi</string>
+    <string name="btn_save_bundle">Simpan Paket</string>
+    <string name="btn_add_to_cart">Tambahkan</string>
+    <string name="btn_cancel">Batalkan</string>
+    <string name="btn_view_receipt">Lihat Struk</string>
+    <string name="btn_view_detail">Lihat Detail</string>
 
     <!--Item-->
     <string name="txt_product_inbound">Produk %1$s masuk sejumlah %2$s %3$s</string>
@@ -93,6 +98,17 @@
     <string name="txt_total_profit">Total Keuntungan: %1$s</string>
     <string name="txt_total_product_outbound">Jumlah Keluar: %1$s</string>
     <string name="txt_total_profit_description">*Total Keuntungan diambil dari (Harga Jual - Harga Modal)</string>
+    <string name="txt_modal_price">Modal: </string>
+    <string name="txt_individual_price">Jual: </string>
+    <string name="txt_add_product_to_bundle">Tambahkan Produk ke Paket</string>
+    <string name="txt_add_product_to_bundle_description">Masukkan nama produk dibawah, kemudian klik produk yang ingin dipilih</string>
+    <string name="txt_bundle_content">Isi Paket:</string>
+    <string name="txt_bundle_product">%1$s\t\tx%2$s %3$s</string>
+    <string name="txt_bundle_content_detail">%1$s\t\tx%2$s %3$s</string>
+    <string name="txt_bundle_content_more">Dan <b>%1$s</b> lainnya</string>
+    <string name="txt_cart_item_note">Catatan: %1$s</string>
+    <string name="txt_cart_item_amount">Jumlah: </string>
+    <string name="txt_total_price">Total Harga:</string>
 
     <!--Title-->
     <string name="title_add_category">Tambah Kategori</string>
@@ -110,6 +126,12 @@
     <string name="title_sell_price_history">Histori Harga Jual</string>
     <string name="title_product_outbound">Barang Keluar</string>
     <string name="title_transaction">Transaksi</string>
+    <string name="title_bundle">Daftar Paket</string>
+    <string name="title_product">Daftar Produk</string>
+    <string name="title_add_bundle_to_cart">Tambahkan Paket Ke Keranjang</string>
+    <string name="title_subtotal">Subtotal: %1$s</string>
+    <string name="title_receipt">Struk Transaksi</string>
+    <string name="title_cart_is_empty">Keranjang masih kosong</string>
 
     <!--Subtitle-->
     <string name="subtitle_price">Harga</string>
@@ -123,10 +145,12 @@
     <string name="msg_error_name_cannot_be_empty">Nama Produk tidak boleh kosong</string>
     <string name="msg_error_unit_cannot_be_empty">Jumlah Produk tidak boleh melebihi jumlah tersedia</string>
     <string name="msg_error_price_cannot_be_empty">Harga Produk tidak boleh kosong</string>
+    <string name="msg_error_something_went_wrong">Terjadi Kesalahan</string>
     <string name="msg_error_price_cannot_contain_alphabet">Harga Produk harus berisi angka</string>
     <string name="msg_error_quantity_exceeded">Jumlah yang akan digunakan melebihi stok yang ada</string>
-    <string name="msg_error_amount_cannot_be_empty">Jumlah tidak boleh kosong</string>
+    <string name="msg_error_quantity_cannot_be_empty">Jumlah tidak boleh kosong</string>
+    <string name="msg_error_item_not_available">Produk %1$s tidak cukup untuk paket ini</string>
 
-<!--Msg-->
+    <!--Msg-->
     <string name="msg_stock_added">Stok untuk produk %1$s berhasil ditambahkan sejumlah %2$s %3$s</string>
 </resources>

@@ -3,6 +3,7 @@ package org.lelestacia.posle.domain.component.transaction_add
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import org.lelestacia.posle.domain.model.Bundle
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent
@@ -24,6 +25,7 @@ interface TransactionAddNavigation {
 }
 
 interface TransactionAddComponent {
+    val bundles: Flow<PagingData<Bundle>>
     val products: Flow<PagingData<Product>>
     val state: StateFlow<TransactionAddState>
     fun onEvent(event: TransactionAddEvent)

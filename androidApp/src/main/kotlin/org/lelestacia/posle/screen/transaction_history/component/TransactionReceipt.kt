@@ -1,4 +1,4 @@
-package org.lelestacia.posle.screen.transaction_history
+package org.lelestacia.posle.screen.transaction_history.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -14,28 +14,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
+import org.lelestacia.posle.data.entity.TransactionItemType
 import org.lelestacia.posle.domain.model.TransactionItem
 import org.lelestacia.posle.ui.theme.AppTheme
-import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
-import org.lelestacia.posle.util.Price
-import org.lelestacia.posle.util.Unit
 import org.lelestacia.posle.util.toFormattedDateTime
 import org.lelestacia.posle.util.toRupiah
-import java.math.BigDecimal
-import kotlin.math.roundToInt
-import kotlin.time.Clock
 
 @Composable
 fun TransactionReceipt(
     storeName: Name,
     customerName: Name,
+    transactionDate: Long,
     transactionProduct: ImmutableList<TransactionItem>,
     modifier: Modifier = Modifier
 ) {
@@ -47,7 +41,7 @@ fun TransactionReceipt(
             .padding(24.dp)
     ) {
         Text(
-            storeName.value.uppercase(),
+            text = storeName.value.ifEmpty { "Posle" }.uppercase(),
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold,
                 fontFamily = FontFamily.Monospace
@@ -55,7 +49,7 @@ fun TransactionReceipt(
         )
 
         Text(
-            "Tanggal: ${Clock.System.now().toEpochMilliseconds().toFormattedDateTime()}".uppercase(),
+            text = "Tanggal: ${transactionDate.toFormattedDateTime()}".uppercase(),
             style = MaterialTheme.typography.bodyMedium.copy(
                 fontFamily = FontFamily.Monospace
             ),
@@ -84,60 +78,10 @@ fun TransactionReceipt(
             maxLines = 1
         )
 
-        transactionProduct.forEach { product ->
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 6.dp)
-            ) {
-                Text(
-                    text = product.productName.value.uppercase(),
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontFamily = FontFamily.Monospace
-                    )
-                )
-
-                Text(
-                    text = product.productSellPrice.value.toRupiah().uppercase(),
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontFamily = FontFamily.Monospace
-                    )
-                )
-            }
-
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                val value = if (product.productAmount.value % 1F == 0F) {
-                    product.productAmount.value.roundToInt().toString()
-                } else {
-                    product.productAmount.value.toString()
-                }
-
-                Text(
-                    text = "\t$value ${product.productUnit.value}".uppercase(),
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontFamily = FontFamily.Monospace,
-                        textAlign = TextAlign.Start
-                    ),
-                    modifier = Modifier.weight(1F)
-                )
-
-                val subtotal = product
-                    .productAmount
-                    .value
-                    .toBigDecimal() * product.productSellPrice.value
-
-                Text(
-                    text = subtotal.toRupiah().uppercase(),
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontFamily = FontFamily.Monospace,
-                        textAlign = TextAlign.End
-                    ),
-                    modifier = Modifier.weight(2F)
-                )
+        transactionProduct.forEach { transactionItem ->
+            when (transactionItem.type) {
+                TransactionItemType.Product -> TransactionReceiptProduct(transactionItem.products.first())
+                TransactionItemType.Bundle -> TransactionReceiptBundle(transactionItem)
             }
         }
 
@@ -150,9 +94,18 @@ fun TransactionReceipt(
             maxLines = 1
         )
 
-        val totalPrice = transactionProduct.sumOf {
-            it.productSellPrice.value * it.productAmount.value.toBigDecimal()
-        }
+        val totalPrice = transactionProduct.map { cartItems ->
+            cartItems.sellPrice.value * cartItems.quantity.value.toBigDecimal()
+//            when (cartItems) {
+//                is CartItems.BundleCartItem -> {
+//                    cartItems.bundleTotalPrice.value
+//                }
+//
+//                is CartItems.ProductCartItem -> {
+//                    cartItems.productSellPrice.value * cartItems.productQuantity.value.toBigDecimal()
+//                }
+//            }
+        }.sumOf { it }
 
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -193,22 +146,6 @@ fun TransactionReceipt(
 @Composable
 private fun PreviewTransactionReceipt() {
     AppTheme {
-        TransactionReceipt(
-            storeName = Name("Suisei Salak"),
-            customerName = Name("Kaori Cicak"),
-            transactionProduct = List(10) {
-                TransactionItem(
-                    id = it,
-                    productId = it,
-                    productName = Name("Produk $it"),
-                    productBuyPrice = Price(BigDecimal.ZERO),
-                    productSellPrice = Price(it.toBigDecimal() * BigDecimal(1000)),
-                    productUnit = Unit("Pcs"),
-                    productNote = "Lorem Ipsum",
-                    productAmount = Amount(10F),
-                    variants = emptyList()
-                )
-            }.toImmutableList()
-        )
+
     }
 }
