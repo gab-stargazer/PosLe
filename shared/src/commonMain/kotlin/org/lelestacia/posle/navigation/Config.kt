@@ -30,8 +30,14 @@ sealed interface Config {
     ) : Config
 
     @Serializable
+    data class TransactionRecapProductItem(
+        val type: org.lelestacia.posle.data.entity.TransactionItemType,
+        val product: TransactionProductModel
+    )
+
+    @Serializable
     data class TransactionRecapProductView(
-        val products: List<TransactionProductModel>
+        val items: List<TransactionRecapProductItem>
     ) : Config
 
     @Serializable
@@ -48,7 +54,7 @@ sealed interface Config {
     @Serializable
     data class BundleAddEdit(
         val addEdit: AddEdit,
-        val product: Product?,
+        val bundle: org.lelestacia.posle.domain.model.Bundle? = null
     ) : Config
 
     @Serializable

@@ -55,6 +55,7 @@ interface TransactionDao {
     )
     fun readUnRecappedTransactionWithItems(): PagingSource<Int, TransactionWithItems>
 
+    @Transaction
     @Query(
         """
             SELECT * FROM `transaction` 

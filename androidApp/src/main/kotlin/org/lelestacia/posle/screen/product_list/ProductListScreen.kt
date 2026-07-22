@@ -51,11 +51,13 @@ import org.lelestacia.posle.navigation.AddEdit.Add
 import org.lelestacia.posle.navigation.Config
 import org.lelestacia.posle.navigation.Config.ProductAddEdit
 import org.lelestacia.posle.screen.product_list.component.AddCategoryDialog
+import org.lelestacia.posle.screen.product_list.component.bundles
 import org.lelestacia.posle.screen.product_list.component.categorized
 import org.lelestacia.posle.screen.product_list.component.lowStock
 import org.lelestacia.posle.screen.product_list.component.unCategorized
 import org.lelestacia.posle.ui.component.AnimatedIcon
 import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.btn_add_bundle
 import posle.shared.generated.resources.btn_add_category
 import posle.shared.generated.resources.btn_add_product
 import posle.shared.generated.resources.label_search_product
@@ -72,6 +74,7 @@ fun ProductListScreen(
     val categories = state.categories.collectAsLazyPagingItems()
     val lowStockProducts = state.productsLowStock.collectAsLazyPagingItems()
     val uncategorizedProducts = state.uncategorizedProducts.collectAsLazyPagingItems()
+    val bundles = state.bundles.collectAsLazyPagingItems()
     val listState = rememberLazyListState()
     val isListScrolled by remember {
         derivedStateOf {
@@ -136,7 +139,7 @@ fun ProductListScreen(
                             }
                         ) {
                             Text(
-                                text = stringResource(resource = Res.string.btn_add_product),
+                                text = stringResource(resource = Res.string.btn_add_bundle),
                                 style = MaterialTheme.typography.bodyMedium.copy(
                                     fontWeight = FontWeight.Bold
                                 )
@@ -217,6 +220,11 @@ fun ProductListScreen(
                         onEvent = component::onEvent
                     )
                 }
+
+                bundles(
+                    bundles = bundles,
+                    onEvent = component::onEvent
+                )
 
                 categorized(
                     searchQuery = state.searchQuery,

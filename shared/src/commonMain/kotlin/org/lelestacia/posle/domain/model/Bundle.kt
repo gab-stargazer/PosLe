@@ -1,12 +1,14 @@
 package org.lelestacia.posle.domain.model
 
 import androidx.compose.runtime.Immutable
+import kotlinx.serialization.Serializable
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.SkuNumber
 import org.lelestacia.posle.util.Unit
 
+@Serializable
 data class Bundle(
     val id: Int,
     val name: Name,
@@ -16,6 +18,7 @@ data class Bundle(
     val updatedAt: Long? = null,
 )
 
+@Serializable
 @Immutable
 data class BundleProduct(
     val productId: Int,
@@ -24,6 +27,7 @@ data class BundleProduct(
     val imageUri: String?,
     val buyPrice: Price,
     val sellPrice: Price,
+    val sellPriceIndividual: Price,
     val quantity: Amount,
     val unit: Unit,
     val createdAt: Long,

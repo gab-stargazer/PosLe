@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.SubdirectoryArrowRight
@@ -20,7 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,10 +27,11 @@ import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.model.Bundle
 import org.lelestacia.posle.domain.model.BundleProduct
 import org.lelestacia.posle.ui.theme.AppTheme
-import org.lelestacia.posle.ui.theme.CharcoalBlue
+import org.lelestacia.posle.ui.theme.BurgundyRed
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
+import org.lelestacia.posle.util.Util
 import org.lelestacia.posle.util.toDisplayText
 import org.lelestacia.posle.util.toRupiah
 import posle.shared.generated.resources.Res
@@ -51,8 +51,13 @@ fun TransactionAddBundle(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color.Transparent)
-            .border(2.dp, CharcoalBlue, RoundedCornerShape(25F))
+            .shadow(
+                elevation = 4.dp,
+                shape = Util.defaultShape,
+                clip = true,
+            )
+            .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+            .border(2.dp, BurgundyRed, Util.defaultShape)
             .clickable(onClick = onClick)
     ) {
         Column(
@@ -150,6 +155,7 @@ private fun PreviewTransactionAddBundle() {
                         quantity = Amount(1F),
                         buyPrice = Price(BigDecimal(3000)),
                         sellPrice = Price(BigDecimal("4000")),
+                        sellPriceIndividual = Price(7000.toBigDecimal()),
                         unit = PosleUnit("Pcs"),
                         createdAt = Clock.System.now().toEpochMilliseconds(),
                         updatedAt = null
@@ -162,6 +168,7 @@ private fun PreviewTransactionAddBundle() {
                         quantity = Amount(1F),
                         buyPrice = Price(BigDecimal(3000)),
                         sellPrice = Price(BigDecimal("6000")),
+                        sellPriceIndividual = Price(7000.toBigDecimal()),
                         createdAt = Clock.System.now().toEpochMilliseconds(),
                         unit = PosleUnit("Pcs"),
                         updatedAt = null

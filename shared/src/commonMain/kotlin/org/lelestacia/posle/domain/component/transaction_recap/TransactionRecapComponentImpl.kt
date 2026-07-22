@@ -31,13 +31,15 @@ import kotlin.time.Instant
 
 class TransactionRecapComponentImpl(
     componentContext: ComponentContext,
-    private val settingManager: SettingManager,
+    settingManager: SettingManager,
     private val transactionRepository: TransactionRepository,
     private val onNavigateToTransactionView: (Transaction) -> Unit,
+    private val onNavigateToRecapProductView: (List<org.lelestacia.posle.navigation.Config.TransactionRecapProductItem>) -> Unit,
 ) : ComponentContext by componentContext, TransactionRecapComponent {
 
     private val scope = coroutineScope(Dispatchers.Main.immediate)
     private val startAndFinishDate = MutableStateFlow(getTodayRangeMilliseconds())
+    private val searchQuery = MutableStateFlow("")
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val transaction: Flow<List<Transaction>> = startAndFinishDate
@@ -51,8 +53,9 @@ class TransactionRecapComponentImpl(
             flow = _state,
             flow2 = transaction,
             flow3 = startAndFinishDate,
-            flow4 = settingManager.readSettings()
-        ) { state, transaction, dateRange, settings ->
+            flow4 = searchQuery,
+            flow5 = settingManager.readSettings()
+        ) { state, transaction, dateRange, query, settings ->
             val timeZone = TimeZone.currentSystemDefault()
             val startDate = Instant.fromEpochMilliseconds(dateRange.first)
                 .toLocalDateTime(timeZone)
@@ -63,11 +66,23 @@ class TransactionRecapComponentImpl(
                 .toLocalDateTime(timeZone)
                 .date
 
+            val filteredTransaction = if (query.isBlank()) {
+                transaction
+            } else {
+                transaction.filter { t ->
+                    t.customerName.value.contains(query, ignoreCase = true) ||
+                            t.items.any { item ->
+                                item.name.value.contains(query, ignoreCase = true)
+                            }
+                }
+            }
+
             state.copy(
-                transactionHistory = transaction,
+                transactionHistory = filteredTransaction,
                 startDate = dateRange.first,
                 finishDate = dateRange.second,
                 isSameDay = startDate == endDate,
+                searchQuery = query,
                 settings = settings
             )
         }.stateIn(
@@ -92,6 +107,10 @@ class TransactionRecapComponentImpl(
                 )
             }
 
+            is TransactionRecapEvent.OnNavigateToRecapProductView -> {
+                onNavigateToRecapProductView(event.products)
+            }
+
             is TransactionRecapEvent.OnDateRangeChanged -> {
                 startAndFinishDate.update {
                     Pair(
@@ -113,6 +132,10 @@ class TransactionRecapComponentImpl(
                             )
                     )
                 }
+            }
+
+            is TransactionRecapEvent.OnSearchQueryChanged -> {
+                searchQuery.update { event.query }
             }
         }
     }

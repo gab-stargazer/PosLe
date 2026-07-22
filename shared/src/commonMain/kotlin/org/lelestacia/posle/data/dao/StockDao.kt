@@ -17,6 +17,9 @@ interface StockDao {
     @Insert
     suspend fun insertStockMovement(movement: StockMovementEntity)
 
+    @Insert
+    suspend fun insertStockMovements(movements: List<StockMovementEntity>)
+
     @Query(
         """
             SELECT * FROM stock_movement

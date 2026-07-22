@@ -11,6 +11,7 @@ data class TransactionRecapState(
     val finishDate: Long = 0,
     val isSameDay: Boolean = false,
     val selectedPrimaryTab: Int = 0,
+    val searchQuery: String = "",
     val settings: PosLeSettings = PosLeSettings(),
 
     //  Date Range Picker
@@ -23,6 +24,10 @@ data class TransactionRecapState(
 sealed interface TransactionRecapEvent {
     data class OnPrimaryTabChanged(val newIndex: Int) : TransactionRecapEvent
     data class OnNavigateToTransactionView(val transaction: Transaction) : TransactionRecapEvent
+    data class OnNavigateToRecapProductView(val products: List<org.lelestacia.posle.navigation.Config.TransactionRecapProductItem>) :
+        TransactionRecapEvent
+
     data class OnDateRangePickerVisibilityChanged(val isShown: Boolean) : TransactionRecapEvent
     data class OnDateRangeChanged(val dateRange: Pair<Long, Long>) : TransactionRecapEvent
+    data class OnSearchQueryChanged(val query: String) : TransactionRecapEvent
 }

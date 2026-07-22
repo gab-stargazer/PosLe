@@ -5,6 +5,8 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import org.lelestacia.posle.data.PosLeDB
 import org.lelestacia.posle.data.SettingManager
+import org.lelestacia.posle.data.TransactionRunner
+import org.lelestacia.posle.data.TransactionRunnerImpl
 import org.lelestacia.posle.data.dao.BundleDao
 import org.lelestacia.posle.data.dao.CategoryDao
 import org.lelestacia.posle.data.dao.ProductDao
@@ -25,7 +27,6 @@ import org.lelestacia.posle.domain.repository.TransactionRepository
 import org.lelestacia.posle.domain.repository.VariantRepository
 
 val sharedModule = module {
-
 
     single<ProductDao> {
         get<PosLeDB>().productDao()
@@ -52,6 +53,10 @@ val sharedModule = module {
     }
 
     singleOf(::SettingManager)
+
+    singleOf(::TransactionRunnerImpl) {
+        binds(listOf(TransactionRunner::class ))
+    }
 
     singleOf(::ProductRepositoryImpl) {
         binds(listOf(ProductRepository::class))

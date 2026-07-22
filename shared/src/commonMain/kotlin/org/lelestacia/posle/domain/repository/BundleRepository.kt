@@ -8,6 +8,20 @@ import org.lelestacia.posle.util.Name
 
 interface BundleRepository {
 
-    suspend fun insertBundle(bundleName: Name, bundleProducts: List<BundleProductState>)
+    suspend fun insertBundle(
+        bundleName: Name,
+        bundleProducts: List<BundleProductState>,
+        imageByteArray: ByteArray?
+    )
+
+    suspend fun updateBundle(
+        bundleId: Int,
+        bundleName: Name,
+        bundleProducts: List<BundleProductState>,
+        imageUri: String?,
+        imageByteArray: ByteArray?
+    )
+
+    suspend fun deleteBundle(bundleId: Int, bundleName: Name)
     fun readBundleByName(bundleName: String): Flow<PagingData<Bundle>>
 }

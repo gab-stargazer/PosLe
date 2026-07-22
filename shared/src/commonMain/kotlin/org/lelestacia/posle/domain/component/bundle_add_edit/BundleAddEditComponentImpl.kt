@@ -1,5 +1,6 @@
 package org.lelestacia.posle.domain.component.bundle_add_edit
 
+import androidx.compose.material3.SnackbarHostState
 import com.arkivanov.decompose.ComponentContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -11,13 +12,24 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
+import org.lelestacia.posle.domain.model.Bundle
+import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.repository.BundleRepository
 import org.lelestacia.posle.domain.repository.ProductRepository
+import org.lelestacia.posle.navigation.AddEdit
+import org.lelestacia.posle.navigation.AddEdit.Add
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.coroutineScope
+import org.lelestacia.posle.util.toDisplayText
+import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.msg_error_bundle_must_contain_at_least_one_item
 
 class BundleAddEditComponentImpl(
     componentContext: ComponentContext,
+    bundle: Bundle? = null,
+    private val mode: AddEdit,
+    private val snackbarHostState: SnackbarHostState,
     private val productRepository: ProductRepository,
     private val bundleRepository: BundleRepository,
     private val onDone: () -> Unit
@@ -32,7 +44,32 @@ class BundleAddEditComponentImpl(
         productRepository.readAvailableProducts(searchQuery)
     }
 
-    private val _state = MutableStateFlow(BundleAddEditState())
+    private val _state = MutableStateFlow(
+        BundleAddEditState(
+            mode = mode,
+            bundleId = bundle?.id ?: 0,
+            bundleName = bundle?.name?.value ?: "",
+            bundleImageUri = bundle?.imageUri,
+            bundleProducts = bundle?.bundleProducts?.map { bp ->
+                BundleProductState(
+                    product = Product(
+                        id = bp.productId,
+                        name = bp.productName,
+                        stock = org.lelestacia.posle.util.Amount(0f),
+                        buyPrice = bp.buyPrice,
+                        sellPrice = bp.sellPriceIndividual,
+                        unit = bp.unit,
+                        skuNumber = bp.skuNumber,
+                        imageUri = bp.imageUri,
+                        variants = emptyList(),
+                        categories = emptyList()
+                    ),
+                    quantity = bp.quantity.value.toDisplayText(),
+                    sellPrice = bp.sellPrice.value.toPlainString()
+                )
+            } ?: emptyList()
+        )
+    )
     override val state: StateFlow<BundleAddEditState> =
         combine(
             flow = _state,
@@ -64,12 +101,49 @@ class BundleAddEditComponentImpl(
                 searchQuery.update { event.newSearchQuery }
             }
 
+            is BundleAddEditEvent.OnImageChanged -> {
+                _state.update { currentState ->
+                    currentState.copy(
+                        bundleImageUri = event.uri,
+                        bundleImageByteArray = event.bytes
+                    )
+                }
+            }
+
+            BundleAddEditEvent.OnDeleteBundleClicked -> {
+                _state.update { currentState ->
+                    currentState.copy(
+                        isDeleteConfirmationShown = true
+                    )
+                }
+            }
+
+            BundleAddEditEvent.OnDeleteConfirmationDismissed -> {
+                _state.update { currentState ->
+                    currentState.copy(
+                        isDeleteConfirmationShown = false
+                    )
+                }
+            }
+
+            BundleAddEditEvent.OnDeleteConfirmed -> {
+                scope.launch {
+                    bundleRepository.deleteBundle(
+                        bundleId = state.value.bundleId,
+                        bundleName = Name(state.value.bundleName)
+                    )
+                    onDone.invoke()
+                }
+            }
+
+            BundleAddEditEvent.OnPop -> onDone.invoke()
+
             is BundleAddEditEvent.OnBundleProductAdded -> {
                 searchQuery.update { "" }
 
                 _state.update { currentState ->
                     val products = currentState.bundleProducts.toMutableList()
-                    if (products.any { it.product == event.product }) return@update currentState
+                    if (products.any { it.product.id == event.product.id }) return@update currentState
 
                     products.add(
                         BundleProductState(product = event.product)
@@ -93,11 +167,20 @@ class BundleAddEditComponentImpl(
             }
 
             BundleAddEditEvent.OnBundleAddClicked -> {
+                if (state.value.bundleProducts.isEmpty()) {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            getString(Res.string.msg_error_bundle_must_contain_at_least_one_item)
+                        )
+                    }
+                    return
+                }
+
                 val error = state.value
                     .bundleProducts
                     .mapNotNull { it.validate() }
 
-                if (error.size > 0) {
+                if (error.isNotEmpty()) {
                     var bundleProducts = state.value.bundleProducts
                     bundleProducts = bundleProducts.map { bundleProduct ->
                         if (error.any { it.product == bundleProduct.product }) {
@@ -120,10 +203,22 @@ class BundleAddEditComponentImpl(
                 }
 
                 scope.launch {
-                    bundleRepository.insertBundle(
-                        bundleName = Name(state.value.bundleName),
-                        bundleProducts = state.value.bundleProducts
-                    ).also { onDone.invoke() }
+                    if (state.value.mode == Add) {
+                        bundleRepository.insertBundle(
+                            bundleName = Name(state.value.bundleName),
+                            bundleProducts = state.value.bundleProducts,
+                            imageByteArray = state.value.bundleImageByteArray
+                        )
+                    } else {
+                        bundleRepository.updateBundle(
+                            bundleId = state.value.bundleId,
+                            bundleName = Name(state.value.bundleName),
+                            bundleProducts = state.value.bundleProducts,
+                            imageUri = state.value.bundleImageUri,
+                            imageByteArray = state.value.bundleImageByteArray
+                        )
+                    }
+                    onDone.invoke()
                 }
             }
 

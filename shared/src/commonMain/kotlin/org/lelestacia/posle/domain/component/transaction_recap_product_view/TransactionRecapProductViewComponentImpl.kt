@@ -4,11 +4,11 @@ import com.arkivanov.decompose.ComponentContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import org.lelestacia.posle.domain.model.TransactionProduct
+import org.lelestacia.posle.navigation.Config.TransactionRecapProductItem
 
 class TransactionRecapProductViewComponentImpl(
     componentContext: ComponentContext,
-    products: List<TransactionProduct>,
+    products: List<TransactionRecapProductItem>,
     private val onPop: () -> Unit
 ) : ComponentContext by componentContext, TransactionRecapProductViewComponent {
 

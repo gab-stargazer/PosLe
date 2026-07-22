@@ -24,6 +24,7 @@ interface ProductDao {
     @Insert
     suspend fun addBuyPrice(price: ProductBuyPriceEntity)
 
+    @Transaction
     @Query("SELECT * FROM PRODUCT WHERE id = :id")
     suspend fun getProductById(id: Int): ProductWithVariantsAndStock
 

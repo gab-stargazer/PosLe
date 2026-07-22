@@ -7,6 +7,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.Relation
+import kotlinx.serialization.Serializable
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
@@ -29,6 +30,7 @@ data class TransactionEntity(
     val updatedAt: Long? = null,
 )
 
+@Serializable
 enum class TransactionItemType {
     Product,
     Bundle

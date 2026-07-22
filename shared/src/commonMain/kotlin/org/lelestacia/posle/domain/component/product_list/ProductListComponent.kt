@@ -31,6 +31,7 @@ data class ProductListComponentState(
     //  Paging
     val productsLowStock: Flow<PagingData<Product>> = flowOf(),
     val uncategorizedProducts: Flow<PagingData<Product>> = flowOf(),
+    val bundles: Flow<PagingData<org.lelestacia.posle.domain.model.Bundle>> = flowOf(),
     val categories: Flow<PagingData<Category>> = flowOf(),
 
     //  Setting

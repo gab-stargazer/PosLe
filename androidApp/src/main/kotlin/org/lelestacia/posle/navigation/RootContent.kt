@@ -16,6 +16,7 @@ import org.lelestacia.posle.screen.bundle_add_edit.BundleAddEditScreen
 import org.lelestacia.posle.screen.product_add.ProductAddEditScreen
 import org.lelestacia.posle.screen.product_add.ProductAddVariantsViewScreen
 import org.lelestacia.posle.screen.transaction_add.TransactionProductConfigScreen
+import org.lelestacia.posle.screen.transaction_recap_product_view.TransactionRecapProductDetailScreen
 import org.lelestacia.posle.screen.transaction_view.TransactionViewScreen
 
 @Composable
@@ -73,7 +74,7 @@ fun RootContent(
                 }
 
                 is Child.TransactionRecapProductView -> {
-                    TODO()
+                    TransactionRecapProductDetailScreen(component = child.component)
                 }
             }
         }

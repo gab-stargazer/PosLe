@@ -1,7 +1,7 @@
 package org.lelestacia.posle.domain.component.transaction_recap_product_view
 
 import kotlinx.coroutines.flow.StateFlow
-import org.lelestacia.posle.domain.model.TransactionProduct
+import org.lelestacia.posle.navigation.Config.TransactionRecapProductItem
 
 interface TransactionRecapProductViewComponent {
     val state: StateFlow<TransactionRecapProductViewState>
@@ -9,7 +9,7 @@ interface TransactionRecapProductViewComponent {
 }
 
 data class TransactionRecapProductViewState(
-    val transactionProducts: List<TransactionProduct>
+    val transactionProducts: List<TransactionRecapProductItem>
 )
 
 sealed interface TransactionRecapProductViewEvent {

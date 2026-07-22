@@ -37,6 +37,13 @@ dependencies {
     implementation(libs.permissions.compose)
 
     implementation("com.github.SmartToolFactory:Compose-Screenshot:1.0.3")
+
+    //  Testing
+    androidTestImplementation(libs.androidx.testExt.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform("androidx.compose:compose-bom:2024.12.01"))
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
 
 android {
@@ -49,6 +56,8 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 18
         versionName = "1.2.2"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     packaging {

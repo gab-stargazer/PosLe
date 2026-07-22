@@ -20,10 +20,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
-import org.lelestacia.posle.domain.model.TransactionProduct
+import org.lelestacia.posle.navigation.Config.TransactionRecapProductItem
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.BurgundyRed
-import org.lelestacia.posle.util.SampleData
 import org.lelestacia.posle.util.toDisplayText
 import org.lelestacia.posle.util.toRupiah
 import posle.shared.generated.resources.Res
@@ -33,21 +32,22 @@ import posle.shared.generated.resources.txt_total_profit
 
 @Composable
 fun TransactionRecapProductOutbound(
-    transactionProducts: List<TransactionProduct>,
+    transactionProducts: List<TransactionRecapProductItem>,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val productName = transactionProducts
         .first()
+        .product
         .productName
 
     val amountOut = transactionProducts
-        .sumOf { it.quantity.value.toBigDecimal() }
+        .sumOf { it.product.quantity.value.toBigDecimal() }
         .toFloat()
         .toDisplayText()
 
     val totalProfit = transactionProducts
-        .sumOf { it.quantity.value.toBigDecimal() * (it.sellPrice.value - it.buyPrice.value) }
+        .sumOf { it.product.quantity.value.toBigDecimal() * (it.product.sellPrice.value - it.product.buyPrice.value) }
         .toRupiah()
 
     Column(
@@ -117,10 +117,10 @@ fun TransactionRecapProductOutbound(
 @Composable
 private fun PreviewTransactionRecapProductOutbound() {
     AppTheme {
-        TransactionRecapProductOutbound(
-            SampleData.sampleTransaction.items.flatMap { it.products }
-                .filter { it.productName.value == "Kopi Kapal Api Sachet" },
-            {}
-        )
+//        TransactionRecapProductOutbound(
+//            SampleData.sampleTransaction.items.flatMap { it.products }
+//                .filter { it.productName.value == "Kopi Kapal Api Sachet" },
+//            {}
+//        )
     }
 }

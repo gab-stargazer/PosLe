@@ -124,6 +124,9 @@ class PosLeComponent(
                     transactionRepository = transactionRepository,
                     onNavigateToTransactionView = {
                         rootNavigation.pushNew(TransactionViewConfig(it))
+                    },
+                    onNavigateToRecapProductView = {
+                        rootNavigation.pushNew(TransactionRecapProductViewConfig(it))
                     }
                 )
             )
@@ -141,6 +144,7 @@ class PosLeComponent(
                     settingManager = settingManager,
                     productRepository = productRepository,
                     categoryRepository = categoryRepository,
+                    bundleRepository = bundleRepository,
                     onNavigate = rootNavigation::pushToFront
                 )
             )
@@ -292,6 +296,9 @@ class PosLeComponent(
             is BundleAddEditConfig -> BundleAddEdit(
                 component = BundleAddEditComponentImpl(
                     componentContext = context,
+                    mode = config.addEdit,
+                    bundle = config.bundle,
+                    snackbarHostState = snackbarHostState,
                     productRepository = productRepository,
                     bundleRepository = bundleRepository,
                     onDone = rootNavigation::pop
@@ -301,7 +308,7 @@ class PosLeComponent(
             is TransactionRecapProductViewConfig -> TransactionRecapProductView(
                 component = TransactionRecapProductViewComponentImpl(
                     componentContext = context,
-                    products = config.products,
+                    products = config.items,
                     onPop = rootNavigation::pop
                 )
             )

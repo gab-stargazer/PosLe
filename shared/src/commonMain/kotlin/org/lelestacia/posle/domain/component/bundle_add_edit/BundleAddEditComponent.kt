@@ -18,6 +18,12 @@ sealed interface BundleAddEditEvent {
     data class OnBundleProductRemoved(val product: Product) : BundleAddEditEvent
     data class OnBundleProductAdded(val product: Product) : BundleAddEditEvent
     data object OnBundleAddClicked : BundleAddEditEvent
+    data object OnPop : BundleAddEditEvent
+
+    data class OnImageChanged(val uri: String?, val bytes: ByteArray?) : BundleAddEditEvent
+    data object OnDeleteBundleClicked : BundleAddEditEvent
+    data object OnDeleteConfirmationDismissed : BundleAddEditEvent
+    data object OnDeleteConfirmed : BundleAddEditEvent
 
     sealed interface BundleProductEvent : BundleAddEditEvent {
         data class OnQuantityChanged(val index: Int, val newQuantity: String) : BundleProductEvent
@@ -26,11 +32,16 @@ sealed interface BundleAddEditEvent {
 }
 
 data class BundleAddEditState(
+    val mode: org.lelestacia.posle.navigation.AddEdit = org.lelestacia.posle.navigation.AddEdit.Add,
+    val bundleId: Int = 0,
     val bundleName: String = "",
     val bundleNameError: StringResource? = null,
+    val bundleImageUri: String? = null,
+    val bundleImageByteArray: ByteArray? = null,
     val productName: String = "",
     val bundleProducts: List<BundleProductState> = emptyList(),
-    val availableProducts: List<Product> = emptyList()
+    val availableProducts: List<Product> = emptyList(),
+    val isDeleteConfirmationShown: Boolean = false
 )
 
 data class BundleProductState(

@@ -6,7 +6,9 @@ import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
+import androidx.room.Transactor
 import androidx.room.TypeConverters
+import androidx.room.useWriterConnection
 import org.lelestacia.posle.data.converter.BigDecimalConverter
 import org.lelestacia.posle.data.converter.StockMovementTypeConverter
 import org.lelestacia.posle.data.converter.TransactionVariantConverter
@@ -72,3 +74,17 @@ abstract class PosLeDB : RoomDatabase() {
 
 @Suppress("NO_ACTUAL_FOR_EXPECT")
 expect object AppDatabaseConstructor : RoomDatabaseConstructor<PosLeDB>
+
+interface TransactionRunner {
+    suspend fun runTransaction(block: suspend () -> Unit)
+}
+
+class TransactionRunnerImpl(val db: PosLeDB) : TransactionRunner {
+    override suspend fun runTransaction(block: suspend () -> Unit) {
+        db.useWriterConnection { transactor ->
+            transactor.withTransaction(Transactor.SQLiteTransactionType.IMMEDIATE) {
+                block()
+            }
+        }
+    }
+}

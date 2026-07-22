@@ -35,9 +35,10 @@ import org.lelestacia.posle.util.coroutineScope
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 class ProductListComponentImpl(
     componentContext: ComponentContext,
-    private val settingManager: SettingManager,
+    settingManager: SettingManager,
     private val productRepository: ProductRepository,
     private val categoryRepository: CategoryRepository,
+    private val bundleRepository: org.lelestacia.posle.domain.repository.BundleRepository,
     private val onNavigate: (Config) -> Unit,
 ) : ComponentContext by componentContext, ProductListComponent {
 
@@ -45,6 +46,11 @@ class ProductListComponentImpl(
     private val searchQuery = MutableStateFlow("")
 
     private val _state = MutableStateFlow(ProductListComponentState())
+
+    private val bundles: Flow<PagingData<org.lelestacia.posle.domain.model.Bundle>> = searchQuery
+        .flatMapLatest { query ->
+            bundleRepository.readBundleByName(query)
+        }.cachedIn(scope)
 
     val categories: Flow<PagingData<Category>> = categoryRepository
         .readCategories()
@@ -78,6 +84,7 @@ class ProductListComponentImpl(
                 categories = categories,
                 uncategorizedProducts = uncategorizedProducts,
                 productsLowStock = lowStocksProducts,
+                bundles = bundles,
 
                 settings = settings
             )

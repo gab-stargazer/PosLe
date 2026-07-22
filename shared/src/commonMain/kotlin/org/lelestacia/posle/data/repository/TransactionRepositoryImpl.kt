@@ -11,6 +11,8 @@ import org.lelestacia.posle.data.SettingManager
 import org.lelestacia.posle.data.dao.ProductDao
 import org.lelestacia.posle.data.dao.StockDao
 import org.lelestacia.posle.data.dao.TransactionDao
+import org.lelestacia.posle.data.entity.StockMovementEntity
+import org.lelestacia.posle.data.entity.StockMovementType
 import org.lelestacia.posle.data.entity.TransactionEntity
 import org.lelestacia.posle.data.entity.TransactionItemEntity
 import org.lelestacia.posle.data.entity.TransactionItemProductEntity
@@ -22,6 +24,7 @@ import org.lelestacia.posle.domain.model.TransactionItem
 import org.lelestacia.posle.domain.model.toDomain
 import org.lelestacia.posle.domain.model.toEntity
 import org.lelestacia.posle.domain.repository.TransactionRepository
+import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.getTodayRangeMilliseconds
 import kotlin.time.Clock
@@ -47,7 +50,7 @@ class TransactionRepositoryImpl(
         )
 
         val newTransactionId = transactionDao.insertTransaction(newTransactionEntity).toInt()
-        val transactionItem = cartItems.map { cartItems ->
+        val transactionItems = cartItems.map { cartItems ->
             when (cartItems) {
                 is CartItems.BundleCartItem -> {
                     val newTransactionItemEntity = TransactionItemEntity(
@@ -158,31 +161,31 @@ class TransactionRepositoryImpl(
             .readSettings()
             .first()
 
-
-
         if (setting.isProductStockTracked) {
-//            transaction.items.groupBy { it.productId }.onEach {
-//                val totalAmount = it.value
-//                    .sumOf { product -> product.productAmount.value.toBigDecimal() }
-//                    .toFloat()
-//
-//                stockDao.insertStockMovement(
-//                    movement = StockMovementEntity(
-//                        productId = it.key,
-//                        productName = it.value.first().productName,
-//                        productUnit = it.value.first().productUnit,
-//                        movementType = StockMovementType.Purchase,
-//                        amount = Amount(-totalAmount),
-//                        createdAt = Clock.System.now().toEpochMilliseconds()
-//                    )
-//                )
-//            }
+            val stockMovements = transactionItems.flatMap { transactionItem ->
+                transactionItem.products.map { product ->
+                    StockMovementEntity(
+                        id = 0,
+                        productId = product.productId,
+                        productName = product.productName,
+                        productUnit = product.unit,
+                        movementType = StockMovementType.Sale,
+                        amount = when(transactionItem.type) {
+                            TransactionItemType.Product -> Amount(-product.quantity.value)
+                            TransactionItemType.Bundle -> Amount(-product.quantity.value * transactionItem.quantity.value)
+                        },
+                        note = null,
+                        createdAt = currentTimeAsTimestamp
+                    )
+                }
+            }
+            stockDao.insertStockMovements(movements = stockMovements)
         }
 
         return Transaction(
             id = newTransactionId,
             customerName = newTransactionEntity.customerName,
-            items = transactionItem,
+            items = transactionItems,
             isRecapped = newTransactionEntity.isRecapped,
             createdAt = newTransactionEntity.createdAt,
             updatedAt = newTransactionEntity.updatedAt

@@ -273,6 +273,7 @@ private fun PreviewTransactionAddBundleCart() {
                         quantity = Amount(1F),
                         buyPrice = Price(BigDecimal("4000")),
                         sellPrice = Price(BigDecimal("4000")),
+                        sellPriceIndividual = Price(7000.toBigDecimal()),
                         unit = PosleUnit("Pcs"),
                         createdAt = 0L,
                         updatedAt = null
@@ -285,6 +286,7 @@ private fun PreviewTransactionAddBundleCart() {
                         quantity = Amount(1F),
                         buyPrice = Price(BigDecimal("8000")),
                         sellPrice = Price(BigDecimal("8000")),
+                        sellPriceIndividual = Price(7000.toBigDecimal()),
                         createdAt = 0L,
                         unit = PosleUnit("Pcs"),
                         updatedAt = null

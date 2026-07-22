@@ -72,13 +72,17 @@
     <string name="label_product_choosen">Produk Dipilih</string>
     <string name="label_product_available">Tersedia: %1$s %2$s</string>
     <string name="label_bundle_name">Nama Paket</string>
+    <string name="title_delete_bundle">Hapus Paket</string>
+    <string name="msg_confirm_delete_bundle">Apakah Anda yakin ingin menghapus paket ini?</string>
 
     <!--Button-->
     <string name="btn_add_product">Tambah Produk</string>
+    <string name="btn_add_bundle">Tambah Paket</string>
     <string name="btn_add_category">Tambah Kategori</string>
     <string name="btn_add_variant">Tambahkan Varian</string>
     <string name="btn_update_product">Ubah Produk</string>
     <string name="btn_delete_product">Hapus Produk</string>
+    <string name="btn_delete_bundle">Hapus Paket</string>
     <string name="btn_add_transaction">Tambah Transaksi</string>
     <string name="btn_save_selection">Simpan Pilihan</string>
     <string name="btn_save_category">Simpan Category</string>
@@ -150,6 +154,7 @@
     <string name="msg_error_quantity_exceeded">Jumlah yang akan digunakan melebihi stok yang ada</string>
     <string name="msg_error_quantity_cannot_be_empty">Jumlah tidak boleh kosong</string>
     <string name="msg_error_item_not_available">Produk %1$s tidak cukup untuk paket ini</string>
+    <string name="msg_error_bundle_must_contain_at_least_one_item">Paket harus berisi setidaknya 1 produk</string>
 
     <!--Msg-->
     <string name="msg_stock_added">Stok untuk produk %1$s berhasil ditambahkan sejumlah %2$s %3$s</string>

@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.HorizontalDivider
@@ -24,9 +26,13 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,8 +44,10 @@ import org.lelestacia.posle.data.entity.TransactionItemType
 import org.lelestacia.posle.domain.component.transaction_recap.TransactionRecapComponent
 import org.lelestacia.posle.domain.state_event.TransactionRecapEvent
 import org.lelestacia.posle.domain.state_event.TransactionRecapEvent.OnDateRangePickerVisibilityChanged
+import org.lelestacia.posle.domain.state_event.TransactionRecapEvent.OnNavigateToRecapProductView
 import org.lelestacia.posle.domain.state_event.TransactionRecapEvent.OnNavigateToTransactionView
 import org.lelestacia.posle.domain.state_event.TransactionRecapEvent.OnPrimaryTabChanged
+import org.lelestacia.posle.domain.state_event.TransactionRecapEvent.OnSearchQueryChanged
 import org.lelestacia.posle.domain.state_event.TransactionRecapState
 import org.lelestacia.posle.screen.transaction_history.TransactionItem
 import org.lelestacia.posle.screen.transaction_recap.component.TransactionRecapProductOutbound
@@ -48,9 +56,11 @@ import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.BurgundyRed
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.SampleData
+import org.lelestacia.posle.util.Util
 import org.lelestacia.posle.util.toFormattedDate
 import org.lelestacia.posle.util.toRupiah
 import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.label_search_product
 import posle.shared.generated.resources.label_total_transaction
 import posle.shared.generated.resources.txt_total_profit
 import posle.shared.generated.resources.txt_total_profit_description
@@ -68,13 +78,21 @@ fun TransactionRecapScreen(
                 transaction.items.map { transactionItem ->
                     when (transactionItem.type) {
                         TransactionItemType.Product -> {
-                            transactionItem.products
+                            transactionItem.products.map {
+                                org.lelestacia.posle.navigation.Config.TransactionRecapProductItem(
+                                    type = TransactionItemType.Product,
+                                    product = it
+                                )
+                            }
                         }
 
                         TransactionItemType.Bundle -> {
                             transactionItem.products.map { product ->
-                                product.copy(
-                                    quantity = Amount(product.quantity.value * transactionItem.quantity.value)
+                                org.lelestacia.posle.navigation.Config.TransactionRecapProductItem(
+                                    type = TransactionItemType.Bundle,
+                                    product = product.copy(
+                                        quantity = Amount(product.quantity.value * transactionItem.quantity.value)
+                                    )
                                 )
                             }
                         }
@@ -82,7 +100,7 @@ fun TransactionRecapScreen(
                 }
             }
             .flatten()
-            .groupBy { it.productId }
+            .groupBy { it.product.productId }
             .map { it.value }
 
 
@@ -231,6 +249,37 @@ fun TransactionRecapScreen(
 
             HorizontalDivider()
 
+            TextField(
+                value = state.searchQuery,
+                onValueChange = { newQuery ->
+                    component.onEvent(OnSearchQueryChanged(newQuery))
+                },
+                placeholder = {
+                    Text(
+                        text = stringResource(Res.string.label_search_product),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = null
+                    )
+                },
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp),
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                        12.dp
+                    ),
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
+                shape = Util.defaultShape,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(all = 12.dp)
+            )
+
             AnimatedContent(
                 targetState = state.selectedPrimaryTab == 0,
                 modifier = Modifier
@@ -247,7 +296,11 @@ fun TransactionRecapScreen(
                                 TransactionRecapProductOutbound(
                                     transactionProducts = listOfProducts[index],
                                     onClick = {
-
+                                        component.onEvent(
+                                            OnNavigateToRecapProductView(
+                                                listOfProducts[index]
+                                            )
+                                        )
                                     }
                                 )
                             }

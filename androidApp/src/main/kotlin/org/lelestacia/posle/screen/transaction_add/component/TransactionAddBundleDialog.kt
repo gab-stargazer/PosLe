@@ -19,6 +19,7 @@ import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -127,7 +128,7 @@ fun TransactionAddBundleDialog(
             Column {
                 Box(
                     modifier = Modifier
-                        .padding(top = 12.dp)
+                        .padding(top = 8.dp)
                         .clip(RoundedCornerShape(25F))
                         .border(
                             width = 2.dp,
@@ -189,7 +190,7 @@ fun TransactionAddBundleDialog(
 
             Box(
                 modifier = Modifier
-                    .padding(top = 12.dp)
+                    .padding(top = 8.dp)
                     .clip(RoundedCornerShape(25F))
                     .border(
                         width = 2.dp,
@@ -203,6 +204,12 @@ fun TransactionAddBundleDialog(
                         Text(
                             stringResource(Res.string.label_optional_note),
                             style = MaterialTheme.typography.labelMedium
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.EditNote,
+                            contentDescription = Icons.Default.EditNote.name
                         )
                     },
                     lineLimits = TextFieldLineLimits.SingleLine,
@@ -221,9 +228,9 @@ fun TransactionAddBundleDialog(
 
             Row(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier.padding(top = 6.dp)
+                modifier = Modifier.padding(top = 12.dp)
             ) {
-                OutlinedButton(
+                OutlinedButton (
                     shape = Util.defaultShape,
                     onClick = onCancel,
                     border = BorderStroke(2.dp, BurgundyRed),

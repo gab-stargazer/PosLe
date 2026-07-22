@@ -107,6 +107,13 @@ data class BundleProductsWithProductsEntity(
     val product: ProductEntity,
 
     @Relation(
+        entity = ProductSellPriceEntity::class,
+        parentColumn = "product_id",
+        entityColumn = "product_id"
+    )
+    val sellPriceHistorical: List<ProductSellPriceEntity>,
+
+    @Relation(
         entity = ProductBuyPriceEntity::class,
         parentColumn = "product_id",
         entityColumn = "product_id"
