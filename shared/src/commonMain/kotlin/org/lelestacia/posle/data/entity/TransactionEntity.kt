@@ -15,7 +15,10 @@ import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.SkuNumber
 import org.lelestacia.posle.util.Unit
 
-@Entity(tableName = "transaction")
+@Entity(
+    tableName = "transaction",
+    indices = [Index("customer_name")]
+)
 data class TransactionEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo("id")
@@ -37,7 +40,8 @@ enum class TransactionItemType {
 }
 
 @Entity(
-    tableName = "transaction_item"
+    tableName = "transaction_item",
+    indices = [Index("transaction_id")]
 )
 data class TransactionItemEntity(
     @PrimaryKey(autoGenerate = true)

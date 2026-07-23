@@ -100,6 +100,8 @@ kotlin {
             api(libs.qr.kit)
 
             api("com.composables:ui:0.2.0")
+
+            api("cz.multiplatform.escpos4k:escpos4k:0.3.0")
         }
 
         commonTest.dependencies {

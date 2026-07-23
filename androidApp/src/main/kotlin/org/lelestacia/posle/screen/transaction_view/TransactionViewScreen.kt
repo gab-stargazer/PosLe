@@ -1,6 +1,5 @@
 package org.lelestacia.posle.screen.transaction_view
 
-import android.Manifest
 import android.content.ContentValues
 import android.graphics.Bitmap
 import android.os.Environment
@@ -20,7 +19,9 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.Button
@@ -39,6 +40,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,57 +53,55 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.meticha.permissions_compose.AppPermission
-import com.meticha.permissions_compose.rememberAppPermissionState
-import com.smarttoolfactory.screenshot.rememberScreenshotState
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
+import org.lelestacia.posle.data.PosLeSettings
+import org.lelestacia.posle.data.entity.TransactionItemType
 import org.lelestacia.posle.domain.component.TransactionViewComponent
 import org.lelestacia.posle.domain.component.TransactionViewNavigation
+import org.lelestacia.posle.domain.model.Transaction
+import org.lelestacia.posle.domain.model.TransactionItem
+import org.lelestacia.posle.domain.model.TransactionProduct
 import org.lelestacia.posle.domain.state_event.TransactionViewEvent
 import org.lelestacia.posle.domain.state_event.TransactionViewEvent.OnRecapClicked
+import org.lelestacia.posle.domain.state_event.TransactionViewState
 import org.lelestacia.posle.screen.transaction_history.component.TransactionReceipt
 import org.lelestacia.posle.ui.theme.AppTheme
+import org.lelestacia.posle.ui.theme.BurgundyRed
+import org.lelestacia.posle.util.Amount
+import org.lelestacia.posle.util.Name
+import org.lelestacia.posle.util.Price
+import org.lelestacia.posle.util.printTransaction
 import org.lelestacia.posle.util.toFormattedDateTime
 import org.lelestacia.posle.util.toRupiah
 import posle.shared.generated.resources.Res
-import posle.shared.generated.resources.btn_print
+import posle.shared.generated.resources.btn_print_digital
+import posle.shared.generated.resources.btn_print_physical
 import posle.shared.generated.resources.btn_recap
 import posle.shared.generated.resources.label_customer
 import posle.shared.generated.resources.label_total
 import posle.shared.generated.resources.label_transaction_date
 import posle.shared.generated.resources.label_transaction_detail
 import kotlin.time.Clock
+import org.lelestacia.posle.util.Unit as PosleUnit
 
 
 @Composable
 fun TransactionViewScreen(
+    isBluetoothPermissionGranted: Boolean,
+    onRequestBluetoothPermission: () -> Unit,
     component: TransactionViewComponent,
     modifier: Modifier = Modifier
 ) {
     val state by component.state.collectAsStateWithLifecycle()
-
-    val permissions = rememberAppPermissionState(
-        permissions = listOf(
-            AppPermission(
-                permission = Manifest.permission.BLUETOOTH_SCAN,
-                description = "Camera access is needed to take photos. Please grant this permission.",
-                isRequired = true
-            ),
-            AppPermission(
-                permission = Manifest.permission.BLUETOOTH_CONNECT,
-                description = "Microphone access is needed for voice recording. Please grant this permission.",
-                isRequired = false
-            ),
-        )
-    )
-
-    val screenshotState = rememberScreenshotState()
     val context = LocalContext.current
-
     val graphicsLayer = rememberGraphicsLayer()
-
     var isCaptured by remember { mutableStateOf(false) }
+    val ioScope = rememberCoroutineScope { Dispatchers.IO }
 
     LaunchedEffect(isCaptured) {
         if (isCaptured) {
@@ -126,8 +126,6 @@ fun TransactionViewScreen(
                 values
             )
 
-
-
             uri?.let {
                 context.contentResolver.openOutputStream(it)?.use { stream ->
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
@@ -151,14 +149,18 @@ fun TransactionViewScreen(
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
                     titleContentColor = MaterialTheme.colorScheme.onSurface,
                     navigationIconContentColor = MaterialTheme.colorScheme.onSurface
                 ),
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            component.onEvent(TransactionViewEvent.OnNavigateTo(TransactionViewNavigation.OnPop))
+                            component.onEvent(
+                                TransactionViewEvent.OnNavigateTo(
+                                    TransactionViewNavigation.OnPop
+                                )
+                            )
                         }
                     ) {
                         Icon(
@@ -178,18 +180,12 @@ fun TransactionViewScreen(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surfaceContainerLowest)
                 .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
         ) {
 
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .drawWithContent {
-                        graphicsLayer.record {
-                            this@drawWithContent.drawContent()
-                        }
-
-                        drawLayer(graphicsLayer)
-                    }
                     .matchParentSize()
             ) {
                 TransactionReceipt(
@@ -198,6 +194,15 @@ fun TransactionViewScreen(
                     transactionProduct = state.transaction.items.toImmutableList(),
                     transactionDate = state.transaction.createdAt,
                     modifier = Modifier
+                        .padding(horizontal = 12.dp)
+                        .drawWithContent {
+                            graphicsLayer.record {
+                                this@drawWithContent.drawContent()
+                            }
+
+                            drawLayer(graphicsLayer)
+                        }
+
                 )
             }
 
@@ -294,7 +299,7 @@ fun TransactionViewScreen(
                                 component.onEvent(OnRecapClicked)
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                containerColor = BurgundyRed,
                                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                             ),
                             shape = RoundedCornerShape(25F),
@@ -323,7 +328,38 @@ fun TransactionViewScreen(
                             )
                             .fillMaxWidth()
                     ) {
-                        Text(stringResource(Res.string.btn_print))
+                        Text(stringResource(Res.string.btn_print_digital))
+                    }
+
+                    Button(
+                        onClick = {
+                            if (isBluetoothPermissionGranted) {
+                                ioScope.launch {
+                                    printTransaction(
+                                        transaction = state.transaction,
+                                        storeName = state.settings.storeName
+                                    )
+                                }
+                            } else {
+                                onRequestBluetoothPermission.invoke()
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                        ),
+                        shape = RoundedCornerShape(25F),
+                        modifier = Modifier
+                            .padding(
+                                top =
+                                    when (state.transaction.isRecapped) {
+                                        true -> 12.dp
+                                        false -> 6.dp
+                                    }
+                            )
+                            .fillMaxWidth()
+                    ) {
+                        Text(stringResource(Res.string.btn_print_physical))
                     }
                 }
             }
@@ -331,88 +367,58 @@ fun TransactionViewScreen(
     }
 }
 
-//@Composable
-//fun TransactionViewItem(
-//    item: TransactionItem,
-//    modifier: Modifier = Modifier
-//) {
-//
-//    val amount =
-//        if (item.productAmount.value % 1 == 0F) {
-//            item.productAmount.value.roundToInt()
-//        } else {
-//            item.productAmount.value
-//        }
-//
-//    Column(
-//        modifier = modifier.fillMaxWidth()
-//    ) {
-//        Row(
-//            horizontalArrangement = Arrangement.SpaceBetween,
-//            modifier = Modifier.fillMaxWidth()
-//        ) {
-//            Text(
-//                text = item.productName.value,
-//                style = MaterialTheme.typography.bodyMedium.copy(
-//                    fontWeight = FontWeight.Bold
-//                )
-//            )
-//
-//            Text(
-//                text = "$amount ${item.productUnit.value}",
-//                style = MaterialTheme.typography.bodyMedium
-//            )
-//
-//            Text(
-//                text = item.productSellPrice.value.toRupiah(),
-//                style = MaterialTheme.typography.bodyMedium
-//            )
-//        }
-//
-//        Text(
-//            text = (item.productAmount.value.toBigDecimal() * item.productSellPrice.value).toRupiah(),
-//            style = MaterialTheme.typography.bodyMedium.copy(
-//                fontWeight = FontWeight.Bold,
-//                textAlign = TextAlign.End
-//            ),
-//            modifier = Modifier.fillMaxWidth()
-//        )
-//
-//        if (item.variants.isNotEmpty()) {
-//            val totalVariants = item.variants
-//                .sumOf {
-//                    item.productAmount.value.toBigDecimal() * it.priceAdjustment.value
-//                }
-//
-//            val subtotalWithoutVariants =
-//                item.productAmount.value.toBigDecimal() * item.productSellPrice.value
-//
-//            TransactionViewVariantSection(
-//                variants = item.variants,
-//                amount = amount,
-//                totalPrice = (totalVariants + subtotalWithoutVariants).toRupiah()
-//            )
-//        }
-//
-//        if (item.productNote.orEmpty().isNotBlank()) {
-//            Text(
-//                "Catatan: ",
-//                style = MaterialTheme.typography.bodyMedium.copy(
-//                    fontWeight = FontWeight.Bold
-//                )
-//            )
-//            Text(
-//                item.productNote.orEmpty(),
-//                style = MaterialTheme.typography.bodyMedium
-//            )
-//        }
-//    }
-//}
-
 @Preview(showBackground = true)
 @Composable
 private fun PreviewTransactionUI() {
     AppTheme {
+        TransactionViewScreen(
+            component = object : TransactionViewComponent {
+                override val state: StateFlow<TransactionViewState> = MutableStateFlow(
+                    TransactionViewState(
+                        transaction = Transaction(
+                            id = 0,
+                            customerName = Name("Rudi"),
+                            items = listOf(
+                                TransactionItem(
+                                    id = 1,
+                                    type = TransactionItemType.Product,
+                                    referenceId = 1,
+                                    name = Name("Salak Pondoh"),
+                                    quantity = Amount(50.toFloat()),
+                                    sellPrice = Price(5000.toBigDecimal()),
+                                    note = "2 Karung",
+                                    products = listOf(
+                                        TransactionProduct(
+                                            productId = 1,
+                                            productName = Name("Salak Pondoh"),
+                                            skuNumber = null,
+                                            imageUri = null,
+                                            buyPrice = Price(0.toBigDecimal()),
+                                            sellPrice = Price(5000.toBigDecimal()),
+                                            unit = PosleUnit("Kg"),
+                                            note = "2 Karung",
+                                            quantity = Amount(50.toFloat()),
+                                            variants = emptyList()
+                                        )
+                                    ),
+                                    createdAt = Clock.System.now().toEpochMilliseconds(),
+                                    updatedAt = null
+                                )
+                            ),
+                            isRecapped = false,
+                            createdAt = Clock.System.now().toEpochMilliseconds(),
+                            updatedAt = null
+                        ),
+                        settings = PosLeSettings(isTransactionRecapNeeded = true)
+                    )
+                )
 
+                override fun onEvent(event: TransactionViewEvent) {
+                    TODO("Not yet implemented")
+                }
+            },
+            isBluetoothPermissionGranted = true,
+            onRequestBluetoothPermission = {}
+        )
     }
 }

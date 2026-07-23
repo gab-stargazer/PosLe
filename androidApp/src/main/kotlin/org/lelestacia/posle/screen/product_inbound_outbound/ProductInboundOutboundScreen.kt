@@ -3,9 +3,12 @@ package org.lelestacia.posle.screen.product_inbound_outbound
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -52,7 +54,7 @@ fun ProductInboundOutboundScreen(
         Dialog(
             onDismissRequest = { component.onEvent(OnToggleDialog) }
         ) {
-            ProductInboundOutboundAddStockDialog(
+            ProductInboundOutboundDialog(
                 state = state.addStockState,
                 onEvent = component::onEvent
             )
@@ -78,23 +80,32 @@ fun ProductInboundOutboundScreen(
                     }
                 }
             }
-        }
+        },
+        contentWindowInsets = WindowInsets(),
+        modifier = modifier
     ) { paddingValues ->
         LazyColumn(
+            contentPadding = PaddingValues(
+                bottom = 128.dp,
+                start = 12.dp,
+                end = 12.dp,
+                top = 12.dp
+            ),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .background(MaterialTheme.colorScheme.surfaceContainerLowest)
         ) {
             items(
-                paging.itemCount,
-                paging.itemKey { stockMovement -> stockMovement.id }) {
+                count = paging.itemCount,
+                key = paging.itemKey { stockMovement -> stockMovement.id }) {
                 paging[it]?.let { stockMovement ->
                     Column(modifier = Modifier.animateItem()) {
                         ProductInboundOutboundItem(
                             stockMovement = stockMovement,
                             modifier = Modifier
                         )
-                        HorizontalDivider()
                     }
                 }
             }

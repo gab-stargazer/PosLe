@@ -6,12 +6,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -21,6 +24,7 @@ import kotlinx.collections.immutable.ImmutableList
 import org.lelestacia.posle.data.entity.TransactionItemType
 import org.lelestacia.posle.domain.model.TransactionItem
 import org.lelestacia.posle.ui.theme.AppTheme
+import org.lelestacia.posle.ui.theme.MintCream
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.toFormattedDateTime
 import org.lelestacia.posle.util.toRupiah
@@ -33,69 +37,76 @@ fun TransactionReceipt(
     transactionProduct: ImmutableList<TransactionItem>,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+    ElevatedCard(
+        shape = RectangleShape,
+        colors = CardDefaults.cardColors(
+            containerColor = MintCream
+        ),
         modifier = modifier
-            .fillMaxWidth()
-            .background(Color.White)
-            .padding(24.dp)
     ) {
-        Text(
-            text = storeName.value.ifEmpty { "Posle" }.uppercase(),
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Bold,
-                fontFamily = FontFamily.Monospace
-            )
-        )
-
-        Text(
-            text = "Tanggal: ${transactionDate.toFormattedDateTime()}".uppercase(),
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontFamily = FontFamily.Monospace
-            ),
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 12.dp)
-        )
-
-        if (customerName.value.isNotBlank()) {
+                .background(Color.White)
+                .padding(24.dp)
+        ) {
             Text(
-                "Penerima: ${customerName.value}".uppercase(),
+                text = storeName.value.ifEmpty { "Posle" }.uppercase(),
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = FontFamily.Monospace
+                )
+            )
+
+            Text(
+                text = "Tanggal: ${transactionDate.toFormattedDateTime()}".uppercase(),
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontFamily = FontFamily.Monospace
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(top = 12.dp)
             )
-        }
 
-        Text(
-            "================================================================================================",
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontFamily = FontFamily.Monospace
-            ),
-            overflow = TextOverflow.Clip,
-            maxLines = 1
-        )
-
-        transactionProduct.forEach { transactionItem ->
-            when (transactionItem.type) {
-                TransactionItemType.Product -> TransactionReceiptProduct(transactionItem.products.first())
-                TransactionItemType.Bundle -> TransactionReceiptBundle(transactionItem)
+            if (customerName.value.isNotBlank()) {
+                Text(
+                    "Penerima: ${customerName.value}".uppercase(),
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontFamily = FontFamily.Monospace
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
             }
-        }
 
-        Text(
-            "================================================================================================",
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontFamily = FontFamily.Monospace
-            ),
-            overflow = TextOverflow.Clip,
-            maxLines = 1
-        )
+            Text(
+                "================================================================================================",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontFamily = FontFamily.Monospace
+                ),
+                overflow = TextOverflow.Clip,
+                maxLines = 1
+            )
 
-        val totalPrice = transactionProduct.map { cartItems ->
-            cartItems.sellPrice.value * cartItems.quantity.value.toBigDecimal()
+            transactionProduct.forEach { transactionItem ->
+                when (transactionItem.type) {
+                    TransactionItemType.Product -> TransactionReceiptProduct(transactionItem.products.first())
+                    TransactionItemType.Bundle -> TransactionReceiptBundle(transactionItem)
+                }
+            }
+
+            Text(
+                "================================================================================================",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontFamily = FontFamily.Monospace
+                ),
+                overflow = TextOverflow.Clip,
+                maxLines = 1
+            )
+
+            val totalPrice = transactionProduct.map { cartItems ->
+                cartItems.sellPrice.value * cartItems.quantity.value.toBigDecimal()
 //            when (cartItems) {
 //                is CartItems.BundleCartItem -> {
 //                    cartItems.bundleTotalPrice.value
@@ -105,40 +116,41 @@ fun TransactionReceipt(
 //                    cartItems.productSellPrice.value * cartItems.productQuantity.value.toBigDecimal()
 //                }
 //            }
-        }.sumOf { it }
+            }.sumOf { it }
 
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
-        ) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    "Total Belanja:",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontFamily = FontFamily.Monospace
+                    ),
+                    overflow = TextOverflow.Clip,
+                    maxLines = 1
+                )
+
+                Text(
+                    totalPrice.toRupiah(),
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontFamily = FontFamily.Monospace
+                    ),
+                    overflow = TextOverflow.Clip,
+                    maxLines = 1
+                )
+            }
+
+
             Text(
-                "Total Belanja:",
-                style = MaterialTheme.typography.bodyMedium.copy(
+                "Terimakasih telah berbelanja",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.Monospace
                 ),
-                overflow = TextOverflow.Clip,
-                maxLines = 1
-            )
-
-            Text(
-                totalPrice.toRupiah(),
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontFamily = FontFamily.Monospace
-                ),
-                overflow = TextOverflow.Clip,
-                maxLines = 1
+                modifier = Modifier.padding(top = 12.dp)
             )
         }
-
-
-        Text(
-            "Terimakasih telah berbelanja",
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Bold,
-                fontFamily = FontFamily.Monospace
-            ),
-            modifier = Modifier.padding(top = 12.dp)
-        )
     }
 }
 

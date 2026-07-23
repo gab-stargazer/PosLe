@@ -88,7 +88,8 @@
     <string name="btn_save_category">Simpan Category</string>
     <string name="btn_delete">Hapus</string>
     <string name="btn_recap">Rekap</string>
-    <string name="btn_print">Cetak</string>
+    <string name="btn_print_digital">Cetak Digital</string>
+    <string name="btn_print_physical">Cetak Fisik</string>
     <string name="btn_save_transaction">Simpan Transaksi</string>
     <string name="btn_save_bundle">Simpan Paket</string>
     <string name="btn_add_to_cart">Tambahkan</string>
@@ -136,11 +137,22 @@
     <string name="title_subtotal">Subtotal: %1$s</string>
     <string name="title_receipt">Struk Transaksi</string>
     <string name="title_cart_is_empty">Keranjang masih kosong</string>
+    <string name="title_product_purchase">Pembelian</string>
+    <string name="title_product_sale">Penjualan</string>
+    <string name="title_product_return">Pengembalian</string>
+    <string name="title_product_adjustment_increase">Penyesuaian Bertambah</string>
+    <string name="title_product_adjustment_decrease">Penyesuaian Berkurang</string>
 
     <!--Subtitle-->
     <string name="subtitle_price">Harga</string>
     <string name="subtitle_date">Tanggal</string>
 
+    <!--Description-->
+    <string name="description_product_purchase">Stok bertambah karena pembelian barang dari pemasok.</string>
+    <string name="description_product_sale">Stok berkurang karena barang telah terjual kepada pelanggan.</string>
+    <string name="description_product_return">Stok bertambah karena barang dikembalikan oleh pelanggan.</string>
+    <string name="description_product_adjustment_increase">Stok ditambahkan secara manual untuk menyesuaikan jumlah stok yang sebenarnya.</string>
+    <string name="description_product_adjustment_decrease">Stok dikurangi secara manual untuk menyesuaikan jumlah stok yang sebenarnya.</string>
 
     <!--Placeholder-->
     <string name="placeholder_store_name">Masukkan Nama Toko</string>

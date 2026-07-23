@@ -1,13 +1,14 @@
 package org.lelestacia.posle.screen.product_inbound_outbound
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,12 +21,13 @@ import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.data.entity.StockMovementType
 import org.lelestacia.posle.domain.model.StockMovement
 import org.lelestacia.posle.ui.theme.AppTheme
+import org.lelestacia.posle.ui.theme.CharcoalBlue
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Unit
+import org.lelestacia.posle.util.Util
 import org.lelestacia.posle.util.toFormattedDateTime
 import posle.shared.generated.resources.Res
-import posle.shared.generated.resources.title_outbound_purchase
 import posle.shared.generated.resources.txt_product_inbound
 import posle.shared.generated.resources.txt_product_outbound
 import kotlin.math.abs
@@ -36,66 +38,75 @@ fun ProductInboundOutboundItem(
     stockMovement: StockMovement,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
+    ElevatedCard(
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
+        ),
+        shape = Util.defaultShape,
         modifier = modifier
-            .fillMaxWidth()
-            .padding(12.dp)
+            .border(1.dp, CharcoalBlue, Util.defaultShape)
     ) {
-        Column(
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
-                .weight(1F)
-                .padding(end = 12.dp)
+                .fillMaxWidth()
+                .padding(12.dp)
         ) {
-            Text(
-                text = when (stockMovement.movementType) {
-                    StockMovementType.Purchase, StockMovementType.AdjustmentIncrease -> "Barang Masuk"
-                    StockMovementType.AdjustmentDecrease, StockMovementType.Sale, StockMovementType.Return -> "Barang Keluar"
-                },
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold
-                )
-            )
-
-            Text(
-                "Waktu: ${stockMovement.createdAt.toFormattedDateTime()}",
-                style = MaterialTheme.typography.bodySmall
-            )
-
-            Text(
-                stringResource(
-                    when (stockMovement.movementType) {
-                        StockMovementType.Purchase, StockMovementType.AdjustmentIncrease -> Res.string.txt_product_inbound
-                        StockMovementType.Sale, StockMovementType.AdjustmentDecrease, StockMovementType.Return -> Res.string.txt_product_outbound
-                    },
-                    stockMovement.productName.value,
-                    abs(stockMovement.amount.value).roundToInt(),
-                    stockMovement.productUnit.value
-                ),
-                style = MaterialTheme.typography.bodyMedium,
+            Column(
                 modifier = Modifier
-                    .padding(end = 12.dp, top = 6.dp)
-            )
-        }
-
-        Card(
-            shape = RoundedCornerShape(25F),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                contentColor =MaterialTheme.colorScheme.onTertiaryContainer
-            )
-        ) {
-            Text(
-                text = stringResource(Res.string.title_outbound_purchase ),
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = FontWeight.SemiBold
-                ),
-                modifier = Modifier.padding(
-                    horizontal = 12.dp,
-                    vertical = 6.dp
+                    .weight(1F)
+                    .padding(end = 12.dp)
+            ) {
+                Text(
+                    text = when (stockMovement.movementType) {
+                        StockMovementType.Purchase, StockMovementType.AdjustmentIncrease -> "Barang Masuk"
+                        StockMovementType.AdjustmentDecrease, StockMovementType.Sale, StockMovementType.Return -> "Barang Keluar"
+                    },
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    )
                 )
-            )
+
+                Text(
+                    "Waktu: ${stockMovement.createdAt.toFormattedDateTime()}",
+                    style = MaterialTheme.typography.bodySmall
+                )
+
+                Text(
+                    stringResource(
+                        when (stockMovement.movementType) {
+                            StockMovementType.Purchase, StockMovementType.AdjustmentIncrease -> Res.string.txt_product_inbound
+                            StockMovementType.Sale, StockMovementType.AdjustmentDecrease, StockMovementType.Return -> Res.string.txt_product_outbound
+                        },
+                        stockMovement.productName.value,
+                        abs(stockMovement.amount.value).roundToInt(),
+                        stockMovement.productUnit.value
+                    ),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .padding(end = 12.dp, top = 6.dp)
+                )
+            }
+
+            Card(
+                shape = Util.defaultShape,
+                colors = CardDefaults.cardColors(
+                    containerColor = stockMovement.movementType.backgroundColor,
+                    contentColor = stockMovement.movementType.textColor
+                )
+            ) {
+                Text(
+                    text = stringResource(stockMovement.movementType.title),
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    modifier = Modifier.padding(
+                        horizontal = 12.dp,
+                        vertical = 6.dp
+                    )
+                )
+            }
         }
     }
 }
@@ -113,7 +124,8 @@ private fun PreviewProductInboundItem() {
                 movementType = StockMovementType.Sale,
                 amount = Amount(10F),
                 createdAt = 0L
-            )
+            ),
+            modifier = Modifier.padding(12.dp)
         )
     }
 }
@@ -131,7 +143,8 @@ private fun PreviewProductOutboundItem() {
                 movementType = StockMovementType.Purchase,
                 amount = Amount(-5F),
                 createdAt = 0L
-            )
+            ),
+            modifier = Modifier.padding(12.dp)
         )
     }
 }
@@ -149,7 +162,8 @@ private fun PreviewProductAdjustmentItem() {
                 movementType = StockMovementType.AdjustmentDecrease,
                 amount = Amount(-2F),
                 createdAt = 0L
-            )
+            ),
+            modifier = Modifier.padding(12.dp)
         )
     }
 }

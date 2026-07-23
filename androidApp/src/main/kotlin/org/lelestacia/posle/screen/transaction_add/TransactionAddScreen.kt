@@ -170,6 +170,7 @@ fun TransactionAddScreen(
                         color = BurgundyRed
                     )
                 },
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Tab(

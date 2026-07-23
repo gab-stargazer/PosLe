@@ -1,5 +1,5 @@
 [versions]
-agp = "9.3.0"
+agp = "9.3.1"
 android-compileSdk = "37"
 android-minSdk = "26"
 android-targetSdk = "37"
@@ -7,11 +7,11 @@ androidx-activity = "1.13.0"
 androidx-appcompat = "1.7.1"
 androidx-core = "1.19.0"
 androidx-espresso = "3.7.0"
-androidx-lifecycle = "2.11.0-rc01"
+androidx-lifecycle = "2.11.0"
 androidx-testExt = "1.3.0"
 composeMultiplatform = "1.11.1"
 junit = "4.13.2"
-kotlin = "2.4.0"
+kotlin = "2.4.10"
 kotlinx-coroutines = "1.11.0"
 material3 = "1.11.0-alpha07"
 materialIconExtended = "1.7.3"
@@ -22,12 +22,12 @@ koin-bom = "4.2.2"
 kotlinxDatetime = "0.8.0"
 google-crashlytic = "3.0.7"
 google-gms = "4.5.0"
-google-firebase-bom = "34.15.0"
+google-firebase-bom = "34.16.0"
 ksp = "2.3.9"
 room = "2.8.4"
 sqlite = "2.7.0"
 paging = "3.5.0"
-serializationPlugin = "2.4.0"
+serializationPlugin = "2.4.10"
 serializationLibrary = "1.11.0"
 filekit = "0.14.2"
 coil = "3.5.0"
@@ -124,4 +124,4 @@ kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "serializationPlugin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-stability-analyzer = { id = "com.github.skydoves.compose.stability.analyzer", version = "0.10.0" }
+stability-analyzer = { id = "com.github.skydoves.compose.stability.analyzer", version = "0.11.0" }

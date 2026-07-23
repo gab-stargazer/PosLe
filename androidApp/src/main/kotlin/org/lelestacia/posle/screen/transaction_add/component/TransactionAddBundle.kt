@@ -27,7 +27,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.model.Bundle
 import org.lelestacia.posle.domain.model.BundleProduct
 import org.lelestacia.posle.ui.theme.AppTheme
-import org.lelestacia.posle.ui.theme.BurgundyRed
+import org.lelestacia.posle.ui.theme.CharcoalBlue
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
@@ -57,7 +57,7 @@ fun TransactionAddBundle(
                 clip = true,
             )
             .background(MaterialTheme.colorScheme.surfaceContainerLowest)
-            .border(2.dp, BurgundyRed, Util.defaultShape)
+            .border(2.dp, CharcoalBlue, Util.defaultShape)
             .clickable(onClick = onClick)
     ) {
         Column(

@@ -3,6 +3,8 @@ package org.lelestacia.posle.screen.product_inbound_outbound
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +15,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,9 +45,11 @@ import org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInb
 import org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnProductSelected
 import org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInboundOutboundComponentState.ProductInboundOutboundAddStockState
 import org.lelestacia.posle.ui.theme.AppTheme
+import org.lelestacia.posle.ui.theme.CharcoalBlue
 import org.lelestacia.posle.ui.theme.successLight
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.SampleData
+import org.lelestacia.posle.util.Util
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.label_product_amount
 import posle.shared.generated.resources.label_product_name
@@ -52,12 +57,15 @@ import posle.shared.generated.resources.title_add_product_stock
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductInboundOutboundAddStockDialog(
+fun ProductInboundOutboundDialog(
     state: ProductInboundOutboundAddStockState,
     onEvent: (ProductInboundOutboundAddStockEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     ElevatedCard(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
+        ),
         modifier = modifier
     ) {
         Column(
@@ -72,69 +80,73 @@ fun ProductInboundOutboundAddStockDialog(
                 )
             )
 
-            ExposedDropdownMenuBox(
-                expanded = isExpanded,
-                onExpandedChange = {
-                    isExpanded = it
-                },
-                modifier = Modifier.padding(top = 12.dp)
+            Box(
+                modifier = Modifier
+                    .padding(top = 12.dp)
+                    .border(
+                        width = 1.dp,
+                        color = CharcoalBlue,
+                        shape = Util.defaultShape
+                    )
             ) {
-                TextField(
-                    value = state.productName.value,
-                    onValueChange = { newName ->
-                        onEvent(OnProductNameChanged(Name(newName)))
-                    },
-                    shape = RoundedCornerShape(25F),
-                    colors = TextFieldDefaults.colors(
-                        unfocusedIndicatorColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        focusedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    ),
-                    label = {
-                        Text(
-                            text = stringResource(Res.string.label_product_name),
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
-                        )
-                    },
-                    trailingIcon = {
-                        AnimatedVisibility(
-                            state.selectedProduct != null,
-                            enter = fadeIn(),
-                            exit = fadeOut()
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Check,
-                                contentDescription = Icons.Default.Check.name,
-                                tint = successLight
-                            )
-                        }
-                    },
-                    textStyle = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable)
-                )
-
-                ExposedDropdownMenu(
+                ExposedDropdownMenuBox(
                     expanded = isExpanded,
-                    onDismissRequest = {
-                        isExpanded = false
+                    onExpandedChange = {
+                        isExpanded = it
                     }
                 ) {
-                    state.availableProducts.forEach { product ->
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = product.name.value,
-                                    style = MaterialTheme.typography.bodyMedium
+                    TextField(
+                        value = state.productName.value,
+                        onValueChange = { newName ->
+                            onEvent(OnProductNameChanged(Name(newName)))
+                        },
+                        shape = Util.defaultShape,
+                        colors = Util.defaultTransparentTextFieldColor(),
+                        label = {
+                            Text(
+                                text = stringResource(Res.string.label_product_name),
+                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                            )
+                        },
+                        trailingIcon = {
+                            this@Column.AnimatedVisibility(
+                                state.selectedProduct != null,
+                                enter = fadeIn(),
+                                exit = fadeOut()
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = Icons.Default.Check.name,
+                                    tint = successLight
                                 )
-                            },
-                            onClick = {
-                                onEvent(OnProductSelected(product))
-                                isExpanded = false
                             }
-                        )
+                        },
+                        textStyle = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable)
+                    )
+
+                    ExposedDropdownMenu(
+                        expanded = isExpanded,
+                        onDismissRequest = {
+                            isExpanded = false
+                        }
+                    ) {
+                        state.availableProducts.forEach { product ->
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = product.name.value,
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                },
+                                onClick = {
+                                    onEvent(OnProductSelected(product))
+                                    isExpanded = false
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -176,9 +188,9 @@ fun ProductInboundOutboundAddStockDialog(
 
 @Preview(showBackground = true)
 @Composable
-private fun PreviewInboundOutboundAddStockDialog() {
+private fun PreviewInboundOutboundDialog() {
     AppTheme {
-        ProductInboundOutboundAddStockDialog(
+        ProductInboundOutboundDialog(
             state = ProductInboundOutboundAddStockState(
                 availableProducts = SampleData.products
             ),

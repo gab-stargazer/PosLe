@@ -38,6 +38,7 @@ import coil3.compose.AsyncImage
 import kotlinx.coroutines.flow.flowOf
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.ui.theme.AppTheme
+import org.lelestacia.posle.ui.theme.MintCream
 import org.lelestacia.posle.util.SampleData
 import org.lelestacia.posle.util.toRupiah
 
@@ -73,7 +74,7 @@ private fun TransactionAddProductCard(
 ) {
     ElevatedCard(
         colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MintCream,
             contentColor = MaterialTheme.colorScheme.onSurfaceVariant
         ),
         modifier = modifier

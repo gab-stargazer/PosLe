@@ -2,13 +2,15 @@ package org.lelestacia.posle.data.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.SkuNumber
 import org.lelestacia.posle.util.Unit as PosLeUnit
 
 @Entity(
-    tableName = "product"
+    tableName = "product",
+    indices = [Index("name"), Index("sku_number")]
 )
 data class ProductEntity(
     @ColumnInfo("id")

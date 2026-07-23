@@ -1,5 +1,6 @@
 package org.lelestacia.posle.navigation
 
+import android.Manifest
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -10,6 +11,8 @@ import androidx.compose.ui.Modifier
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.fade
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
+import com.meticha.permissions_compose.AppPermission
+import com.meticha.permissions_compose.rememberAppPermissionState
 import org.lelestacia.posle.screen.DashboardScreen
 import org.lelestacia.posle.screen.QrScannerScreen
 import org.lelestacia.posle.screen.bundle_add_edit.BundleAddEditScreen
@@ -50,10 +53,29 @@ fun RootContent(
                 }
 
 
-
                 is Child.TransactionView -> {
-                    TransactionViewScreen(component = child.component)
+                    val bluetoothPermission = rememberAppPermissionState(
+                        permissions = listOf(
+                            AppPermission(
+                                permission = Manifest.permission.BLUETOOTH_SCAN,
+                                description = "Camera access is needed to take photos. Please grant this permission.",
+                                isRequired = true
+                            ),
+                            AppPermission(
+                                permission = Manifest.permission.BLUETOOTH_CONNECT,
+                                description = "Microphone access is needed for voice recording. Please grant this permission.",
+                                isRequired = false
+                            ),
+                        )
+                    )
+
+                    TransactionViewScreen(
+                        component = child.component,
+                        isBluetoothPermissionGranted = bluetoothPermission.allRequiredGranted(),
+                        onRequestBluetoothPermission = bluetoothPermission::requestPermission
+                    )
                 }
+
                 is Child.TransactionProductConfig -> {
                     TransactionProductConfigScreen(component = child.component)
                 }
@@ -61,6 +83,7 @@ fun RootContent(
                 is Child.ProductAddEdit -> {
                     ProductAddEditScreen(component = child.component)
                 }
+
                 is Child.VariantView -> {
                     ProductAddVariantsViewScreen(component = child.component)
                 }

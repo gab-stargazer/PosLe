@@ -49,6 +49,7 @@ import org.lelestacia.posle.domain.state_event.TransactionRecapEvent.OnNavigateT
 import org.lelestacia.posle.domain.state_event.TransactionRecapEvent.OnPrimaryTabChanged
 import org.lelestacia.posle.domain.state_event.TransactionRecapEvent.OnSearchQueryChanged
 import org.lelestacia.posle.domain.state_event.TransactionRecapState
+import org.lelestacia.posle.navigation.Config.TransactionRecapProductItem
 import org.lelestacia.posle.screen.transaction_history.TransactionItem
 import org.lelestacia.posle.screen.transaction_recap.component.TransactionRecapProductOutbound
 import org.lelestacia.posle.screen.transaction_recap.component.TransactionRecapTabRow
@@ -79,7 +80,7 @@ fun TransactionRecapScreen(
                     when (transactionItem.type) {
                         TransactionItemType.Product -> {
                             transactionItem.products.map {
-                                org.lelestacia.posle.navigation.Config.TransactionRecapProductItem(
+                                TransactionRecapProductItem(
                                     type = TransactionItemType.Product,
                                     product = it
                                 )
@@ -88,7 +89,7 @@ fun TransactionRecapScreen(
 
                         TransactionItemType.Bundle -> {
                             transactionItem.products.map { product ->
-                                org.lelestacia.posle.navigation.Config.TransactionRecapProductItem(
+                                TransactionRecapProductItem(
                                     type = TransactionItemType.Bundle,
                                     product = product.copy(
                                         quantity = Amount(product.quantity.value * transactionItem.quantity.value)
@@ -164,6 +165,7 @@ fun TransactionRecapScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surfaceContainerLowest)
                 .padding(paddingValues)
         ) {
             Column(
@@ -207,11 +209,12 @@ fun TransactionRecapScreen(
                 PrimaryTabRow(
                     divider = {},
                     indicator = {
-                        TabRowDefaults.SecondaryIndicator(
+                        TabRowDefaults.PrimaryIndicator(
                             modifier = Modifier.tabIndicatorOffset(selectedTabIndex = state.selectedPrimaryTab),
                             color = BurgundyRed
                         )
                     },
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
                     selectedTabIndex = state.selectedPrimaryTab,
                     modifier = Modifier.weight(1F)
                 ) {

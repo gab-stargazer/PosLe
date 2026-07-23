@@ -12,7 +12,10 @@ import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.Unit
 
-@Entity(tableName = "bundle")
+@Entity(
+    tableName = "bundle",
+    indices = [Index("name")]
+)
 data class BundleEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
