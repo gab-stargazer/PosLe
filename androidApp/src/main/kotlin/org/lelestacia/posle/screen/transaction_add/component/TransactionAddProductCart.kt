@@ -172,7 +172,7 @@ fun TransactionAddProductCart(
             Text(amountSb)
 
             if (!cartItem.productNote.isNullOrBlank()) {
-                com.composeunstyled.Text(
+                Text(
                     text = stringResource(
                         Res.string.txt_cart_item_note,
                         cartItem.productNote.orEmpty()

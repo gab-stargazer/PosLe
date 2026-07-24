@@ -151,6 +151,7 @@ class PosLeComponent(
 
             TransactionAddConfig -> TransactionAdd(
                 TransactionAddComponentImpl(
+                    snackBarHostState = snackbarHostState,
                     componentContext = context,
                     productRepository = productRepository,
                     bundleRepository = bundleRepository,

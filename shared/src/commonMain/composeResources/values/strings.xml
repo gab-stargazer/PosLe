@@ -11,6 +11,7 @@
 
     <!--Label-->
     <string name="label_product_name">Nama Produk</string>
+    <string name="label_movement_type">Jenis Perubahan</string>
     <string name="label_product_sku_number">Nomor SKU(Opsional)</string>
     <string name="label_product_unit">Satuan Produk</string>
     <string name="label_product_amount">Jumlah </string>
@@ -96,6 +97,7 @@
     <string name="btn_cancel">Batalkan</string>
     <string name="btn_view_receipt">Lihat Struk</string>
     <string name="btn_view_detail">Lihat Detail</string>
+    <string name="btn_add_mutation">Tambahkan Mutasi</string>
 
     <!--Item-->
     <string name="txt_product_inbound">Produk %1$s masuk sejumlah %2$s %3$s</string>
@@ -126,7 +128,7 @@
     <string name="title_add_product_to_category_shorts">Tambahkan Produk</string>
     <string name="title_outbound_purchase">Penjualan</string>
     <string name="title_inbound">Barang Masuk</string>
-    <string name="title_add_product_stock">Tambahkan Stok Produk</string>
+    <string name="title_add_stock_movement">Tambahkan Perubahan Stok</string>
     <string name="title_buy_price_history">Histori Harga Modal</string>
     <string name="title_sell_price_history">Histori Harga Jual</string>
     <string name="title_product_outbound">Barang Keluar</string>

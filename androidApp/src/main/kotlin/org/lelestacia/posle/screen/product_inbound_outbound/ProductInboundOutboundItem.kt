@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -21,7 +22,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.data.entity.StockMovementType
 import org.lelestacia.posle.domain.model.StockMovement
 import org.lelestacia.posle.ui.theme.AppTheme
-import org.lelestacia.posle.ui.theme.CharcoalBlue
+import org.lelestacia.posle.ui.theme.BurgundyRed
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Unit
@@ -44,7 +45,12 @@ fun ProductInboundOutboundItem(
         ),
         shape = Util.defaultShape,
         modifier = modifier
-            .border(1.dp, CharcoalBlue, Util.defaultShape)
+            .shadow(
+                elevation = 4.dp,
+                shape = Util.defaultShape,
+                clip = true,
+            )
+            .border(1.dp, BurgundyRed, Util.defaultShape)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -64,7 +70,8 @@ fun ProductInboundOutboundItem(
                         StockMovementType.AdjustmentDecrease, StockMovementType.Sale, StockMovementType.Return -> "Barang Keluar"
                     },
                     style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = BurgundyRed
                     )
                 )
 

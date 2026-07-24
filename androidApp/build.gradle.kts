@@ -36,8 +36,6 @@ dependencies {
     //  Permission Compose
     implementation(libs.permissions.compose)
 
-    implementation("com.github.SmartToolFactory:Compose-Screenshot:1.0.3")
-
     //  Testing
     androidTestImplementation(libs.androidx.testExt.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -54,8 +52,8 @@ android {
         applicationId = "org.lelestacia.posle"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 18
-        versionName = "1.2.2"
+        versionCode = 19
+        versionName = "0.2.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

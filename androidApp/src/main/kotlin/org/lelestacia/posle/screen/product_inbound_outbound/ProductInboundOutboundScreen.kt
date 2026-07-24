@@ -36,7 +36,7 @@ import org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInb
 import org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnToggleDialog
 import org.lelestacia.posle.domain.model.Product
 import posle.shared.generated.resources.Res
-import posle.shared.generated.resources.btn_add_product
+import posle.shared.generated.resources.btn_add_mutation
 import kotlin.math.roundToInt
 
 @TraceRecomposition
@@ -55,7 +55,7 @@ fun ProductInboundOutboundScreen(
             onDismissRequest = { component.onEvent(OnToggleDialog) }
         ) {
             ProductInboundOutboundDialog(
-                state = state.addStockState,
+                state = state.addMovementState,
                 onEvent = component::onEvent
             )
         }
@@ -76,7 +76,7 @@ fun ProductInboundOutboundScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(imageVector = Icons.Default.Add, contentDescription = null)
-                        Text(stringResource(Res.string.btn_add_product))
+                        Text(stringResource(Res.string.btn_add_mutation))
                     }
                 }
             }

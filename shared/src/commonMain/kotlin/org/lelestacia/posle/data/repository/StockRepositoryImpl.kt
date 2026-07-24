@@ -32,7 +32,7 @@ class StockRepositoryImpl(
         }
     }
 
-    override suspend fun addStock(
+    override suspend fun addStockMovement(
         productId: Int,
         amount: Amount,
         movementType: StockMovementType,

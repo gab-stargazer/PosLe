@@ -86,7 +86,7 @@ import posle.shared.generated.resources.btn_update_product
 import posle.shared.generated.resources.label_product_name
 import posle.shared.generated.resources.label_product_sku_number
 import posle.shared.generated.resources.label_product_unit
-import posle.shared.generated.resources.title_add_product_stock
+import posle.shared.generated.resources.title_add_stock_movement
 import java.math.BigDecimal
 import kotlin.time.Clock
 
@@ -206,7 +206,7 @@ fun ProductAddEditScreen(
                         DropdownMenuItem(
                             text = {
                                 Text(
-                                    stringResource(Res.string.title_add_product_stock),
+                                    stringResource(Res.string.title_add_stock_movement),
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                             },

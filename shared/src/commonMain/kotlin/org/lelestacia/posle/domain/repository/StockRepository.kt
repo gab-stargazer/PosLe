@@ -9,5 +9,5 @@ import org.lelestacia.posle.util.Amount
 interface StockRepository {
 
     fun readStockMovement(): Flow<PagingData<StockMovement>>
-    suspend fun addStock(productId: Int, amount: Amount, movementType: StockMovementType, note: String? = null)
+    suspend fun addStockMovement(productId: Int, amount: Amount, movementType: StockMovementType, note: String? = null)
 }

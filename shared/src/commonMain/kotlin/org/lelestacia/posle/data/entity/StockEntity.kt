@@ -111,7 +111,7 @@ enum class StockMovementType(
         title = Res.string.title_product_adjustment_increase,
         description = Res.string.description_product_adjustment_increase,
         backgroundColor = Periwinkle,
-        textColor = onSurfaceLightHighContrast
+        textColor = surfaceContainerLowestLightHighContrast
     ),
     AdjustmentDecrease(
         title = Res.string.title_product_adjustment_decrease,

@@ -32,7 +32,7 @@ import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditState.P
 import org.lelestacia.posle.ui.theme.AppTheme
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.label_product_amount
-import posle.shared.generated.resources.title_add_product_stock
+import posle.shared.generated.resources.title_add_stock_movement
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,7 +50,7 @@ fun ProductAddStockDialog(
         ) {
             var isExpanded by remember { mutableStateOf(false) }
             Text(
-                stringResource(Res.string.title_add_product_stock),
+                stringResource(Res.string.title_add_stock_movement),
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold
                 )

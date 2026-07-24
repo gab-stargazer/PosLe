@@ -1,18 +1,11 @@
 package org.lelestacia.posle.screen.transaction_add.component
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -20,28 +13,26 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EditNote
-import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.TextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.composables.ui.components.Icon
-import com.composables.ui.components.Text
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.model.Bundle
+import org.lelestacia.posle.ui.component.BorderedTextField
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.BurgundyRed
 import org.lelestacia.posle.ui.theme.CharcoalBlue
@@ -89,148 +80,56 @@ fun TransactionAddBundleDialog(
                 )
             )
 
-            Box(
+            BorderedTextField(
+                value = bundle?.name?.value.orEmpty(),
+                onValueChange = {},
+                label = stringResource(Res.string.label_bundle_name),
+                readOnly = true,
+                modifier = Modifier.padding(top = 12.dp)
+            )
+
+            BorderedTextField(
+                value = quantity,
+                onValueChange = onQuantityChange,
+                label = stringResource(Res.string.label_product_amount),
+                errorMessage = quantityError,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = { focusManager.clearFocus(true) }
+                ),
                 modifier = Modifier
-                    .padding(top = 12.dp)
-                    .clip(RoundedCornerShape(25F))
-                    .border(
-                        width = 2.dp,
-                        color = CharcoalBlue,
-                        shape = RoundedCornerShape(25F)
-                    )
-            ) {
-                TextField(
-                    value = bundle?.name?.value.orEmpty(),
-                    onValueChange = {},
-                    label = {
-                        Text(
-                            stringResource(Res.string.label_bundle_name),
-                            style = MaterialTheme.typography.labelMedium
-                        )
-                    },
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            focusManager.clearFocus(true)
-                        }
-                    ),
-                    readOnly = true,
-                    maxLines = 1,
-                    textStyle = MaterialTheme.typography.bodyMedium,
-                    colors = Util.defaultTransparentTextFieldColor(),
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            Column {
-                Box(
-                    modifier = Modifier
-                        .padding(top = 8.dp)
-                        .clip(RoundedCornerShape(25F))
-                        .border(
-                            width = 2.dp,
-                            color = CharcoalBlue,
-                            shape = RoundedCornerShape(25F)
-                        )
-                ) {
-                    TextField(
-                        value = quantity,
-                        onValueChange = onQuantityChange,
-                        label = {
-                            Text(
-                                stringResource(Res.string.label_product_amount),
-                                style = MaterialTheme.typography.labelMedium
-                            )
-                        },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Done
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = {
-                                focusManager.clearFocus(true)
-                            }
-                        ),
-                        maxLines = 1,
-                        textStyle = MaterialTheme.typography.bodyMedium,
-                        colors = Util.defaultTransparentTextFieldColor(),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-
-                AnimatedVisibility(
-                    visible = quantityError != null,
-                    enter = expandVertically(),
-                    exit = shrinkVertically(),
-                    modifier = Modifier.padding(top = 6.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ErrorOutline,
-                            contentDescription = Icons.Default.ErrorOutline.name,
-                            tint = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.size(16.dp)
-                        )
-
-                        quantityError?.let {
-                            Text(
-                                quantityError,
-                                style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error)
-                            )
-                        }
-                    }
-                }
-            }
-
-            Box(
-                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(top = 8.dp)
-                    .clip(RoundedCornerShape(25F))
-                    .border(
-                        width = 2.dp,
-                        color = CharcoalBlue,
-                        shape = RoundedCornerShape(25F)
+            )
+
+            BorderedTextField(
+                state = noteState,
+                label = stringResource(Res.string.label_optional_note),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.EditNote,
+                        contentDescription = Icons.Default.EditNote.name
                     )
-            ) {
-                TextField(
-                    state = noteState,
-                    label = {
-                        Text(
-                            stringResource(Res.string.label_optional_note),
-                            style = MaterialTheme.typography.labelMedium
-                        )
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.EditNote,
-                            contentDescription = Icons.Default.EditNote.name
-                        )
-                    },
-                    lineLimits = TextFieldLineLimits.SingleLine,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Done
-                    ),
-                    onKeyboardAction = {
-                        focusManager.clearFocus(true)
-                    },
-                    textStyle = MaterialTheme.typography.bodyMedium,
-                    colors = Util.defaultTransparentTextFieldColor(),
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+                },
+                lineLimits = TextFieldLineLimits.SingleLine,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Done
+                ),
+                onKeyboardAction = { focusManager.clearFocus(true) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+            )
 
             Row(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 modifier = Modifier.padding(top = 12.dp)
             ) {
-                OutlinedButton (
+                OutlinedButton(
                     shape = Util.defaultShape,
                     onClick = onCancel,
                     border = BorderStroke(2.dp, BurgundyRed),

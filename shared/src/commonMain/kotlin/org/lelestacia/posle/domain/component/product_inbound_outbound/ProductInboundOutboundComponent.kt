@@ -6,6 +6,7 @@ import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import org.lelestacia.posle.data.PosLeSettings
+import org.lelestacia.posle.data.entity.StockMovementType
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.StockMovement
 import org.lelestacia.posle.util.Name
@@ -20,7 +21,7 @@ interface ProductInboundOutboundComponent {
 data class ProductInboundOutboundComponentState(
     val selectedTab: Int = 0,
     val isAddStockShown: Boolean = false,
-    val addStockState: ProductInboundOutboundAddStockState = ProductInboundOutboundAddStockState(),
+    val addMovementState: ProductInboundOutboundAddStockState = ProductInboundOutboundAddStockState(),
     val settingState: PosLeSettings = PosLeSettings()
 ) {
 
@@ -29,6 +30,7 @@ data class ProductInboundOutboundComponentState(
         val availableProducts: List<Product> = emptyList(),
         val selectedProduct: Product? = null,
         val productName: Name = Name(""),
+        val selectedMovementType: StockMovementType = StockMovementType.Purchase,
         val amountAdded: TextFieldState = TextFieldState(),
     )
 }
@@ -38,11 +40,12 @@ sealed interface ProductInboundOutboundComponentEvent {
     data class OnTabSelected(val index: Int) : ProductInboundOutboundComponentEvent
 
     sealed interface ProductInboundOutboundAddStockEvent : ProductInboundOutboundComponentEvent {
+        data object OnToggleDialog : ProductInboundOutboundAddStockEvent
+
         data class OnProductNameChanged(val newProductName: Name) :
             ProductInboundOutboundAddStockEvent
-
-        data object OnToggleDialog : ProductInboundOutboundAddStockEvent
         data class OnProductSelected(val product: Product) : ProductInboundOutboundAddStockEvent
-        data object OnAddStockClicked : ProductInboundOutboundAddStockEvent
+        data class OnMovementTypeChanged(val movementType: StockMovementType): ProductInboundOutboundAddStockEvent
+        data object OnAddMovementClicked : ProductInboundOutboundAddStockEvent
     }
 }

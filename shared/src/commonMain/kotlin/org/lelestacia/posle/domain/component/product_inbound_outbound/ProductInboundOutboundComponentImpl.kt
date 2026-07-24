@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.lelestacia.posle.data.SettingManager
 import org.lelestacia.posle.data.entity.StockMovementType
+import org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInboundOutboundComponentState.ProductInboundOutboundAddStockState
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.StockMovement
 import org.lelestacia.posle.domain.repository.ProductRepository
@@ -56,7 +57,7 @@ class ProductInboundOutboundComponentImpl(
         flow3 = _settings
     ) { state, products, settings ->
         state.copy(
-            addStockState = state.addStockState.copy(
+            addMovementState = state.addMovementState.copy(
                 availableProducts = products
             ),
             settingState = settings
@@ -78,7 +79,7 @@ class ProductInboundOutboundComponentImpl(
                 searchQuery.update { event.newProductName.value }
                 _state.update { currentState ->
                     currentState.copy(
-                        addStockState = currentState.addStockState.copy(
+                        addMovementState = currentState.addMovementState.copy(
                             productName = event.newProductName
                         )
                     )
@@ -88,21 +89,26 @@ class ProductInboundOutboundComponentImpl(
             ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnToggleDialog -> _state.update { currentState ->
                 currentState.copy(
                     isAddStockShown = !currentState.isAddStockShown,
-                    addStockState = ProductInboundOutboundComponentState.ProductInboundOutboundAddStockState()
+                    addMovementState = ProductInboundOutboundAddStockState()
                 )
             }
 
-            ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnAddStockClicked -> {
-                val currentState = _state.value.addStockState
+            ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnAddMovementClicked -> {
+                val currentState = _state.value.addMovementState
                 val product = currentState.selectedProduct ?: return
                 val amountString = currentState.amountAdded.text.toString()
                 val amount = amountString.toFloatOrNull() ?: return
 
                 scope.launch {
-                    stockRepository.addStock(
+                    stockRepository.addStockMovement(
                         productId = product.id,
-                        amount = Amount(amount),
-                        movementType = StockMovementType.Purchase
+                        amount = Amount(
+                            when (currentState.selectedMovementType) {
+                                StockMovementType.Sale, StockMovementType.AdjustmentDecrease -> amount.unaryMinus()
+                                StockMovementType.Return, StockMovementType.AdjustmentIncrease, StockMovementType.Purchase -> amount
+                            }
+                        ),
+                        movementType = currentState.selectedMovementType
                     )
 
                     onEvent(ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnToggleDialog)
@@ -111,9 +117,17 @@ class ProductInboundOutboundComponentImpl(
 
             is ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnProductSelected -> _state.update { currentState ->
                 currentState.copy(
-                    addStockState = currentState.addStockState.copy(
+                    addMovementState = currentState.addMovementState.copy(
                         selectedProduct = event.product,
                         productName = event.product.name
+                    )
+                )
+            }
+
+            is ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnMovementTypeChanged -> _state.update { currentState ->
+                currentState.copy(
+                    addMovementState = currentState.addMovementState.copy(
+                        selectedMovementType = event.movementType
                     )
                 )
             }
@@ -121,6 +135,7 @@ class ProductInboundOutboundComponentImpl(
             is ProductInboundOutboundComponentEvent.OnTabSelected -> _state.update { currentState ->
                 currentState.copy(selectedTab = event.index)
             }
+
         }
     }
 }

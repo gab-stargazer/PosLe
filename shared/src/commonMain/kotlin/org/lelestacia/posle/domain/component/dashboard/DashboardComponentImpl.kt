@@ -19,7 +19,7 @@ import org.lelestacia.posle.util.coroutineScope
 
 class DashboardComponentImpl(
     componentContext: ComponentContext,
-    private val navChildren: Value<ChildStack<NavConfig, NavChild>>,
+    navChildren: Value<ChildStack<NavConfig, NavChild>>,
     private val settingManager: SettingManager,
     val onNavigation: (DashboardNavigation) -> Unit,
 ) : ComponentContext by componentContext, DashboardComponent {

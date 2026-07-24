@@ -40,7 +40,7 @@ fun QrScannerScreen(
                 onCompletion = { qrData ->
                     component.onScannedQr(qrData)
                 },
-                overlayShape = OverlayShape.Square,
+                overlayShape = OverlayShape.Rectangle,
                 overlayColor = MaterialTheme.colorScheme.onSurface.copy(0.5F),
                 overlayBorderColor = MaterialTheme.colorScheme.surfaceContainerLowest,
                 zoomLevel = 1F,
@@ -51,7 +51,6 @@ fun QrScannerScreen(
                 customOverlay = null,
                 modifier = Modifier
                     .fillMaxSize()
-
             )
         }
     }

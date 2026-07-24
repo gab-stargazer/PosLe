@@ -254,7 +254,7 @@ class ProductAddEditComponentImpl(
                             .toFloatOrNull()
                             ?: return@launch
 
-                    stockRepository.addStock(
+                    stockRepository.addStockMovement(
                         productId = product?.id ?: return@launch,
                         amount = Amount(
                             state.value.dialogAddStockState

@@ -20,7 +20,6 @@ import posle.shared.generated.resources.destination_list_inbound_outbound
 import posle.shared.generated.resources.destination_list_product
 import posle.shared.generated.resources.destination_settings
 import posle.shared.generated.resources.destination_transaction_add
-import posle.shared.generated.resources.destination_transaction_history
 import posle.shared.generated.resources.destination_transaction_recap
 
 enum class NavDestination(
@@ -33,11 +32,11 @@ enum class NavDestination(
         Icons.Default.ShoppingCart,
         Res.string.destination_transaction_add
     ),
-    TransactionHistory(
-        NavConfig.TransactionHistory,
-        Icons.Default.History,
-        Res.string.destination_transaction_history
-    ),
+//    TransactionHistory(
+//        NavConfig.TransactionHistory,
+//        Icons.Default.History,
+//        Res.string.destination_transaction_history
+//    ),
     TransactionRecap(
         NavConfig.TransactionRecap,
         Icons.Default.History,

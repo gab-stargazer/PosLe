@@ -1,6 +1,7 @@
 package org.lelestacia.posle.domain.component.transaction_add
 
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.material3.SnackbarHostState
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.arkivanov.decompose.ComponentContext
@@ -44,7 +45,8 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class TransactionAddComponentImpl(
     componentContext: ComponentContext,
-    private val settingManager: SettingManager,
+    settingManager: SettingManager,
+    private val snackBarHostState: SnackbarHostState,
     private val navigation: TransactionAddNavigation,
     private val bundleRepository: BundleRepository,
     private val productRepository: ProductRepository,
@@ -185,7 +187,8 @@ class TransactionAddComponentImpl(
             TransactionAddEvent.OnNavigateToQrScanner -> {
                 navigation.onNavigateToQRScanner { skuNumber ->
                     scope.launch {
-                        productRepository.getProductBySkuNumber(skuNumber)?.let { product ->
+                        val product = productRepository.getProductBySkuNumber(skuNumber)
+                        product?.let { product ->
                             _state.update { currentState ->
                                 currentState.copy(
                                     isDialogProductShown = true,
@@ -195,6 +198,10 @@ class TransactionAddComponentImpl(
                                     )
                                 )
                             }
+                        }
+
+                        if (product == null) {
+                            snackBarHostState.showSnackbar("Produk tidak ditemukan")
                         }
                     }
                 }

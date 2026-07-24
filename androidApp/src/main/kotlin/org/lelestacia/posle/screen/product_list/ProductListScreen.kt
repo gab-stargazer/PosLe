@@ -213,7 +213,7 @@ fun ProductListScreen(
                 modifier = Modifier.weight(1F)
             ) {
 
-                if (state.settings.isProductStockTracked) {
+                if (state.settings.isProductStockTracked && lowStockProducts.itemCount > 0) {
                     lowStock(
                         lowStockProducts = lowStockProducts,
                         isStockTracked = state.settings.isProductStockTracked,
@@ -235,11 +235,13 @@ fun ProductListScreen(
                     onEvent = component::onEvent
                 )
 
-                unCategorized(
-                    uncategorizedProducts = uncategorizedProducts,
-                    isStockTracked = state.settings.isProductStockTracked,
-                    onEvent = component::onEvent
-                )
+                if (uncategorizedProducts.itemCount > 0) {
+                    unCategorized(
+                        uncategorizedProducts = uncategorizedProducts,
+                        isStockTracked = state.settings.isProductStockTracked,
+                        onEvent = component::onEvent
+                    )
+                }
             }
         }
     }
