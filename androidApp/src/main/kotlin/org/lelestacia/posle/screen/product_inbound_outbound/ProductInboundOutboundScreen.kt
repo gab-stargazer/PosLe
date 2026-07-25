@@ -35,9 +35,9 @@ import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInboundOutboundComponent
 import org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnToggleDialog
 import org.lelestacia.posle.domain.model.Product
+import org.lelestacia.posle.util.toDisplayText
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.btn_add_mutation
-import kotlin.math.roundToInt
 
 @TraceRecomposition
 @Composable
@@ -118,12 +118,7 @@ fun ProductStockItem(
     product: Product,
     modifier: Modifier = Modifier
 ) {
-    val amount =
-        if (product.stock.value % 1 == 0F) {
-            product.stock.value.roundToInt()
-        } else {
-            product.stock.value
-        }
+    val amount = product.stock.value.toDisplayText()
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -144,7 +139,7 @@ fun ProductStockItem(
             )
         }
         Text(
-            text = amount.toString(),
+            text = amount,
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary

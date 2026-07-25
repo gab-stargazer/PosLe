@@ -172,9 +172,10 @@ fun TransactionProductConfigScreen(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     IconButton(onClick = {
                                         val current =
-                                            state.amountState.text.toString().toFloatOrNull() ?: 0f
-                                        if (current > 1) component.onEvent(
-                                            TransactionProductConfigEvent.OnAmountChanged(current - 1)
+                                            state.amountState.text.toString().toBigDecimalOrNull() ?: BigDecimal.ZERO
+                                        if (current > BigDecimal.ONE) component.onEvent(
+                                            TransactionProductConfigEvent.OnAmountChanged(current.subtract(
+                                                BigDecimal.ONE))
                                         )
                                     }) {
                                         Icon(Icons.Default.Remove, contentDescription = null)
@@ -187,10 +188,10 @@ fun TransactionProductConfigScreen(
                                     )
                                     IconButton(onClick = {
                                         val current =
-                                            state.amountState.text.toString().toFloatOrNull() ?: 0f
+                                            state.amountState.text.toString().toBigDecimalOrNull() ?: BigDecimal.ZERO
                                         component.onEvent(
                                             TransactionProductConfigEvent.OnAmountChanged(
-                                                current + 1
+                                                current.add(BigDecimal.ONE)
                                             )
                                         )
                                     }) {
@@ -287,7 +288,7 @@ private fun TransactionProductConfigScreenPreview() {
         buyPrice = Price(BigDecimal("15000")),
         sellPrice = Price(BigDecimal("15000")),
         unit = Unit("Cup"),
-        stock = Amount(5F),
+        stock = Amount(BigDecimal("5")),
         variants = listOf(
             Variant(
                 id = 1,

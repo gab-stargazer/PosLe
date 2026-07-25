@@ -68,7 +68,7 @@ class PosLeComponent(
     componentContext: ComponentContext
 ) : ComponentContext by componentContext {
 
-    val snackbarHostState = SnackbarHostState()
+    val snackbarHostState by inject<SnackbarHostState>(SnackbarHostState::class.java)
 
     // Dependencies
     private val settingManager by inject<SettingManager>(SettingManager::class.java)
@@ -222,6 +222,7 @@ class PosLeComponent(
 
             is TransactionViewConfig -> TransactionView(
                 TransactionViewComponentImpl(
+                    snackbarHostState = snackbarHostState,
                     componentContext = context,
                     transaction = config.transaction,
                     settingManager = settingManager,

@@ -15,7 +15,7 @@ object SampleData {
             name = Name("Sate Ayam"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Porsi"),
             imageUri = null
         ),
@@ -24,7 +24,7 @@ object SampleData {
             name = Name("Es Teh Manis"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Gelas"),
             imageUri = null
         ),
@@ -33,7 +33,7 @@ object SampleData {
             name = Name("Nasi Putih"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Porsi"),
             imageUri = null
         ),
@@ -42,7 +42,7 @@ object SampleData {
             name = Name("Kerupuk"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Bungkus"),
             imageUri = null
         )
@@ -55,7 +55,7 @@ object SampleData {
             name = Name("Nasi Goreng Spesial"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Plate"),
             imageUri = null,
             variants = emptyList()
@@ -66,7 +66,7 @@ object SampleData {
             name = Name("Soto Ayam Lamongan"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Bowl"),
             imageUri = null,
             variants = emptyList()
@@ -77,7 +77,7 @@ object SampleData {
             name = Name("Gudeg Manggar"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Plate"),
             imageUri = null,
             variants = emptyList()
@@ -88,7 +88,7 @@ object SampleData {
             name = Name("Rendang Daging Premium"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Portion"),
             imageUri = null,
             variants = emptyList()
@@ -99,7 +99,7 @@ object SampleData {
             name = Name("Sate Ayam Madura"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Skewer Set"),
             imageUri = null,
             variants = emptyList()
@@ -110,7 +110,7 @@ object SampleData {
             name = Name("Pempek Kapal Selam Komplit"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Serving"),
             imageUri = null,
             variants = emptyList()
@@ -121,7 +121,7 @@ object SampleData {
             name = Name("Rawon Daging Spesial"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Bowl"),
             imageUri = null,
             variants = emptyList()
@@ -132,7 +132,7 @@ object SampleData {
             name = Name("Nasi Padang Komplit"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Plate"),
             imageUri = null,
             variants = emptyList()
@@ -143,7 +143,7 @@ object SampleData {
             name = Name("Gado-Gado Klasik"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Plate"),
             imageUri = null,
             variants = emptyList()
@@ -154,7 +154,7 @@ object SampleData {
             name = Name("Ketoprak Segar"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Plate"),
             imageUri = null,
             variants = emptyList()
@@ -165,7 +165,7 @@ object SampleData {
             name = Name("Mie Ayam Premium"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Bowl"),
             imageUri = null,
             variants = emptyList()
@@ -176,7 +176,7 @@ object SampleData {
             name = Name("Tumpeng Lauk Komplit"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Set"),
             imageUri = null,
             variants = emptyList()
@@ -187,7 +187,7 @@ object SampleData {
             name = Name("Bakso Malang Komplit"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Bowl"),
             imageUri = null,
             variants = emptyList()
@@ -198,7 +198,7 @@ object SampleData {
             name = Name("Sayur Asem Nusantara"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Bowl"),
             imageUri = null,
             variants = emptyList()
@@ -209,7 +209,7 @@ object SampleData {
             name = Name("Nasi Kuning Komplit"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Plate"),
             imageUri = null,
             variants = emptyList()
@@ -220,7 +220,7 @@ object SampleData {
             name = Name("Soto Betawi Daging"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Bowl"), imageUri = null,
             variants = emptyList()
         ),
@@ -230,7 +230,7 @@ object SampleData {
             name = Name("Tahu Isi Goreng"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Serving Platter"),
             imageUri = null,
             variants = emptyList()
@@ -241,7 +241,7 @@ object SampleData {
             name = Name("Jajanan Pasar Klasik (Klepon)"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Set of 5"),
             imageUri = null,
             variants = emptyList()
@@ -252,7 +252,7 @@ object SampleData {
             name = Name("Nasi Uduk Komplit"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Plate"),
             imageUri = null,
             variants = emptyList()
@@ -263,7 +263,7 @@ object SampleData {
             name = Name("Bakso Kuah Kuning Original"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Bowl"),
             imageUri = null,
             variants = emptyList()
@@ -274,7 +274,7 @@ object SampleData {
             name = Name("Ayam Bakar Murni"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Half Chicken"),
             imageUri = null,
             variants = emptyList()
@@ -285,7 +285,7 @@ object SampleData {
             name = Name("Soto Daging Sapi Premium"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Bowl"),
             imageUri = null,
             variants = emptyList()
@@ -296,7 +296,7 @@ object SampleData {
             name = Name("Martabak Manis Cokelat Keju"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Piece"),
             imageUri = null,
             variants = emptyList()
@@ -307,7 +307,7 @@ object SampleData {
             name = Name("Tahu Tek Komplit"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Plate"),
             imageUri = null,
             variants = emptyList()
@@ -318,7 +318,7 @@ object SampleData {
             name = Name("Nasi Jamblang Spesial"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = Unit("Plate"),
             imageUri = null,
             variants = emptyList()
@@ -340,7 +340,7 @@ object SampleData {
                 type = TransactionItemType.Product,
                 referenceId = 501, // Product.id
                 name = Name("Kopi Kapal Api Sachet"),
-                quantity = Amount(3f),
+                quantity = Amount(BigDecimal.ZERO),
                 sellPrice = Price(BigDecimal("2500")),
                 note = null,
                 createdAt = 1752700000000L,
@@ -355,7 +355,7 @@ object SampleData {
                         sellPrice = Price(BigDecimal("2500")),
                         unit = Unit("Bungkus"),
                         note = null,
-                        quantity = Amount(1f), // 1 sachet per unit purchased
+                        quantity = Amount(BigDecimal.ZERO), // 1 sachet per unit purchased
                         variants = emptyList()
                     )
                 )
@@ -367,7 +367,7 @@ object SampleData {
                 type = TransactionItemType.Product,
                 referenceId = 502,
                 name = Name("Gula Pasir Curah"),
-                quantity = Amount(0.5f), // 0.5 kg
+                quantity = Amount(BigDecimal.ZERO), // 0.5 kg
                 sellPrice = Price(BigDecimal("7500")),
                 note = "Dibungkus plastik",
                 createdAt = 1752700000000L,
@@ -382,7 +382,7 @@ object SampleData {
                         sellPrice = Price(BigDecimal("15000")),
                         unit = Unit("Kg"),
                         note = null,
-                        quantity = Amount(1f),
+                        quantity = Amount(BigDecimal.ZERO),
                         variants = emptyList<Variant>()
                     )
                 )
@@ -394,7 +394,7 @@ object SampleData {
                 type = TransactionItemType.Bundle,
                 referenceId = 9001, // Bundle.id
                 name = Name("Paket Sarapan Hemat"),
-                quantity = Amount(2f), // 2 bundles bought
+                quantity = Amount(BigDecimal.ZERO), // 2 bundles bought
                 sellPrice = Price(BigDecimal("15000")),
                 note = "Tanpa sambal",
                 createdAt = 1752700000000L,
@@ -409,7 +409,7 @@ object SampleData {
                         sellPrice = Price(BigDecimal("3500")),
                         unit = Unit("Bungkus"),
                         note = null,
-                        quantity = Amount(1f), // per bundle
+                        quantity = Amount(BigDecimal.ZERO), // per bundle
                         variants = emptyList()
                     ),
                     TransactionProduct(
@@ -421,7 +421,7 @@ object SampleData {
                         sellPrice = Price(BigDecimal("2500")),
                         unit = Unit("Butir"),
                         note = null,
-                        quantity = Amount(2f), // 2 eggs per bundle
+                        quantity = Amount(BigDecimal.ZERO), // 2 eggs per bundle
                         variants = emptyList()
                     ),
                     TransactionProduct(
@@ -433,7 +433,7 @@ object SampleData {
                         sellPrice = Price(BigDecimal("4000")),
                         unit = Unit("Kotak"),
                         note = null,
-                        quantity = Amount(1f), // per bundle
+                        quantity = Amount(BigDecimal.ZERO), // per bundle
                         variants = emptyList<Variant>()
                     )
                 )

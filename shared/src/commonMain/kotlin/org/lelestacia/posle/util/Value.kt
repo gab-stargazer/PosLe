@@ -16,9 +16,9 @@ value class Price(val value: BigDecimal)
 @JvmInline
 value class Unit(val value: String)
 
-@Serializable
+@Serializable(with = AmountSerializer::class)
 @JvmInline
-value class Amount(val value: Float)
+value class Amount(val value: BigDecimal)
 
 @JvmInline
 value class SelectedTabIndex(val value: Int)

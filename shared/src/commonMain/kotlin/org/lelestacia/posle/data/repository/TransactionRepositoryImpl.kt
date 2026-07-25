@@ -171,8 +171,10 @@ class TransactionRepositoryImpl(
                         productUnit = product.unit,
                         movementType = StockMovementType.Sale,
                         amount = when(transactionItem.type) {
-                            TransactionItemType.Product -> Amount(-product.quantity.value)
-                            TransactionItemType.Bundle -> Amount(-product.quantity.value * transactionItem.quantity.value)
+                            TransactionItemType.Product -> Amount(product.quantity.value.negate())
+                            TransactionItemType.Bundle -> Amount(
+                                product.quantity.value.multiply(transactionItem.quantity.value).negate()
+                            )
                         },
                         note = null,
                         createdAt = currentTimeAsTimestamp

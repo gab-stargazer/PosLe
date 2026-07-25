@@ -38,6 +38,7 @@ import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.SkuNumber
 import org.lelestacia.posle.util.coroutineScope
+import org.lelestacia.posle.util.toDisplayText
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.msg_error_name_cannot_be_empty
 import posle.shared.generated.resources.msg_error_price_cannot_be_empty
@@ -45,7 +46,6 @@ import posle.shared.generated.resources.msg_error_price_cannot_contain_alphabet
 import posle.shared.generated.resources.msg_error_unit_cannot_be_empty
 import posle.shared.generated.resources.msg_stock_added
 import java.math.BigDecimal
-import kotlin.math.roundToInt
 import org.lelestacia.posle.util.Unit as PosLeUnit
 
 class ProductAddEditComponentImpl(
@@ -251,7 +251,7 @@ class ProductAddEditComponentImpl(
                             .amountAdded
                             .text
                             .toString()
-                            .toFloatOrNull()
+                            .toBigDecimalOrNull()
                             ?: return@launch
 
                     stockRepository.addStockMovement(
@@ -261,7 +261,7 @@ class ProductAddEditComponentImpl(
                                 .amountAdded
                                 .text
                                 .toString()
-                                .toFloatOrNull() ?: return@launch
+                                .toBigDecimalOrNull() ?: return@launch
                         ),
                         movementType = StockMovementType.Purchase,
                     )
@@ -277,7 +277,7 @@ class ProductAddEditComponentImpl(
                         getString(
                             Res.string.msg_stock_added,
                             product.name.value,
-                            stock.roundToInt().toString(),
+                            stock.toDisplayText(),
                             product.unit.value
                         )
                     )
@@ -309,7 +309,7 @@ class ProductAddEditComponentImpl(
             name = Name(currentState.name.text.toString()),
             buyPrice = Price(BigDecimal(currentState.buyPriceState.text.toString())),
             sellPrice = Price(BigDecimal(currentState.sellPriceState.text.toString())),
-            stock = Amount(0F),
+            stock = Amount(BigDecimal.ZERO),
             unit = PosLeUnit(currentState.unit.text.toString()),
             skuNumber = SkuNumber(currentState.skuNumber),
             imageUri = currentState.productImageUri,

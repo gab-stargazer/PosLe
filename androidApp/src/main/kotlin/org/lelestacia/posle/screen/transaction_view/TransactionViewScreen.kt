@@ -10,18 +10,15 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.Button
@@ -104,34 +101,36 @@ fun TransactionViewScreen(
     val ioScope = rememberCoroutineScope { Dispatchers.IO }
 
     LaunchedEffect(isCaptured) {
-        if (isCaptured) {
-            val bitmap = graphicsLayer.toImageBitmap().asAndroidBitmap()
+        ioScope.launch {
+            if (isCaptured) {
+                val bitmap = graphicsLayer.toImageBitmap().asAndroidBitmap()
 
-            val values = ContentValues().apply {
-                put(
-                    MediaStore.Images.Media.DISPLAY_NAME,
-                    "Transaksi-${
-                        Clock.System.now().toEpochMilliseconds().toFormattedDateTime()
-                    }.png"
+                val values = ContentValues().apply {
+                    put(
+                        MediaStore.Images.Media.DISPLAY_NAME,
+                        "Transaksi-${
+                            Clock.System.now().toEpochMilliseconds().toFormattedDateTime()
+                        }.png"
+                    )
+                    put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+                    put(
+                        MediaStore.Images.Media.RELATIVE_PATH,
+                        Environment.DIRECTORY_PICTURES + "/PosLe"
+                    )
+                }
+
+                val uri = context.contentResolver.insert(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    values
                 )
-                put(MediaStore.Images.Media.MIME_TYPE, "image/png")
-                put(
-                    MediaStore.Images.Media.RELATIVE_PATH,
-                    Environment.DIRECTORY_PICTURES + "/PosLe"
-                )
-            }
 
-            val uri = context.contentResolver.insert(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                values
-            )
+                uri?.let {
+                    context.contentResolver.openOutputStream(it)?.use { stream ->
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+                        stream.close()
 
-            uri?.let {
-                context.contentResolver.openOutputStream(it)?.use { stream ->
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-                    stream.close()
-
-                    isCaptured = false
+                        isCaptured = false
+                    }
                 }
             }
         }
@@ -174,20 +173,12 @@ fun TransactionViewScreen(
         contentWindowInsets = WindowInsets(),
         modifier = modifier
     ) { paddingValues ->
-        Box(
-            contentAlignment = Alignment.BottomCenter,
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surfaceContainerLowest)
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
-        ) {
 
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .matchParentSize()
-            ) {
+        LazyColumn(modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+        ) {
+            item {
                 TransactionReceipt(
                     storeName = state.settings.storeName,
                     customerName = state.transaction.customerName,
@@ -202,46 +193,26 @@ fun TransactionViewScreen(
 
                             drawLayer(graphicsLayer)
                         }
-
                 )
             }
 
-            ElevatedCard(
-                shape = RoundedCornerShape(50F),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                    contentColor = MaterialTheme.colorScheme.onSurface
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp)
-                    .animateContentSize()
-            ) {
-                Column(
+            item {
+                ElevatedCard(
+                    shape = RoundedCornerShape(50F),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(all = 12.dp)
+                        .padding(12.dp)
+                        .animateContentSize()
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .padding(all = 12.dp)
                     ) {
-                        Text(
-                            "${stringResource(Res.string.label_transaction_date)}:",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-
-                        Text(
-                            state.transaction.createdAt.toFormattedDateTime(),
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        )
-                    }
-
-                    if (state.transaction.customerName.value.isNotBlank()) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -249,117 +220,138 @@ fun TransactionViewScreen(
                                 .fillMaxWidth()
                         ) {
                             Text(
-                                "${stringResource(Res.string.label_customer)}:",
+                                "${stringResource(Res.string.label_transaction_date)}:",
                                 style = MaterialTheme.typography.bodyMedium
                             )
 
                             Text(
-                                state.transaction.customerName.value,
+                                state.transaction.createdAt.toFormattedDateTime(),
                                 style = MaterialTheme.typography.bodyMedium.copy(
                                     fontWeight = FontWeight.SemiBold
                                 )
                             )
                         }
-                    }
 
-                    val totalTransaction = state
-                        .transaction
-                        .items
-                        .map { transactionItem ->
-                            transactionItem.sellPrice.value * transactionItem.quantity.value.toBigDecimal()
+                        if (state.transaction.customerName.value.isNotBlank()) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            ) {
+                                Text(
+                                    "${stringResource(Res.string.label_customer)}:",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+
+                                Text(
+                                    state.transaction.customerName.value,
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                )
+                            }
                         }
-                        .sumOf { it }
 
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        Text(
-                            "${stringResource(Res.string.label_total)}:",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                        val totalTransaction = state
+                            .transaction
+                            .items
+                            .map { transactionItem ->
+                                transactionItem.sellPrice.value * transactionItem.quantity.value
+                            }
+                            .sumOf { it }
 
-                        Text(
-                            totalTransaction.toRupiah(),
-                            style = MaterialTheme.typography.bodyMediumEmphasized.copy(
-                                fontWeight = FontWeight.SemiBold
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ) {
+                            Text(
+                                "${stringResource(Res.string.label_total)}:",
+                                style = MaterialTheme.typography.bodyMedium
                             )
-                        )
-                    }
 
-                    AnimatedVisibility(
-                        (!state.transaction.isRecapped && state.settings.isTransactionRecapNeeded),
-                        enter = expandVertically(expandFrom = Alignment.Bottom) + fadeIn(),
-                        exit = shrinkVertically(shrinkTowards = Alignment.Bottom) + fadeOut(),
-                        modifier = Modifier.padding(top = 12.dp)
-                    ) {
+                            Text(
+                                totalTransaction.toRupiah(),
+                                style = MaterialTheme.typography.bodyMediumEmphasized.copy(
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            )
+                        }
+
+                        AnimatedVisibility(
+                            (!state.transaction.isRecapped && state.settings.isTransactionRecapNeeded),
+                            enter = expandVertically(expandFrom = Alignment.Bottom) + fadeIn(),
+                            exit = shrinkVertically(shrinkTowards = Alignment.Bottom) + fadeOut(),
+                            modifier = Modifier.padding(top = 12.dp)
+                        ) {
+                            Button(
+                                onClick = {
+                                    component.onEvent(OnRecapClicked)
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = BurgundyRed,
+                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                ),
+                                shape = RoundedCornerShape(25F),
+                                modifier = modifier.fillMaxWidth()
+                            ) {
+                                Text(stringResource(Res.string.btn_recap))
+                            }
+                        }
+
                         Button(
                             onClick = {
-                                component.onEvent(OnRecapClicked)
+                                isCaptured = true
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = BurgundyRed,
-                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                             ),
                             shape = RoundedCornerShape(25F),
-                            modifier = modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .padding(
+                                    top =
+                                        when (state.transaction.isRecapped) {
+                                            true -> 12.dp
+                                            false -> 6.dp
+                                        }
+                                )
+                                .fillMaxWidth()
                         ) {
-                            Text(stringResource(Res.string.btn_recap))
+                            Text(stringResource(Res.string.btn_print_digital))
                         }
-                    }
 
-                    Button(
-                        onClick = {
-                            isCaptured = true
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                        ),
-                        shape = RoundedCornerShape(25F),
-                        modifier = Modifier
-                            .padding(
-                                top =
-                                    when (state.transaction.isRecapped) {
-                                        true -> 12.dp
-                                        false -> 6.dp
+                        Button(
+                            onClick = {
+                                if (isBluetoothPermissionGranted) {
+                                    ioScope.launch {
+                                        printTransaction(
+                                            transaction = state.transaction,
+                                            storeName = state.settings.storeName
+                                        )
                                     }
-                            )
-                            .fillMaxWidth()
-                    ) {
-                        Text(stringResource(Res.string.btn_print_digital))
-                    }
-
-                    Button(
-                        onClick = {
-                            if (isBluetoothPermissionGranted) {
-                                ioScope.launch {
-                                    printTransaction(
-                                        transaction = state.transaction,
-                                        storeName = state.settings.storeName
-                                    )
+                                } else {
+                                    onRequestBluetoothPermission.invoke()
                                 }
-                            } else {
-                                onRequestBluetoothPermission.invoke()
-                            }
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                        ),
-                        shape = RoundedCornerShape(25F),
-                        modifier = Modifier
-                            .padding(
-                                top =
-                                    when (state.transaction.isRecapped) {
-                                        true -> 12.dp
-                                        false -> 6.dp
-                                    }
-                            )
-                            .fillMaxWidth()
-                    ) {
-                        Text(stringResource(Res.string.btn_print_physical))
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                            ),
+                            shape = RoundedCornerShape(25F),
+                            modifier = Modifier
+                                .padding(
+                                    top =
+                                        when (state.transaction.isRecapped) {
+                                            true -> 12.dp
+                                            false -> 6.dp
+                                        }
+                                )
+                                .fillMaxWidth()
+                        ) {
+                            Text(stringResource(Res.string.btn_print_physical))
+                        }
                     }
                 }
             }
@@ -384,7 +376,7 @@ private fun PreviewTransactionUI() {
                                     type = TransactionItemType.Product,
                                     referenceId = 1,
                                     name = Name("Salak Pondoh"),
-                                    quantity = Amount(50.toFloat()),
+                                    quantity = Amount(java.math.BigDecimal("50")),
                                     sellPrice = Price(5000.toBigDecimal()),
                                     note = "2 Karung",
                                     products = listOf(
@@ -397,7 +389,7 @@ private fun PreviewTransactionUI() {
                                             sellPrice = Price(5000.toBigDecimal()),
                                             unit = PosleUnit("Kg"),
                                             note = "2 Karung",
-                                            quantity = Amount(50.toFloat()),
+                                            quantity = Amount(java.math.BigDecimal("50")),
                                             variants = emptyList()
                                         )
                                     ),

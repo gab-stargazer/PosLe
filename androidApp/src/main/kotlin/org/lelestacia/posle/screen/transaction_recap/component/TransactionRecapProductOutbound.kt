@@ -42,12 +42,11 @@ fun TransactionRecapProductOutbound(
         .productName
 
     val amountOut = transactionProducts
-        .sumOf { it.product.quantity.value.toBigDecimal() }
-        .toFloat()
+        .sumOf { it.product.quantity.value }
         .toDisplayText()
 
     val totalProfit = transactionProducts
-        .sumOf { it.product.quantity.value.toBigDecimal() * (it.product.sellPrice.value - it.product.buyPrice.value) }
+        .sumOf { it.product.quantity.value * (it.product.sellPrice.value - it.product.buyPrice.value) }
         .toRupiah()
 
     Column(

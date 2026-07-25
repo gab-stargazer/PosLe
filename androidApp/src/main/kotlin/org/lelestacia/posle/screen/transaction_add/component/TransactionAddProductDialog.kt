@@ -121,7 +121,7 @@ fun TransactionAddProductDialog(
                     },
                     suffix = {
                         if (state.settings.isProductStockTracked) {
-                            val stock = (state.selectedProduct?.stock?.value ?: 0F).toDisplayText()
+                            val stock = (state.selectedProduct?.stock?.value ?: java.math.BigDecimal.ZERO).toDisplayText()
                             val unit = state.selectedProduct?.unit?.value.toString()
 
                             Text(

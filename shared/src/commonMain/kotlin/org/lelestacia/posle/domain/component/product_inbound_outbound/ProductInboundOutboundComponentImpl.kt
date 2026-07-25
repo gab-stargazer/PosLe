@@ -97,14 +97,14 @@ class ProductInboundOutboundComponentImpl(
                 val currentState = _state.value.addMovementState
                 val product = currentState.selectedProduct ?: return
                 val amountString = currentState.amountAdded.text.toString()
-                val amount = amountString.toFloatOrNull() ?: return
+                val amount = amountString.toBigDecimalOrNull() ?: return
 
                 scope.launch {
                     stockRepository.addStockMovement(
                         productId = product.id,
                         amount = Amount(
                             when (currentState.selectedMovementType) {
-                                StockMovementType.Sale, StockMovementType.AdjustmentDecrease -> amount.unaryMinus()
+                                StockMovementType.Sale, StockMovementType.AdjustmentDecrease -> amount.negate()
                                 StockMovementType.Return, StockMovementType.AdjustmentIncrease, StockMovementType.Purchase -> amount
                             }
                         ),

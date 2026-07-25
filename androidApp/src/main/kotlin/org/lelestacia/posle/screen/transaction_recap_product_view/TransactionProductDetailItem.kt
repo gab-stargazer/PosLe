@@ -94,7 +94,7 @@ fun TransactionProductDetailItem(
                     )
 
                     Text(
-                        text = ((product.sellPrice.value - product.buyPrice.value) * product.quantity.value.toBigDecimal()).toRupiah(),
+                        text = ((product.sellPrice.value - product.buyPrice.value) * product.quantity.value).toRupiah(),
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontWeight = FontWeight.Bold
                         )
@@ -152,7 +152,7 @@ private fun PreviewTransactionProductDetailItem() {
                 sellPrice = Price(6000.toBigDecimal()),
                 unit = Unit("Pcs"),
                 note = null,
-                quantity = Amount(5F),
+                quantity = Amount(java.math.BigDecimal("5")),
                 variants = emptyList()
             )
         )

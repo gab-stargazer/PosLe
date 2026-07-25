@@ -137,7 +137,7 @@ fun TransactionItem(
                                 transaction
                                     .items
                                     .map { transactionItem ->
-                                        transactionItem.quantity.value.toBigDecimal() * transactionItem.sellPrice.value
+                                        transactionItem.quantity.value * transactionItem.sellPrice.value
                                     }
                                     .sumOf { it }
                                     .toRupiah()

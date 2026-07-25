@@ -36,7 +36,7 @@ fun printTransaction(transaction: Transaction, storeName: Name) {
                 val productSellPrice = transactionItem.products.first().sellPrice.value
                 val productQuantity = transactionItem.products.first().quantity
                 val productUnit = transactionItem.products.first().unit.value
-                val subtotal = productQuantity.value.toBigDecimal() * productSellPrice
+                val subtotal = productQuantity.value * productSellPrice
 
                 sb.append(
                     """
@@ -53,7 +53,7 @@ fun printTransaction(transaction: Transaction, storeName: Name) {
                 val bundleName = transactionItem.name.value
                 val bundleSellPrice = transactionItem.sellPrice.value
                 val bundleQuantity = transactionItem.quantity.value
-                val subtotal = bundleQuantity.toBigDecimal() * bundleSellPrice
+                val subtotal = bundleQuantity * bundleSellPrice
                 sb.append(
                     """
                         [L]$bundleName x${bundleQuantity.toDisplayText()}[R]${bundleSellPrice.toRupiah()}${"\n"}
@@ -74,11 +74,11 @@ fun printTransaction(transaction: Transaction, storeName: Name) {
             val subtotal = cartItems
                 .products
                 .map {
-                    it.sellPrice.value * it.quantity.value.toBigDecimal()
+                    it.sellPrice.value * it.quantity.value
                 }
                 .sumOf { it }
 
-            cartItems.quantity.value.toBigDecimal() * subtotal
+            cartItems.quantity.value * subtotal
         }
         .sumOf { it }
 

@@ -36,8 +36,7 @@ fun TransactionReceiptBundle(
 ) {
     val subtotal = transactionItem
         .quantity
-        .value
-        .toBigDecimal() * transactionItem.sellPrice.value
+        .value * transactionItem.sellPrice.value
 
     Column(modifier = modifier) {
         Row(
@@ -127,14 +126,14 @@ private fun PreviewTransactionReceiptBundle() {
                     type = TransactionItemType.Bundle,
                     referenceId = 0,
                     name = Name("Paket Nasi Ayam"),
-                    quantity = Amount(10F),
+                    quantity = Amount(java.math.BigDecimal("10")),
                     sellPrice = Price(13000.toBigDecimal()),
                     note = null,
                     products = List(2) {
                         TransactionProduct(
                             productId = it,
                             productName = Name("Nasi Ayam"),
-                            quantity = Amount(1F),
+                            quantity = Amount(java.math.BigDecimal.ONE),
                             unit = Unit("porsi"),
                             skuNumber = null,
                             imageUri = null,

@@ -129,8 +129,7 @@ fun TransactionAddBundleCart(
                     horizontalAlignment = Alignment.End
                 ) {
                     val totalPrice =
-                        cartItem.bundleTotalPrice.value *
-                                cartItem.bundleQuantity.value.toBigDecimal()
+                        cartItem.bundleTotalPrice.value * cartItem.bundleQuantity.value
 
                     Text(
                         when {
@@ -261,7 +260,7 @@ private fun PreviewTransactionAddBundleCart() {
                 id = 0,
                 bundleId = 0,
                 bundleName = Name("Paket Kombo"),
-                bundleQuantity = Amount(3F),
+                bundleQuantity = Amount(BigDecimal("3")),
                 bundleTotalPrice = Price(BigDecimal("12000")),
                 bundleNote = "Lorem ipsum dolor sit amet",
                 bundleProducts = listOf(
@@ -270,7 +269,7 @@ private fun PreviewTransactionAddBundleCart() {
                         productName = Name("Nasi"),
                         skuNumber = null,
                         imageUri = null,
-                        quantity = Amount(1F),
+                        quantity = Amount(java.math.BigDecimal.ONE),
                         buyPrice = Price(BigDecimal("4000")),
                         sellPrice = Price(BigDecimal("4000")),
                         sellPriceIndividual = Price(7000.toBigDecimal()),
@@ -283,7 +282,7 @@ private fun PreviewTransactionAddBundleCart() {
                         productName = Name("Ayam"),
                         skuNumber = null,
                         imageUri = null,
-                        quantity = Amount(1F),
+                        quantity = Amount(java.math.BigDecimal.ONE),
                         buyPrice = Price(BigDecimal("8000")),
                         sellPrice = Price(BigDecimal("8000")),
                         sellPriceIndividual = Price(7000.toBigDecimal()),

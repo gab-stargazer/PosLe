@@ -125,8 +125,7 @@ fun TransactionAddProductCart(
                     horizontalAlignment = Alignment.End
                 ) {
                     val totalPrice =
-                        cartItem.productSellPrice.value *
-                                cartItem.productQuantity.value.toBigDecimal()
+                        cartItem.productSellPrice.value * cartItem.productQuantity.value
 
                     Text(
                         when {
@@ -250,7 +249,7 @@ private fun PreviewTransactionAddProductCart() {
                     productName = Name("Sate Ayam"),
                     skuNumber = null,
                     imageUri = null,
-                    productQuantity = Amount(5F),
+                    productQuantity = Amount(java.math.BigDecimal("5")),
                     productBuyPrice = Price(10000.toBigDecimal()),
                     productSellPrice = Price(10000.toBigDecimal()),
                     productUnit = PosleUnit("Porsi"),

@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Update
 import org.lelestacia.posle.data.entity.StockEntity
 import org.lelestacia.posle.data.entity.StockMovementEntity
+import java.math.BigDecimal
 
 @Dao
 interface StockDao {
@@ -35,7 +36,7 @@ interface StockDao {
             WHERE product_id = :productId
         """
     )
-    suspend fun getStockByProductId(productId: Int): Float
+    suspend fun getStockByProductId(productId: Int): BigDecimal
 
     @Update
     suspend fun updateStock(stock: StockEntity)

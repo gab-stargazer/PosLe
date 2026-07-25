@@ -44,18 +44,20 @@ data class TransactionAddState(
         val selectedBundle: Bundle? = null,
         val quantity: String = "",
         val quantityError: String? = null,
-        val noteState: TextFieldState = TextFieldState()
+        val noteState: TextFieldState = TextFieldState(),
+        val isReady: Boolean = false,
     )
 }
 
 fun DialogProductState.validate(): DialogProductState {
     val isStockEnabled = settings.isProductStockTracked
     val stock = selectedProduct?.stock?.value ?: throw Exception("Stock is null on Validation")
+    val amountAsBigDecimal = amount.toBigDecimalOrNull() ?: java.math.BigDecimal.ZERO
 
     val amountError = when {
         amount.isBlank() -> Res.string.msg_error_quantity_cannot_be_empty
-        (amount.toFloatOrNull() ?: 0F) == 0F -> Res.string.msg_error_quantity_cannot_be_empty
-        isStockEnabled && amount.toFloat() > stock -> Res.string.msg_error_quantity_exceeded
+        amountAsBigDecimal.compareTo(java.math.BigDecimal.ZERO) == 0 -> Res.string.msg_error_quantity_cannot_be_empty
+        isStockEnabled && amountAsBigDecimal > stock -> Res.string.msg_error_quantity_exceeded
         else -> null
     }
 
@@ -88,9 +90,10 @@ sealed interface TransactionAddEvent {
 
     sealed interface DialogBundleEvent : TransactionAddEvent {
         data class OnQuantityChanged(val newQuantity: String) : DialogBundleEvent
+        data object OnQuantityValidationRequest : DialogBundleEvent
         data class OnShown(val selectedBundle: Bundle) : DialogBundleEvent
         data object OnDismiss : DialogBundleEvent
-        data object OnAddClicked : DialogBundleEvent
+        data object OnAddToCartClicked : DialogBundleEvent
     }
 }
 

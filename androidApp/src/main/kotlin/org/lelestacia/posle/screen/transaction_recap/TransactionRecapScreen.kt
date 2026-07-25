@@ -83,7 +83,11 @@ fun TransactionRecapScreen(
                                 TransactionRecapProductItem(
                                     type = TransactionItemType.Bundle,
                                     product = product.copy(
-                                        quantity = Amount(product.quantity.value * transactionItem.quantity.value)
+                                        quantity = Amount(
+                                            product.quantity.value.multiply(
+                                                transactionItem.quantity.value
+                                            )
+                                        )
                                     )
                                 )
                             }
@@ -99,17 +103,33 @@ fun TransactionRecapScreen(
     val totalProfit =
         state.transactionHistory
             .map { transaction ->
-                transaction.items.sumOf { transactionItem ->
-                    when (transactionItem.type) {
-                        TransactionItemType.Product -> {
-                            transactionItem.products.sumOf { (it.sellPrice.value - it.buyPrice.value) * it.quantity.value.toBigDecimal() }
-                        }
+                transaction.items.fold(java.math.BigDecimal.ZERO) { acc, transactionItem ->
+                    acc.add(
+                        when (transactionItem.type) {
+                            TransactionItemType.Product -> {
+                                transactionItem.products.fold(java.math.BigDecimal.ZERO) { accProd, product ->
+                                    accProd.add(
+                                        (product.sellPrice.value.subtract(product.buyPrice.value)).multiply(
+                                            product.quantity.value
+                                        )
+                                    )
+                                }
+                            }
 
-                        TransactionItemType.Bundle -> transactionItem
-                            .quantity
-                            .value
-                            .toBigDecimal() * (transactionItem.products.sumOf { (it.sellPrice.value - it.buyPrice.value) * it.quantity.value.toBigDecimal() })
-                    }
+                            TransactionItemType.Bundle -> transactionItem
+                                .quantity
+                                .value
+                                .multiply(
+                                    transactionItem.products.fold(java.math.BigDecimal.ZERO) { accProd, product ->
+                                        accProd.add(
+                                            (product.sellPrice.value.subtract(product.buyPrice.value)).multiply(
+                                                product.quantity.value
+                                            )
+                                        )
+                                    }
+                                )
+                        }
+                    )
                 }
             }
             .sumOf { it }

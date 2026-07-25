@@ -10,7 +10,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material3.Button
@@ -22,6 +21,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -32,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.model.Bundle
+import org.lelestacia.posle.domain.state_event.TransactionAddState
 import org.lelestacia.posle.ui.component.BorderedTextField
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.BurgundyRed
@@ -50,11 +53,9 @@ import kotlin.time.Clock
 
 @Composable
 fun TransactionAddBundleDialog(
-    bundle: Bundle?,
-    quantity: String,
-    quantityError: String?,
+    state: TransactionAddState.DialogBundleState,
     onQuantityChange: (String) -> Unit,
-    noteState: TextFieldState,
+    onQuantityValidationRequest: () -> Unit,
     onCancel: () -> Unit,
     onAddToCart: () -> Unit,
     modifier: Modifier = Modifier
@@ -81,7 +82,7 @@ fun TransactionAddBundleDialog(
             )
 
             BorderedTextField(
-                value = bundle?.name?.value.orEmpty(),
+                value = state.selectedBundle?.name?.value.orEmpty(),
                 onValueChange = {},
                 label = stringResource(Res.string.label_bundle_name),
                 readOnly = true,
@@ -89,16 +90,19 @@ fun TransactionAddBundleDialog(
             )
 
             BorderedTextField(
-                value = quantity,
+                value = state.quantity,
                 onValueChange = onQuantityChange,
                 label = stringResource(Res.string.label_product_amount),
-                errorMessage = quantityError,
+                errorMessage = state.quantityError,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Done
                 ),
                 keyboardActions = KeyboardActions(
-                    onDone = { focusManager.clearFocus(true) }
+                    onDone = {
+                        focusManager.clearFocus(true)
+                        onQuantityValidationRequest.invoke()
+                    }
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -106,7 +110,7 @@ fun TransactionAddBundleDialog(
             )
 
             BorderedTextField(
-                state = noteState,
+                state = state.noteState,
                 label = stringResource(Res.string.label_optional_note),
                 leadingIcon = {
                     Icon(
@@ -151,6 +155,7 @@ fun TransactionAddBundleDialog(
                         containerColor = BurgundyRed,
                     ),
                     onClick = onAddToCart,
+                    enabled = state.isReady,
                     modifier = Modifier.weight(1F)
                 ) {
                     Text(
@@ -170,18 +175,25 @@ fun TransactionAddBundleDialog(
 @Composable
 private fun PreviewTransactionAddBundleDialog() {
     AppTheme {
+        val state by remember {
+            mutableStateOf(
+                TransactionAddState.DialogBundleState(
+                    selectedBundle = Bundle(
+                        id = 0,
+                        name = Name("Paket Kombo"),
+                        imageUri = null,
+                        bundleProducts = emptyList(),
+                        createdAt = Clock.System.now().toEpochMilliseconds()
+                    ),
+                    quantity = "6",
+                    noteState = TextFieldState("Lorem Ipsum")
+                )
+            )
+        }
         TransactionAddBundleDialog(
-            bundle = Bundle(
-                id = 0,
-                name = Name("Paket Combo"),
-                imageUri = null,
-                bundleProducts = emptyList(),
-                createdAt = Clock.System.now().toEpochMilliseconds()
-            ),
-            quantity = "6",
+            state = state,
             onQuantityChange = {},
-            quantityError = null,
-            noteState = rememberTextFieldState(),
+            onQuantityValidationRequest = {},
             onCancel = {},
             onAddToCart = {}
         )

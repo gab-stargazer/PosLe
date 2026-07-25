@@ -19,7 +19,7 @@ sealed interface TransactionProductConfigEvent {
     data class OnVariantClicked(val variant: Variant, val isChecked: Boolean) :
         TransactionProductConfigEvent
 
-    data class OnAmountChanged(val amount: Float) : TransactionProductConfigEvent
+    data class OnAmountChanged(val amount: java.math.BigDecimal) : TransactionProductConfigEvent
     data object OnConfirmed : TransactionProductConfigEvent
 }
 

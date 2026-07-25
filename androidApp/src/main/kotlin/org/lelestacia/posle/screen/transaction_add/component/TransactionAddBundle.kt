@@ -97,7 +97,7 @@ fun TransactionAddBundle(
                     )
 
                     Text(
-                        bundle.bundleProducts.sumOf { it.sellPrice.value * it.quantity.value.toBigDecimal() }
+                        bundle.bundleProducts.sumOf { it.sellPrice.value * it.quantity.value }
                             .toRupiah(),
                         style = MaterialTheme.typography.titleSmall.copy(
                             fontWeight = FontWeight.Bold,
@@ -173,7 +173,7 @@ private fun PreviewTransactionAddBundle() {
                         productName = Name("Nasi"),
                         skuNumber = null,
                         imageUri = null,
-                        quantity = Amount(1F),
+                        quantity = Amount(BigDecimal.ONE),
                         buyPrice = Price(BigDecimal(3000)),
                         sellPrice = Price(BigDecimal("4000")),
                         sellPriceIndividual = Price(7000.toBigDecimal()),
@@ -186,7 +186,7 @@ private fun PreviewTransactionAddBundle() {
                         productName = Name("Ayam"),
                         skuNumber = null,
                         imageUri = null,
-                        quantity = Amount(1F),
+                        quantity = Amount(BigDecimal.ONE),
                         buyPrice = Price(BigDecimal(3000)),
                         sellPrice = Price(BigDecimal("6000")),
                         sellPriceIndividual = Price(7000.toBigDecimal()),

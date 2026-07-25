@@ -58,7 +58,7 @@ class BundleRepositoryImpl(
                 name = bundleProduct.product.name,
                 bundleId = bundleId,
                 productId = bundleProduct.product.id,
-                quantity = Amount(bundleProduct.quantity.toFloat()),
+                quantity = Amount(bundleProduct.quantity.toBigDecimal()),
                 unit = bundleProduct.product.unit,
                 sellPrice = Price(bundleProduct.sellPrice.toBigDecimal()),
                 createdAt = Clock.System.now().toEpochMilliseconds(),
@@ -126,7 +126,7 @@ class BundleRepositoryImpl(
                 if (existing != null) {
                     toUpdate += existing.bundleProduct.copy(
                         name = productState.product.name,
-                        quantity = Amount(productState.quantity.toFloat()),
+                        quantity = Amount(productState.quantity.toBigDecimal()),
                         sellPrice = Price(productState.sellPrice.toBigDecimal()),
                         updatedAt = currentTimeAsTimestamp
                     )
@@ -136,7 +136,7 @@ class BundleRepositoryImpl(
                         name = productState.product.name,
                         bundleId = bundleId,
                         productId = productState.product.id,
-                        quantity = Amount(productState.quantity.toFloat()),
+                        quantity = Amount(productState.quantity.toBigDecimal()),
                         unit = productState.product.unit,
                         sellPrice = Price(productState.sellPrice.toBigDecimal()),
                         createdAt = currentTimeAsTimestamp,

@@ -6,6 +6,7 @@ import androidx.room.Relation
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.toDomain
 import org.lelestacia.posle.util.Amount
+import java.math.BigDecimal
 
 data class ProductWithVariantsAndStock(
     @Embedded
@@ -45,7 +46,11 @@ fun ProductWithVariantsAndStock.toDomain(): Product {
     return Product(
         id = product.id,
         name = product.name,
-        stock = Amount(stock.sumOf { it.amount.value.toBigDecimal() }.toFloat()),
+        stock = Amount(
+            stock.fold(BigDecimal.ZERO) { acc, next ->
+                acc.add(next.amount.value)
+            }
+        ),
         buyPrice = buyPriceHistorical.maxBy { it.createdAt }.price,
         sellPrice = sellPriceHistorical.maxBy { it.createdAt }.price,
         unit = product.unit,

@@ -106,16 +106,7 @@ fun TransactionReceipt(
             )
 
             val totalPrice = transactionProduct.map { cartItems ->
-                cartItems.sellPrice.value * cartItems.quantity.value.toBigDecimal()
-//            when (cartItems) {
-//                is CartItems.BundleCartItem -> {
-//                    cartItems.bundleTotalPrice.value
-//                }
-//
-//                is CartItems.ProductCartItem -> {
-//                    cartItems.productSellPrice.value * cartItems.productQuantity.value.toBigDecimal()
-//                }
-//            }
+                cartItems.sellPrice.value * cartItems.quantity.value
             }.sumOf { it }
 
             Row(

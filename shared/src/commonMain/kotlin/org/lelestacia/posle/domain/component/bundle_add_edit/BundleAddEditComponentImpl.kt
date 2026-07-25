@@ -55,7 +55,7 @@ class BundleAddEditComponentImpl(
                     product = Product(
                         id = bp.productId,
                         name = bp.productName,
-                        stock = org.lelestacia.posle.util.Amount(0f),
+                        stock = org.lelestacia.posle.util.Amount(java.math.BigDecimal.ZERO),
                         buyPrice = bp.buyPrice,
                         sellPrice = bp.sellPriceIndividual,
                         unit = bp.unit,

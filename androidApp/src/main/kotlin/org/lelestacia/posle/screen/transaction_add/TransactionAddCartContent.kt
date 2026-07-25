@@ -132,11 +132,11 @@ fun TransactionAddCartContent(
                             .map { cartItem ->
                                 when (cartItem) {
                                     is CartItems.BundleCartItem -> {
-                                        cartItem.bundleTotalPrice.value * cartItem.bundleQuantity.value.toBigDecimal()
+                                        cartItem.bundleTotalPrice.value * cartItem.bundleQuantity.value
                                     }
 
                                     is CartItems.ProductCartItem -> {
-                                        cartItem.productSellPrice.value * cartItem.productQuantity.value.toBigDecimal()
+                                        cartItem.productSellPrice.value * cartItem.productQuantity.value
                                     }
                                 }
                             }

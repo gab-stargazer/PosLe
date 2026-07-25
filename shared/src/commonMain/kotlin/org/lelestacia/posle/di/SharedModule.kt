@@ -1,5 +1,6 @@
 package org.lelestacia.posle.di
 
+import androidx.compose.material3.SnackbarHostState
 import org.koin.core.module.dsl.binds
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -51,6 +52,8 @@ val sharedModule = module {
     single<BundleDao> {
         get<PosLeDB>().bundleDao()
     }
+
+    single { SnackbarHostState() }
 
     singleOf(::SettingManager)
 

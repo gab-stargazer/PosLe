@@ -7,6 +7,7 @@ import org.lelestacia.posle.data.entity.ProductWithVariantsAndStock
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.ProductPriceHistory
 import org.lelestacia.posle.domain.model.Variant
+import java.math.BigDecimal
 
 interface ProductRepository {
     suspend fun addProduct(product: Product, imageByteArray: ByteArray?)
@@ -27,7 +28,7 @@ interface ProductRepository {
     fun readProductBuyPriceHistory(productId: Int): Flow<List<ProductPriceHistory>>
     fun readProductSellPriceHistory(productId: Int): Flow<List<ProductPriceHistory>>
     fun readAvailableProducts(searchQuery: String = ""): Flow<List<Product>>
-    suspend fun getProductAvailability(productId: Int): Float
+    suspend fun getProductAvailability(productId: Int): BigDecimal
     suspend fun updateProduct(
         product: Product,
         variantsToAdd: List<Variant>,

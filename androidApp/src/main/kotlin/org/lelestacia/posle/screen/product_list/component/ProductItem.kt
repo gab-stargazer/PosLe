@@ -41,11 +41,11 @@ import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.Util
+import org.lelestacia.posle.util.toDisplayText
 import org.lelestacia.posle.util.toRupiah
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.title_add_product_to_category_shorts
 import java.math.BigDecimal
-import kotlin.math.roundToInt
 
 @TraceRecomposition
 @Composable
@@ -106,12 +106,7 @@ fun ProductItem(
                         textAlign = TextAlign.Center,
                     )
 
-                    val stock =
-                        if (product.stock.value % 1F == 0F) {
-                            product.stock.value.roundToInt()
-                        } else {
-                            product.stock.value
-                        }
+                    val stock = product.stock.value.toDisplayText()
 
                     if (isStockTracked) {
                         Text(
@@ -182,7 +177,7 @@ private fun PreviewProductItem() {
                 product = Product(
                     id = 0,
                     name = Name("Salak"),
-                    stock = Amount(100F),
+                    stock = Amount(BigDecimal("100")),
                     unit = org.lelestacia.posle.util.Unit(value = "Kg"),
                     buyPrice = Price(BigDecimal("15000")),
                     sellPrice = Price(BigDecimal("15000")),

@@ -33,3 +33,16 @@ object PriceSerializer : KSerializer<Price> {
         return Price(BigDecimal(decoder.decodeString()))
     }
 }
+
+object AmountSerializer : KSerializer<Amount> {
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("Amount", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: Amount) {
+        encoder.encodeString(value.value.toPlainString())
+    }
+
+    override fun deserialize(decoder: Decoder): Amount {
+        return Amount(BigDecimal(decoder.decodeString()))
+    }
+}

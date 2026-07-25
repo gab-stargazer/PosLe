@@ -41,7 +41,7 @@ fun BundleItem(
     onLongClick: (() -> Unit)? = null
 ) {
     val totalPrice = bundle.bundleProducts.sumOf {
-        it.sellPrice.value * it.quantity.value.toBigDecimal()
+        it.sellPrice.value * it.quantity.value
     }
 
     ElevatedCard(

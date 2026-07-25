@@ -65,8 +65,7 @@ fun TransactionReceiptProduct(
 
             val subtotal = product
                 .quantity
-                .value
-                .toBigDecimal() * product.sellPrice.value
+                .value * product.sellPrice.value
 
             Text(
                 text = subtotal.toRupiah().uppercase(),
@@ -107,7 +106,7 @@ private fun PreviewProductCartItem() {
                     buyPrice = Price(10000.toBigDecimal()),
                     sellPrice = Price(12000.toBigDecimal()),
                     unit = Unit("porsi"),
-                    quantity = Amount(3F),
+                    quantity = Amount(java.math.BigDecimal("3")),
                     note = null,
                     variants = emptyList()
                 )

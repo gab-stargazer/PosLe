@@ -22,6 +22,7 @@ import org.jetbrains.compose.resources.getString
 import org.lelestacia.posle.data.SettingManager
 import org.lelestacia.posle.domain.model.Bundle
 import org.lelestacia.posle.domain.model.CartItems
+import org.lelestacia.posle.domain.model.CartItems.BundleCartItem
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.repository.BundleRepository
 import org.lelestacia.posle.domain.repository.ProductRepository
@@ -40,6 +41,7 @@ import org.lelestacia.posle.util.coroutineScope
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.msg_error_item_not_available
 import posle.shared.generated.resources.msg_error_quantity_cannot_be_empty
+import posle.shared.generated.resources.msg_error_quantity_should_be_number
 import java.math.BigDecimal
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -279,8 +281,10 @@ class TransactionAddComponentImpl(
                                 ),
                                 productUnit = selectedProduct.unit,
                                 productQuantity = Amount(
-                                    currentState.dialogProductState.amount
-                                        .toFloat()
+                                    currentState
+                                        .dialogProductState
+                                        .amount
+                                        .toBigDecimal()
                                 ),
                                 productNote = state.value.dialogProductState.noteState.text
                                     .toString()
@@ -307,9 +311,6 @@ class TransactionAddComponentImpl(
             }
 
             is TransactionAddEvent.DialogProductEvent.OnShown -> {
-                println("Settings: ${state.value.settings}")
-                println("Sell Price: ${event.selectedProduct.sellPrice.value}")
-
                 _state.update { currentState ->
                     currentState.copy(
                         isDialogProductShown = true,
@@ -327,32 +328,78 @@ class TransactionAddComponentImpl(
 
     fun onDialogBundleEvent(event: TransactionAddEvent.DialogBundleEvent) {
         when (event) {
-            is TransactionAddEvent.DialogBundleEvent.OnShown -> _state.update { currentState ->
-                currentState.copy(
-                    isDialogBundleShown = true,
-                    dialogBundleState = DialogBundleState(
-                        selectedBundle = event.selectedBundle
+            is TransactionAddEvent.DialogBundleEvent.OnShown -> {
+                _state.update { currentState ->
+                    currentState.copy(
+                        isDialogBundleShown = true,
+                        dialogBundleState = DialogBundleState(
+                            selectedBundle = event.selectedBundle
+                        )
                     )
-                )
+                }
             }
 
-            is TransactionAddEvent.DialogBundleEvent.OnQuantityChanged -> _state.update { currentState ->
-                currentState.copy(
-                    dialogBundleState = currentState.dialogBundleState.copy(
-                        quantity = event.newQuantity,
-                        quantityError = null
+            TransactionAddEvent.DialogBundleEvent.OnDismiss -> {
+                _state.update { currentState ->
+                    currentState.copy(
+                        isDialogBundleShown = false,
+                        dialogBundleState = DialogBundleState()
                     )
-                )
+                }
             }
 
-            TransactionAddEvent.DialogBundleEvent.OnDismiss -> _state.update { currentState ->
-                currentState.copy(
-                    isDialogBundleShown = false,
-                    dialogBundleState = DialogBundleState()
-                )
+            is TransactionAddEvent.DialogBundleEvent.OnQuantityChanged -> {
+                scope.launch {
+                    val currentDialogState = state.value.dialogBundleState
+                    if (currentDialogState.quantityError != null) {
+                        val quantityValidationError = validateQuantity(event.newQuantity)
+                        _state.update { currentState ->
+                            currentState.copy(
+                                dialogBundleState = currentState.dialogBundleState.copy(
+                                    quantity = event.newQuantity,
+                                    quantityError = quantityValidationError,
+                                    isReady = quantityValidationError == null
+                                )
+                            )
+                        }
+                    } else {
+                        _state.update { currentState ->
+                            currentState.copy(
+                                dialogBundleState = currentState.dialogBundleState.copy(
+                                    quantity = event.newQuantity
+                                )
+                            )
+                        }
+                    }
+                }
             }
 
-            TransactionAddEvent.DialogBundleEvent.OnAddClicked -> {
+            TransactionAddEvent.DialogBundleEvent.OnQuantityValidationRequest -> {
+                scope.launch {
+                    val currentDialogState = state.value.dialogBundleState
+                    val quantityValidationError = validateQuantity(currentDialogState.quantity)
+                    if (quantityValidationError != null) {
+                        _state.update { currentState ->
+                            currentState.copy(
+                                dialogBundleState = currentDialogState.copy(
+                                    quantityError = quantityValidationError
+                                )
+                            )
+                        }
+                        return@launch
+                    }
+
+                    _state.update { currentState ->
+                        currentState.copy(
+                            dialogBundleState = currentDialogState.copy(
+                                isReady = true
+                            )
+                        )
+                    }
+                }
+            }
+
+            TransactionAddEvent.DialogBundleEvent.OnAddToCartClicked -> {
                 val currentState = state.value
                 val selectedBundle = currentState.dialogBundleState.selectedBundle
                     ?: throw Exception("Bundle didn't get passed properly")
@@ -361,13 +408,12 @@ class TransactionAddComponentImpl(
                 val bundleProductsError = mutableListOf<Name>()
 
                 scope.launch {
-                    if (currentState.dialogBundleState.quantity.isBlank() || currentState.dialogBundleState.quantity.toFloatOrNull() == null) {
+                    val quantityError = validateQuantity(currentState.dialogBundleState.quantity)
+                    if (quantityError != null) {
                         _state.update { currentState ->
                             currentState.copy(
                                 dialogBundleState = currentState.dialogBundleState.copy(
-                                    quantityError = getString(
-                                        Res.string.msg_error_quantity_cannot_be_empty
-                                    )
+                                    quantityError = quantityError
                                 )
                             )
                         }
@@ -381,7 +427,7 @@ class TransactionAddComponentImpl(
                                 productRepository.getProductAvailability(bundleProduct.productId)
 
                             val currentlyRequested =
-                                bundleProduct.quantity.value * currentState.dialogBundleState.quantity.toFloat()
+                                bundleProduct.quantity.value * currentState.dialogBundleState.quantity.toBigDecimal()
 
                             if (currentlyAvailable < currentlyRequested) {
                                 bundleProductsError.add(bundleProduct.productName)
@@ -406,13 +452,13 @@ class TransactionAddComponentImpl(
 
                     val cartItems = currentState.cartItems.toMutableList()
                     cartItems.add(
-                        CartItems.BundleCartItem(
+                        BundleCartItem(
                             id = 0,
                             bundleId = selectedBundle.id,
                             bundleName = selectedBundle.name,
-                            bundleQuantity = Amount(currentState.dialogBundleState.quantity.toFloat()),
+                            bundleQuantity = Amount(currentState.dialogBundleState.quantity.toBigDecimal()),
                             bundleTotalPrice = Price(
-                                selectedBundle.bundleProducts.sumOf { it.sellPrice.value * it.quantity.value.toBigDecimal() }
+                                selectedBundle.bundleProducts.sumOf { it.sellPrice.value * it.quantity.value }
                             ),
                             bundleNote = currentState
                                 .dialogBundleState
@@ -434,5 +480,17 @@ class TransactionAddComponentImpl(
                 }
             }
         }
+    }
+
+    private suspend fun validateQuantity(quantityText: String): String? {
+        if (quantityText.isBlank()) {
+            return getString(Res.string.msg_error_quantity_cannot_be_empty)
+        }
+
+        if (quantityText.toBigDecimalOrNull() == null) {
+            return getString(Res.string.msg_error_quantity_should_be_number)
+        }
+
+        return null
     }
 }

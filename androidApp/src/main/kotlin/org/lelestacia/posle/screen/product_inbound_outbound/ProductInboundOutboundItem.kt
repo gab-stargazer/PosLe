@@ -16,8 +16,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ireward.htmlcompose.HtmlText
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.data.entity.StockMovementType
 import org.lelestacia.posle.domain.model.StockMovement
@@ -27,12 +29,15 @@ import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Unit
 import org.lelestacia.posle.util.Util
+import org.lelestacia.posle.util.toDisplayText
 import org.lelestacia.posle.util.toFormattedDateTime
 import posle.shared.generated.resources.Res
-import posle.shared.generated.resources.txt_product_inbound
-import posle.shared.generated.resources.txt_product_outbound
-import kotlin.math.abs
-import kotlin.math.roundToInt
+import posle.shared.generated.resources.title_product_movement_adjustment_decrease
+import posle.shared.generated.resources.title_product_movement_adjustment_increase
+import posle.shared.generated.resources.title_product_movement_purchase
+import posle.shared.generated.resources.title_product_movement_return
+import posle.shared.generated.resources.title_product_movement_sale
+import java.math.BigDecimal
 
 @Composable
 fun ProductInboundOutboundItem(
@@ -80,14 +85,17 @@ fun ProductInboundOutboundItem(
                     style = MaterialTheme.typography.bodySmall
                 )
 
-                Text(
+                HtmlText(
                     stringResource(
                         when (stockMovement.movementType) {
-                            StockMovementType.Purchase, StockMovementType.AdjustmentIncrease -> Res.string.txt_product_inbound
-                            StockMovementType.Sale, StockMovementType.AdjustmentDecrease, StockMovementType.Return -> Res.string.txt_product_outbound
+                            StockMovementType.Purchase -> Res.string.title_product_movement_purchase
+                            StockMovementType.Sale -> Res.string.title_product_movement_sale
+                            StockMovementType.Return -> Res.string.title_product_movement_return
+                            StockMovementType.AdjustmentIncrease -> Res.string.title_product_movement_adjustment_increase
+                            StockMovementType.AdjustmentDecrease -> Res.string.title_product_movement_adjustment_decrease
                         },
                         stockMovement.productName.value,
-                        abs(stockMovement.amount.value).roundToInt(),
+                        stockMovement.amount.value.abs().toDisplayText(),
                         stockMovement.productUnit.value
                     ),
                     style = MaterialTheme.typography.bodyMedium,
@@ -106,7 +114,8 @@ fun ProductInboundOutboundItem(
                 Text(
                     text = stringResource(stockMovement.movementType.title),
                     style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
                     ),
                     modifier = Modifier.padding(
                         horizontal = 12.dp,
@@ -129,7 +138,7 @@ private fun PreviewProductInboundItem() {
                 productName = Name("Sate Ayam"),
                 productUnit = Unit("Porsi"),
                 movementType = StockMovementType.Sale,
-                amount = Amount(10F),
+                amount = Amount(BigDecimal("10")),
                 createdAt = 0L
             ),
             modifier = Modifier.padding(12.dp)
@@ -148,7 +157,7 @@ private fun PreviewProductOutboundItem() {
                 productName = Name("Es Teh Manis"),
                 productUnit = Unit("Gelas"),
                 movementType = StockMovementType.Purchase,
-                amount = Amount(-5F),
+                amount = Amount(BigDecimal("-5")),
                 createdAt = 0L
             ),
             modifier = Modifier.padding(12.dp)
@@ -167,7 +176,7 @@ private fun PreviewProductAdjustmentItem() {
                 productName = Name("Nasi Putih"),
                 productUnit = Unit("Porsi"),
                 movementType = StockMovementType.AdjustmentDecrease,
-                amount = Amount(-2F),
+                amount = Amount(BigDecimal("-2")),
                 createdAt = 0L
             ),
             modifier = Modifier.padding(12.dp)

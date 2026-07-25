@@ -66,8 +66,11 @@ class TransactionProductConfigComponentImpl(
                     replace(
                         start = 0,
                         end = length,
-                        text = if (event.amount % 1 == 0f) event.amount.toInt()
-                            .toString() else event.amount.toString()
+                        text = if (event.amount.remainder(java.math.BigDecimal.ONE).compareTo(java.math.BigDecimal.ZERO) == 0) {
+                            event.amount.toBigInteger().toString()
+                        } else {
+                            event.amount.toPlainString()
+                        }
                     )
                 }
             }
@@ -78,7 +81,7 @@ class TransactionProductConfigComponentImpl(
                     val amount = currentState.amountState
                         .text
                         .toString()
-                        .toFloat()
+                        .toBigDecimalOrNull() ?: java.math.BigDecimal.ZERO
 
                     if (amount > product.stock.value) {
                         scope.launch {

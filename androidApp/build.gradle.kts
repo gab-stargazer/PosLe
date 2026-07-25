@@ -39,9 +39,8 @@ dependencies {
     //  Testing
     androidTestImplementation(libs.androidx.testExt.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform("androidx.compose:compose-bom:2024.12.01"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    implementation("com.github.ireward:compose-html:1.0.2")
 }
 
 android {

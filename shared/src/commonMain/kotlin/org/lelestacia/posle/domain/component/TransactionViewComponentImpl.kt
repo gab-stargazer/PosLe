@@ -1,5 +1,6 @@
 package org.lelestacia.posle.domain.component
 
+import androidx.compose.material3.SnackbarHostState
 import com.arkivanov.decompose.ComponentContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +21,7 @@ class TransactionViewComponentImpl(
     componentContext: ComponentContext,
     transaction: Transaction,
     settingManager: SettingManager,
+    private val snackbarHostState: SnackbarHostState,
     private val repository: TransactionRepository,
     private val onNavigation: (TransactionViewNavigation) -> Unit
 ) : ComponentContext by componentContext, TransactionViewComponent {

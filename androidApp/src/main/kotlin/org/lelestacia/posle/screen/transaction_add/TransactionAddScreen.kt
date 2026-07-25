@@ -75,8 +75,10 @@ import posle.shared.generated.resources.label_cart_count
 import posle.shared.generated.resources.label_product
 import posle.shared.generated.resources.title_bundle
 import posle.shared.generated.resources.title_product
-import org.lelestacia.posle.domain.state_event.TransactionAddEvent.DialogBundleEvent.OnAddClicked as OnAddBundleToCartClicked
+import org.lelestacia.posle.domain.state_event.TransactionAddEvent.DialogBundleEvent.OnAddToCartClicked as OnAddBundleToCartClicked
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent.DialogBundleEvent.OnDismiss as OnDismissDialogBundle
+import org.lelestacia.posle.domain.state_event.TransactionAddEvent.DialogBundleEvent.OnQuantityChanged as OnDialogBundleQuantityChanged
+import org.lelestacia.posle.domain.state_event.TransactionAddEvent.DialogBundleEvent.OnQuantityValidationRequest as OnDialogBundleQuantityValidationRequest
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent.DialogBundleEvent.OnShown as OnDialogBundleShown
 
 @Composable
@@ -119,17 +121,13 @@ fun TransactionAddScreen(
             }
         ) {
             TransactionAddBundleDialog(
-                bundle = state.dialogBundleState.selectedBundle,
-                quantity = state.dialogBundleState.quantity,
+                state = state.dialogBundleState,
                 onQuantityChange = { newQuantity ->
-                    component.onEvent(
-                        TransactionAddEvent.DialogBundleEvent.OnQuantityChanged(
-                            newQuantity
-                        )
-                    )
+                    component.onEvent(OnDialogBundleQuantityChanged(newQuantity))
                 },
-                quantityError = state.dialogBundleState.quantityError,
-                noteState = state.dialogBundleState.noteState,
+                onQuantityValidationRequest = {
+                    component.onEvent(OnDialogBundleQuantityValidationRequest)
+                },
                 onCancel = {
                     component.onEvent(OnDismissDialogBundle)
                 },
