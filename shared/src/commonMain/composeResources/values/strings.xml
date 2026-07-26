@@ -30,7 +30,7 @@
     <string name="label_product_price_latest">Harga Produk Terbaru</string>
     <string name="label_product_sell_price">Harga Jual </string>
     <string name="label_product_sell_price_promo">Harga Jual Promo</string>
-    <string name="label_product_sku_number">Nomor SKU(Opsional)</string>
+    <string name="label_product_sku_number">Nomor SKU (Opsional)</string>
     <string name="label_product_unit">Satuan Produk</string>
     <string name="label_search_product">Cari Produk</string>
     <string name="label_selected">Dipilih</string>
@@ -174,7 +174,7 @@
     <string name="msg_error_quantity_should_be_number">Jumlah harus berupa angka</string>
     <string name="msg_error_quantity_exceeded">Jumlah yang akan digunakan melebihi stok yang ada</string>
     <string name="msg_error_something_went_wrong">Terjadi Kesalahan</string>
-    <string name="msg_error_unit_cannot_be_empty">Jumlah Produk tidak boleh melebihi jumlah tersedia</string>
+    <string name="msg_error_unit_cannot_be_empty">Unit Produk tidak boleh kosong</string>
 
     <!--Msg-->
     <string name="msg_stock_added">Stok untuk produk %1$s berhasil ditambahkan sejumlah %2$s %3$s</string>

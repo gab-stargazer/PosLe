@@ -17,13 +17,14 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.lelestacia.posle.App
+import org.lelestacia.posle.ui.theme.Cerulean
+import org.lelestacia.posle.ui.theme.CharcoalBlue
 
 @Composable
 fun ProductAddEditDeleteImageButton(
@@ -42,8 +43,8 @@ fun ProductAddEditDeleteImageButton(
                         onClick = onAddOrChange,
                         shape = RoundedCornerShape(25F),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp),
-                            contentColor = MaterialTheme.colorScheme.onSurface
+                            containerColor = Cerulean,
+                            contentColor = MaterialTheme.colorScheme.surfaceContainerLowest
                         ),
                         modifier = Modifier.weight(1F)
                     ) {
@@ -57,7 +58,7 @@ fun ProductAddEditDeleteImageButton(
                         onClick = onDelete,
                         shape = RoundedCornerShape(25F),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.error.copy(0.95F),
+                            containerColor = CharcoalBlue,
                             contentColor = MaterialTheme.colorScheme.onError
                         ),
                         modifier = Modifier
@@ -78,8 +79,8 @@ fun ProductAddEditDeleteImageButton(
                         onClick = onAddOrChange,
                         shape = RoundedCornerShape(25F),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp),
-                            contentColor = MaterialTheme.colorScheme.onSurface
+                            containerColor = CharcoalBlue,
+                            contentColor = MaterialTheme.colorScheme.surfaceContainerLowest
                         ),
                         modifier = Modifier
                             .fillMaxWidth()

@@ -3,6 +3,8 @@ package org.lelestacia.posle.screen.product_add
 import android.Manifest
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -12,11 +14,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.Button
@@ -26,13 +29,11 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,9 +42,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.coerceIn
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -71,13 +73,23 @@ import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.O
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnAddStockEvent
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnDeleteProductClicked
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnImageChanged
+import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnProductModalPriceChange
+import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnProductModalPriceRequestValidation
+import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnProductNameChange
+import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnProductNameRequestValidation
+import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnProductUnitChange
+import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnProductUnitRequestValidation
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditState
 import org.lelestacia.posle.navigation.AddEdit
 import org.lelestacia.posle.navigation.AddEdit.Add
 import org.lelestacia.posle.navigation.AddEdit.Edit
+import org.lelestacia.posle.ui.component.BorderedTextField
 import org.lelestacia.posle.ui.theme.AppTheme
+import org.lelestacia.posle.ui.theme.BurgundyRed
+import org.lelestacia.posle.ui.theme.successLightHighContrast
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
+import org.lelestacia.posle.util.Util
 import org.lelestacia.posle.util.handleImagePick
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.btn_add_product
@@ -95,6 +107,8 @@ fun ProductAddEditScreen(
     component: ProductAddEditComponent,
     modifier: Modifier = Modifier
 ) {
+    val focusManager = LocalFocusManager.current
+
     val state by component.state.collectAsStateWithLifecycle()
     val cameraPermission = rememberAppPermissionState(
         listOf(AppPermission(Manifest.permission.CAMERA, "Izin Kamera", isRequired = true))
@@ -109,30 +123,20 @@ fun ProductAddEditScreen(
         }
     }
 
-    LaunchedEffect(state.buyPriceState.text) {
-        if (state.isSellPriceAndBuyPriceTheSame) {
-            state.sellPriceState.edit {
-                val oldSelection = selection
-                replace(0, length, state.buyPriceState.text.toString())
-                selection = oldSelection.coerceIn(0, state.buyPriceState.text.toString().length)
-            }
-        }
-    }
-
     val appBarContainerColor by animateColorAsState(
         targetValue = if (isScrolled) {
-            MaterialTheme.colorScheme.primaryContainer
+            BurgundyRed
         } else {
-            MaterialTheme.colorScheme.surfaceContainerLow
+            MaterialTheme.colorScheme.surfaceContainerLowest
         },
         label = "ProductAddEditAppBarContainerColor"
     )
 
     val appBarContentColor by animateColorAsState(
         targetValue = if (isScrolled) {
-            MaterialTheme.colorScheme.onPrimaryContainer
+            MaterialTheme.colorScheme.surfaceContainerLowest
         } else {
-            MaterialTheme.colorScheme.onSurfaceVariant
+            MaterialTheme.colorScheme.onSurface
         },
         label = "ProductAddEditAppBarContainerColor"
     )
@@ -240,40 +244,49 @@ fun ProductAddEditScreen(
                 .padding(paddingValues)
                 .verticalScroll(scrollState)
         ) {
-            OutlinedTextField(
-                state = state.name,
-                label = {
-                    Text(
-                        text = stringResource(Res.string.label_product_name),
-                        style = MaterialTheme.typography.labelMediumEmphasized.copy(
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
+
+            BorderedTextField(
+                value = state.productName,
+                onValueChange = { newProductName ->
+                    component.onEvent(OnProductNameChange(newProductName))
                 },
-                textStyle = MaterialTheme.typography.bodyMedium,
+                label = stringResource(Res.string.label_product_name),
+                trailingIcon = {
+                    AnimatedVisibility(
+                        visible = state.productNameError == null && state.productName.isNotBlank(),
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            tint = successLightHighContrast
+                        )
+                    }
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     capitalization = KeyboardCapitalization.Words,
-                    imeAction = ImeAction.Next
+                    imeAction = ImeAction.Done
                 ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        component.onEvent(OnProductNameRequestValidation)
+                        focusManager.clearFocus(true)
+                    }
+                ),
+                errorMessage = state.productNameError,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 24.dp)
+                    .padding(top = 12.dp)
                     .padding(horizontal = 12.dp)
             )
 
-            OutlinedTextField(
+            BorderedTextField(
                 value = state.skuNumber,
                 onValueChange = {},
                 readOnly = true,
-                label = {
-                    Text(
-                        text = stringResource(Res.string.label_product_sku_number),
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-                },
+                label = stringResource(Res.string.label_product_sku_number),
                 trailingIcon = {
                     IconButton(
                         onClick = {
@@ -293,33 +306,60 @@ fun ProductAddEditScreen(
                 textStyle = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 6.dp)
+                    .padding(top = 8.dp)
                     .padding(horizontal = 12.dp)
             )
 
-            OutlinedTextField(
-                state = state.unit,
-                label = {
-                    Text(
-                        text = stringResource(Res.string.label_product_unit),
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
+            BorderedTextField(
+                value = state.productUnit,
+                onValueChange = { newProductUnit ->
+                    component.onEvent(OnProductUnitChange(newProductUnit))
                 },
+                label = stringResource(Res.string.label_product_unit),
+                trailingIcon = {
+                    AnimatedVisibility(
+                        visible = state.productUnitError == null && state.productUnit.isNotBlank(),
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            tint = successLightHighContrast
+                        )
+                    }
+                },
+                errorMessage = state.productUnitError,
                 textStyle = MaterialTheme.typography.bodyMedium,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Words,
                     imeAction = ImeAction.Next
                 ),
+                keyboardActions = KeyboardActions(
+                    onNext = {
+                        component.onEvent(OnProductUnitRequestValidation)
+                        focusManager.moveFocus(FocusDirection.Down)
+                    }
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 6.dp)
+                    .padding(top = 8.dp)
                     .padding(horizontal = 12.dp)
             )
 
 
-            ProductAddEditSectionBuyPrice(state)
+            ProductAddEditSectionModalPrice(
+                state = state,
+                onModalPriceChange = { newModalPrice ->
+                    component.onEvent(OnProductModalPriceChange(newModalPrice))
+                },
+                onModalPriceRequestValidation = {
+                    component.onEvent(OnProductModalPriceRequestValidation)
+                },
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .padding(horizontal = 12.dp)
+            )
 
             ProductAddEditSectionSellPrice(state, component::onEvent)
 
@@ -354,7 +394,10 @@ fun ProductAddEditScreen(
                 onClick = {
                     component.onEvent(OnAddProductClicked)
                 },
-                shape = RoundedCornerShape(25F),
+                shape = Util.defaultShape,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = BurgundyRed
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp)
@@ -367,7 +410,8 @@ fun ProductAddEditScreen(
                             Edit -> stringResource(resource = Res.string.btn_update_product)
                         },
                     style = MaterialTheme.typography.labelMediumEmphasized.copy(
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.surfaceContainerLowest
                     )
                 )
             }
@@ -407,9 +451,9 @@ private fun PreviewProductAddEditUI() {
             mutableStateOf(
                 ProductAddEditState(
                     mode = AddEdit.Edit,
-                    name = TextFieldState("Nasi Goreng"),
-                    unit = TextFieldState("Porsi"),
-                    sellPriceState = TextFieldState("10000"),
+                    productName = "Nasi Goreng",
+                    productUnit = "Porsi",
+                    productSellPrice = "10000",
                     variants = listOf(
                         Variant(
                             id = 2,

@@ -1,16 +1,20 @@
 package org.lelestacia.posle.screen.product_add
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.SubdirectoryArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,41 +27,56 @@ import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditState
 import org.lelestacia.posle.navigation.AddEdit.Edit
-import org.lelestacia.posle.util.RupiahOutputTransformation
+import org.lelestacia.posle.ui.component.BorderedTextField
+import org.lelestacia.posle.ui.theme.successLightHighContrast
+import org.lelestacia.posle.util.RupiahVisualTransformation
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.label_product_buy_price
 import posle.shared.generated.resources.title_buy_price_history
 
 @Composable
-fun ProductAddEditSectionBuyPrice(
+fun ProductAddEditSectionModalPrice(
     state: ProductAddEditState,
+    onModalPriceChange: (String) -> Unit,
+    onModalPriceRequestValidation: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
     Column(modifier = modifier) {
-        OutlinedTextField(
-            state = state.buyPriceState,
-            label = {
-                Text(
-                    text = stringResource(Res.string.label_product_buy_price),
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        fontWeight = FontWeight.Bold
-                    )
-                )
+        BorderedTextField(
+            value = state.productModalPrice,
+            onValueChange = { newModalPrice ->
+                onModalPriceChange(newModalPrice)
             },
-            outputTransformation = RupiahOutputTransformation(),
+            label = stringResource(Res.string.label_product_buy_price),
+            trailingIcon = {
+                AnimatedVisibility(
+                    visible = state.productModalPriceError == null && state.productModalPrice.isNotBlank(),
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = null,
+                        tint = successLightHighContrast
+                    )
+                }
+            },
+            visualTransformation = RupiahVisualTransformation(),
+            errorMessage = state.productModalPriceError,
             textStyle = MaterialTheme.typography.bodyMedium,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Done
             ),
-            onKeyboardAction = {
-                focusManager.clearFocus(true)
-            },
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    focusManager.clearFocus(true)
+                    onModalPriceRequestValidation.invoke()
+                }
+            ),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 6.dp)
-                .padding(horizontal = 12.dp)
         )
 
         if (state.mode == Edit) {
