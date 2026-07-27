@@ -140,6 +140,10 @@ fun TransactionAddScreen(
 
     if (state.isDialogProductShown) {
         Dialog(
+            properties = DialogProperties(
+                dismissOnClickOutside = false,
+                dismissOnBackPress = false,
+            ),
             onDismissRequest = {
                 component.onEvent(OnDismiss)
             }

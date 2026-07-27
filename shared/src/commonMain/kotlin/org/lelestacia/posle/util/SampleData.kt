@@ -340,7 +340,7 @@ object SampleData {
                 type = TransactionItemType.Product,
                 referenceId = 501, // Product.id
                 name = Name("Kopi Kapal Api Sachet"),
-                quantity = Amount(BigDecimal.ZERO),
+                quantity = Amount(BigDecimal("10")),
                 sellPrice = Price(BigDecimal("2500")),
                 note = null,
                 createdAt = 1752700000000L,
@@ -355,7 +355,7 @@ object SampleData {
                         sellPrice = Price(BigDecimal("2500")),
                         unit = Unit("Bungkus"),
                         note = null,
-                        quantity = Amount(BigDecimal.ZERO), // 1 sachet per unit purchased
+                        quantity = Amount(BigDecimal.ONE), // 1 sachet per unit purchased
                         variants = emptyList()
                     )
                 )
@@ -367,7 +367,7 @@ object SampleData {
                 type = TransactionItemType.Product,
                 referenceId = 502,
                 name = Name("Gula Pasir Curah"),
-                quantity = Amount(BigDecimal.ZERO), // 0.5 kg
+                quantity = Amount(BigDecimal("0.5")), // 0.5 kg
                 sellPrice = Price(BigDecimal("7500")),
                 note = "Dibungkus plastik",
                 createdAt = 1752700000000L,
@@ -382,7 +382,7 @@ object SampleData {
                         sellPrice = Price(BigDecimal("15000")),
                         unit = Unit("Kg"),
                         note = null,
-                        quantity = Amount(BigDecimal.ZERO),
+                        quantity = Amount(BigDecimal.ONE),
                         variants = emptyList<Variant>()
                     )
                 )
@@ -394,7 +394,7 @@ object SampleData {
                 type = TransactionItemType.Bundle,
                 referenceId = 9001, // Bundle.id
                 name = Name("Paket Sarapan Hemat"),
-                quantity = Amount(BigDecimal.ZERO), // 2 bundles bought
+                quantity = Amount(BigDecimal("2")), // 2 bundles bought
                 sellPrice = Price(BigDecimal("15000")),
                 note = "Tanpa sambal",
                 createdAt = 1752700000000L,
@@ -409,7 +409,7 @@ object SampleData {
                         sellPrice = Price(BigDecimal("3500")),
                         unit = Unit("Bungkus"),
                         note = null,
-                        quantity = Amount(BigDecimal.ZERO), // per bundle
+                        quantity = Amount(BigDecimal.ONE), // per bundle
                         variants = emptyList()
                     ),
                     TransactionProduct(
@@ -421,7 +421,7 @@ object SampleData {
                         sellPrice = Price(BigDecimal("2500")),
                         unit = Unit("Butir"),
                         note = null,
-                        quantity = Amount(BigDecimal.ZERO), // 2 eggs per bundle
+                        quantity = Amount(BigDecimal("2")), // 2 eggs per bundle
                         variants = emptyList()
                     ),
                     TransactionProduct(
@@ -433,7 +433,7 @@ object SampleData {
                         sellPrice = Price(BigDecimal("4000")),
                         unit = Unit("Kotak"),
                         note = null,
-                        quantity = Amount(BigDecimal.ZERO), // per bundle
+                        quantity = Amount(BigDecimal.ONE), // per bundle
                         variants = emptyList<Variant>()
                     )
                 )

@@ -3,6 +3,7 @@ package org.lelestacia.posle.domain.state_event
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Immutable
 import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
 import org.lelestacia.posle.data.PosLeSettings
 import org.lelestacia.posle.domain.model.Bundle
 import org.lelestacia.posle.domain.model.CartItems
@@ -11,8 +12,10 @@ import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.state_event.TransactionAddState.DialogProductState
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.msg_error_price_cannot_be_empty
+import posle.shared.generated.resources.msg_error_price_cannot_contain_alphabet
 import posle.shared.generated.resources.msg_error_quantity_cannot_be_empty
 import posle.shared.generated.resources.msg_error_quantity_exceeded
+import java.math.BigDecimal
 
 @Immutable
 data class TransactionAddState(
@@ -31,13 +34,20 @@ data class TransactionAddState(
     data class DialogProductState(
         val selectedProduct: Product? = null,
         val amount: String = "",
-        val amountError: StringResource? = null,
+        val amountError: String? = null,
         val price: String = "",
-        val priceState: TextFieldState = TextFieldState(),
-        val priceStateError: StringResource? = null,
+        val priceError: String? = null,
         val noteState: TextFieldState = TextFieldState(),
         val settings: PosLeSettings = PosLeSettings()
-    )
+    ) {
+        fun validatePrice(price: String): StringResource? {
+            return when {
+                price.isBlank() -> Res.string.msg_error_price_cannot_be_empty
+                price.toBigDecimalOrNull() == null -> Res.string.msg_error_price_cannot_contain_alphabet
+                else -> null
+            }
+        }
+    }
 
     @Immutable
     data class DialogBundleState(
@@ -45,18 +55,17 @@ data class TransactionAddState(
         val quantity: String = "",
         val quantityError: String? = null,
         val noteState: TextFieldState = TextFieldState(),
-        val isReady: Boolean = false,
     )
 }
 
-fun DialogProductState.validate(): DialogProductState {
+suspend fun DialogProductState.validate(): DialogProductState {
     val isStockEnabled = settings.isProductStockTracked
     val stock = selectedProduct?.stock?.value ?: throw Exception("Stock is null on Validation")
-    val amountAsBigDecimal = amount.toBigDecimalOrNull() ?: java.math.BigDecimal.ZERO
+    val amountAsBigDecimal = amount.toBigDecimalOrNull() ?: BigDecimal.ZERO
 
     val amountError = when {
         amount.isBlank() -> Res.string.msg_error_quantity_cannot_be_empty
-        amountAsBigDecimal.compareTo(java.math.BigDecimal.ZERO) == 0 -> Res.string.msg_error_quantity_cannot_be_empty
+        amountAsBigDecimal == BigDecimal.ZERO -> Res.string.msg_error_quantity_cannot_be_empty
         isStockEnabled && amountAsBigDecimal > stock -> Res.string.msg_error_quantity_exceeded
         else -> null
     }
@@ -67,8 +76,8 @@ fun DialogProductState.validate(): DialogProductState {
     }
 
     return this.copy(
-        amountError = amountError,
-        priceStateError = priceError
+        amountError = amountError?.let { getString(it) },
+        priceError = priceError?.let { getString(it) }
     )
 }
 
@@ -83,6 +92,7 @@ sealed interface TransactionAddEvent {
     sealed interface DialogProductEvent : TransactionAddEvent {
         data class OnAmountChanged(val newAmount: String) : DialogProductEvent
         data class OnPriceChanged(val newPrice: String) : DialogProductEvent
+        data object OnPriceRequestValidation : DialogProductEvent
         data class OnShown(val selectedProduct: Product) : DialogProductEvent
         data object OnDismiss : DialogProductEvent
         data object OnAddClicked : DialogProductEvent

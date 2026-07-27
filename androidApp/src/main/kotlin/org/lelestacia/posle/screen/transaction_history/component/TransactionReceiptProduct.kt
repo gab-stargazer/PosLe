@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.model.TransactionProduct
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.util.Amount
@@ -22,6 +23,8 @@ import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.Unit
 import org.lelestacia.posle.util.toDisplayText
 import org.lelestacia.posle.util.toRupiah
+import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.title_subtotal
 
 @Composable
 fun TransactionReceiptProduct(
@@ -62,20 +65,23 @@ fun TransactionReceiptProduct(
                 ),
                 modifier = Modifier.weight(1F)
             )
-
-            val subtotal = product
-                .quantity
-                .value * product.sellPrice.value
-
-            Text(
-                text = subtotal.toRupiah().uppercase(),
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontFamily = FontFamily.Monospace,
-                    textAlign = TextAlign.End
-                ),
-                modifier = Modifier.weight(2F)
-            )
         }
+
+        val subtotal = product
+            .quantity
+            .value * product.sellPrice.value
+
+        Text(
+            stringResource(
+                Res.string.title_subtotal,
+                subtotal.toRupiah().uppercase()
+            ),
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontFamily = FontFamily.Monospace,
+                textAlign = TextAlign.End
+            ),
+            modifier = Modifier.fillMaxWidth()
+        )
 
         if (product.note.orEmpty().isNotBlank()) {
             Text(

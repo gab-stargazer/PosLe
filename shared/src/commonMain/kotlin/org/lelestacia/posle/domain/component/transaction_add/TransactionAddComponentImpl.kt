@@ -21,8 +21,8 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
 import org.lelestacia.posle.data.SettingManager
 import org.lelestacia.posle.domain.model.Bundle
-import org.lelestacia.posle.domain.model.CartItems
 import org.lelestacia.posle.domain.model.CartItems.BundleCartItem
+import org.lelestacia.posle.domain.model.CartItems.ProductCartItem
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.repository.BundleRepository
 import org.lelestacia.posle.domain.repository.ProductRepository
@@ -228,17 +228,32 @@ class TransactionAddComponentImpl(
             }
 
             is TransactionAddEvent.DialogProductEvent.OnPriceChanged -> {
+                if (event.newPrice.all { it.isDigit() }) {
+                    _state.update { currentState ->
+                        currentState.copy(
+                            dialogProductState = currentState.dialogProductState.copy(
+                                price = event.newPrice,
+                                priceError = null
+                            )
+                        )
+                    }
+                }
+            }
+
+            TransactionAddEvent.DialogProductEvent.OnPriceRequestValidation -> scope.launch {
+                val currentDialogState = state.value.dialogProductState
+                val priceValidationError =
+                    currentDialogState.validatePrice(currentDialogState.price)
                 _state.update { currentState ->
                     currentState.copy(
-                        dialogProductState = currentState.dialogProductState.copy(
-                            price = event.newPrice,
-                            priceStateError = null
+                        dialogProductState = currentDialogState.copy(
+                            priceError = priceValidationError?.let { getString(it) }
                         )
                     )
                 }
             }
 
-            TransactionAddEvent.DialogProductEvent.OnAddClicked -> {
+            TransactionAddEvent.DialogProductEvent.OnAddClicked -> scope.launch {
                 _state.update { currentState ->
 
                     val cartItems = currentState.cartItems.toMutableList()
@@ -249,7 +264,7 @@ class TransactionAddComponentImpl(
                     val validationResult = currentState.dialogProductState.validate()
                     val errors = listOf(
                         validationResult.amountError,
-                        validationResult.priceStateError
+                        validationResult.priceError
                     )
 
                     if (errors.any { error -> error != null }) {
@@ -258,7 +273,7 @@ class TransactionAddComponentImpl(
                         )
                     } else {
                         cartItems.add(
-                            CartItems.ProductCartItem(
+                            ProductCartItem(
                                 id = 0,
                                 productName = selectedProduct.name,
                                 productId = selectedProduct.id,
@@ -357,8 +372,7 @@ class TransactionAddComponentImpl(
                             currentState.copy(
                                 dialogBundleState = currentState.dialogBundleState.copy(
                                     quantity = event.newQuantity,
-                                    quantityError = quantityValidationError,
-                                    isReady = quantityValidationError == null
+                                    quantityError = quantityValidationError
                                 )
                             )
                         }
@@ -378,21 +392,10 @@ class TransactionAddComponentImpl(
                 scope.launch {
                     val currentDialogState = state.value.dialogBundleState
                     val quantityValidationError = validateQuantity(currentDialogState.quantity)
-                    if (quantityValidationError != null) {
-                        _state.update { currentState ->
-                            currentState.copy(
-                                dialogBundleState = currentDialogState.copy(
-                                    quantityError = quantityValidationError
-                                )
-                            )
-                        }
-                        return@launch
-                    }
-
                     _state.update { currentState ->
                         currentState.copy(
                             dialogBundleState = currentDialogState.copy(
-                                isReady = true
+                                quantityError = quantityValidationError
                             )
                         )
                     }

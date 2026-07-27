@@ -87,20 +87,20 @@ fun TransactionReceiptBundle(
 
 
 
-            if (subtotal.stripTrailingZeros() != transactionItem.sellPrice.value.stripTrailingZeros()) {
-                Text(
-                    text = stringResource(
-                        Res.string.title_subtotal,
-                        subtotal.toRupiah().uppercase()
-                    ),
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontFamily = FontFamily.Monospace,
-                        textAlign = TextAlign.End
-                    ),
-                    modifier = Modifier.weight(2F)
-                )
-            }
+
         }
+
+        Text(
+            text = stringResource(
+                Res.string.title_subtotal,
+                subtotal.toRupiah().uppercase()
+            ),
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontFamily = FontFamily.Monospace,
+                textAlign = TextAlign.End
+            ),
+            modifier = Modifier.fillMaxWidth()
+        )
 
         if (transactionItem.note.orEmpty().isNotBlank()) {
             Text(
@@ -128,7 +128,7 @@ private fun PreviewTransactionReceiptBundle() {
                     name = Name("Paket Nasi Ayam"),
                     quantity = Amount(java.math.BigDecimal("10")),
                     sellPrice = Price(13000.toBigDecimal()),
-                    note = null,
+                    note = "Lorem Ipsum",
                     products = List(2) {
                         TransactionProduct(
                             productId = it,

@@ -10,13 +10,17 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -27,7 +31,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -35,13 +41,11 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
@@ -52,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -64,14 +69,18 @@ import org.lelestacia.posle.domain.model.Transaction
 import org.lelestacia.posle.domain.model.TransactionItem
 import org.lelestacia.posle.domain.model.TransactionProduct
 import org.lelestacia.posle.domain.state_event.TransactionViewEvent
+import org.lelestacia.posle.domain.state_event.TransactionViewEvent.OnChangeSaveLoadingState
 import org.lelestacia.posle.domain.state_event.TransactionViewEvent.OnRecapClicked
+import org.lelestacia.posle.domain.state_event.TransactionViewEvent.OnShowMessage
 import org.lelestacia.posle.domain.state_event.TransactionViewState
 import org.lelestacia.posle.screen.transaction_history.component.TransactionReceipt
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.BurgundyRed
+import org.lelestacia.posle.ui.theme.MintCream
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
+import org.lelestacia.posle.util.Util
 import org.lelestacia.posle.util.printTransaction
 import org.lelestacia.posle.util.toFormattedDateTime
 import org.lelestacia.posle.util.toRupiah
@@ -84,9 +93,13 @@ import posle.shared.generated.resources.label_total
 import posle.shared.generated.resources.label_transaction_date
 import posle.shared.generated.resources.label_transaction_detail
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 import org.lelestacia.posle.util.Unit as PosleUnit
 
 
+@OptIn(ExperimentalUuidApi::class)
 @Composable
 fun TransactionViewScreen(
     isBluetoothPermissionGranted: Boolean,
@@ -97,20 +110,18 @@ fun TransactionViewScreen(
     val state by component.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val graphicsLayer = rememberGraphicsLayer()
-    var isCaptured by remember { mutableStateOf(false) }
     val ioScope = rememberCoroutineScope { Dispatchers.IO }
+    val mainScope = rememberCoroutineScope()
 
-    LaunchedEffect(isCaptured) {
-        ioScope.launch {
-            if (isCaptured) {
+    LaunchedEffect(state.isSaveProcessing) {
+        mainScope.launch {
+            if (state.isSaveProcessing) {
                 val bitmap = graphicsLayer.toImageBitmap().asAndroidBitmap()
 
                 val values = ContentValues().apply {
                     put(
                         MediaStore.Images.Media.DISPLAY_NAME,
-                        "Transaksi-${
-                            Clock.System.now().toEpochMilliseconds().toFormattedDateTime()
-                        }.png"
+                        "Transaksi-${Uuid.generateV7()}.png"
                     )
                     put(MediaStore.Images.Media.MIME_TYPE, "image/png")
                     put(
@@ -129,7 +140,9 @@ fun TransactionViewScreen(
                         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
                         stream.close()
 
-                        isCaptured = false
+                        delay(500.milliseconds)
+                        component.onEvent(OnChangeSaveLoadingState(isLoading = false))
+                        component.onEvent(OnShowMessage("Struk berhasil disimpan"))
                     }
                 }
             }
@@ -174,9 +187,13 @@ fun TransactionViewScreen(
         modifier = modifier
     ) { paddingValues ->
 
-        LazyColumn(modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues)
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(12.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(MaterialTheme.colorScheme.surfaceContainerLowest)
         ) {
             item {
                 TransactionReceipt(
@@ -185,7 +202,6 @@ fun TransactionViewScreen(
                     transactionProduct = state.transaction.items.toImmutableList(),
                     transactionDate = state.transaction.createdAt,
                     modifier = Modifier
-                        .padding(horizontal = 12.dp)
                         .drawWithContent {
                             graphicsLayer.record {
                                 this@drawWithContent.drawContent()
@@ -198,14 +214,13 @@ fun TransactionViewScreen(
 
             item {
                 ElevatedCard(
-                    shape = RoundedCornerShape(50F),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                        contentColor = MaterialTheme.colorScheme.onSurface
+                    shape = Util.defaultShape,
+                    colors = CardDefaults.elevatedCardColors(
+                        containerColor = MintCream
                     ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(12.dp)
                         .animateContentSize()
                 ) {
                     Column(
@@ -280,7 +295,7 @@ fun TransactionViewScreen(
                         }
 
                         AnimatedVisibility(
-                            (!state.transaction.isRecapped && state.settings.isTransactionRecapNeeded),
+                            visible = (!state.transaction.isRecapped && state.settings.isTransactionRecapNeeded),
                             enter = expandVertically(expandFrom = Alignment.Bottom) + fadeIn(),
                             exit = shrinkVertically(shrinkTowards = Alignment.Bottom) + fadeOut(),
                             modifier = Modifier.padding(top = 12.dp)
@@ -300,13 +315,18 @@ fun TransactionViewScreen(
                             }
                         }
 
-                        Button(
+                        OutlinedButton(
                             onClick = {
-                                isCaptured = true
+                                component.onEvent(
+                                    OnChangeSaveLoadingState(
+                                        isLoading = true
+                                    )
+                                )
                             },
+                            border = BorderStroke(1.dp, BurgundyRed),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                containerColor = Color.Transparent,
+                                contentColor = BurgundyRed
                             ),
                             shape = RoundedCornerShape(25F),
                             modifier = Modifier
@@ -314,12 +334,30 @@ fun TransactionViewScreen(
                                     top =
                                         when (state.transaction.isRecapped) {
                                             true -> 12.dp
-                                            false -> 6.dp
+                                            false -> 8.dp
                                         }
                                 )
                                 .fillMaxWidth()
+                                .animateContentSize()
                         ) {
-                            Text(stringResource(Res.string.btn_print_digital))
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.animateContentSize()
+                            ) {
+                                Text(stringResource(Res.string.btn_print_digital))
+
+                                AnimatedVisibility(
+                                    visible = state.isSaveProcessing,
+                                    enter = fadeIn(),
+                                    exit = fadeOut()
+                                ) {
+                                    LoadingIndicator(
+                                        color = BurgundyRed,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
                         }
 
                         Button(
@@ -345,7 +383,7 @@ fun TransactionViewScreen(
                                     top =
                                         when (state.transaction.isRecapped) {
                                             true -> 12.dp
-                                            false -> 6.dp
+                                            false -> 8.dp
                                         }
                                 )
                                 .fillMaxWidth()
@@ -367,6 +405,7 @@ private fun PreviewTransactionUI() {
             component = object : TransactionViewComponent {
                 override val state: StateFlow<TransactionViewState> = MutableStateFlow(
                     TransactionViewState(
+                        isSaveProcessing = true,
                         transaction = Transaction(
                             id = 0,
                             customerName = Name("Rudi"),

@@ -52,6 +52,7 @@ fun BorderedTextField(
     maxLines: Int = 1,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
+    suffix: @Composable (() -> Unit)? = null,
     errorMessage: String? = null,
     cornerRadius: Float = 25F,
     visualTransformation: VisualTransformation = VisualTransformation.None,
@@ -63,7 +64,7 @@ fun BorderedTextField(
 ) {
     val errorShakeOffset = remember { Animatable(0f) }
     LaunchedEffect(errorMessage) {
-        if (errorMessage!= null) {
+        if (errorMessage != null) {
             errorShakeOffset.animateTo(2f, tween(50))
             errorShakeOffset.animateTo(-2f, tween(50))
             errorShakeOffset.animateTo(0f, tween(50))
@@ -92,6 +93,7 @@ fun BorderedTextField(
                 visualTransformation = visualTransformation,
                 leadingIcon = leadingIcon,
                 trailingIcon = trailingIcon,
+                suffix = suffix,
                 keyboardOptions = keyboardOptions,
                 keyboardActions = keyboardActions,
                 readOnly = readOnly,

@@ -13,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -21,11 +20,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import org.lelestacia.posle.data.entity.TransactionItemType
 import org.lelestacia.posle.domain.model.TransactionItem
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.MintCream
 import org.lelestacia.posle.util.Name
+import org.lelestacia.posle.util.SampleData
 import org.lelestacia.posle.util.toFormattedDateTime
 import org.lelestacia.posle.util.toRupiah
 
@@ -39,16 +40,14 @@ fun TransactionReceipt(
 ) {
     ElevatedCard(
         shape = RectangleShape,
-        colors = CardDefaults.cardColors(
-            containerColor = MintCream
-        ),
+        colors = CardDefaults.elevatedCardColors(),
         modifier = modifier
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White)
+                .background(MintCream)
                 .padding(24.dp)
         ) {
             Text(
@@ -149,6 +148,11 @@ fun TransactionReceipt(
 @Composable
 private fun PreviewTransactionReceipt() {
     AppTheme {
-
+        TransactionReceipt(
+            storeName = Name("Toko Maju Jaya"),
+            customerName = SampleData.sampleTransaction.customerName,
+            transactionDate = SampleData.sampleTransaction.createdAt,
+            transactionProduct = SampleData.sampleTransaction.items.toImmutableList()
+        )
     }
 }

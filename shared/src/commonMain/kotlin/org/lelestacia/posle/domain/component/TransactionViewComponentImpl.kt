@@ -38,8 +38,7 @@ class TransactionViewComponentImpl(
         flow = settings,
         flow2 = _state
     ) { settings, state ->
-        TransactionViewState(
-            transaction = state.transaction,
+        state.copy(
             settings = settings
         )
     }.stateIn(
@@ -68,6 +67,16 @@ class TransactionViewComponentImpl(
                 }
 
                 is TransactionViewEvent.OnNavigateTo -> onNavigation(event.navigation)
+
+                is TransactionViewEvent.OnShowMessage -> snackbarHostState.showSnackbar(
+                    message = event.message
+                )
+
+                is TransactionViewEvent.OnChangeSaveLoadingState -> _state.update { currentState ->
+                    currentState.copy(
+                        isSaveProcessing = event.isLoading
+                    )
+                }
             }
         }
     }

@@ -325,6 +325,7 @@ fun BundleAddEditScreen(
                                 onDismissRequest = {
                                     isExpanded = false
                                 },
+                                containerColor = MintCream
                             ) {
                                 state.availableProducts.forEach { product ->
                                     DropdownMenuItem(

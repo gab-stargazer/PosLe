@@ -155,7 +155,6 @@ fun TransactionAddBundleDialog(
                         containerColor = BurgundyRed,
                     ),
                     onClick = onAddToCart,
-                    enabled = state.isReady,
                     modifier = Modifier.weight(1F)
                 ) {
                     Text(

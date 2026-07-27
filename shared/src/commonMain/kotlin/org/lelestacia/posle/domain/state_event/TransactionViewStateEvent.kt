@@ -9,10 +9,14 @@ import org.lelestacia.posle.domain.model.Transaction
 data class TransactionViewState(
     val transaction: Transaction,
 
+    val isSaveProcessing: Boolean = false,
+
     val settings: PosLeSettings = PosLeSettings(),
 )
 
 sealed interface TransactionViewEvent {
-    data object OnRecapClicked: TransactionViewEvent
-    data class OnNavigateTo(val navigation: TransactionViewNavigation): TransactionViewEvent
+    data class OnChangeSaveLoadingState(val isLoading: Boolean) : TransactionViewEvent
+    data class OnShowMessage(val message: String) : TransactionViewEvent
+    data object OnRecapClicked : TransactionViewEvent
+    data class OnNavigateTo(val navigation: TransactionViewNavigation) : TransactionViewEvent
 }

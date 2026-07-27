@@ -62,8 +62,8 @@ fun printTransaction(transaction: Transaction, storeName: Name) {
                 transactionItem.products.forEach { product ->
                     sb.append("[L]${product.productName.value} ${product.quantity.value.toDisplayText()}${product.unit.value}\n")
                 }
-                sb.append("[L]Catatan: ${transactionItem.note}\n")
                 sb.append("[R]Subtotal: ${subtotal.toRupiah()}\n")
+                sb.append("[L]Catatan: ${transactionItem.note}\n")
             }
         }
     }
