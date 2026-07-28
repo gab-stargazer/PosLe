@@ -98,6 +98,8 @@ kotlin {
 
             //  QR Kit
             api(libs.qr.kit)
+
+            implementation("com.itextpdf:itext-core:9.7.0")
         }
 
         commonTest.dependencies {

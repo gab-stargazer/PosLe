@@ -149,6 +149,7 @@
     <string name="title_sell_price_history">Histori Harga Jual</string>
     <string name="title_subtotal">Subtotal: %1$s</string>
     <string name="title_transaction">Transaksi</string>
+    <string name="title_total">Total: %1$s</string>
 
     <!--Subtitle-->
     <string name="subtitle_date">Tanggal</string>

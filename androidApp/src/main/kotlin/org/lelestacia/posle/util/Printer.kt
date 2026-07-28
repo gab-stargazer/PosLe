@@ -4,6 +4,55 @@ import com.dantsu.escposprinter.EscPosPrinter
 import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnections
 import org.lelestacia.posle.data.entity.TransactionItemType
 import org.lelestacia.posle.domain.model.Transaction
+import org.lelestacia.posle.domain.state_event.TransactionRecapState
+import kotlin.time.Clock
+
+fun printRecap(state: TransactionRecapState) {
+    val printer = EscPosPrinter(
+        BluetoothPrintersConnections.selectFirstPaired(),
+        203,
+        58f,
+        32
+    )
+
+    val storeName = state.settings.storeName.value
+        .ifBlank {
+            "Rekap PosLe"
+        }
+
+    val dateRange = if (state.isSameDay) {
+        state.startDate.toFormattedDate()
+    } else {
+        "${state.startDate.toFormattedDate()} - ${state.finishDate.toFormattedDate()}"
+    }
+
+    val sb = StringBuilder()
+    sb.append("[C]<u><font size='big'>$storeName</font></u>\n")
+    sb.append("[C]<font size='small'>REKAP TRANSAKSI</font>\n")
+    sb.append("[C]<font size='small'>$dateRange</font>\n")
+    sb.append("[C]================================\n")
+
+    sb.append("[L]Total Transaksi:[R]${state.transactionHistory.size}\n")
+    sb.append("[L]Total Keuntungan:[R]${state.totalProfit.toRupiah()}\n")
+    sb.append("[C]--------------------------------\n")
+    sb.append("[C]RINGKASAN PRODUK TERJUAL\n")
+    sb.append("[C]--------------------------------\n")
+
+    state.listOfProducts.forEach { products ->
+        val first = products.first()
+        val totalQty = products.sumOf { it.product.quantity.value }
+        val totalProfit = products.sumOf { (it.product.sellPrice.value.subtract(it.product.buyPrice.value)).multiply(it.product.quantity.value) }
+
+        sb.append("[L]<b>${first.product.productName.value}</b>\n")
+        sb.append("[L] Terjual: ${totalQty.toDisplayText()} ${first.product.unit.value}\n")
+        sb.append("[L] Profit: [R]${totalProfit.toRupiah()}\n")
+    }
+
+    sb.append("[C]================================\n")
+    sb.append("[C]Dicetak pada: ${Clock.System.now().toEpochMilliseconds().toFormattedDateTime()}\n")
+
+    printer.printFormattedText(sb.toString())
+}
 
 fun printTransaction(transaction: Transaction, storeName: Name) {
     val printer = EscPosPrinter(

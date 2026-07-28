@@ -1,6 +1,7 @@
 package org.lelestacia.posle.screen
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Print
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,11 +35,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.fade
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
+import com.arkivanov.decompose.router.stack.active
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.component.dashboard.DashboardComponent
 import org.lelestacia.posle.domain.state_event.DashboardComponentEvent
+import org.lelestacia.posle.domain.state_event.TransactionRecapEvent
 import org.lelestacia.posle.navigation.NavChild
 import org.lelestacia.posle.navigation.NavDestination
 import org.lelestacia.posle.screen.product_inbound_outbound.ProductInboundOutboundScreen
@@ -126,6 +130,7 @@ fun DashboardScreen(
     ) {
         Scaffold(
             topBar = {
+                val activeChild = component.children.active.instance
                 TopAppBar(
                     title = {
                         Text(
@@ -136,6 +141,25 @@ fun DashboardScreen(
                                 fontWeight = FontWeight.Bold
                             )
                         )
+                    },
+                    actions = {
+                        AnimatedVisibility(
+                            activeChild is NavChild.TransactionRecap
+                        ) {
+                            IconButton(
+                                onClick = {
+                                    (activeChild as NavChild.TransactionRecap).component
+                                        .onEvent(
+                                            TransactionRecapEvent.OnPrintRecap
+                                        )
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Print,
+                                    contentDescription = "Print Recap"
+                                )
+                            }
+                        }
                     },
                     navigationIcon = {
                         IconButton(

@@ -18,10 +18,13 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
 import org.lelestacia.posle.data.SettingManager
+import org.lelestacia.posle.data.entity.TransactionItemType
 import org.lelestacia.posle.domain.model.Transaction
 import org.lelestacia.posle.domain.repository.TransactionRepository
 import org.lelestacia.posle.domain.state_event.TransactionRecapEvent
 import org.lelestacia.posle.domain.state_event.TransactionRecapState
+import org.lelestacia.posle.navigation.Config.TransactionRecapProductItem
+import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.coroutineScope
 import org.lelestacia.posle.util.endOfDayEpochMilliseconds
 import org.lelestacia.posle.util.getTodayRangeMilliseconds
@@ -31,10 +34,11 @@ import kotlin.time.Instant
 
 class TransactionRecapComponentImpl(
     componentContext: ComponentContext,
-    settingManager: SettingManager,
+    private val settingManager: SettingManager,
     private val transactionRepository: TransactionRepository,
     private val onNavigateToTransactionView: (Transaction) -> Unit,
-    private val onNavigateToRecapProductView: (List<org.lelestacia.posle.navigation.Config.TransactionRecapProductItem>) -> Unit,
+    private val onNavigateToRecapProductView: (List<TransactionRecapProductItem>) -> Unit,
+    private val onPrintRecap: (TransactionRecapState) -> Unit,
 ) : ComponentContext by componentContext, TransactionRecapComponent {
 
     private val scope = coroutineScope(Dispatchers.Main.immediate)
@@ -77,8 +81,79 @@ class TransactionRecapComponentImpl(
                 }
             }
 
+            val listOfProducts =
+                filteredTransaction
+                    .flatMap { t ->
+                        t.items.map { transactionItem ->
+                            when (transactionItem.type) {
+                                TransactionItemType.Product -> {
+                                    transactionItem.products.map {
+                                        TransactionRecapProductItem(
+                                            type = TransactionItemType.Product,
+                                            product = it
+                                        )
+                                    }
+                                }
+
+                                TransactionItemType.Bundle -> {
+                                    transactionItem.products.map { product ->
+                                        TransactionRecapProductItem(
+                                            type = TransactionItemType.Bundle,
+                                            product = product.copy(
+                                                quantity = Amount(
+                                                    product.quantity.value.multiply(
+                                                        transactionItem.quantity.value
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .flatten()
+                    .groupBy { it.product.productId }
+                    .map { it.value }
+
+            val totalProfit =
+                filteredTransaction
+                    .map { t ->
+                        t.items.fold(java.math.BigDecimal.ZERO) { acc, transactionItem ->
+                            acc.add(
+                                when (transactionItem.type) {
+                                    TransactionItemType.Product -> {
+                                        transactionItem.products.fold(java.math.BigDecimal.ZERO) { accProd, product ->
+                                            accProd.add(
+                                                (product.sellPrice.value.subtract(product.buyPrice.value)).multiply(
+                                                    product.quantity.value
+                                                )
+                                            )
+                                        }
+                                    }
+
+                                    TransactionItemType.Bundle -> transactionItem
+                                        .quantity
+                                        .value
+                                        .multiply(
+                                            transactionItem.products.fold(java.math.BigDecimal.ZERO) { accProd, product ->
+                                                accProd.add(
+                                                    (product.sellPrice.value.subtract(product.buyPrice.value)).multiply(
+                                                        product.quantity.value
+                                                    )
+                                                )
+                                            }
+                                        )
+                                }
+                            )
+                        }
+                    }
+                    .sumOf { it }
+
             state.copy(
                 transactionHistory = filteredTransaction,
+                listOfProducts = listOfProducts,
+                totalProfit = totalProfit,
                 startDate = dateRange.first,
                 finishDate = dateRange.second,
                 isSameDay = startDate == endDate,
@@ -136,6 +211,10 @@ class TransactionRecapComponentImpl(
 
             is TransactionRecapEvent.OnSearchQueryChanged -> {
                 searchQuery.update { event.query }
+            }
+
+            TransactionRecapEvent.OnPrintRecap -> {
+                onPrintRecap(state.value)
             }
         }
     }

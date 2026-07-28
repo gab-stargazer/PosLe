@@ -201,40 +201,42 @@ fun TransactionItem(
                 }
 
                 if (settings.isTransactionRecapNeeded) {
-                    OutlinedCard(
-                        colors = CardDefaults.outlinedCardColors(
-                            containerColor = Color.Transparent
-                        ),
-                        border = BorderStroke(
-                            1.dp,
-                            color = when (transaction.isRecapped) {
-                                true -> successLight
-                                false -> MaterialTheme.colorScheme.error
-                            }
-                        )
-                    ) {
-                        Box(
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                stringResource(
-                                    when (transaction.isRecapped) {
-                                        true -> Res.string.label_recapped
-                                        false -> Res.string.label_not_recapped
-                                    }
-                                ),
-                                style = MaterialTheme.typography.labelMediumEmphasized.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = when (transaction.isRecapped) {
-                                        true -> successLight
-                                        false -> MaterialTheme.colorScheme.error
-                                    }
-                                ),
-                                modifier = Modifier.padding(
-                                    horizontal = 12.dp,
-                                    vertical = 6.dp
-                                )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        OutlinedCard(
+                            colors = CardDefaults.outlinedCardColors(
+                                containerColor = Color.Transparent
+                            ),
+                            border = BorderStroke(
+                                1.dp,
+                                color = when (transaction.isRecapped) {
+                                    true -> successLight
+                                    false -> MaterialTheme.colorScheme.error
+                                }
                             )
+                        ) {
+                            Box(
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    stringResource(
+                                        when (transaction.isRecapped) {
+                                            true -> Res.string.label_recapped
+                                            false -> Res.string.label_not_recapped
+                                        }
+                                    ),
+                                    style = MaterialTheme.typography.labelMediumEmphasized.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        color = when (transaction.isRecapped) {
+                                            true -> successLight
+                                            false -> MaterialTheme.colorScheme.error
+                                        }
+                                    ),
+                                    modifier = Modifier.padding(
+                                        horizontal = 12.dp,
+                                        vertical = 6.dp
+                                    )
+                                )
+                            }
                         }
                     }
                 } else {

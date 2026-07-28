@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.jetbrains.compose.resources.stringResource
-import org.lelestacia.posle.data.entity.TransactionItemType
 import org.lelestacia.posle.domain.component.transaction_recap.TransactionRecapComponent
 import org.lelestacia.posle.domain.state_event.TransactionRecapEvent
 import org.lelestacia.posle.domain.state_event.TransactionRecapEvent.OnDateRangePickerVisibilityChanged
@@ -42,13 +41,11 @@ import org.lelestacia.posle.domain.state_event.TransactionRecapEvent.OnNavigateT
 import org.lelestacia.posle.domain.state_event.TransactionRecapEvent.OnNavigateToTransactionView
 import org.lelestacia.posle.domain.state_event.TransactionRecapEvent.OnPrimaryTabChanged
 import org.lelestacia.posle.domain.state_event.TransactionRecapState
-import org.lelestacia.posle.navigation.Config.TransactionRecapProductItem
 import org.lelestacia.posle.screen.transaction_history.TransactionItem
 import org.lelestacia.posle.screen.transaction_recap.component.TransactionRecapProductOutbound
 import org.lelestacia.posle.screen.transaction_recap.component.TransactionRecapTabRow
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.BurgundyRed
-import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.SampleData
 import org.lelestacia.posle.util.toFormattedDate
 import org.lelestacia.posle.util.toRupiah
@@ -64,75 +61,6 @@ fun TransactionRecapScreen(
     modifier: Modifier = Modifier
 ) {
     val state by component.state.collectAsStateWithLifecycle()
-    val listOfProducts =
-        state.transactionHistory
-            .flatMap { transaction ->
-                transaction.items.map { transactionItem ->
-                    when (transactionItem.type) {
-                        TransactionItemType.Product -> {
-                            transactionItem.products.map {
-                                TransactionRecapProductItem(
-                                    type = TransactionItemType.Product,
-                                    product = it
-                                )
-                            }
-                        }
-
-                        TransactionItemType.Bundle -> {
-                            transactionItem.products.map { product ->
-                                TransactionRecapProductItem(
-                                    type = TransactionItemType.Bundle,
-                                    product = product.copy(
-                                        quantity = Amount(
-                                            product.quantity.value.multiply(
-                                                transactionItem.quantity.value
-                                            )
-                                        )
-                                    )
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-            .flatten()
-            .groupBy { it.product.productId }
-            .map { it.value }
-
-
-    val totalProfit =
-        state.transactionHistory
-            .map { transaction ->
-                transaction.items.fold(java.math.BigDecimal.ZERO) { acc, transactionItem ->
-                    acc.add(
-                        when (transactionItem.type) {
-                            TransactionItemType.Product -> {
-                                transactionItem.products.fold(java.math.BigDecimal.ZERO) { accProd, product ->
-                                    accProd.add(
-                                        (product.sellPrice.value.subtract(product.buyPrice.value)).multiply(
-                                            product.quantity.value
-                                        )
-                                    )
-                                }
-                            }
-
-                            TransactionItemType.Bundle -> transactionItem
-                                .quantity
-                                .value
-                                .multiply(
-                                    transactionItem.products.fold(java.math.BigDecimal.ZERO) { accProd, product ->
-                                        accProd.add(
-                                            (product.sellPrice.value.subtract(product.buyPrice.value)).multiply(
-                                                product.quantity.value
-                                            )
-                                        )
-                                    }
-                                )
-                        }
-                    )
-                }
-            }
-            .sumOf { it }
 
     if (state.isDateRangePickerShown) {
         DatePickerDialog(
@@ -201,14 +129,14 @@ fun TransactionRecapScreen(
                 )
 
                 Text(
-                    stringResource(Res.string.txt_total_profit, totalProfit.toRupiah()),
+                    stringResource(Res.string.txt_total_profit, state.totalProfit.toRupiah()),
                     style = MaterialTheme.typography.bodyMedium
                 )
 
                 Text(
                     stringResource(
                         Res.string.txt_total_profit_description,
-                        totalProfit.toRupiah()
+                        state.totalProfit.toRupiah()
                     ),
                     style = MaterialTheme.typography.bodySmall.copy(
                         fontStyle = FontStyle.Italic
@@ -263,37 +191,6 @@ fun TransactionRecapScreen(
 
             HorizontalDivider()
 
-//            TextField(
-//                value = state.searchQuery,
-//                onValueChange = { newQuery ->
-//                    component.onEvent(OnSearchQueryChanged(newQuery))
-//                },
-//                placeholder = {
-//                    Text(
-//                        text = stringResource(Res.string.label_search_product),
-//                        style = MaterialTheme.typography.bodyMedium
-//                    )
-//                },
-//                leadingIcon = {
-//                    Icon(
-//                        imageVector = Icons.Default.Search,
-//                        contentDescription = null
-//                    )
-//                },
-//                colors = TextFieldDefaults.colors(
-//                    focusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp),
-//                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
-//                        12.dp
-//                    ),
-//                    focusedIndicatorColor = Color.Transparent,
-//                    unfocusedIndicatorColor = Color.Transparent
-//                ),
-//                shape = Util.defaultShape,
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(all = 12.dp)
-//            )
-
             AnimatedContent(
                 targetState = state.selectedPrimaryTab == 0,
                 modifier = Modifier
@@ -306,13 +203,13 @@ fun TransactionRecapScreen(
                             modifier = Modifier
                                 .fillMaxSize()
                         ) {
-                            items(count = listOfProducts.size) { index ->
+                            items(count = state.listOfProducts.size) { index ->
                                 TransactionRecapProductOutbound(
-                                    transactionProducts = listOfProducts[index],
+                                    transactionProducts = state.listOfProducts[index],
                                     onClick = {
                                         component.onEvent(
                                             OnNavigateToRecapProductView(
-                                                listOfProducts[index]
+                                                state.listOfProducts[index]
                                             )
                                         )
                                     }

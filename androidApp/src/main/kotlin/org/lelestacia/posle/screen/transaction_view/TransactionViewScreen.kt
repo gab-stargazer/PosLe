@@ -218,7 +218,6 @@ fun TransactionViewScreen(
                     colors = CardDefaults.elevatedCardColors(
                         containerColor = MintCream
                     ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .animateContentSize()

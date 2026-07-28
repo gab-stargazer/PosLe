@@ -39,6 +39,7 @@ import org.lelestacia.posle.domain.repository.StockRepository
 import org.lelestacia.posle.domain.repository.TransactionRepository
 import org.lelestacia.posle.domain.repository.VariantRepository
 import org.lelestacia.posle.domain.state_event.TransactionItemState
+import org.lelestacia.posle.domain.state_event.TransactionRecapState
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditNavigation
 import org.lelestacia.posle.navigation.Child.*
 import org.lelestacia.posle.navigation.NavChild.ProductInboundOutbound
@@ -65,7 +66,8 @@ import org.lelestacia.posle.navigation.NavConfig.TransactionHistory as Transacti
 import org.lelestacia.posle.navigation.NavConfig.TransactionRecap as TransactionRecapConfig
 
 class PosLeComponent(
-    componentContext: ComponentContext
+    componentContext: ComponentContext,
+    private val onPrintRecap: (TransactionRecapState) -> Unit,
 ) : ComponentContext by componentContext {
 
     val snackbarHostState by inject<SnackbarHostState>(SnackbarHostState::class.java)
@@ -127,7 +129,8 @@ class PosLeComponent(
                     },
                     onNavigateToRecapProductView = {
                         rootNavigation.pushNew(TransactionRecapProductViewConfig(it))
-                    }
+                    },
+                    onPrintRecap = onPrintRecap,
                 )
             )
 

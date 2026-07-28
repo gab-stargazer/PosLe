@@ -7,6 +7,8 @@ import org.lelestacia.posle.domain.model.Transaction
 
 data class TransactionRecapState(
     val transactionHistory: List<Transaction> = listOf(),
+    val listOfProducts: List<List<org.lelestacia.posle.navigation.Config.TransactionRecapProductItem>> = listOf(),
+    val totalProfit: java.math.BigDecimal = java.math.BigDecimal.ZERO,
     val startDate: Long = 0,
     val finishDate: Long = 0,
     val isSameDay: Boolean = false,
@@ -30,4 +32,5 @@ sealed interface TransactionRecapEvent {
     data class OnDateRangePickerVisibilityChanged(val isShown: Boolean) : TransactionRecapEvent
     data class OnDateRangeChanged(val dateRange: Pair<Long, Long>) : TransactionRecapEvent
     data class OnSearchQueryChanged(val query: String) : TransactionRecapEvent
+    data object OnPrintRecap : TransactionRecapEvent
 }
