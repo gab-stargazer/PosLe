@@ -62,7 +62,7 @@ kotlin {
             implementation(libs.kotlinx.datetime)
 
             //  Serialization
-            implementation(libs.kotlinx.serialization)
+            api(libs.kotlinx.serialization)
 
             //  Koin
             api(project.dependencies.platform(libs.koin.bom))

@@ -36,6 +36,9 @@ dependencies {
     //  Permission Compose
     implementation(libs.permissions.compose)
 
+    //  WorkManager
+    implementation(libs.androidx.work.runtime.ktx)
+
     //  Testing
     androidTestImplementation(libs.androidx.testExt.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -7,23 +7,29 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import com.arkivanov.decompose.retainedComponent
 import com.meticha.permissions_compose.AppPermission
 import com.meticha.permissions_compose.rememberAppPermissionState
-import kotlinx.coroutines.launch
-import org.lelestacia.posle.data.util.TransactionReportGenerator
+import kotlinx.serialization.json.Json
+import org.lelestacia.posle.data.util.PdfExportInput
+import org.lelestacia.posle.domain.state_event.TransactionRecapState
 import org.lelestacia.posle.navigation.PosLeComponent
 import org.lelestacia.posle.navigation.RootContent
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.onSurfaceLightHighContrast
 import org.lelestacia.posle.ui.theme.surfaceContainerLowestLightHighContrast
-import org.lelestacia.posle.util.createPdfOutputStream
-import org.lelestacia.posle.util.finalizePendingFile
+import org.lelestacia.posle.worker.AndroidRunnableService
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,8 +41,12 @@ class MainActivity : ComponentActivity() {
         )
         super.onCreate(savedInstanceState)
         setContent {
-            val scope = rememberCoroutineScope()
             val androidContext = LocalContext.current
+
+            val runnableService = remember {
+                AndroidRunnableService(androidContext)
+            }
+
             val notificationPermission = rememberAppPermissionState(
                 listOf(
                     AppPermission(
@@ -47,35 +57,54 @@ class MainActivity : ComponentActivity() {
                 )
             )
 
+            var showPermissionRationale by remember { mutableStateOf(false) }
+            var pendingState by remember { mutableStateOf<TransactionRecapState?>(null) }
+
+            LaunchedEffect(pendingState, notificationPermission.allRequiredGranted()) {
+                if (pendingState != null && notificationPermission.allRequiredGranted()) {
+                    val state = pendingState!!
+                    pendingState = null
+                    enqueuePdfExport(runnableService, state)
+                }
+            }
+
+            if (showPermissionRationale) {
+                AlertDialog(
+                    onDismissRequest = { showPermissionRationale = false },
+                    title = { Text("Izin Notifikasi") },
+                    text = {
+                        Text(
+                            "Aplikasi membutuhkan izin notifikasi untuk " +
+                                    "memberitahu Anda ketika laporan PDF selesai dibuat. " +
+                                    "Laporan akan tetap dibuat meskipun izin tidak diberikan."
+                        )
+                    },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            showPermissionRationale = false
+                            notificationPermission.requestPermission()
+                        }) {
+                            Text("Izinkan")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showPermissionRationale = false }) {
+                            Text("Nanti")
+                        }
+                    }
+                )
+            }
+
             val rootComponent = remember {
                 retainedComponent { context ->
                     PosLeComponent(
                         componentContext = context,
                         onPrintRecap = { state ->
-
                             if (notificationPermission.allRequiredGranted() || Build.VERSION.SDK_INT <= 32) {
-                                scope.launch {
-                                    val target = createPdfOutputStream(
-                                        androidContext,
-                                        "Recap_${state.startDate}.pdf"
-                                    ) ?: // couldn't even create the MediaStore entry
-                                    return@launch
-
-                                    val success = target.outputStream.use { os ->
-                                        TransactionReportGenerator.generate(
-                                            outputStream = os,
-                                            storeName = state.settings.storeName.value,
-                                            transactionId = "REKAP-SUMMARY",
-                                            startDate = state.startDate,
-                                            finishDate = state.finishDate,
-                                            transactions = state.transactionHistory
-                                        )
-                                    }
-
-                                    finalizePendingFile(androidContext, target.uri, success)
-                                }
+                                enqueuePdfExport(runnableService, state)
                             } else {
-                                notificationPermission.requestPermission()
+                                pendingState = state
+                                showPermissionRationale = true
                             }
                         },
                     )
@@ -85,8 +114,6 @@ class MainActivity : ComponentActivity() {
             AppTheme(
                 darkTheme = false,
                 content = {
-
-
                     Surface {
                         RootContent(rootComponent)
                     }
@@ -94,4 +121,18 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
+}
+
+private fun enqueuePdfExport(
+    runnableService: AndroidRunnableService,
+    state: TransactionRecapState
+) {
+    val input = PdfExportInput(
+        storeName = state.settings.storeName.value,
+        startDate = state.startDate,
+        finishDate = state.finishDate,
+        transactions = state.transactionHistory
+    )
+    val json = Json.encodeToString(input)
+    runnableService.enqueue("pdf_export_${state.startDate}", json)
 }
