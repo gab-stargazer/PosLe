@@ -130,8 +130,7 @@ private fun enqueuePdfExport(
     val input = PdfExportInput(
         storeName = state.settings.storeName.value,
         startDate = state.startDate,
-        finishDate = state.finishDate,
-        transactions = state.transactionHistory
+        finishDate = state.finishDate
     )
     val json = Json.encodeToString(input)
     runnableService.enqueue("pdf_export_${state.startDate}", json)
