@@ -435,16 +435,14 @@ class ProductAddEditComponentImpl(
                             .toBigDecimalOrNull()
                             ?: return@launch
 
+                    val buyPriceString = state.value.dialogAddStockState.buyPrice.text.toString()
+                    val buyPrice = buyPriceString.toBigDecimalOrNull()?.let { Price(it) }
+
                     stockRepository.addStockMovement(
                         productId = product?.id ?: return@launch,
-                        amount = Amount(
-                            state.value.dialogAddStockState
-                                .amountAdded
-                                .text
-                                .toString()
-                                .toBigDecimalOrNull() ?: return@launch
-                        ),
+                        amount = Amount(stock),
                         movementType = StockMovementType.Purchase,
+                        buyPrice = buyPrice
                     )
 
                     _state.update { currentState ->

@@ -8,6 +8,7 @@ import org.lelestacia.posle.data.PosLeDB
 import org.lelestacia.posle.data.SettingManager
 import org.lelestacia.posle.data.TransactionRunner
 import org.lelestacia.posle.data.TransactionRunnerImpl
+import org.lelestacia.posle.data.dao.BatchDao
 import org.lelestacia.posle.data.dao.BundleDao
 import org.lelestacia.posle.data.dao.CategoryDao
 import org.lelestacia.posle.data.dao.ProductDao
@@ -51,6 +52,10 @@ val sharedModule = module {
 
     single<BundleDao> {
         get<PosLeDB>().bundleDao()
+    }
+
+    single<BatchDao> {
+        get<PosLeDB>().batchDao()
     }
 
     single { SnackbarHostState() }

@@ -4,6 +4,7 @@ import com.dantsu.escposprinter.EscPosPrinter
 import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnections
 import org.lelestacia.posle.data.entity.TransactionItemType
 import org.lelestacia.posle.domain.model.Transaction
+import org.lelestacia.posle.domain.model.groupForDisplay
 import org.lelestacia.posle.domain.state_event.TransactionRecapState
 import kotlin.time.Clock
 
@@ -81,21 +82,25 @@ fun printTransaction(transaction: Transaction, storeName: Name) {
     transaction.items.forEach { transactionItem ->
         when (transactionItem.type) {
             TransactionItemType.Product -> {
-                val productName = transactionItem.products.first().productName.value
-                val productSellPrice = transactionItem.products.first().sellPrice.value
-                val productQuantity = transactionItem.products.first().quantity
-                val productUnit = transactionItem.products.first().unit.value
-                val subtotal = productQuantity.value * productSellPrice
+                val groupedProducts = transactionItem.products.groupForDisplay()
+                if (groupedProducts.isNotEmpty()) {
+                    val firstProduct = groupedProducts.first()
+                    val productName = firstProduct.productName.value
+                    val productSellPrice = firstProduct.sellPrice.value
+                    val productQuantity = firstProduct.quantity
+                    val productUnit = firstProduct.unit.value
+                    val subtotal = productQuantity.value * productSellPrice
 
-                sb.append(
-                    """
+                    sb.append(
+                        """
                         [L]$productName[R]${productSellPrice.toRupiah()}
                         [L] ${productQuantity.value.toDisplayText()} $productUnit
                         [R]Subtotal: ${subtotal.toRupiah()}
                         [L]Catatan: ${transactionItem.note}
                     """.trimIndent()
-                )
-                sb.append("\n")
+                    )
+                    sb.append("\n")
+                }
             }
 
             TransactionItemType.Bundle -> {
@@ -108,7 +113,7 @@ fun printTransaction(transaction: Transaction, storeName: Name) {
                         [L]$bundleName x${bundleQuantity.toDisplayText()}[R]${bundleSellPrice.toRupiah()}${"\n"}
                     """.trimIndent()
                 )
-                transactionItem.products.forEach { product ->
+                transactionItem.products.groupForDisplay().forEach { product ->
                     sb.append("[L]${product.productName.value} ${product.quantity.value.toDisplayText()}${product.unit.value}\n")
                 }
                 sb.append("[R]Subtotal: ${subtotal.toRupiah()}\n")

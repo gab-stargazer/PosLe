@@ -9,6 +9,7 @@ import org.lelestacia.posle.data.PosLeDB
 import org.lelestacia.posle.data.PosLeSettings
 import org.lelestacia.posle.data.SettingManager
 import org.lelestacia.posle.data.createTestDatabase
+import org.lelestacia.posle.data.entity.BatchEntity
 import org.lelestacia.posle.data.entity.PriceChangeType
 import org.lelestacia.posle.data.entity.ProductBuyPriceEntity
 import org.lelestacia.posle.data.entity.ProductEntity
@@ -18,6 +19,7 @@ import org.lelestacia.posle.data.entity.StockMovementType
 import org.lelestacia.posle.data.entity.TransactionItemType
 import org.lelestacia.posle.domain.model.BundleProduct
 import org.lelestacia.posle.domain.model.CartItems
+import org.lelestacia.posle.domain.model.groupForDisplay
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
@@ -27,6 +29,7 @@ import java.math.BigDecimal
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class TransactionRepositoryImplTest {
@@ -169,16 +172,16 @@ class TransactionRepositoryImplTest {
             // Beras: 2 bundles × 1 each = -2
             val berasMovement = movements.first { it.productId == berasId }
             assertEquals(
-                BigDecimal("-2"),
-                berasMovement.amount.value,
+                0,
+                BigDecimal("-2").compareTo(berasMovement.amount.value),
                 "Beras stock movement should be -2 (2 bundles × 1)"
             )
 
             // Gula: 2 bundles × 2 each = -4
             val gulaMovement = movements.first { it.productId == gulaId }
             assertEquals(
-                BigDecimal("-4"),
-                gulaMovement.amount.value,
+                0,
+                BigDecimal("-4").compareTo(gulaMovement.amount.value),
                 "Gula stock movement should be -4 (2 bundles × 2)"
             )
         }
@@ -207,6 +210,68 @@ class TransactionRepositoryImplTest {
         }
     }
 
+    @Test
+    fun `fifo batch consumption works correctly`() {
+        runBlocking {
+            // Given
+            setup(isStockTracked = true)
+            val productId = insertProduct(name = "Indomie Goreng", sku = "IND-001", buyPrice = "2500", sellPrice = "3500")
+            
+            // Insert 2 batches
+            val batch1Id = db.batchDao().insertBatch(
+                BatchEntity(
+                    productId = productId,
+                    buyPrice = Price(BigDecimal("2500")),
+                    initialQuantity = Amount(BigDecimal("10")),
+                    currentQuantity = Amount(BigDecimal("10")),
+                    createdAt = timestamp - 1000 // Older
+                )
+            ).toInt()
+            
+            val batch2Id = db.batchDao().insertBatch(
+                BatchEntity(
+                    productId = productId,
+                    buyPrice = Price(BigDecimal("2700")),
+                    initialQuantity = Amount(BigDecimal("10")),
+                    currentQuantity = Amount(BigDecimal("10")),
+                    createdAt = timestamp // Newer
+                )
+            ).toInt()
+
+            // When: Sell 15 units
+            val cart = createProductCart(productId, quantity = "15")
+            val transaction = repo.insertAndGetTransaction(
+                customerName = Name("Anto"),
+                cartItems = cart
+            )
+
+            // Then
+            val item = transaction.items[0]
+            assertEquals(2, item.products.size, "Transaction Item should have 2 product segments")
+            
+            // Segment 1: 10 units @ 2500
+            val seg1 = item.products.find { it.buyPrice == Price(BigDecimal("2500")) }
+            assertNotNull(seg1)
+            assertEquals(BigDecimal("10"), seg1!!.quantity.value)
+            
+            // Segment 2: 5 units @ 2700
+            val seg2 = item.products.find { it.buyPrice == Price(BigDecimal("2700")) }
+            assertNotNull(seg2)
+            assertEquals(BigDecimal("5"), seg2!!.quantity.value)
+            
+            // Verify batches in DB
+            val batches = db.batchDao().getActiveBatchesByProduct(productId)
+            assertEquals(1, batches.size, "Should have 1 active batch left")
+            assertEquals(batch2Id, batches[0].id)
+            assertEquals(BigDecimal("5"), batches[0].currentQuantity.value)
+
+            // Verify groupForDisplay()
+            val grouped = item.products.groupForDisplay()
+            assertEquals(1, grouped.size, "Grouped list should have only 1 entry")
+            assertEquals(BigDecimal("15"), grouped[0].quantity.value, "Grouped quantity should be 15")
+        }
+    }
+
     // ═══════════════════════════════════════════════════════════════════════
     //  Helper Methods
     // ═══════════════════════════════════════════════════════════════════════
@@ -219,6 +284,7 @@ class TransactionRepositoryImplTest {
         )
         repo = TransactionRepositoryImpl(
             transactionDao = db.transactionDao(),
+            batchDao = db.batchDao(),
             productDao = db.productDao(),
             stockDao = db.stockDao(),
             settingManager = settingManager

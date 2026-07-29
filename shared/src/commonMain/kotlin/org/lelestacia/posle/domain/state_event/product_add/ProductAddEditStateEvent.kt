@@ -51,6 +51,7 @@ data class ProductAddEditState(
     @Immutable
     data class ProductAddStockDialogState(
         val amountAdded: TextFieldState = TextFieldState(),
+        val buyPrice: TextFieldState = TextFieldState(),
     )
 
     fun validateName(productName: String): StringResource? {

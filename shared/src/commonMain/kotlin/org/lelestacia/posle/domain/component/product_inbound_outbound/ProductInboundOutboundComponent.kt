@@ -32,6 +32,7 @@ data class ProductInboundOutboundComponentState(
         val productName: Name = Name(""),
         val selectedMovementType: StockMovementType = StockMovementType.Purchase,
         val amountAdded: TextFieldState = TextFieldState(),
+        val buyPrice: TextFieldState = TextFieldState(),
     )
 }
 

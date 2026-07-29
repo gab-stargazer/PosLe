@@ -16,12 +16,14 @@ import androidx.sqlite.execSQL
 import org.lelestacia.posle.data.converter.BigDecimalConverter
 import org.lelestacia.posle.data.converter.StockMovementTypeConverter
 import org.lelestacia.posle.data.converter.TransactionVariantConverter
+import org.lelestacia.posle.data.dao.BatchDao
 import org.lelestacia.posle.data.dao.BundleDao
 import org.lelestacia.posle.data.dao.CategoryDao
 import org.lelestacia.posle.data.dao.ProductDao
 import org.lelestacia.posle.data.dao.StockDao
 import org.lelestacia.posle.data.dao.TransactionDao
 import org.lelestacia.posle.data.dao.VariantDao
+import org.lelestacia.posle.data.entity.BatchEntity
 import org.lelestacia.posle.data.entity.BundleEntity
 import org.lelestacia.posle.data.entity.BundleProductEntity
 import org.lelestacia.posle.data.entity.CategoryEntity
@@ -52,9 +54,10 @@ import org.lelestacia.posle.data.entity.VariantJunction
         StockEntity::class,
         StockMovementEntity::class,
         BundleEntity::class,
-        BundleProductEntity::class
+        BundleProductEntity::class,
+        BatchEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = true,
     autoMigrations = [AutoMigration(1, 2)]
 )
@@ -71,6 +74,7 @@ abstract class PosLeDB : RoomDatabase() {
     abstract fun variantDao(): VariantDao
     abstract fun categoryDao(): CategoryDao
     abstract fun bundleDao(): BundleDao
+    abstract fun batchDao(): BatchDao
 
     companion object {
         val MIGRATION_2_3 = object : Migration(2, 3) {
@@ -121,6 +125,14 @@ abstract class PosLeDB : RoomDatabase() {
 
                 // 8. bundle_product: Add unique index for (bundle_id, product_id)
                 connection.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_bundle_product_bundle_id_product_id` ON `bundle_product` (`bundle_id`, `product_id`)")
+            }
+        }
+
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(connection: SQLiteConnection) {
+                connection.execSQL("CREATE TABLE IF NOT EXISTS `batch` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `product_id` INTEGER NOT NULL, `buy_price` TEXT NOT NULL, `initial_quantity` TEXT NOT NULL, `current_quantity` TEXT NOT NULL, `created_at` INTEGER NOT NULL, FOREIGN KEY(`product_id`) REFERENCES `product`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                connection.execSQL("CREATE INDEX IF NOT EXISTS `index_batch_product_id` ON `batch` (`product_id`)")
+                connection.execSQL("CREATE INDEX IF NOT EXISTS `index_batch_created_at` ON `batch` (`created_at`)")
             }
         }
     }

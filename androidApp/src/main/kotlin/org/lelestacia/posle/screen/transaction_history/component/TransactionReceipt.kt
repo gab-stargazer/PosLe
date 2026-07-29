@@ -23,6 +23,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import org.lelestacia.posle.data.entity.TransactionItemType
 import org.lelestacia.posle.domain.model.TransactionItem
+import org.lelestacia.posle.domain.model.groupForDisplay
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.MintCream
 import org.lelestacia.posle.util.Name
@@ -90,7 +91,13 @@ fun TransactionReceipt(
 
             transactionProduct.forEach { transactionItem ->
                 when (transactionItem.type) {
-                    TransactionItemType.Product -> TransactionReceiptProduct(transactionItem.products.first())
+                    TransactionItemType.Product -> {
+                        val grouped = transactionItem.products.groupForDisplay()
+                        if (grouped.isNotEmpty()) {
+                            TransactionReceiptProduct(grouped.first())
+                        }
+                    }
+
                     TransactionItemType.Bundle -> TransactionReceiptBundle(transactionItem)
                 }
             }

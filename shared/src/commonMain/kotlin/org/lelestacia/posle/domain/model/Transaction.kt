@@ -100,6 +100,16 @@ data class TransactionProduct(
     val variants: List<Variant>
 )
 
+fun List<TransactionProduct>.groupForDisplay(): List<TransactionProduct> {
+    return this.groupBy { it.productId }
+        .map { (_, segments) ->
+            val first = segments.first()
+            first.copy(
+                quantity = Amount(segments.sumOf { it.quantity.value })
+            )
+        }
+}
+
 fun TransactionWithItems.toDomain() = Transaction(
     id = transaction.id,
     customerName = transaction.customerName,

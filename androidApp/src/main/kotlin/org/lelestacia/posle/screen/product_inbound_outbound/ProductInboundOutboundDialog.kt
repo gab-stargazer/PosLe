@@ -59,6 +59,7 @@ import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.btn_add_mutation
 import posle.shared.generated.resources.label_movement_type
 import posle.shared.generated.resources.label_product_amount
+import posle.shared.generated.resources.label_product_buy_price
 import posle.shared.generated.resources.label_product_name
 import posle.shared.generated.resources.title_add_stock_movement
 
@@ -248,6 +249,24 @@ fun ProductInboundOutboundDialog(
                     .fillMaxWidth()
                     .padding(top = 8.dp)
             )
+
+            AnimatedVisibility(
+                visible = state.selectedMovementType == StockMovementType.Purchase ||
+                        state.selectedMovementType == StockMovementType.AdjustmentIncrease ||
+                        state.selectedMovementType == StockMovementType.Return,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                BorderedTextField(
+                    state = state.buyPrice,
+                    label = stringResource(Res.string.label_product_buy_price),
+                    labelStyle = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 

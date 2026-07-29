@@ -23,6 +23,7 @@ import org.lelestacia.posle.domain.model.StockMovement
 import org.lelestacia.posle.domain.repository.ProductRepository
 import org.lelestacia.posle.domain.repository.StockRepository
 import org.lelestacia.posle.util.Amount
+import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.coroutineScope
 
 @OptIn(FlowPreview::class)
@@ -98,6 +99,9 @@ class ProductInboundOutboundComponentImpl(
                 val product = currentState.selectedProduct ?: return
                 val amountString = currentState.amountAdded.text.toString()
                 val amount = amountString.toBigDecimalOrNull() ?: return
+                
+                val buyPriceString = currentState.buyPrice.text.toString()
+                val buyPrice = buyPriceString.toBigDecimalOrNull()?.let { Price(it) }
 
                 scope.launch {
                     stockRepository.addStockMovement(
@@ -108,7 +112,8 @@ class ProductInboundOutboundComponentImpl(
                                 StockMovementType.Return, StockMovementType.AdjustmentIncrease, StockMovementType.Purchase -> amount
                             }
                         ),
-                        movementType = currentState.selectedMovementType
+                        movementType = currentState.selectedMovementType,
+                        buyPrice = buyPrice
                     )
 
                     onEvent(ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnToggleDialog)

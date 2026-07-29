@@ -18,6 +18,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.data.entity.TransactionItemType
 import org.lelestacia.posle.domain.model.TransactionItem
 import org.lelestacia.posle.domain.model.TransactionProduct
+import org.lelestacia.posle.domain.model.groupForDisplay
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
@@ -74,7 +75,7 @@ fun TransactionReceiptBundle(
             modifier = Modifier.fillMaxWidth()
         ) {
             Column {
-                transactionItem.products.forEach { product ->
+                transactionItem.products.groupForDisplay().forEach { product ->
                     Text(
                         text = "- ${product.productName.value} ${product.quantity.value.toDisplayText()} ${product.unit.value}",
                         style = MaterialTheme.typography.bodyMedium.copy(
@@ -84,10 +85,6 @@ fun TransactionReceiptBundle(
                     )
                 }
             }
-
-
-
-
         }
 
         Text(
