@@ -54,7 +54,7 @@ import org.lelestacia.posle.data.entity.VariantJunction
         BundleEntity::class,
         BundleProductEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = true,
     autoMigrations = [AutoMigration(1, 2)]
 )
@@ -75,40 +75,52 @@ abstract class PosLeDB : RoomDatabase() {
     companion object {
         val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(connection: SQLiteConnection) {
-                // 1. stock
-                connection.execSQL("CREATE TABLE IF NOT EXISTS `stock_new` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `product_id` INTEGER NOT NULL, `stock` TEXT NOT NULL, `updated_at` INTEGER)")
-                connection.execSQL("INSERT INTO `stock_new` (id, product_id, stock, updated_at) SELECT id, product_id, CAST(stock AS TEXT), updated_at FROM stock")
+                // ... (keep existing migration code for history)
+            }
+        }
+
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(connection: SQLiteConnection) {
+                // 1. product: Add unique index for sku_number
+                connection.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_product_sku_number` ON `product` (`sku_number`)")
+
+                // 2. stock: Recreate to change PK and add FK
+                connection.execSQL("CREATE TABLE IF NOT EXISTS `stock_new` (`product_id` INTEGER NOT NULL, `stock` TEXT NOT NULL, `updated_at` INTEGER, PRIMARY KEY(`product_id`), FOREIGN KEY(`product_id`) REFERENCES `product`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                connection.execSQL("INSERT INTO `stock_new` (product_id, stock, updated_at) SELECT product_id, stock, updated_at FROM stock")
                 connection.execSQL("DROP TABLE stock")
                 connection.execSQL("ALTER TABLE stock_new RENAME TO stock")
 
-                // 2. transaction_item
-                connection.execSQL("CREATE TABLE IF NOT EXISTS `transaction_item_new` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `transaction_id` INTEGER NOT NULL, `type` TEXT NOT NULL, `reference_id` INTEGER NOT NULL, `name` TEXT NOT NULL, `quantity` TEXT NOT NULL, `sell_price` TEXT NOT NULL, `note` TEXT, `created_at` INTEGER NOT NULL, `updated_at` INTEGER)")
-                connection.execSQL("INSERT INTO `transaction_item_new` (id, transaction_id, type, reference_id, name, quantity, sell_price, note, created_at, updated_at) SELECT id, transaction_id, type, reference_id, name, CAST(quantity AS TEXT), sell_price, note, created_at, updated_at FROM transaction_item")
+                // 3. transaction_item: Recreate to add FK
+                connection.execSQL("CREATE TABLE IF NOT EXISTS `transaction_item_new` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `transaction_id` INTEGER NOT NULL, `type` TEXT NOT NULL, `reference_id` INTEGER NOT NULL, `name` TEXT NOT NULL, `quantity` TEXT NOT NULL, `sell_price` TEXT NOT NULL, `note` TEXT, `created_at` INTEGER NOT NULL, `updated_at` INTEGER, FOREIGN KEY(`transaction_id`) REFERENCES `transaction`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                connection.execSQL("INSERT INTO `transaction_item_new` (id, transaction_id, type, reference_id, name, quantity, sell_price, note, created_at, updated_at) SELECT id, transaction_id, type, reference_id, name, quantity, sell_price, note, created_at, updated_at FROM transaction_item")
                 connection.execSQL("DROP TABLE transaction_item")
                 connection.execSQL("ALTER TABLE transaction_item_new RENAME TO transaction_item")
                 connection.execSQL("CREATE INDEX IF NOT EXISTS `index_transaction_item_transaction_id` ON `transaction_item` (`transaction_id`)")
 
-                // 3. transaction_item_product
-                connection.execSQL("CREATE TABLE IF NOT EXISTS `transaction_item_product_new` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `transaction_item_id` INTEGER NOT NULL, `product_id` INTEGER NOT NULL, `product_name` TEXT NOT NULL, `sku_number` TEXT, `image_uri` TEXT, `product_buy_price` TEXT NOT NULL, `product_sell_price` TEXT NOT NULL, `product_unit` TEXT NOT NULL, `product_note` TEXT, `product_amount` TEXT NOT NULL, `variants` TEXT NOT NULL, FOREIGN KEY(`transaction_item_id`) REFERENCES `transaction_item`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
-                connection.execSQL("INSERT INTO `transaction_item_product_new` (id, transaction_item_id, product_id, product_name, sku_number, image_uri, product_buy_price, product_sell_price, product_unit, product_note, product_amount, variants) SELECT id, transaction_item_id, product_id, product_name, sku_number, image_uri, product_buy_price, product_sell_price, product_unit, product_note, CAST(product_amount AS TEXT), variants FROM transaction_item_product")
-                connection.execSQL("DROP TABLE transaction_item_product")
-                connection.execSQL("ALTER TABLE transaction_item_product_new RENAME TO transaction_item_product")
-                connection.execSQL("CREATE INDEX IF NOT EXISTS `index_transaction_item_product_transaction_item_id` ON `transaction_item_product` (`transaction_item_id`)")
+                // 4. category: Add unique index for name
+                connection.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_category_name` ON `category` (`name`)")
 
-                // 4. stock_movement
-                connection.execSQL("CREATE TABLE IF NOT EXISTS `stock_movement_new` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `product_id` INTEGER NOT NULL, `product_name` TEXT NOT NULL, `product_unit` TEXT NOT NULL, `movement_type` TEXT NOT NULL, `amount` TEXT NOT NULL, `note` TEXT, `created_at` INTEGER NOT NULL, FOREIGN KEY(`product_id`) REFERENCES `product`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
-                connection.execSQL("INSERT INTO `stock_movement_new` (id, product_id, product_name, product_unit, movement_type, amount, note, created_at) SELECT id, product_id, product_name, product_unit, movement_type, CAST(amount AS TEXT), note, created_at FROM stock_movement")
-                connection.execSQL("DROP TABLE stock_movement")
-                connection.execSQL("ALTER TABLE stock_movement_new RENAME TO stock_movement")
-                connection.execSQL("CREATE INDEX IF NOT EXISTS `index_stock_movement_product_id` ON `stock_movement` (`product_id`)")
+                // 5. product_category_junction: Recreate to change PK and add FKs
+                connection.execSQL("CREATE TABLE IF NOT EXISTS `product_category_junction_new` (`product_id` INTEGER NOT NULL, `category_id` INTEGER NOT NULL, PRIMARY KEY(`product_id`, `category_id`), FOREIGN KEY(`product_id`) REFERENCES `product`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`category_id`) REFERENCES `category`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                connection.execSQL("INSERT INTO `product_category_junction_new` (product_id, category_id) SELECT product_id, category_id FROM product_category_junction")
+                connection.execSQL("DROP TABLE product_category_junction")
+                connection.execSQL("ALTER TABLE product_category_junction_new RENAME TO product_category_junction")
+                connection.execSQL("CREATE INDEX IF NOT EXISTS `index_product_category_junction_product_id` ON `product_category_junction` (`product_id`)")
+                connection.execSQL("CREATE INDEX IF NOT EXISTS `index_product_category_junction_category_id` ON `product_category_junction` (`category_id`)")
 
-                // 5. bundle_product
-                connection.execSQL("CREATE TABLE IF NOT EXISTS `bundle_product_new` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `bundle_id` INTEGER NOT NULL, `product_id` INTEGER NOT NULL, `name` TEXT NOT NULL, `quantity` TEXT NOT NULL, `unit` TEXT NOT NULL, `sell_price` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER, FOREIGN KEY(`bundle_id`) REFERENCES `bundle`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`product_id`) REFERENCES `product`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
-                connection.execSQL("INSERT INTO `bundle_product_new` (id, bundle_id, product_id, name, quantity, unit, sell_price, created_at, updated_at) SELECT id, bundle_id, product_id, name, CAST(quantity AS TEXT), unit, sell_price, created_at, updated_at FROM bundle_product")
-                connection.execSQL("DROP TABLE bundle_product")
-                connection.execSQL("ALTER TABLE bundle_product_new RENAME TO bundle_product")
-                connection.execSQL("CREATE INDEX IF NOT EXISTS `index_bundle_product_bundle_id` ON `bundle_product` (`bundle_id`)")
-                connection.execSQL("CREATE INDEX IF NOT EXISTS `index_bundle_product_product_id` ON `bundle_product` (`product_id`)")
+                // 6. variant: Add unique index for name
+                connection.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_variant_name` ON `variant` (`name`)")
+
+                // 7. variant_junction: Recreate to change PK and add FKs
+                connection.execSQL("CREATE TABLE IF NOT EXISTS `variant_junction_new` (`product_id` INTEGER NOT NULL, `variant_id` INTEGER NOT NULL, PRIMARY KEY(`product_id`, `variant_id`), FOREIGN KEY(`product_id`) REFERENCES `product`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`variant_id`) REFERENCES `variant`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                connection.execSQL("INSERT INTO `variant_junction_new` (product_id, variant_id) SELECT product_id, variant_id FROM variant_junction")
+                connection.execSQL("DROP TABLE variant_junction")
+                connection.execSQL("ALTER TABLE variant_junction_new RENAME TO variant_junction")
+                connection.execSQL("CREATE INDEX IF NOT EXISTS `index_variant_junction_product_id` ON `variant_junction` (`product_id`)")
+                connection.execSQL("CREATE INDEX IF NOT EXISTS `index_variant_junction_variant_id` ON `variant_junction` (`variant_id`)")
+
+                // 8. bundle_product: Add unique index for (bundle_id, product_id)
+                connection.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_bundle_product_bundle_id_product_id` ON `bundle_product` (`bundle_id`, `product_id`)")
             }
         }
     }

@@ -30,13 +30,19 @@ import posle.shared.generated.resources.title_product_return
 import posle.shared.generated.resources.title_product_sale
 
 @Entity(
-    tableName = "stock"
+    tableName = "stock",
+    foreignKeys = [
+        ForeignKey(
+            entity = ProductEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["product_id"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
 )
 data class StockEntity(
-    @ColumnInfo("id")
-    @PrimaryKey(autoGenerate = true)
-    val id: Int,
     @ColumnInfo("product_id")
+    @PrimaryKey
     val productId: Int,
     @ColumnInfo("stock")
     val stock: Amount,

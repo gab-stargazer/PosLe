@@ -41,6 +41,14 @@ enum class TransactionItemType {
 
 @Entity(
     tableName = "transaction_item",
+    foreignKeys = [
+        ForeignKey(
+            entity = TransactionEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["transaction_id"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
     indices = [Index("transaction_id")]
 )
 data class TransactionItemEntity(

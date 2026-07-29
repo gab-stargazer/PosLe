@@ -134,7 +134,6 @@ class ProductRepositoryImpl(
         variantsToAdd.forEach { variant ->
             variantDao.insertVariantToProduct(
                 VariantJunction(
-                    id = 0,
                     productId = product.id,
                     variantId = variant.id
                 )

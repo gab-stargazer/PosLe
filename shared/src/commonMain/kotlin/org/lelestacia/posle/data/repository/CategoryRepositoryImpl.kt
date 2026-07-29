@@ -24,7 +24,6 @@ class CategoryRepositoryImpl(
 
     override suspend fun addProductToCategory(productId: Int, categoryId: Int) {
         val junction = ProductCategoryJunction(
-            id = 0,
             productId = productId,
             categoryId = categoryId
         )

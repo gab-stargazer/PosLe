@@ -51,7 +51,8 @@ data class BundleEntity(
     ],
     indices = [
         Index("bundle_id"),
-        Index("product_id")
+        Index("product_id"),
+        Index(value = ["bundle_id", "product_id"], unique = true)
     ]
 )
 data class BundleProductEntity(

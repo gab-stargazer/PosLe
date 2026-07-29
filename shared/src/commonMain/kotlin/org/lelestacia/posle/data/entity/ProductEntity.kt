@@ -10,7 +10,10 @@ import org.lelestacia.posle.util.Unit as PosLeUnit
 
 @Entity(
     tableName = "product",
-    indices = [Index("name"), Index("sku_number")]
+    indices = [
+        Index("name"),
+        Index("sku_number", unique = true)
+    ]
 )
 data class ProductEntity(
     @ColumnInfo("id")

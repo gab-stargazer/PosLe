@@ -2,6 +2,7 @@ package org.lelestacia.posle.data.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import org.lelestacia.posle.domain.model.Variant
@@ -9,7 +10,8 @@ import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
 
 @Entity(
-    tableName = "variant"
+    tableName = "variant",
+    indices = [Index("name", unique = true)]
 )
 data class VariantEntity(
     @PrimaryKey(autoGenerate = true)
@@ -25,17 +27,27 @@ data class VariantEntity(
 
 @Entity(
     tableName = "variant_junction",
+    primaryKeys = ["product_id", "variant_id"],
+    foreignKeys = [
+        ForeignKey(
+            entity = ProductEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["product_id"],
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = VariantEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["variant_id"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
     indices = [
         Index("product_id"),
         Index("variant_id")
     ]
 )
 data class VariantJunction(
-
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo("id")
-    val id: Int = 0,
-
     @ColumnInfo("product_id")
     val productId: Int,
 
