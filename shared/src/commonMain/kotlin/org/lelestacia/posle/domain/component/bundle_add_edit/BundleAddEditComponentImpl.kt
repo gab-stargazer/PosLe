@@ -41,7 +41,7 @@ class BundleAddEditComponentImpl(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val products = searchQuery.flatMapLatest { searchQuery ->
-        productRepository.readAvailableProducts(searchQuery)
+        productRepository.getAvailableProducts(searchQuery)
     }
 
     private val _state = MutableStateFlow(
@@ -204,7 +204,7 @@ class BundleAddEditComponentImpl(
 
                 scope.launch {
                     if (state.value.mode == Add) {
-                        bundleRepository.insertBundle(
+                        bundleRepository.createBundle(
                             bundleName = Name(state.value.bundleName),
                             bundleProducts = state.value.bundleProducts,
                             imageByteArray = state.value.bundleImageByteArray

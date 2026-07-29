@@ -25,7 +25,7 @@ class PdfExportWorker(
         val input = Json.decodeFromString<PdfExportInput>(inputJson)
         val fileName = "Recap_${input.startDate}.pdf"
         val transactions = transactionRepository
-            .readTransactionInRange(input.startDate, input.finishDate)
+            .getTransactionsInRange(input.startDate, input.finishDate)
             .first()
 
         println("PdfExportWorker: Starting work for $fileName")

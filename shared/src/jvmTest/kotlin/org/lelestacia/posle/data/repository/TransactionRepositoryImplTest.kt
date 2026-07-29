@@ -54,7 +54,7 @@ class TransactionRepositoryImplTest {
 
             // When
             val cart = createProductCart(productId, quantity = "2")
-            val transaction = repo.insertAndGetTransaction(
+            val transaction = repo.createTransaction(
                 customerName = Name("Budi Santoso"),
                 cartItems = cart
             )
@@ -104,7 +104,7 @@ class TransactionRepositoryImplTest {
 
             // When
             val cart = createProductCart(productId, quantity = "3")
-            repo.insertAndGetTransaction(
+            repo.createTransaction(
                 customerName = Name("Siti Rahmawati"),
                 cartItems = cart
             )
@@ -153,7 +153,7 @@ class TransactionRepositoryImplTest {
                 bundleQuantity = "2",
                 totalPrice = "310000"
             )
-            repo.insertAndGetTransaction(
+            repo.createTransaction(
                 customerName = Name("Eko Prasetyo"),
                 cartItems = bundle
             )
@@ -193,7 +193,7 @@ class TransactionRepositoryImplTest {
 
             // When
             val cart = createProductCart(productId, quantity = "1")
-            val transaction = repo.insertAndGetTransaction(
+            val transaction = repo.createTransaction(
                 customerName = Name("Ibu Sumarni"),
                 cartItems = cart
             )
@@ -214,14 +214,15 @@ class TransactionRepositoryImplTest {
     private fun setup(isStockTracked: Boolean) {
         db = createTestDatabase()
         val settingManager = mockk<SettingManager>()
-        every { settingManager.readSettings() } returns flowOf(
+        every { settingManager.getSettings() } returns flowOf(
             PosLeSettings(isProductStockTracked = isStockTracked)
         )
         repo = TransactionRepositoryImpl(
             transactionDao = db.transactionDao(),
             productDao = db.productDao(),
             stockDao = db.stockDao(),
-            settingManager = settingManager
+            settingManager = settingManager,
+            transactionRunner = org.lelestacia.posle.data.TransactionRunnerImpl(db)
         )
     }
 

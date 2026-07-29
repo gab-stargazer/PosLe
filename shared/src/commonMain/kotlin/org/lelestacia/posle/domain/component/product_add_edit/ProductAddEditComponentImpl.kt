@@ -56,16 +56,16 @@ class ProductAddEditComponentImpl(
     private val scope = coroutineScope(Dispatchers.Main.immediate)
 
     private val buyPriceHistory = productRepository
-        .readProductBuyPriceHistory(product?.id ?: 0)
+        .getProductBuyPriceHistory(product?.id ?: 0)
 
     private val sellPriceHistory = productRepository
-        .readProductSellPriceHistory(product?.id ?: 0)
+        .getProductSellPriceHistory(product?.id ?: 0)
 
     init {
         if (product != null) {
             scope.launch {
                 variantRepository
-                    .readVariantByProductId(product.id)
+                    .getVariantsByProductId(product.id)
                     .collectLatest { variants ->
                         _state.update {
                             it.copy(
@@ -337,7 +337,7 @@ class ProductAddEditComponentImpl(
 
                     when (state.value.mode) {
                         Add -> {
-                            productRepository.addProduct(
+                            productRepository.createProduct(
                                 product = buildProduct(id = 0),
                                 imageByteArray = state.value.productImageByteArray
                             )
@@ -435,7 +435,7 @@ class ProductAddEditComponentImpl(
                             .toBigDecimalOrNull()
                             ?: return@launch
 
-                    stockRepository.addStockMovement(
+                    stockRepository.createStockMovement(
                         productId = product?.id ?: return@launch,
                         amount = Amount(
                             state.value.dialogAddStockState

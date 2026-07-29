@@ -147,3 +147,18 @@ fun ProductStockItem(
         )
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun PreviewProductInboundOutboundScreen() {
+    org.lelestacia.posle.ui.theme.AppTheme {
+        ProductInboundOutboundScreen(
+            component = object : ProductInboundOutboundComponent {
+                override val priceMovement = kotlinx.coroutines.flow.flowOf(androidx.paging.PagingData.from(emptyList<org.lelestacia.posle.domain.model.StockMovement>()))
+                override val products = kotlinx.coroutines.flow.flowOf(androidx.paging.PagingData.from(emptyList<org.lelestacia.posle.domain.model.Product>()))
+                override val state = kotlinx.coroutines.flow.MutableStateFlow(org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInboundOutboundComponentState())
+                override fun onEvent(event: org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInboundOutboundComponentEvent) {}
+            }
+        )
+    }
+}

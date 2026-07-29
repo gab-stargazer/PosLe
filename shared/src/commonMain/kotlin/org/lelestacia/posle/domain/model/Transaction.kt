@@ -12,6 +12,16 @@ import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.SkuNumber
 import org.lelestacia.posle.util.Unit
 
+/**
+ * Domain model representing a completed sale.
+ *
+ * @property id Unique transaction identifier.
+ * @property customerName Name of the customer who made the purchase.
+ * @property items List of distinct items (products or bundles) sold.
+ * @property isRecapped Indicates if this transaction has been included in a daily/period recap.
+ * @property createdAt Timestamp when the transaction was finalized.
+ * @property updatedAt Timestamp of last modification.
+ */
 @Serializable
 data class Transaction(
     val id: Int,
@@ -22,6 +32,11 @@ data class Transaction(
     val updatedAt: Long?
 )
 
+/**
+ * Represents a single line item in a transaction.
+ *
+ * Can represent either a single product or a promotional bundle.
+ */
 @Serializable
 data class TransactionItem(
     val id: Int,
@@ -49,6 +64,10 @@ data class TransactionItem(
      * Selling price of the product/bundle at purchase time.
      */
     val sellPrice: Price,
+
+    /**
+     * User-provided note for this specific line item.
+     */
     val note: String?,
 
     /**
@@ -67,6 +86,12 @@ data class TransactionItem(
     val updatedAt: Long?
 )
 
+/**
+ * Represents a product as it was at the moment of sale.
+ *
+ * This is a snapshot of product state (price, SKU, etc.) to ensure historical
+ * records remain accurate even if the original product is modified or deleted.
+ */
 @Serializable
 data class TransactionProduct(
     val productId: Int,

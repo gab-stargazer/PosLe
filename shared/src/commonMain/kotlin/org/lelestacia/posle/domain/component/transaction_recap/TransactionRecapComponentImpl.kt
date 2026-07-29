@@ -48,7 +48,7 @@ class TransactionRecapComponentImpl(
     @OptIn(ExperimentalCoroutinesApi::class)
     private val transaction: Flow<List<Transaction>> = startAndFinishDate
         .flatMapLatest { range ->
-            transactionRepository.readTransactionInRange(range.first, range.second)
+            transactionRepository.getTransactionsInRange(range.first, range.second)
         }
 
     private val _state = MutableStateFlow(TransactionRecapState())
@@ -58,7 +58,7 @@ class TransactionRecapComponentImpl(
             flow2 = transaction,
             flow3 = startAndFinishDate,
             flow4 = searchQuery,
-            flow5 = settingManager.readSettings()
+            flow5 = settingManager.getSettings()
         ) { state, transaction, dateRange, query, settings ->
             val timeZone = TimeZone.currentSystemDefault()
             val startDate = Instant.fromEpochMilliseconds(dateRange.first)

@@ -174,3 +174,16 @@ fun ProductAddVariantsViewScreen(
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun PreviewProductAddVariantsViewScreen() {
+    org.lelestacia.posle.ui.theme.AppTheme {
+        ProductAddVariantsViewScreen(
+            component = object : ProductAddVariantsViewComponent {
+                override val state = com.arkivanov.decompose.value.MutableValue(org.lelestacia.posle.domain.state_event.product_add.ProductVariantViewState())
+                override fun onEvent(event: ProductVariantViewEvent) {}
+            }
+        )
+    }
+}

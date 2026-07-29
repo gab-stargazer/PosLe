@@ -1,30 +1,56 @@
-This is a Kotlin Multiplatform project targeting Android, Desktop (JVM).
+# PosLe (Point of Sale)
 
-* [/shared](./shared/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./shared/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./shared/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./shared/src/jvmMain/kotlin)
-    folder is the appropriate location.
+PosLe is a modern, cross-platform Point of Sale system built with Kotlin Multiplatform. It provides a robust solution for managing transactions, products, inventory, and sales recaps across Android and Desktop platforms.
 
-### Running the apps
+## Key Features
 
-Use the run configurations provided by the run widget in your IDE's toolbar. You can also use these commands and options:
+- **Transaction Management:** Efficiently process sales with support for individual products and bundled items.
+- **Product & Inventory:** Manage a comprehensive product catalog, including variants, categories, and stock tracking with low-stock alerts.
+- **Bundles:** Create and manage product bundles for promotional offers or grouped sales.
+- **Sales Recaps:** Generate and view detailed transaction histories and sales summaries.
+- **QR Scanning:** Quickly find products or process transactions using the built-in QR scanner.
+- **Data Persistence:** Offline-first approach using Room database for reliable data management.
+- **Cross-Platform:** Shared business logic and UI using Compose Multiplatform.
 
-- Android app: `./gradlew :androidApp:assembleDebug`
-- Desktop app:
-  - Hot reload: `./gradlew :desktopApp:hotRun --auto`
-  - Standard run: `./gradlew :desktopApp:run`
+## Tech Stack
 
-### Running tests
+- **Language:** [Kotlin](https://kotlinlang.org/)
+- **UI Framework:** [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/)
+- **Architecture:** Clean Architecture with [Decompose](https://arkivanov.github.io/Decompose/) for navigation and lifecycle management.
+- **Dependency Injection:** [Koin](https://insert-koin.io/)
+- **Database:** [Room](https://developer.android.com/training/data-storage/room) (KMP version)
+- **Local Storage:** [DataStore](https://developer.android.com/topic/libraries/architecture/datastore) for settings.
+- **Paging:** [Jetpack Paging](https://developer.android.com/topic/libraries/architecture/paging/v3-network-db) for efficient list rendering.
+- **Concurrency:** [Kotlin Coroutines](https://kotlinlang.org/docs/coroutines-overview.html) & Flow.
 
-Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
+## Project Structure
 
-- Android tests: `./gradlew :shared:testAndroidHostTest`
-- Desktop tests: `./gradlew :shared:jvmTest`
+- `androidApp`: Android-specific entry point and resources.
+- `desktopApp`: JVM/Desktop-specific entry point and resources.
+- `shared`: The core of the application, containing:
+    - `commonMain`: Shared UI (Compose), business logic (Domain), and data handling (Data).
+    - `androidMain` & `jvmMain`: Platform-specific implementations for storage, platform info, etc.
 
----
+## Getting Started
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+### Prerequisites
+
+- Android Studio or IntelliJ IDEA
+- JDK 11 or higher
+- Android SDK
+
+### Running the Apps
+
+- **Android:** `./gradlew :androidApp:assembleDebug`
+- **Desktop:**
+    - Hot reload: `./gradlew :desktopApp:hotRun --auto`
+    - Standard run: `./gradlew :desktopApp:run`
+
+### Running Tests
+
+- **Android Host Tests:** `./gradlew :shared:testAndroidHostTest`
+- **Desktop Tests:** `./gradlew :shared:jvmTest`
+
+## License
+
+PosLe is licensed under the [Apache License 2.0](LICENSE). See the LICENSE file for details.

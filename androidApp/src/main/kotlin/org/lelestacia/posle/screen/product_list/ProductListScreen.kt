@@ -35,11 +35,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.skydoves.compose.stability.runtime.TraceRecomposition
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.component.product_list.ProductListComponent
 import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent
@@ -47,6 +53,7 @@ import org.lelestacia.posle.domain.component.product_list.ProductListComponentEv
 import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent.CategoryEvent.OnAddCategoryMenuDismissed
 import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent.OnNavigateTo
 import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent.OnQueryChanged
+import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.navigation.AddEdit.Add
 import org.lelestacia.posle.navigation.Config
 import org.lelestacia.posle.navigation.Config.ProductAddEdit
@@ -56,6 +63,7 @@ import org.lelestacia.posle.screen.product_list.component.categorized
 import org.lelestacia.posle.screen.product_list.component.lowStock
 import org.lelestacia.posle.screen.product_list.component.unCategorized
 import org.lelestacia.posle.ui.component.AnimatedIcon
+import org.lelestacia.posle.ui.theme.AppTheme
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.btn_add_bundle
 import posle.shared.generated.resources.btn_add_category
@@ -244,5 +252,29 @@ fun ProductListScreen(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewProductListScreen() {
+    AppTheme {
+        ProductListScreen(
+            component = object : ProductListComponent {
+                override val productPagingFlows: MutableMap<Pair<String, Int>, Flow<PagingData<Product>>>
+                    get() = mutableMapOf()
+
+                override val state: StateFlow<org.lelestacia.posle.domain.component.product_list.ProductListComponentState>
+                    get() = MutableStateFlow(org.lelestacia.posle.domain.component.product_list.ProductListComponentState())
+
+                override fun onEvent(event: ProductListComponentEvent) {}
+
+                override fun productsInCategory(searchQuery: String, categoryId: Int): Flow<PagingData<Product>> =
+                    flowOf(PagingData.from(emptyList()))
+
+                override fun productsNotInCategory(searchQuery: String, categoryId: Int): Flow<PagingData<Product>> =
+                    flowOf(PagingData.from(emptyList()))
+            }
+        )
     }
 }

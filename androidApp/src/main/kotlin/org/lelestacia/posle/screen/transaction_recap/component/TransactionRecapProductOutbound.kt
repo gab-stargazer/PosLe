@@ -116,10 +116,14 @@ fun TransactionRecapProductOutbound(
 @Composable
 private fun PreviewTransactionRecapProductOutbound() {
     AppTheme {
-//        TransactionRecapProductOutbound(
-//            SampleData.sampleTransaction.items.flatMap { it.products }
-//                .filter { it.productName.value == "Kopi Kapal Api Sachet" },
-//            {}
-//        )
+        TransactionRecapProductOutbound(
+            transactionProducts = listOf(
+                TransactionRecapProductItem(
+                    type = org.lelestacia.posle.data.entity.TransactionItemType.Product,
+                    product = org.lelestacia.posle.util.SampleData.sampleTransaction.items.first().products.first()
+                )
+            ),
+            onClick = {}
+        )
     }
 }

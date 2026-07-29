@@ -12,6 +12,12 @@ import org.lelestacia.posle.data.entity.ProductEntity
 import org.lelestacia.posle.data.entity.ProductSellPriceEntity
 import org.lelestacia.posle.data.entity.ProductWithVariantsAndStock
 
+/**
+ * Data Access Object for Product related entities.
+ *
+ * Handles complex joins for products including their variants, pricing history,
+ * stock movements, and category associations.
+ */
 @Dao
 interface ProductDao {
 

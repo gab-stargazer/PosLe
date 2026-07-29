@@ -15,14 +15,15 @@ import org.lelestacia.posle.domain.repository.CategoryRepository
 import org.lelestacia.posle.util.Util.pagingConfig
 
 class CategoryRepositoryImpl(
-    private val dao: CategoryDao
+    private val dao: CategoryDao,
+    private val transactionRunner: org.lelestacia.posle.data.TransactionRunner
 ) : CategoryRepository {
 
-    override suspend fun addCategory(category: Category) {
+    override suspend fun createCategory(category: Category) {
         dao.insertCategory(category.toEntity())
     }
 
-    override suspend fun addProductToCategory(productId: Int, categoryId: Int) {
+    override suspend fun createProductCategoryLink(productId: Int, categoryId: Int) {
         val junction = ProductCategoryJunction(
             productId = productId,
             categoryId = categoryId
@@ -31,11 +32,11 @@ class CategoryRepositoryImpl(
         dao.insertConnection(junction)
     }
 
-    override suspend fun removeProductFromCategory(productId: Int, categoryId: Int) {
+    override suspend fun deleteProductCategoryLink(productId: Int, categoryId: Int) {
         dao.deleteConnection(productId, categoryId)
     }
 
-    override fun readCategories(): Flow<PagingData<Category>> {
+    override fun getCategories(): Flow<PagingData<Category>> {
         return Pager(
             config = pagingConfig,
             pagingSourceFactory = {
@@ -44,7 +45,7 @@ class CategoryRepositoryImpl(
         ).flow.map { it.map(CategoryEntity::toDomain) }
     }
 
-    override suspend fun deleteCategory(categoryId: Int) {
+    override suspend fun deleteCategory(categoryId: Int) = transactionRunner.runTransaction {
         dao.clearProductCategory(categoryId)
         dao.deleteCategoryById(categoryId)
     }

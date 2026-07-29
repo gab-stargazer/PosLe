@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Print
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -31,31 +32,41 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.fade
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
+import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.active
+import com.arkivanov.decompose.value.MutableValue
+import com.arkivanov.decompose.value.Value
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.component.dashboard.DashboardComponent
 import org.lelestacia.posle.domain.state_event.DashboardComponentEvent
+import org.lelestacia.posle.domain.state_event.DashboardComponentState
 import org.lelestacia.posle.domain.state_event.TransactionRecapEvent
 import org.lelestacia.posle.navigation.Config
 import org.lelestacia.posle.navigation.NavChild
+import org.lelestacia.posle.navigation.NavConfig
 import org.lelestacia.posle.navigation.NavDestination
 import org.lelestacia.posle.screen.product_inbound_outbound.ProductInboundOutboundScreen
 import org.lelestacia.posle.screen.product_list.ProductListScreen
 import org.lelestacia.posle.screen.transaction_add.TransactionAddScreen
 import org.lelestacia.posle.screen.transaction_history.TransactionHistoryScreen
 import org.lelestacia.posle.screen.transaction_recap.TransactionRecapScreen
+import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.BurgundyRed
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.label_menu
 import kotlin.time.Duration.Companion.milliseconds
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
     component: DashboardComponent,
@@ -237,5 +248,34 @@ fun DashboardScreen(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewDashboardScreen() {
+    AppTheme {
+        DashboardScreen(
+            component = object : DashboardComponent {
+                override val children: Value<ChildStack<NavConfig, NavChild>>
+                    get() = MutableValue(
+                        ChildStack(
+                            configuration = NavConfig.TransactionAdd,
+                            instance = NavChild.TransactionAdd(
+                                component = object : org.lelestacia.posle.domain.component.transaction_add.TransactionAddComponent {
+                                    override val bundles = kotlinx.coroutines.flow.flowOf(androidx.paging.PagingData.from(emptyList<org.lelestacia.posle.domain.model.Bundle>()))
+                                    override val products = kotlinx.coroutines.flow.flowOf(androidx.paging.PagingData.from(emptyList<org.lelestacia.posle.domain.model.Product>()))
+                                    override val state = MutableStateFlow(org.lelestacia.posle.domain.state_event.TransactionAddState())
+                                    override fun onEvent(event: org.lelestacia.posle.domain.state_event.TransactionAddEvent) {}
+                                }
+                            )
+                        )
+                    )
+                override val state: StateFlow<DashboardComponentState>
+                    get() = MutableStateFlow(DashboardComponentState())
+
+                override fun onEvent(event: DashboardComponentEvent) {}
+            }
+        )
     }
 }

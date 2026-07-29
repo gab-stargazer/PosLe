@@ -39,7 +39,7 @@ class TransactionProductConfigComponentImpl(
 
     init {
         scope.launch {
-            val settings = settingManager.readSettings().first()
+            val settings = settingManager.getSettings().first()
             state.update { it.copy(settings = settings) }
         }
     }

@@ -14,21 +14,22 @@ import org.lelestacia.posle.domain.repository.VariantRepository
 import org.lelestacia.posle.util.Util.pagingConfig
 
 class VariantRepositoryImpl(
-    private val variantDao: VariantDao
+    private val variantDao: VariantDao,
+    private val transactionRunner: org.lelestacia.posle.data.TransactionRunner
 ) : VariantRepository {
 
-    override suspend fun addVariant(variant: Variant) {
+    override suspend fun createVariant(variant: Variant) {
         variantDao.insertVariant(variant.toEntity())
     }
 
-    override fun readVariant(): Flow<PagingData<Variant>> {
+    override fun getAllVariants(): Flow<PagingData<Variant>> {
         return Pager(
             config = pagingConfig,
             pagingSourceFactory = { variantDao.readVariant() }
         ).flow.map { it.map(VariantEntity::toDomain) }
     }
 
-    override fun readVariantByProductId(productId: Int): Flow<List<Variant>> {
+    override fun getVariantsByProductId(productId: Int): Flow<List<Variant>> {
         return variantDao.readVariantByProductId(productId).map { it.map(VariantEntity::toDomain) }
     }
 
@@ -36,7 +37,7 @@ class VariantRepositoryImpl(
         variantDao.updateVariant(variant.toEntity())
     }
 
-    override suspend fun deleteVariant(variant: Variant) {
+    override suspend fun deleteVariant(variant: Variant) = transactionRunner.runTransaction {
         variantDao.deleteVariantJunction(variant.id)
         variantDao.deleteVariant(variant.toEntity())
     }

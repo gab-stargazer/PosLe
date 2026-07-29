@@ -130,12 +130,12 @@ abstract class PosLeDB : RoomDatabase() {
 expect object AppDatabaseConstructor : RoomDatabaseConstructor<PosLeDB>
 
 interface TransactionRunner {
-    suspend fun runTransaction(block: suspend () -> Unit)
+    suspend fun <T> runTransaction(block: suspend () -> T): T
 }
 
 class TransactionRunnerImpl(val db: PosLeDB) : TransactionRunner {
-    override suspend fun runTransaction(block: suspend () -> Unit) {
-        db.useWriterConnection { transactor ->
+    override suspend fun <T> runTransaction(block: suspend () -> T): T {
+        return db.useWriterConnection { transactor ->
             transactor.withTransaction(Transactor.SQLiteTransactionType.IMMEDIATE) {
                 block()
             }

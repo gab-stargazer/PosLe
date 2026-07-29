@@ -4,11 +4,45 @@ import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 import org.lelestacia.posle.domain.model.Category
 
+/**
+ * Repository interface for managing product categories and their relationships with products.
+ */
 interface CategoryRepository {
 
-    suspend fun addCategory(category: Category)
-    suspend fun addProductToCategory(productId: Int, categoryId: Int)
-    suspend fun removeProductFromCategory(productId: Int, categoryId: Int)
-    fun readCategories(): Flow<PagingData<Category>>
+    /**
+     * Persists a new category definition.
+     *
+     * @param category The [Category] model to create.
+     */
+    suspend fun createCategory(category: Category)
+
+    /**
+     * Associates a product with a category.
+     *
+     * @param productId The unique ID of the product.
+     * @param categoryId The unique ID of the category.
+     */
+    suspend fun createProductCategoryLink(productId: Int, categoryId: Int)
+
+    /**
+     * Removes the association between a product and a category.
+     *
+     * @param productId The product ID.
+     * @param categoryId The category ID.
+     */
+    suspend fun deleteProductCategoryLink(productId: Int, categoryId: Int)
+
+    /**
+     * Provides a paginated stream of all available categories.
+     *
+     * @return A [Flow] of [PagingData] containing [Category]s.
+     */
+    fun getCategories(): Flow<PagingData<Category>>
+
+    /**
+     * Permanently deletes a category and removes all its product associations.
+     *
+     * @param categoryId The ID of the category to delete.
+     */
     suspend fun deleteCategory(categoryId: Int)
 }

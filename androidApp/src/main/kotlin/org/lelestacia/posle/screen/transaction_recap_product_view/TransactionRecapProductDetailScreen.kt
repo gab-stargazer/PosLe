@@ -82,3 +82,16 @@ fun TransactionRecapProductDetailScreen(
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun PreviewTransactionRecapProductDetailScreen() {
+    org.lelestacia.posle.ui.theme.AppTheme {
+        TransactionRecapProductDetailScreen(
+            component = object : TransactionRecapProductViewComponent {
+                override val state = kotlinx.coroutines.flow.MutableStateFlow(org.lelestacia.posle.domain.component.transaction_recap_product_view.TransactionRecapProductViewState(emptyList()))
+                override fun onEvent(event: TransactionRecapProductViewEvent) {}
+            }
+        )
+    }
+}

@@ -21,7 +21,7 @@ class StockRepositoryImpl(
     private val productDao: ProductDao,
 ): StockRepository {
 
-    override fun readStockMovement(): Flow<PagingData<StockMovement>> {
+    override fun getStockMovements(): Flow<PagingData<StockMovement>> {
         return Pager(
             config = pagingConfig,
             pagingSourceFactory = {
@@ -32,7 +32,7 @@ class StockRepositoryImpl(
         }
     }
 
-    override suspend fun addStockMovement(
+    override suspend fun createStockMovement(
         productId: Int,
         amount: Amount,
         movementType: StockMovementType,

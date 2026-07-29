@@ -21,7 +21,7 @@ class SettingManager(
     val productStockTracked = booleanPreferencesKey("is_product_stock_tracked")
     val storeNameKey = stringPreferencesKey("store_name")
 
-    fun readSettings(): Flow<PosLeSettings> {
+    fun getSettings(): Flow<PosLeSettings> {
         return dataStore.data.map {
             PosLeSettings(
                 isProductVolatile = it[productVolatileKey] ?: false,

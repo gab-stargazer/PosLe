@@ -49,11 +49,11 @@ class ProductListComponentImpl(
 
     private val bundles: Flow<PagingData<org.lelestacia.posle.domain.model.Bundle>> = searchQuery
         .flatMapLatest { query ->
-            bundleRepository.readBundleByName(query)
+            bundleRepository.getBundlesByName(query)
         }.cachedIn(scope)
 
     val categories: Flow<PagingData<Category>> = categoryRepository
-        .readCategories()
+        .getCategories()
         .cachedIn(scope)
 
     override val productPagingFlows: MutableMap<Pair<String, Int>, Flow<PagingData<Product>>> =
@@ -61,19 +61,19 @@ class ProductListComponentImpl(
 
     val lowStocksProducts: Flow<PagingData<Product>> = searchQuery
         .flatMapLatest { query ->
-            productRepository.readProductsWithLowStock(query)
+            productRepository.getProductsWithLowStock(query)
         }.cachedIn(scope)
 
     val uncategorizedProducts: Flow<PagingData<Product>> = searchQuery
         .flatMapLatest { query ->
-            productRepository.readProductWithoutCategories(query)
+            productRepository.getProductWithoutCategories(query)
         }.cachedIn(scope)
 
     override val state: StateFlow<ProductListComponentState> =
         combine(
             flow = _state,
             flow2 = searchQuery,
-            flow3 = settingManager.readSettings()
+            flow3 = settingManager.getSettings()
         ) { state, searchQuery, settings ->
             ProductListComponentState(
                 searchQuery = searchQuery,
@@ -121,7 +121,7 @@ class ProductListComponentImpl(
 
             is ProductListComponentEvent.AddCategoryEvent.OnSaveClicked -> {
                 scope.launch {
-                    categoryRepository.addCategory(
+                    categoryRepository.createCategory(
                         Category(
                             id = 0,
                             name = Name(state.value.addCategoryState.categoryName.text.toString())
@@ -169,7 +169,7 @@ class ProductListComponentImpl(
 
             is ProductListComponentEvent.CategoryEvent.OnAddProductToCategory -> {
                 scope.launch {
-                    categoryRepository.addProductToCategory(
+                    categoryRepository.createProductCategoryLink(
                         productId = event.productId,
                         categoryId = event.categoryId
                     )
@@ -178,7 +178,7 @@ class ProductListComponentImpl(
 
             is ProductListComponentEvent.CategoryEvent.OnRemoveProductFromCategory -> {
                 scope.launch {
-                    categoryRepository.removeProductFromCategory(
+                    categoryRepository.deleteProductCategoryLink(
                         productId = event.productId,
                         categoryId = event.categoryId
                     )
@@ -195,7 +195,7 @@ class ProductListComponentImpl(
             Pager(
                 config = PagingConfig(pageSize = 20)
             ) {
-                productRepository.readProductWithCategories(searchQuery, categoryId)
+                productRepository.getProductWithCategories(searchQuery, categoryId)
             }.flow.map { it.map { it.toDomain() } }.cachedIn(scope)
         }
     }
@@ -207,7 +207,7 @@ class ProductListComponentImpl(
         return Pager(
             config = PagingConfig(pageSize = 20)
         ) {
-            productRepository.readProductNotInCategory(searchQuery, categoryId)
+            productRepository.getProductNotInCategory(searchQuery, categoryId)
         }.flow.map { it.map { it.toDomain() } }.cachedIn(scope)
     }
 }

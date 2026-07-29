@@ -12,6 +12,12 @@ import org.lelestacia.posle.data.entity.TransactionItemEntity
 import org.lelestacia.posle.data.entity.TransactionItemProductEntity
 import org.lelestacia.posle.data.entity.TransactionWithItems
 
+/**
+ * Data Access Object for Transaction related entities.
+ *
+ * Manages atomic insertion of transactions and their nested items/products,
+ * and provides various filtering and searching capabilities for transaction history.
+ */
 @Dao
 interface TransactionDao {
 

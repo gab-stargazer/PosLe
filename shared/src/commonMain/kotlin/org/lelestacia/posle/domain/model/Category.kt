@@ -5,6 +5,12 @@ import kotlinx.serialization.Serializable
 import org.lelestacia.posle.data.entity.CategoryEntity
 import org.lelestacia.posle.util.Name
 
+/**
+ * Domain model representing a product category.
+ *
+ * @property id Unique category identifier.
+ * @property name Category display name.
+ */
 @Immutable
 @Serializable
 data class Category(

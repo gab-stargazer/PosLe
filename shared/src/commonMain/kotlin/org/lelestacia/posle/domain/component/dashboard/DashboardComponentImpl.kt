@@ -33,7 +33,7 @@ class DashboardComponentImpl(
 
     init {
         scope.launch {
-            settingManager.readSettings().first().run {
+            settingManager.getSettings().first().run {
                 state.update {
                     it.copy(
                         settings = this

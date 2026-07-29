@@ -40,13 +40,13 @@ class ProductInboundOutboundComponentImpl(
     @OptIn(ExperimentalCoroutinesApi::class)
     private val availableProducts = searchQuery
         .flatMapLatest { query ->
-            productRepository.readAvailableProducts(query)
+            productRepository.getAvailableProducts(query)
         }
 
-    private val _settings = settingManager.readSettings()
+    private val _settings = settingManager.getSettings()
 
     override val products: Flow<PagingData<Product>> = productRepository
-        .readProductsByName("")
+        .getProductsByName("")
         .cachedIn(scope)
 
     private val _state = MutableStateFlow(ProductInboundOutboundComponentState())
@@ -70,7 +70,7 @@ class ProductInboundOutboundComponentImpl(
 
     override val priceMovement: Flow<PagingData<StockMovement>> =
         stockRepository
-            .readStockMovement()
+            .getStockMovements()
             .cachedIn(scope)
 
     override fun onEvent(event: ProductInboundOutboundComponentEvent) {
@@ -100,7 +100,7 @@ class ProductInboundOutboundComponentImpl(
                 val amount = amountString.toBigDecimalOrNull() ?: return
 
                 scope.launch {
-                    stockRepository.addStockMovement(
+                    stockRepository.createStockMovement(
                         productId = product.id,
                         amount = Amount(
                             when (currentState.selectedMovementType) {

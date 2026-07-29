@@ -37,13 +37,11 @@ class TransactionSearchComponentImpl(
 
     private val _searchQuery = MutableStateFlow("")
 
-    private val _state = MutableStateFlow(TransactionSearchState())
     override val state: StateFlow<TransactionSearchState> = combine(
-        flow = _state,
-        flow2 = _searchQuery,
-        flow3 = settingManager.readSettings()
-    ) { state, searchQuery, settings ->
-        state.copy(
+        flow = _searchQuery,
+        flow2 = settingManager.getSettings()
+    ) { searchQuery, settings ->
+        TransactionSearchState(
             searchQuery = searchQuery,
             settings = settings
         )
@@ -58,7 +56,7 @@ class TransactionSearchComponentImpl(
         .debounce(300.milliseconds)
         .distinctUntilChanged()
         .flatMapLatest { newQuery ->
-            repository.searchTransactions(newQuery)
+            repository.getTransactionsByQuery(newQuery)
         }
         .cachedIn(scope)
 

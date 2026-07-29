@@ -33,47 +33,46 @@ class TransactionRepositoryImpl(
     private val transactionDao: TransactionDao,
     private val productDao: ProductDao,
     private val stockDao: StockDao,
-    private val settingManager: SettingManager
+    private val settingManager: SettingManager,
+    private val transactionRunner: org.lelestacia.posle.data.TransactionRunner
 ) : TransactionRepository {
 
-    override suspend fun insertAndGetTransaction(
+    override suspend fun createTransaction(
         customerName: Name,
         cartItems: List<CartItems>
-    ): Transaction {
-
+    ): Transaction = transactionRunner.runTransaction {
         val currentTimeAsTimestamp = Clock.System.now().toEpochMilliseconds()
         val newTransactionEntity = TransactionEntity(
             id = 0,
             customerName = customerName,
-            createdAt = Clock.System.now().toEpochMilliseconds(),
+            createdAt = currentTimeAsTimestamp,
             updatedAt = null
         )
 
         val newTransactionId = transactionDao.insertTransaction(newTransactionEntity).toInt()
-        val transactionItems = cartItems.map { cartItems ->
-            when (cartItems) {
+        val transactionItems = cartItems.map { cartItem ->
+            when (cartItem) {
                 is CartItems.BundleCartItem -> {
                     val newTransactionItemEntity = TransactionItemEntity(
                         id = 0,
                         transactionId = newTransactionId,
                         type = TransactionItemType.Bundle,
-                        referenceId = cartItems.bundleId,
-                        name = cartItems.bundleName,
-                        quantity = cartItems.bundleQuantity,
-                        sellPrice = cartItems.bundleTotalPrice,
-                        note = cartItems.bundleNote,
+                        referenceId = cartItem.bundleId,
+                        name = cartItem.bundleName,
+                        quantity = cartItem.bundleQuantity,
+                        sellPrice = cartItem.bundleTotalPrice,
+                        note = cartItem.bundleNote,
                         createdAt = currentTimeAsTimestamp
                     )
 
                     val newTransactionItemId =
-                        transactionDao.insertTransactionItem(newTransactionItemEntity)
+                        transactionDao.insertTransactionItem(newTransactionItemEntity).toInt()
 
-                    val newTransactionItemProductEntity =
-                        cartItems.bundleProducts.map { bundleProduct ->
-                            println(bundleProduct)
+                    val newTransactionItemProductEntities =
+                        cartItem.bundleProducts.map { bundleProduct ->
                             TransactionItemProductEntity(
                                 id = 0,
-                                transactionItemId = newTransactionItemId.toInt(),
+                                transactionItemId = newTransactionItemId,
                                 productId = bundleProduct.productId,
                                 productName = bundleProduct.productName,
                                 skuNumber = bundleProduct.skuNumber,
@@ -86,17 +85,17 @@ class TransactionRepositoryImpl(
                             )
                         }
 
-                    transactionDao.insertTransactionItemProduct(newTransactionItemProductEntity)
+                    transactionDao.insertTransactionItemProduct(newTransactionItemProductEntities)
 
                     TransactionItem(
-                        id = newTransactionItemId.toInt(),
+                        id = newTransactionItemId,
                         type = TransactionItemType.Bundle,
-                        referenceId = cartItems.bundleId,
-                        name = cartItems.bundleName,
-                        quantity = cartItems.bundleQuantity,
-                        sellPrice = cartItems.bundleTotalPrice,
-                        note = cartItems.bundleNote,
-                        products = newTransactionItemProductEntity.map(TransactionItemProductEntity::toDomain),
+                        referenceId = cartItem.bundleId,
+                        name = cartItem.bundleName,
+                        quantity = cartItem.bundleQuantity,
+                        sellPrice = cartItem.bundleTotalPrice,
+                        note = cartItem.bundleNote,
+                        products = newTransactionItemProductEntities.map(TransactionItemProductEntity::toDomain),
                         createdAt = currentTimeAsTimestamp,
                         updatedAt = null
                     )
@@ -107,31 +106,31 @@ class TransactionRepositoryImpl(
                         id = 0,
                         transactionId = newTransactionId,
                         type = TransactionItemType.Product,
-                        referenceId = cartItems.productId,
-                        name = cartItems.productName,
-                        quantity = cartItems.productQuantity,
-                        sellPrice = cartItems.productSellPrice,
-                        note = cartItems.productNote,
+                        referenceId = cartItem.productId,
+                        name = cartItem.productName,
+                        quantity = cartItem.productQuantity,
+                        sellPrice = cartItem.productSellPrice,
+                        note = cartItem.productNote,
                         createdAt = currentTimeAsTimestamp
                     )
 
                     val newTransactionItemId =
-                        transactionDao.insertTransactionItem(newTransactionItemEntity)
+                        transactionDao.insertTransactionItem(newTransactionItemEntity).toInt()
 
-                    val products = productDao.getProductById(cartItems.productId)
+                    val product = productDao.getProductById(cartItem.productId)
 
                     val newTransactionItemProductEntity = TransactionItemProductEntity(
                         id = 0,
-                        transactionItemId = newTransactionItemId.toInt(),
-                        productId = cartItems.productId,
-                        productName = cartItems.productName,
-                        skuNumber = cartItems.skuNumber,
-                        imageUri = cartItems.imageUri,
-                        productBuyPrice = products.buyPriceHistorical.maxBy { it.createdAt }.price,
-                        productSellPrice = cartItems.productSellPrice,
-                        productUnit = cartItems.productUnit,
-                        productNote = cartItems.productNote,
-                        productAmount = cartItems.productQuantity
+                        transactionItemId = newTransactionItemId,
+                        productId = cartItem.productId,
+                        productName = cartItem.productName,
+                        skuNumber = cartItem.skuNumber,
+                        imageUri = cartItem.imageUri,
+                        productBuyPrice = product.buyPriceHistorical.maxBy { it.createdAt }.price,
+                        productSellPrice = cartItem.productSellPrice,
+                        productUnit = cartItem.productUnit,
+                        productNote = cartItem.productNote,
+                        productAmount = cartItem.productQuantity
                     )
 
                     transactionDao.insertTransactionItemProduct(
@@ -139,13 +138,13 @@ class TransactionRepositoryImpl(
                     )
 
                     TransactionItem(
-                        id = newTransactionItemId.toInt(),
+                        id = newTransactionItemId,
                         type = TransactionItemType.Product,
-                        referenceId = cartItems.productId,
-                        name = cartItems.productName,
-                        quantity = cartItems.productQuantity,
-                        sellPrice = cartItems.productSellPrice,
-                        note = cartItems.productNote,
+                        referenceId = cartItem.productId,
+                        name = cartItem.productName,
+                        quantity = cartItem.productQuantity,
+                        sellPrice = cartItem.productSellPrice,
+                        note = cartItem.productNote,
                         products = listOf(
                             newTransactionItemProductEntity.toDomain()
                         ),
@@ -156,9 +155,8 @@ class TransactionRepositoryImpl(
             }
         }
 
-
         val setting = settingManager
-            .readSettings()
+            .getSettings()
             .first()
 
         if (setting.isProductStockTracked) {
@@ -170,7 +168,7 @@ class TransactionRepositoryImpl(
                         productName = product.productName,
                         productUnit = product.unit,
                         movementType = StockMovementType.Sale,
-                        amount = when(transactionItem.type) {
+                        amount = when (transactionItem.type) {
                             TransactionItemType.Product -> Amount(product.quantity.value.negate())
                             TransactionItemType.Bundle -> Amount(
                                 product.quantity.value.multiply(transactionItem.quantity.value).negate()
@@ -184,17 +182,17 @@ class TransactionRepositoryImpl(
             stockDao.insertStockMovements(movements = stockMovements)
         }
 
-        return Transaction(
+        Transaction(
             id = newTransactionId,
-            customerName = newTransactionEntity.customerName,
+            customerName = customerName,
             items = transactionItems,
-            isRecapped = newTransactionEntity.isRecapped,
-            createdAt = newTransactionEntity.createdAt,
-            updatedAt = newTransactionEntity.updatedAt
+            isRecapped = false,
+            createdAt = currentTimeAsTimestamp,
+            updatedAt = null
         )
     }
 
-    override fun readTodayTransactionHistory(): Flow<List<Transaction>> {
+    override fun getTodayTransactions(): Flow<List<Transaction>> {
         val time = getTodayRangeMilliseconds()
         return transactionDao
             .readTransactionsForToday(time.first, time.second)
@@ -203,7 +201,7 @@ class TransactionRepositoryImpl(
             }
     }
 
-    override fun readTransactionInRange(
+    override fun getTransactionsInRange(
         startDate: Long,
         finishDate: Long
     ): Flow<List<Transaction>> {
@@ -215,7 +213,7 @@ class TransactionRepositoryImpl(
         }
     }
 
-    override fun readUnRecappedTransactionHistory(): Flow<PagingData<Transaction>> {
+    override fun getUnRecappedTransactions(): Flow<PagingData<Transaction>> {
         return Pager(
             config = PagingConfig(
                 pageSize = 10,
@@ -230,7 +228,7 @@ class TransactionRepositoryImpl(
         }
     }
 
-    override fun readTransactionHistory(): Flow<PagingData<Transaction>> {
+    override fun getAllTransactions(): Flow<PagingData<Transaction>> {
         return Pager(
             config = PagingConfig(
                 pageSize = 10,
@@ -245,7 +243,7 @@ class TransactionRepositoryImpl(
         }
     }
 
-    override fun searchTransactions(query: String): Flow<PagingData<Transaction>> {
+    override fun getTransactionsByQuery(query: String): Flow<PagingData<Transaction>> {
         return Pager(
             config = PagingConfig(
                 pageSize = 10,

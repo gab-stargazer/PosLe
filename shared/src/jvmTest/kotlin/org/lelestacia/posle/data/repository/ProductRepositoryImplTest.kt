@@ -59,7 +59,7 @@ class ProductRepositoryImplTest {
             )
 
             // When
-            repo.addProduct(product, imageByteArray = null)
+            repo.createProduct(product, imageByteArray = null)
 
             // Then
             val created = db.productDao().getProductBySkuNumber("KB-001")
@@ -107,7 +107,7 @@ class ProductRepositoryImplTest {
             )
 
             // When
-            repo.addProduct(product, imageByteArray = null)
+            repo.createProduct(product, imageByteArray = null)
 
             // Then
             val created = db.productDao().getProductBySkuNumber("KB-001")
@@ -132,7 +132,7 @@ class ProductRepositoryImplTest {
 
             // When
             val imageData = byteArrayOf(0x01, 0x02, 0x03)
-            repo.addProduct(product, imageByteArray = imageData)
+            repo.createProduct(product, imageByteArray = imageData)
 
             // Then
             verify { storage.saveImage("Kopi Bubuk 200g.png", imageData) }
@@ -331,7 +331,8 @@ class ProductRepositoryImplTest {
             storage = storage,
             productDao = db.productDao(),
             variantDao = db.variantDao(),
-            stockDao = db.stockDao()
+            stockDao = db.stockDao(),
+            transactionRunner = org.lelestacia.posle.data.TransactionRunnerImpl(db)
         )
     }
 

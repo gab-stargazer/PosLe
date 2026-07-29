@@ -24,9 +24,28 @@ interface TransactionAddNavigation {
     )
 }
 
+/**
+ * Component interface for the Transaction Add screen.
+ * Manages the cart, product selection, and transaction finalization.
+ */
 interface TransactionAddComponent {
+    /**
+     * Paginated flow of available product bundles.
+     */
     val bundles: Flow<PagingData<Bundle>>
+
+    /**
+     * Paginated flow of available products.
+     */
     val products: Flow<PagingData<Product>>
+
+    /**
+     * The current UI state, including the active cart, customer info, and total price.
+     */
     val state: StateFlow<TransactionAddState>
+
+    /**
+     * Handles UI events such as adding items to cart, updating quantities, and checkout.
+     */
     fun onEvent(event: TransactionAddEvent)
 }

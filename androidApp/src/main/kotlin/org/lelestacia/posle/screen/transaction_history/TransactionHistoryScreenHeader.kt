@@ -103,3 +103,15 @@ fun TransactionHistoryScreenHeader(
         Text(totalValueSb)
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun PreviewTransactionHistoryScreenHeader() {
+    org.lelestacia.posle.ui.theme.AppTheme {
+        TransactionHistoryScreenHeader(
+            state = TransactionHistoryScreenState(
+                todayTransactions = emptyList()
+            )
+        )
+    }
+}

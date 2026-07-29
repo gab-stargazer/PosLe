@@ -8,6 +8,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingConfig
 
+/**
+ * General utility constants and helper functions for UI and data layers.
+ */
 object Util {
     val pagingConfig = PagingConfig(
         pageSize = 15,

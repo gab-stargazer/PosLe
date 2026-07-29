@@ -8,6 +8,16 @@ import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.SkuNumber
 import org.lelestacia.posle.util.Unit
 
+/**
+ * Domain model representing a product bundle.
+ *
+ * @property id Unique bundle identifier.
+ * @property name Bundle display name.
+ * @property imageUri Local path to the bundle image.
+ * @property bundleProducts List of products included in the bundle.
+ * @property createdAt Creation timestamp.
+ * @property updatedAt Last modification timestamp.
+ */
 @Serializable
 data class Bundle(
     val id: Int,
@@ -18,6 +28,9 @@ data class Bundle(
     val updatedAt: Long? = null,
 )
 
+/**
+ * Represents a product as part of a bundle.
+ */
 @Serializable
 @Immutable
 data class BundleProduct(
@@ -25,18 +38,41 @@ data class BundleProduct(
     val productName: Name,
     val skuNumber: SkuNumber?,
     val imageUri: String?,
+
+    /**
+     * Original buy price of the product.
+     */
     val buyPrice: Price,
+
+    /**
+     * Special sell price applied when this product is sold AS PART of this bundle.
+     */
     val sellPrice: Price,
+
+    /**
+     * Standard sell price of the product when sold individually.
+     */
     val sellPriceIndividual: Price,
+
+    /**
+     * Quantity of the product included in one unit of the bundle.
+     */
     val quantity: Amount,
+
     val unit: Unit,
     val createdAt: Long,
     val updatedAt: Long?,
 )
 
+/**
+ * Sealed interface for items that can be placed in the shopping cart.
+ */
 @Immutable
 sealed interface CartItems {
 
+    /**
+     * A single product added to the cart.
+     */
     data class ProductCartItem(
         val id: Int,
         val productId: Int,
@@ -50,6 +86,9 @@ sealed interface CartItems {
         val productNote: String?,
     ) : CartItems
 
+    /**
+     * A product bundle added to the cart.
+     */
     data class BundleCartItem(
         val id: Int,
         val bundleId: Int,

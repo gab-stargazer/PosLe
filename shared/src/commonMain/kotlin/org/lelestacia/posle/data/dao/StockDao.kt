@@ -9,6 +9,12 @@ import org.lelestacia.posle.data.entity.StockEntity
 import org.lelestacia.posle.data.entity.StockMovementEntity
 import java.math.BigDecimal
 
+/**
+ * Data Access Object for Stock management.
+ *
+ * Tracks inventory levels by summing individual stock movement records
+ * (Sales, Purchases, Returns, Adjustments).
+ */
 @Dao
 interface StockDao {
 

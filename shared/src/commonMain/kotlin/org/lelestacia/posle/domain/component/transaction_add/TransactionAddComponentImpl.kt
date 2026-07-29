@@ -64,7 +64,7 @@ class TransactionAddComponentImpl(
         .debounce(300.milliseconds)
         .distinctUntilChanged()
         .flatMapLatest { query ->
-            bundleRepository.readBundleByName(query)
+            bundleRepository.getBundlesByName(query)
         }
         .cachedIn(scope)
 
@@ -73,14 +73,14 @@ class TransactionAddComponentImpl(
         .debounce(300.milliseconds)
         .distinctUntilChanged()
         .flatMapLatest { query ->
-            productRepository.readProductsByName(query)
+            productRepository.getProductsByName(query)
         }
         .cachedIn(scope)
 
     private val _state = MutableStateFlow(TransactionAddState())
     override val state = combine(
         flow = _state,
-        flow2 = settingManager.readSettings(),
+        flow2 = settingManager.getSettings(),
         flow3 = _searchQuery
     ) { state, settings, searchQuery ->
         state.copy(
@@ -169,7 +169,7 @@ class TransactionAddComponentImpl(
                 scope.launch {
                     navigation.onNavigateTo(
                         config = TransactionView(
-                            transaction = transactionRepository.insertAndGetTransaction(
+                            transaction = transactionRepository.createTransaction(
                                 customerName = customerName,
                                 cartItems = cartItems
                             )

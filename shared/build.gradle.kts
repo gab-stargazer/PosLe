@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.androidx.room)
     alias(libs.plugins.ksp)
     alias(libs.plugins.stability.analyzer)
+    alias(libs.plugins.dokka)
 }
 
 kotlin {

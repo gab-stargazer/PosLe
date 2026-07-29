@@ -26,15 +26,16 @@ class BundleRepositoryImpl(
     private val storage: FileStorage
 ) : BundleRepository {
 
-    override suspend fun insertBundle(
+    override suspend fun createBundle(
         bundleName: Name,
         bundleProducts: List<BundleProductState>,
         imageByteArray: ByteArray?
-    ) {
+    ) = transactionRunner.runTransaction {
+        val currentTime = Clock.System.now().toEpochMilliseconds()
         val bundle = BundleEntity(
             id = 0,
             name = bundleName,
-            createdAt = Clock.System.now().toEpochMilliseconds()
+            createdAt = currentTime
         )
 
         val bundleId = bundleDao.insertBundleAndGetId(bundle).toInt()
@@ -61,7 +62,7 @@ class BundleRepositoryImpl(
                 quantity = Amount(bundleProduct.quantity.toBigDecimal()),
                 unit = bundleProduct.product.unit,
                 sellPrice = Price(bundleProduct.sellPrice.toBigDecimal()),
-                createdAt = Clock.System.now().toEpochMilliseconds(),
+                createdAt = currentTime,
                 updatedAt = null
             )
         }
@@ -155,7 +156,7 @@ class BundleRepositoryImpl(
         bundleDao.deleteBundleById(bundleId)
     }
 
-    override fun readBundleByName(bundleName: String): Flow<PagingData<Bundle>> {
+    override fun getBundlesByName(bundleName: String): Flow<PagingData<Bundle>> {
         return Pager(
             config = Util.pagingConfig,
             pagingSourceFactory = { bundleDao.readAllBundlesByName(bundleName) }

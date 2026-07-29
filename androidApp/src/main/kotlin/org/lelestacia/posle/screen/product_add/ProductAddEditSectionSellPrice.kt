@@ -129,3 +129,17 @@ fun ProductAddEditSectionSellPrice(
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun PreviewProductAddEditSectionSellPrice() {
+    org.lelestacia.posle.ui.theme.AppTheme {
+        ProductAddEditSectionSellPrice(
+            state = ProductAddEditState(
+                mode = Edit,
+                productSellPrice = "15000"
+            ),
+            onEvent = {}
+        )
+    }
+}

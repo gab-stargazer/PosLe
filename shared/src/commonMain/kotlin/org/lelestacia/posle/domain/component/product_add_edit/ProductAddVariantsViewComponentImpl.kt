@@ -30,7 +30,7 @@ class ProductAddVariantsViewComponentImpl(
     private val scope = coroutineScope(Dispatchers.Main.immediate)
 
     private val variants = repository
-        .readVariant()
+        .getAllVariants()
         .cachedIn(scope)
 
     override val state: Value<ProductVariantViewState>
@@ -128,7 +128,7 @@ class ProductAddVariantsViewComponentImpl(
                         }
 
                         scope.launch {
-                            repository.addVariant(newVariant)
+                            repository.createVariant(newVariant)
                         }
 
                         onEvent(OnVariantDialogDismissed)

@@ -27,7 +27,7 @@ class TransactionViewComponentImpl(
 ) : ComponentContext by componentContext, TransactionViewComponent {
 
     private val scope = coroutineScope(Dispatchers.Main.immediate)
-    private val settings = settingManager.readSettings()
+    private val settings = settingManager.getSettings()
     private val _state = MutableStateFlow(
         TransactionViewState(
             transaction = transaction

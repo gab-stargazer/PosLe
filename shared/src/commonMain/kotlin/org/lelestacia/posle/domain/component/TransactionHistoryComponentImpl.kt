@@ -28,20 +28,20 @@ class TransactionHistoryComponentImpl(
 
     override val allHistory: Flow<PagingData<Transaction>>
         get() = repository
-            .readTransactionHistory()
+            .getAllTransactions()
             .cachedIn(scope)
 
     override val unRecappedHistory: Flow<PagingData<Transaction>>
         get() = repository
-            .readUnRecappedTransactionHistory()
+            .getUnRecappedTransactions()
             .cachedIn(scope)
 
     private val _state = MutableStateFlow(TransactionHistoryScreenState())
 
     override val state: StateFlow<TransactionHistoryScreenState> = combine(
         flow = _state,
-        flow2 = settingManager.readSettings(),
-        flow3 = repository.readTodayTransactionHistory()
+        flow2 = settingManager.getSettings(),
+        flow3 = repository.getTodayTransactions()
     ) { state, settings, todayTransactions ->
         TransactionHistoryScreenState(
             todayTransactions = todayTransactions,

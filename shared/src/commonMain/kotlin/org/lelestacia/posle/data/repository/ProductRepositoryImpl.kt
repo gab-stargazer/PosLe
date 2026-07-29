@@ -30,12 +30,14 @@ class ProductRepositoryImpl(
     private val storage: FileStorage,
     private val productDao: ProductDao,
     private val variantDao: VariantDao,
-    private val stockDao: StockDao
+    private val stockDao: StockDao,
+    private val transactionRunner: org.lelestacia.posle.data.TransactionRunner
 ) : ProductRepository {
 
-    override suspend fun addProduct(product: Product, imageByteArray: ByteArray?) {
-        val newImageUri = imageByteArray?.let { imageByteArray ->
-            storage.saveImage(fileName = "${product.name.value}.png", imageByteArray)
+    override suspend fun createProduct(product: Product, imageByteArray: ByteArray?) = transactionRunner.runTransaction {
+        val currentTime = Clock.System.now().toEpochMilliseconds()
+        val newImageUri = imageByteArray?.let { bytes ->
+            storage.saveImage(fileName = "${product.name.value}.png", bytes)
         }
 
         val entity = ProductEntity(
@@ -44,7 +46,7 @@ class ProductRepositoryImpl(
             unit = product.unit,
             skuNumber = product.skuNumber,
             imageUri = newImageUri,
-            createdAt = Clock.System.now().toEpochMilliseconds()
+            createdAt = currentTime
         )
 
         val productId = productDao.addProduct(entity).toInt()
@@ -54,7 +56,7 @@ class ProductRepositoryImpl(
                 productId = productId,
                 price = product.buyPrice,
                 changeType = PriceChangeType.ProductCreation,
-                createdAt = Clock.System.now().toEpochMilliseconds()
+                createdAt = currentTime
             )
         )
 
@@ -63,7 +65,7 @@ class ProductRepositoryImpl(
                 productId = productId,
                 price = product.sellPrice,
                 changeType = PriceChangeType.ProductCreation,
-                createdAt = Clock.System.now().toEpochMilliseconds()
+                createdAt = currentTime
             )
         )
 
@@ -81,7 +83,7 @@ class ProductRepositoryImpl(
         return productDao.getProductBySkuNumber(skuNumber)?.toDomain()
     }
 
-    override fun readProductsWithLowStock(searchQuery: String): Flow<PagingData<Product>> {
+    override fun getProductsWithLowStock(searchQuery: String): Flow<PagingData<Product>> {
         return Pager(
             config = pagingConfig,
             pagingSourceFactory = { productDao.readProductWithLowStocks(searchQuery) }
@@ -90,14 +92,14 @@ class ProductRepositoryImpl(
             .map { entity -> entity.toDomain() } }
     }
 
-    override fun readProductsByName(searchQuery: String): Flow<PagingData<Product>> {
+    override fun getProductsByName(searchQuery: String): Flow<PagingData<Product>> {
         return Pager(
             config = pagingConfig,
             pagingSourceFactory = { productDao.readProductWithVariants(searchQuery) }
         ).flow.map { it.map { entity -> entity.toDomain() } }
     }
 
-    override fun readProductWithoutCategories(searchQuery: String): Flow<PagingData<Product>> {
+    override fun getProductWithoutCategories(searchQuery: String): Flow<PagingData<Product>> {
         return Pager(
             config = pagingConfig,
             pagingSourceFactory = { productDao.readProductWithoutCategories(searchQuery) }
@@ -109,7 +111,8 @@ class ProductRepositoryImpl(
         variantsToAdd: List<Variant>,
         variantsToRemove: List<Variant>,
         imageByteArray: ByteArray?
-    ) {
+    ) = transactionRunner.runTransaction {
+        val currentTime = Clock.System.now().toEpochMilliseconds()
         val finalImageUri = when {
             imageByteArray != null -> storage.saveImage(
                 fileName = "${product.name.value}.png",
@@ -127,7 +130,7 @@ class ProductRepositoryImpl(
                 unit = product.unit,
                 skuNumber = product.skuNumber,
                 imageUri = finalImageUri,
-                createdAt = Clock.System.now().toEpochMilliseconds()
+                createdAt = currentTime
             )
         )
 
@@ -154,7 +157,7 @@ class ProductRepositoryImpl(
                     productId = product.id,
                     price = product.buyPrice,
                     changeType = PriceChangeType.Adjustment,
-                    createdAt = Clock.System.now().toEpochMilliseconds()
+                    createdAt = currentTime
                 )
             )
         }
@@ -165,27 +168,27 @@ class ProductRepositoryImpl(
                     productId = product.id,
                     price = product.sellPrice,
                     changeType = PriceChangeType.Adjustment,
-                    createdAt = Clock.System.now().toEpochMilliseconds()
+                    createdAt = currentTime
                 )
             )
         }
     }
 
-    override fun readProductWithCategories(
+    override fun getProductWithCategories(
         searchQuery: String,
         categoryId: Int
     ): PagingSource<Int, ProductWithVariantsAndStock> {
         return productDao.readProductWithCategories(searchQuery, categoryId)
     }
 
-    override fun readProductNotInCategory(
+    override fun getProductNotInCategory(
         searchQuery: String,
         categoryId: Int
     ): PagingSource<Int, ProductWithVariantsAndStock> {
         return productDao.readProductNotInCategory(searchQuery, categoryId)
     }
 
-    override fun readProductBuyPriceHistory(productId: Int): Flow<List<ProductPriceHistory>> {
+    override fun getProductBuyPriceHistory(productId: Int): Flow<List<ProductPriceHistory>> {
         return productDao.readProductBuyPriceHistory(productId).map { list ->
             list.map {
                 ProductPriceHistory(
@@ -198,7 +201,7 @@ class ProductRepositoryImpl(
         }
     }
 
-    override fun readProductSellPriceHistory(productId: Int): Flow<List<ProductPriceHistory>> {
+    override fun getProductSellPriceHistory(productId: Int): Flow<List<ProductPriceHistory>> {
         return productDao.readProductSellPriceHistory(productId).map { list ->
             list.map {
                 ProductPriceHistory(
@@ -211,7 +214,7 @@ class ProductRepositoryImpl(
         }
     }
 
-    override fun readAvailableProducts(searchQuery: String): Flow<List<Product>> {
+    override fun getAvailableProducts(searchQuery: String): Flow<List<Product>> {
         return productDao.getAvailableProducts(searchQuery)
             .map { it.map(ProductWithVariantsAndStock::toDomain) }
     }

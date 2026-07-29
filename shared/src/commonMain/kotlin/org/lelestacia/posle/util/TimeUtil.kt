@@ -10,6 +10,11 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import kotlin.time.Instant
 
+/**
+ * Calculates the start and end of the current calendar day in milliseconds.
+ *
+ * @return A [Pair] containing (Start of Today, Start of Tomorrow) in epoch milliseconds.
+ */
 fun getTodayRangeMilliseconds(): Pair<Long, Long> {
     val todayZone = ZoneId.systemDefault()
     val startOfDayZdt = ZonedDateTime.now(todayZone).toLocalDate().atStartOfDay(todayZone)
@@ -19,6 +24,11 @@ fun getTodayRangeMilliseconds(): Pair<Long, Long> {
     return Pair(startOfDayMs, startOfTomorrowMs)
 }
 
+/**
+ * Converts an epoch millisecond timestamp to a [LocalDate].
+ *
+ * @param timeZone The time zone to use for conversion.
+ */
 fun Long.toLocalDate(
     timeZone: TimeZone = TimeZone.currentSystemDefault()
 ): LocalDate {
@@ -28,6 +38,11 @@ fun Long.toLocalDate(
         .date
 }
 
+/**
+ * Normalizes a timestamp to the exact start of its day (00:00:00.000).
+ *
+ * @param timeZone The time zone context.
+ */
 fun Long.startOfDayEpochMilliseconds(
     timeZone: TimeZone = TimeZone.currentSystemDefault()
 ): Long {
@@ -39,6 +54,11 @@ fun Long.startOfDayEpochMilliseconds(
         .toEpochMilliseconds()
 }
 
+/**
+ * Normalizes a timestamp to the exact end of its day (23:59:59.999).
+ *
+ * @param timeZone The time zone context.
+ */
 fun Long.endOfDayEpochMilliseconds(
     timeZone: TimeZone = TimeZone.currentSystemDefault()
 ): Long {

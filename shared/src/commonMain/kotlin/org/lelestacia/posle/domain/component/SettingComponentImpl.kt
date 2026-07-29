@@ -26,7 +26,7 @@ class SettingComponentImpl(
 
     init {
         scope.launch {
-            settingManager.readSettings()
+            settingManager.getSettings()
                 .first()
                 .run {
                     state.update {
