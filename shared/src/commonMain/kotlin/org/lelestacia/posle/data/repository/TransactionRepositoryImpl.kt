@@ -245,6 +245,21 @@ class TransactionRepositoryImpl(
         }
     }
 
+    override fun searchTransactions(query: String): Flow<PagingData<Transaction>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 10,
+                initialLoadSize = 30,
+                prefetchDistance = 5
+            ),
+            pagingSourceFactory = {
+                transactionDao.searchTransactions(query)
+            }
+        ).flow.map {
+            it.map(TransactionWithItems::toDomain)
+        }
+    }
+
     override suspend fun updateTransaction(transaction: Transaction) {
         transactionDao.updateTransaction(transaction.toEntity())
     }

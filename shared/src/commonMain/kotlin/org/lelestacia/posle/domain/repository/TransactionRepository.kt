@@ -16,5 +16,6 @@ interface TransactionRepository {
     fun readTransactionInRange(startDate: Long, finishDate: Long): Flow<List<Transaction>>
     fun readUnRecappedTransactionHistory(): Flow<PagingData<Transaction>>
     fun readTransactionHistory(): Flow<PagingData<Transaction>>
+    fun searchTransactions(query: String): Flow<PagingData<Transaction>>
     suspend fun updateTransaction(transaction: Transaction)
 }

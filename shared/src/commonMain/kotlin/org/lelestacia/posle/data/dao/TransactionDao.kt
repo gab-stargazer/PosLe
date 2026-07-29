@@ -86,4 +86,18 @@ interface TransactionDao {
 
     @Update
     suspend fun updateTransaction(transaction: TransactionEntity)
+
+    @Transaction
+    @Query(
+        """
+            SELECT DISTINCT t.* FROM `transaction` t
+            LEFT JOIN transaction_item ti ON t.id = ti.transaction_id
+            LEFT JOIN transaction_item_product tip ON ti.id = tip.transaction_item_id
+            WHERE t.customer_name LIKE '%' || :query || '%'
+               OR ti.name LIKE '%' || :query || '%'
+               OR tip.product_name LIKE '%' || :query || '%'
+            ORDER BY t.created_at DESC
+        """
+    )
+    fun searchTransactions(query: String): PagingSource<Int, TransactionWithItems>
 }

@@ -32,6 +32,7 @@
     <string name="label_product_sell_price_promo">Harga Jual Promo</string>
     <string name="label_product_sku_number">Nomor SKU (Opsional)</string>
     <string name="label_product_unit">Satuan Produk</string>
+    <string name="label_search">Cari Transaksi</string>
     <string name="label_search_product">Cari Produk</string>
     <string name="label_selected">Dipilih</string>
     <string name="label_selected_count">Dipilih (%1$d)</string>
@@ -60,6 +61,7 @@
     <string name="label_product_available">Tersedia: %1$s %2$s</string>
     <string name="label_product_choosen">Produk Dipilih</string>
     <string name="label_recapped">Direkap</string>
+    <string name="label_search_for_transaction">Cari Nama Pelanggan atau Produk</string>
     <string name="label_setting_amount_precise">Jumlah Presisi</string>
     <string name="label_setting_customer_name">Nama Pelanggan</string>
     <string name="label_setting_product_volatile">Harga Produk Volatil</string>
@@ -134,8 +136,8 @@
     <string name="title_no_category">Tanpa Kategori</string>
     <string name="title_outbound_purchase">Penjualan</string>
     <string name="title_product">Daftar Produk</string>
-    <string name="title_product_adjustment_decrease">Penyesuaian\nBerkurang</string>
-    <string name="title_product_adjustment_increase">Penyesuaian\nBertambah</string>
+    <string name="title_product_adjustment_decrease">Penyesuaian Berkurang</string>
+    <string name="title_product_adjustment_increase">Penyesuaian Bertambah</string>
     <string name="title_product_movement_adjustment_increase">Produk <b>%1$s</b> ditambahkan sejumlah <b>%2$s %3$s</b> untuk penyesuaian</string>
     <string name="title_product_movement_adjustment_decrease">Produk <b>%1$s</b> dikurangi sejumlah <b>%2$s %3$s</b> untuk penyesuaian</string>
     <string name="title_product_movement_purchase">Produk <b>%1$s</b> dibeli sejumlah <b>%2$s %3$s</b></string>
@@ -149,6 +151,7 @@
     <string name="title_sell_price_history">Histori Harga Jual</string>
     <string name="title_subtotal">Subtotal: %1$s</string>
     <string name="title_transaction">Transaksi</string>
+    <string name="title_transaction_not_found">Transaksi tidak ditemukan</string>
     <string name="title_total">Total: %1$s</string>
 
     <!--Subtitle-->

@@ -20,6 +20,7 @@ import org.lelestacia.posle.screen.product_add.ProductAddEditScreen
 import org.lelestacia.posle.screen.product_add.ProductAddVariantsViewScreen
 import org.lelestacia.posle.screen.transaction_add.TransactionProductConfigScreen
 import org.lelestacia.posle.screen.transaction_recap_product_view.TransactionRecapProductDetailScreen
+import org.lelestacia.posle.screen.transaction_search.TransactionSearchScreen
 import org.lelestacia.posle.screen.transaction_view.TransactionViewScreen
 
 @Composable
@@ -50,6 +51,10 @@ fun RootContent(
                 //  Transaction
                 is Child.TransactionList -> {
 
+                }
+
+                is Child.TransactionSearch -> {
+                    TransactionSearchScreen(component = child.component)
                 }
 
 

@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Print
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,6 +43,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.component.dashboard.DashboardComponent
 import org.lelestacia.posle.domain.state_event.DashboardComponentEvent
 import org.lelestacia.posle.domain.state_event.TransactionRecapEvent
+import org.lelestacia.posle.navigation.Config
 import org.lelestacia.posle.navigation.NavChild
 import org.lelestacia.posle.navigation.NavDestination
 import org.lelestacia.posle.screen.product_inbound_outbound.ProductInboundOutboundScreen
@@ -157,6 +159,23 @@ fun DashboardScreen(
                                 Icon(
                                     imageVector = Icons.Default.Print,
                                     contentDescription = "Print Recap"
+                                )
+                            }
+                        }
+
+                        AnimatedVisibility(
+                            activeChild is NavChild.TransactionHistory || activeChild is NavChild.TransactionRecap
+                        ) {
+                            IconButton(
+                                onClick = {
+                                    component.onEvent(
+                                        DashboardComponentEvent.OnNavigateTo(Config.TransactionSearch)
+                                    )
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Search,
+                                    contentDescription = "Search Transaction"
                                 )
                             }
                         }

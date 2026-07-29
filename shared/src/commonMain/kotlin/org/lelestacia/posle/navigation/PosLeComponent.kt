@@ -16,6 +16,7 @@ import org.lelestacia.posle.domain.component.SettingComponentImpl
 import org.lelestacia.posle.domain.component.TransactionHistoryComponentImpl
 import org.lelestacia.posle.domain.component.TransactionListComponentImpl
 import org.lelestacia.posle.domain.component.TransactionProductConfigComponentImpl
+import org.lelestacia.posle.domain.component.TransactionSearchComponentImpl
 import org.lelestacia.posle.domain.component.TransactionViewComponentImpl
 import org.lelestacia.posle.domain.component.TransactionViewNavigation
 import org.lelestacia.posle.domain.component.bundle_add_edit.BundleAddEditComponentImpl
@@ -57,6 +58,7 @@ import org.lelestacia.posle.navigation.Config.QrScanner as QrScannerConfig
 import org.lelestacia.posle.navigation.Config.TransactionList as TransactionListConfig
 import org.lelestacia.posle.navigation.Config.TransactionProduct as TransactionProductConfig
 import org.lelestacia.posle.navigation.Config.TransactionRecapProductView as TransactionRecapProductViewConfig
+import org.lelestacia.posle.navigation.Config.TransactionSearch as TransactionSearchConfig
 import org.lelestacia.posle.navigation.Config.TransactionView as TransactionViewConfig
 import org.lelestacia.posle.navigation.Config.VariantView as VariantViewConfig
 import org.lelestacia.posle.navigation.NavConfig.ProductList as ProductListConfig
@@ -220,6 +222,16 @@ class PosLeComponent(
                 TransactionListComponentImpl(
                     componentContext = context,
                     onNavigateTo = rootNavigation::pushToFront
+                )
+            )
+
+            TransactionSearchConfig -> TransactionSearch(
+                TransactionSearchComponentImpl(
+                    componentContext = context,
+                    repository = transactionRepository,
+                    settingManager = settingManager,
+                    onNavigate = rootNavigation::pushToFront,
+                    onPop = rootNavigation::pop
                 )
             )
 
