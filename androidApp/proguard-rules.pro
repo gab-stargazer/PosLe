@@ -52,5 +52,30 @@
 # ESCPOS Thermal Printer
 -keep class com.dantsu.escposprinter.** { *; }
 
+# WorkManager
+-keep class * extends androidx.work.InputMerger {
+    public <init>();
+}
+-keep class * extends androidx.work.ListenableWorker {
+    public <init>(android.content.Context, androidx.work.WorkerParameters);
+}
+
+# iText 7/8/9
+-keep class com.itextpdf.** { *; }
+-keep interface com.itextpdf.** { *; }
+-keep enum com.itextpdf.** { *; }
+-dontwarn com.itextpdf.**
+
 # Datastore
 -keep class androidx.datastore.** { *; }
+
+# R8 Missing Classes (automatically generated rules)
+-dontwarn aQute.bnd.annotation.spi.ServiceProvider
+-dontwarn com.itextpdf.bouncycastle.BouncyCastleFactory
+-dontwarn com.itextpdf.bouncycastlefips.BouncyCastleFipsFactory
+-dontwarn javax.xml.stream.XMLEventFactory
+-dontwarn javax.xml.stream.XMLInputFactory
+-dontwarn javax.xml.stream.XMLOutputFactory
+-dontwarn javax.xml.stream.XMLResolver
+-dontwarn javax.xml.stream.util.XMLEventAllocator
+-dontwarn sharpen.config.MappingConfiguration

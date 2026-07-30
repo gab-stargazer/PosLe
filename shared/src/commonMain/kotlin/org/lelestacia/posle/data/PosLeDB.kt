@@ -2,7 +2,6 @@
 
 package org.lelestacia.posle.data
 
-import androidx.room.AutoMigration
 import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
@@ -54,9 +53,8 @@ import org.lelestacia.posle.data.entity.VariantJunction
         BundleEntity::class,
         BundleProductEntity::class
     ],
-    version = 4,
+    version = 1,
     exportSchema = true,
-    autoMigrations = [AutoMigration(1, 2)]
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 @TypeConverters(

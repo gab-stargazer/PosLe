@@ -41,7 +41,9 @@ fun printRecap(state: TransactionRecapState) {
     state.listOfProducts.forEach { products ->
         val first = products.first()
         val totalQty = products.sumOf { it.product.quantity.value }
-        val totalProfit = products.sumOf { (it.product.sellPrice.value.subtract(it.product.buyPrice.value)).multiply(it.product.quantity.value) }
+        val totalProfit = products.sumOf {
+            (it.product.sellPrice.value.subtract(it.product.buyPrice.value)).multiply(it.product.quantity.value)
+        }
 
         sb.append("[L]<b>${first.product.productName.value}</b>\n")
         sb.append("[L] Terjual: ${totalQty.toDisplayText()} ${first.product.unit.value}\n")
@@ -49,7 +51,11 @@ fun printRecap(state: TransactionRecapState) {
     }
 
     sb.append("[C]================================\n")
-    sb.append("[C]Dicetak pada: ${Clock.System.now().toEpochMilliseconds().toFormattedDateTime()}\n")
+    sb.append(
+        "[C]Dicetak pada: ${
+            Clock.System.now().toEpochMilliseconds().toFormattedDateTime()
+        }\n"
+    )
 
     printer.printFormattedText(sb.toString())
 }
@@ -73,11 +79,17 @@ fun printTransaction(transaction: Transaction, storeName: Name) {
             [L]
             [L]
             [L]<font size='small'>${transaction.createdAt.toFormattedDateTime()}</font>
-            [C]================================
         """.trimIndent()
 
     val sb = StringBuilder(text)
     sb.append("\n")
+    if (transaction.customerName.value.isNotBlank()) {
+        sb.append(
+            "[L]NAMA PELANGGAN :${transaction.customerName.value}\n"
+        )
+    }
+    sb.append("\n")
+    sb.append("[C]================================")
     transaction.items.forEach { transactionItem ->
         when (transactionItem.type) {
             TransactionItemType.Product -> {
@@ -92,10 +104,12 @@ fun printTransaction(transaction: Transaction, storeName: Name) {
                         [L]$productName[R]${productSellPrice.toRupiah()}
                         [L] ${productQuantity.value.toDisplayText()} $productUnit
                         [R]Subtotal: ${subtotal.toRupiah()}
-                        [L]Catatan: ${transactionItem.note}
                     """.trimIndent()
                 )
                 sb.append("\n")
+                if (transactionItem.note.orEmpty().isNotBlank()) {
+                    sb.append("[L]Catatan: ${transactionItem.note}\n")
+                }
             }
 
             TransactionItemType.Bundle -> {
@@ -112,11 +126,14 @@ fun printTransaction(transaction: Transaction, storeName: Name) {
                     sb.append("[L]${product.productName.value} ${product.quantity.value.toDisplayText()}${product.unit.value}\n")
                 }
                 sb.append("[R]Subtotal: ${subtotal.toRupiah()}\n")
-                sb.append("[L]Catatan: ${transactionItem.note}\n")
+                if(transactionItem.note.orEmpty().isNotBlank()) {
+                    sb.append("[L]Catatan: ${transactionItem.note}\n")
+                }
             }
         }
     }
 
+    sb.append("\n")
     val totalPrice = transaction
         .items
         .map { cartItems ->
@@ -138,12 +155,6 @@ fun printTransaction(transaction: Transaction, storeName: Name) {
             [R]${totalPrice.toRupiah()}
         """.trimIndent()
     )
-
-    if (transaction.customerName.value.isNotBlank()) {
-        sb.append(
-            "[L]NAMA PELANGGAN :[R]${transaction.customerName.value}\n"
-        )
-    }
 
     sb.append("\n")
     sb.append(
