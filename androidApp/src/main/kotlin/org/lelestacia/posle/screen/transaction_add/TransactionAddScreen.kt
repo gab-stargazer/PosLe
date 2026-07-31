@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -260,39 +261,43 @@ fun TransactionAddScreen(
                                 }
                             }
 
-                            Column(
-                                modifier = Modifier
-                                    .weight(1F)
-                                    .padding(top = 12.dp)
-                            ) {
-                                TransactionAddTitle(
-                                    Res.string.title_bundle,
-                                    modifier = Modifier.padding(end = 12.dp)
-                                )
+                            Spacer(modifier = Modifier.height(12.dp))
 
-                                LazyHorizontalGrid(
-                                    rows = GridCells.Fixed(2),
-                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                    verticalArrangement = Arrangement.spacedBy(6.dp),
-                                    contentPadding = PaddingValues(6.dp),
+                            if (bundles.itemCount > 0) {
+                                Column(
                                     modifier = Modifier
-                                        .fillMaxWidth()
+                                        .weight(1F)
+
                                 ) {
-                                    items(bundles.itemCount) { index ->
-                                        bundles[index]?.let { bundle ->
-                                            TransactionAddBundle(
-                                                bundle,
-                                                onClick = {
-                                                    component.onEvent(
-                                                        OnDialogBundleShown(
-                                                            selectedBundle = bundle
+                                    TransactionAddTitle(
+                                        Res.string.title_bundle,
+                                        modifier = Modifier.padding(end = 12.dp)
+                                    )
+
+                                    LazyHorizontalGrid(
+                                        rows = GridCells.Fixed(2),
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                                        contentPadding = PaddingValues(6.dp),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                    ) {
+                                        items(bundles.itemCount) { index ->
+                                            bundles[index]?.let { bundle ->
+                                                TransactionAddBundle(
+                                                    bundle,
+                                                    onClick = {
+                                                        component.onEvent(
+                                                            OnDialogBundleShown(
+                                                                selectedBundle = bundle
+                                                            )
                                                         )
-                                                    )
-                                                },
-                                                modifier = Modifier
-                                                    .width(LocalWindowInfo.current.containerDpSize.width - 24.dp)
-                                                    .animateItem()
-                                            )
+                                                    },
+                                                    modifier = Modifier
+                                                        .width(LocalWindowInfo.current.containerDpSize.width - 24.dp)
+                                                        .animateItem()
+                                                )
+                                            }
                                         }
                                     }
                                 }

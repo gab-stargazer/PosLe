@@ -164,6 +164,10 @@ interface ProductDao {
     @Query("SELECT * FROM product_buy_price WHERE product_id = :productId ORDER BY created_at DESC LIMIT 1")
     suspend fun getLatestBuyPriceByProductId(productId: Int): ProductBuyPriceEntity
 
+    @Transaction
+    @Query("SELECT * FROM product ORDER BY name ASC")
+    fun readAllProductsWithVariantsAndStock(): Flow<List<ProductWithVariantsAndStock>>
+
     @Update
     suspend fun update(product: ProductEntity)
 

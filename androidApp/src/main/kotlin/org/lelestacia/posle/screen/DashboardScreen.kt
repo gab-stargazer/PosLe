@@ -2,6 +2,7 @@ package org.lelestacia.posle.screen
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +13,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Print
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.VerticalAlignBottom
+import androidx.compose.material.icons.filled.VerticalAlignTop
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -42,12 +45,16 @@ import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.active
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
+import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
+import io.github.vinceglb.filekit.readBytes
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 import org.lelestacia.posle.domain.component.dashboard.DashboardComponent
+import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent
 import org.lelestacia.posle.domain.state_event.DashboardComponentEvent
 import org.lelestacia.posle.domain.state_event.DashboardComponentState
 import org.lelestacia.posle.domain.state_event.TransactionRecapEvent
@@ -62,6 +69,7 @@ import org.lelestacia.posle.screen.transaction_history.TransactionHistoryScreen
 import org.lelestacia.posle.screen.transaction_recap.TransactionRecapScreen
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.BurgundyRed
+import org.lelestacia.posle.util.FileStorage
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.label_menu
 import kotlin.time.Duration.Companion.milliseconds
@@ -75,6 +83,18 @@ fun DashboardScreen(
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val state by component.state.collectAsStateWithLifecycle()
+    val fileStorage = koinInject<FileStorage>()
+
+    val activeChild = component.children.active.instance
+
+    val productImportLauncher = rememberFilePickerLauncher { file ->
+        if (activeChild is NavChild.ProductList) {
+            scope.launch {
+                val bytes = file?.readBytes() ?: return@launch
+                activeChild.component.onEvent(ProductListComponentEvent.OnImportProducts(bytes))
+            }
+        }
+    }
 
     BackHandler(drawerState.isOpen) {
         scope.launch {
@@ -156,6 +176,43 @@ fun DashboardScreen(
                         )
                     },
                     actions = {
+                        AnimatedVisibility(
+                            activeChild is NavChild.ProductList
+                        ) {
+                            Row {
+                                IconButton(
+                                    onClick = {
+                                        (activeChild as NavChild.ProductList).component
+                                            .onEvent(
+                                                ProductListComponentEvent.OnExportProducts { bytes ->
+                                                    fileStorage.saveToPublicDocuments(
+                                                        fileName = "products.xlsx",
+                                                        subFolder = "Daftar Produk",
+                                                        data = bytes
+                                                    )
+                                                }
+                                            )
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.VerticalAlignBottom,
+                                        contentDescription = "Export Products"
+                                    )
+                                }
+
+                                IconButton(
+                                    onClick = {
+                                        productImportLauncher.launch()
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.VerticalAlignTop,
+                                        contentDescription = "Import Products"
+                                    )
+                                }
+                            }
+                        }
+
                         AnimatedVisibility(
                             activeChild is NavChild.TransactionRecap
                         ) {

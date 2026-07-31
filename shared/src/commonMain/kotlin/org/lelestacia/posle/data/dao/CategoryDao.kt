@@ -4,6 +4,7 @@ import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 import org.lelestacia.posle.data.entity.CategoryEntity
 import org.lelestacia.posle.data.entity.ProductCategoryJunction
 
@@ -11,7 +12,7 @@ import org.lelestacia.posle.data.entity.ProductCategoryJunction
 interface CategoryDao {
 
     @Insert
-    suspend fun insertCategory(category: CategoryEntity)
+    suspend fun insertCategory(category: CategoryEntity): Long
 
     @Insert
     suspend fun insertConnection(connection: ProductCategoryJunction)
@@ -23,6 +24,9 @@ interface CategoryDao {
         """
     )
     fun readCategories(): PagingSource<Int, CategoryEntity>
+
+    @Query("SELECT * FROM category ORDER BY name ASC")
+    fun getAllCategories(): Flow<List<CategoryEntity>>
 
     @Query(
         """

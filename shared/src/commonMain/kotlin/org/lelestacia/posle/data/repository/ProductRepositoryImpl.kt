@@ -6,7 +6,9 @@ import androidx.paging.PagingSource
 import androidx.paging.filter
 import androidx.paging.map
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import org.lelestacia.posle.data.dao.CategoryDao
 import org.lelestacia.posle.data.dao.ProductDao
 import org.lelestacia.posle.data.dao.StockDao
 import org.lelestacia.posle.data.dao.VariantDao
@@ -21,6 +23,7 @@ import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.ProductPriceHistory
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.repository.ProductRepository
+import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.FileStorage
 import org.lelestacia.posle.util.Util.pagingConfig
 import java.math.BigDecimal
@@ -31,6 +34,7 @@ class ProductRepositoryImpl(
     private val productDao: ProductDao,
     private val variantDao: VariantDao,
     private val stockDao: StockDao,
+    private val categoryDao: CategoryDao,
     private val transactionRunner: org.lelestacia.posle.data.TransactionRunner
 ) : ProductRepository {
 
@@ -98,6 +102,128 @@ class ProductRepositoryImpl(
             pagingSourceFactory = { productDao.readProductWithVariants(searchQuery) }
         ).flow.map { it.map { entity -> entity.toDomain() } }
     }
+
+    override fun getAllProducts(): Flow<List<Product>> {
+        return productDao.readAllProductsWithVariantsAndStock().map { list ->
+            list.map { it.toDomain() }
+        }
+    }
+
+    override suspend fun importProducts(products: List<Product>) =
+        transactionRunner.runTransaction {
+            val currentTime = Clock.System.now().toEpochMilliseconds()
+            val allCategories = categoryDao.getAllCategories().first().associateBy { it.name.value }
+            val categoryMap = allCategories.toMutableMap()
+
+            products.forEach { product ->
+                // 1. Find or Create Product
+                var productId = product.id
+                val existingProduct = if (productId != 0) {
+                    productDao.readProductById(productId)
+                } else {
+                    product.skuNumber?.let { productDao.getProductBySkuNumber(it.value)?.product }
+                }
+
+                if (existingProduct != null) {
+                    productId = existingProduct.id
+                    productDao.update(
+                        ProductEntity(
+                            id = productId,
+                            name = product.name,
+                            unit = product.unit,
+                            skuNumber = product.skuNumber,
+                            imageUri = existingProduct.imageUri, // Preserve image
+                            createdAt = existingProduct.createdAt,
+                            updatedAt = currentTime
+                        )
+                    )
+                } else {
+                    productId = productDao.addProduct(
+                        ProductEntity(
+                            id = 0,
+                            name = product.name,
+                            unit = product.unit,
+                            skuNumber = product.skuNumber,
+                            imageUri = null,
+                            createdAt = currentTime
+                        )
+                    ).toInt()
+                }
+
+                // 2. Pricing
+                val latestBuyPrice = productDao.getLatestBuyPriceByProductId(productId).price
+                if (product.buyPrice != latestBuyPrice) {
+                    productDao.addBuyPrice(
+                        ProductBuyPriceEntity(
+                            productId = productId,
+                            price = product.buyPrice,
+                            changeType = PriceChangeType.Adjustment,
+                            createdAt = currentTime
+                        )
+                    )
+                }
+
+                val latestSellPrice = productDao.getLatestSellPriceByProductId(productId).price
+                if (product.sellPrice != latestSellPrice) {
+                    productDao.addSellPrice(
+                        ProductSellPriceEntity(
+                            productId = productId,
+                            price = product.sellPrice,
+                            changeType = PriceChangeType.Adjustment,
+                            createdAt = currentTime
+                        )
+                    )
+                }
+
+                // 3. Categories
+                product.categories.forEach { category ->
+                    var categoryEntity = categoryMap[category.name.value]
+                    if (categoryEntity == null) {
+                        val newCategory = org.lelestacia.posle.data.entity.CategoryEntity(
+                            name = category.name
+                        )
+                        val newCategoryId = categoryDao.insertCategory(newCategory).toInt()
+                        categoryEntity = newCategory.copy(id = newCategoryId)
+                        categoryMap[category.name.value] = categoryEntity
+                    }
+
+                    // Try to insert connection, ignore if exists
+                    try {
+                        categoryDao.insertConnection(
+                            org.lelestacia.posle.data.entity.ProductCategoryJunction(
+                                productId = productId,
+                                categoryId = categoryEntity.id
+                            )
+                        )
+                    } catch (e: Exception) {
+                        // Link might already exist
+                    }
+                }
+
+                // 4. Stock
+                val currentStock = stockDao.getStockByProductId(productId)
+                val diff = product.stock.value.subtract(currentStock)
+                if (diff.compareTo(BigDecimal.ZERO) != 0) {
+                    val movementType = if (diff.compareTo(BigDecimal.ZERO) > 0) {
+                        org.lelestacia.posle.data.entity.StockMovementType.AdjustmentIncrease
+                    } else {
+                        org.lelestacia.posle.data.entity.StockMovementType.AdjustmentDecrease
+                    }
+
+                    stockDao.insertStockMovement(
+                        org.lelestacia.posle.data.entity.StockMovementEntity(
+                            productId = productId,
+                            productName = product.name,
+                            productUnit = product.unit,
+                            movementType = movementType,
+                            amount = Amount(diff.abs()),
+                            note = "Import from Excel",
+                            createdAt = currentTime
+                        )
+                    )
+                }
+            }
+        }
 
     override fun getProductWithoutCategories(searchQuery: String): Flow<PagingData<Product>> {
         return Pager(

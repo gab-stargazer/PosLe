@@ -39,7 +39,18 @@ data class ProductWithVariantsAndStock(
             entityColumn = "variant_id"
         )
     )
-    val variants: List<VariantEntity>
+    val variants: List<VariantEntity>,
+
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "id",
+        associateBy = Junction(
+            value = ProductCategoryJunction::class,
+            parentColumn = "product_id",
+            entityColumn = "category_id"
+        )
+    )
+    val categories: List<CategoryEntity>
 )
 
 fun ProductWithVariantsAndStock.toDomain(): Product {
@@ -56,6 +67,7 @@ fun ProductWithVariantsAndStock.toDomain(): Product {
         unit = product.unit,
         skuNumber = product.skuNumber,
         imageUri = product.imageUri,
-        variants = variants.map { it.toDomain() }.sortedBy { it.name.value }
+        variants = variants.map { it.toDomain() }.sortedBy { it.name.value },
+        categories = categories.map { it.toDomain() }.sortedBy { it.name.value }
     )
 }

@@ -45,6 +45,12 @@ class CategoryRepositoryImpl(
         ).flow.map { it.map(CategoryEntity::toDomain) }
     }
 
+    override fun getAllCategories(): Flow<List<Category>> {
+        return dao.getAllCategories().map { list ->
+            list.map(CategoryEntity::toDomain)
+        }
+    }
+
     override suspend fun deleteCategory(categoryId: Int) = transactionRunner.runTransaction {
         dao.clearProductCategory(categoryId)
         dao.deleteCategoryById(categoryId)

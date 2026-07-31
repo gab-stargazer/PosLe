@@ -1,9 +1,5 @@
 package org.lelestacia.posle.screen.transaction_view
 
-import android.content.ContentValues
-import android.graphics.Bitmap
-import android.os.Environment
-import android.provider.MediaStore
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandVertically
@@ -49,7 +45,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -61,6 +56,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 import org.lelestacia.posle.data.PosLeSettings
 import org.lelestacia.posle.data.entity.TransactionItemType
 import org.lelestacia.posle.domain.component.TransactionViewComponent
@@ -78,6 +74,7 @@ import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.BurgundyRed
 import org.lelestacia.posle.ui.theme.MintCream
 import org.lelestacia.posle.util.Amount
+import org.lelestacia.posle.util.FileStorage
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.Util
@@ -92,10 +89,10 @@ import posle.shared.generated.resources.label_customer
 import posle.shared.generated.resources.label_total
 import posle.shared.generated.resources.label_transaction_date
 import posle.shared.generated.resources.label_transaction_detail
+import java.io.ByteArrayOutputStream
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 import org.lelestacia.posle.util.Unit as PosleUnit
 
 
@@ -108,43 +105,27 @@ fun TransactionViewScreen(
     modifier: Modifier = Modifier
 ) {
     val state by component.state.collectAsStateWithLifecycle()
-    val context = LocalContext.current
     val graphicsLayer = rememberGraphicsLayer()
     val ioScope = rememberCoroutineScope { Dispatchers.IO }
     val mainScope = rememberCoroutineScope()
+    val fileStorage = koinInject<FileStorage>()
 
     LaunchedEffect(state.isSaveProcessing) {
         mainScope.launch {
             if (state.isSaveProcessing) {
                 val bitmap = graphicsLayer.toImageBitmap().asAndroidBitmap()
-
-                val values = ContentValues().apply {
-                    put(
-                        MediaStore.Images.Media.DISPLAY_NAME,
-                        "Transaksi-${Uuid.generateV7()}.png"
-                    )
-                    put(MediaStore.Images.Media.MIME_TYPE, "image/png")
-                    put(
-                        MediaStore.Images.Media.RELATIVE_PATH,
-                        Environment.DIRECTORY_PICTURES + "/PosLe"
-                    )
-                }
-
-                val uri = context.contentResolver.insert(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    values
+                val bos = ByteArrayOutputStream()
+                bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, bos)
+                val bytes = bos.toByteArray()
+                
+                fileStorage.saveToPublicPictures(
+                    fileName = "Struk-${state.transaction.id}.png",
+                    data = bytes
                 )
-
-                uri?.let {
-                    context.contentResolver.openOutputStream(it)?.use { stream ->
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-                        stream.close()
-
-                        delay(500.milliseconds)
-                        component.onEvent(OnChangeSaveLoadingState(isLoading = false))
-                        component.onEvent(OnShowMessage("Struk berhasil disimpan"))
-                    }
-                }
+                
+                delay(500.milliseconds)
+                component.onEvent(OnChangeSaveLoadingState(isLoading = false))
+                component.onEvent(OnShowMessage("Struk berhasil disimpan"))
             }
         }
     }

@@ -1,6 +1,7 @@
 package org.lelestacia.posle.worker
 
 import android.content.Context
+import androidx.core.net.toUri
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.flow.first
@@ -10,8 +11,8 @@ import org.koin.core.component.inject
 import org.lelestacia.posle.data.util.PdfExportInput
 import org.lelestacia.posle.data.util.TransactionReportGenerator
 import org.lelestacia.posle.domain.repository.TransactionRepository
+import org.lelestacia.posle.util.FileStorage
 import org.lelestacia.posle.util.NotificationHelper
-import org.lelestacia.posle.util.PDFUtil
 
 class PdfExportWorker(
     context: Context,
@@ -19,6 +20,7 @@ class PdfExportWorker(
 ) : CoroutineWorker(context, params), KoinComponent {
 
     private val transactionRepository: TransactionRepository by inject()
+    private val fileStorage: FileStorage by inject()
 
     override suspend fun doWork(): Result {
         val inputJson = inputData.getString(INPUT_KEY) ?: return Result.failure()
@@ -29,22 +31,27 @@ class PdfExportWorker(
             .first()
 
         println("PdfExportWorker: Starting work for $fileName")
-        val resultUri = PDFUtil.exportToPublicDocuments(applicationContext, fileName) { os ->
-            TransactionReportGenerator.generate(
-                outputStream = os,
-                storeName = input.storeName,
-                transactionId = "REKAP-SUMMARY",
-                startDate = input.startDate,
-                finishDate = input.finishDate,
-                transactions = transactions
+        val bytes = TransactionReportGenerator.generateAsBytes(
+            storeName = input.storeName,
+            transactionId = "REKAP-SUMMARY",
+            startDate = input.startDate,
+            finishDate = input.finishDate,
+            transactions = transactions
+        )
+
+        val resultUri = if (bytes != null) {
+            fileStorage.saveToPublicDocuments(
+                fileName = fileName,
+                subFolder = "Rekap Transaksi",
+                data = bytes
             )
-        }
+        } else null
 
         return if (resultUri != null) {
             println("PdfExportWorker: Export successful, notifying user")
             NotificationHelper.notifySuccess(
                 context = applicationContext,
-                fileUri = resultUri,
+                fileUri = resultUri.toUri(),
                 fileName = fileName
             )
             Result.success()

@@ -30,7 +30,6 @@ import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.onSurfaceLightHighContrast
 import org.lelestacia.posle.ui.theme.surfaceContainerLowestLightHighContrast
 import org.lelestacia.posle.worker.AndroidRunnableService
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge(

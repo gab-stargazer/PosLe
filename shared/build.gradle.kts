@@ -62,6 +62,9 @@ kotlin {
             //  Datetime
             implementation(libs.kotlinx.datetime)
 
+            // IO
+            api(libs.kotlinx.io.core)
+
             //  Serialization
             api(libs.kotlinx.serialization)
 
@@ -99,6 +102,10 @@ kotlin {
 
             //  QR Kit
             api(libs.qr.kit)
+
+            //  Apache POI
+            implementation(libs.poi)
+            implementation(libs.poi.ooxml)
 
             implementation("com.itextpdf:itext-core:9.7.0")
         }

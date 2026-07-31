@@ -52,6 +52,9 @@ sealed interface ProductListComponentEvent {
     data class OnQueryChanged(val newQuery: String) : ProductListComponentEvent
     data object OnToggleFabMenu : ProductListComponentEvent
 
+    //  Export/Import
+    data class OnExportProducts(val onExport: (ByteArray) -> Unit) : ProductListComponentEvent
+    data class OnImportProducts(val fileBytes: ByteArray) : ProductListComponentEvent
 
     sealed interface CategoryEvent : ProductListComponentEvent {
         data object OnAddCategoryMenuClicked : CategoryEvent

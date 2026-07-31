@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -29,6 +30,7 @@ import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.repository.CategoryRepository
 import org.lelestacia.posle.domain.repository.ProductRepository
 import org.lelestacia.posle.navigation.Config
+import org.lelestacia.posle.util.ExcelManager
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.coroutineScope
 
@@ -114,6 +116,21 @@ class ProductListComponentImpl(
                     it.copy(
                         isFabMenuExpanded = !it.isFabMenuExpanded
                     )
+                }
+            }
+
+            is ProductListComponentEvent.OnExportProducts -> {
+                scope.launch {
+                    val products = productRepository.getAllProducts().first()
+                    val excelBytes = ExcelManager.exportProductsToExcel(products)
+                    event.onExport(excelBytes)
+                }
+            }
+
+            is ProductListComponentEvent.OnImportProducts -> {
+                scope.launch {
+                    val products = ExcelManager.importProductsFromExcel(event.fileBytes)
+                    productRepository.importProducts(products)
                 }
             }
 

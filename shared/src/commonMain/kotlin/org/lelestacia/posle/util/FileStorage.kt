@@ -8,4 +8,15 @@ expect class FileStorage {
     ): String
 
     fun deleteImage(fileName: String): Boolean
+
+    fun saveToPublicPictures(
+        fileName: String,
+        data: ByteArray
+    ): String?
+
+    fun saveToPublicDocuments(
+        fileName: String,
+        subFolder: String,
+        data: ByteArray
+    ): String?
 }

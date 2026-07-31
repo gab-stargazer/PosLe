@@ -28,6 +28,7 @@ import org.lelestacia.posle.util.toFormattedDateTime
 import org.lelestacia.posle.util.toRupiah
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.title_total
+import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import java.math.BigDecimal
 import java.text.SimpleDateFormat
@@ -66,6 +67,21 @@ object TransactionReportGenerator {
         val regularFont: PdfFont,
         val boldFont: PdfFont
     )
+
+    /**
+     * Generates a PDF report as a [ByteArray].
+     */
+    suspend fun generateAsBytes(
+        storeName: String,
+        transactionId: String,
+        startDate: Long,
+        finishDate: Long,
+        transactions: List<Transaction>
+    ): ByteArray? {
+        val bos = ByteArrayOutputStream()
+        val success = generate(bos, storeName, transactionId, startDate, finishDate, transactions)
+        return if (success) bos.toByteArray() else null
+    }
 
     /**
      * Generates a PDF report into the provided [OutputStream].

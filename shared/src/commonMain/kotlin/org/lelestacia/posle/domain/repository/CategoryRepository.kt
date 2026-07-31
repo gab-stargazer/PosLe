@@ -40,6 +40,13 @@ interface CategoryRepository {
     fun getCategories(): Flow<PagingData<Category>>
 
     /**
+     * Retrieves all categories as a simple list.
+     *
+     * @return A [Flow] list of [Category]s.
+     */
+    fun getAllCategories(): Flow<List<Category>>
+
+    /**
      * Permanently deletes a category and removes all its product associations.
      *
      * @param categoryId The ID of the category to delete.

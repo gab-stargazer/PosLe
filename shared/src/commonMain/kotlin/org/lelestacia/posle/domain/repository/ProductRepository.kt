@@ -139,6 +139,21 @@ interface ProductRepository {
     )
 
     /**
+     * Retrieves all products with their variants and stock data.
+     * Useful for export purposes.
+     *
+     * @return A [Flow] list of [Product]s.
+     */
+    fun getAllProducts(): Flow<List<Product>>
+
+    /**
+     * Imports a list of products into the database.
+     *
+     * @param products The list of products to import.
+     */
+    suspend fun importProducts(products: List<Product>)
+
+    /**
      * Removes a product from the database and deletes its associated image file.
      *
      * @param product The [Product] to delete.
