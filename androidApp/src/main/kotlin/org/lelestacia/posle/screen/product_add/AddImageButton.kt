@@ -22,9 +22,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.App
 import org.lelestacia.posle.ui.theme.Cerulean
 import org.lelestacia.posle.ui.theme.CharcoalBlue
+import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.btn_add_image
+import posle.shared.generated.resources.msg_info_image_ratio
 
 @Composable
 fun ProductAddEditDeleteImageButton(
@@ -95,7 +99,7 @@ fun ProductAddEditDeleteImageButton(
                                 contentDescription = null
                             )
 
-                            Text("Tambahkan Gambar")
+                            Text(stringResource(Res.string.btn_add_image))
                         }
                     }
 
@@ -110,7 +114,7 @@ fun ProductAddEditDeleteImageButton(
                         )
 
                         Text(
-                            text = "Foto sebaiknya memiliki rasio 1:1",
+                            text = stringResource(Res.string.msg_info_image_ratio),
                             style = MaterialTheme.typography.bodySmall
                         )
                     }

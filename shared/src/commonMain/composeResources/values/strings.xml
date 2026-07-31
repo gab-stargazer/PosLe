@@ -100,8 +100,15 @@
     <string name="btn_update_product">Ubah Produk</string>
     <string name="btn_view_detail">Lihat Detail</string>
     <string name="btn_view_receipt">Lihat Struk</string>
+    <string name="btn_confirm">Konfirmasi</string>
+    <string name="btn_allow">Izinkan</string>
+    <string name="btn_later">Nanti</string>
+    <string name="btn_add_image">Tambahkan Gambar</string>
+    <string name="msg_info_image_ratio">Foto sebaiknya memiliki rasio 1:1</string>
 
     <!--Item-->
+    <string name="action_export_products">Ekspor Produk</string>
+    <string name="action_import_products">Impor Produk</string>
     <string name="txt_add_product_to_bundle">Tambahkan Produk ke Paket</string>
     <string name="txt_add_product_to_bundle_description">Masukkan nama produk dibawah, kemudian klik produk yang ingin dipilih</string>
     <string name="txt_bundle_content">Isi Paket:</string>
@@ -153,6 +160,7 @@
     <string name="title_transaction">Transaksi</string>
     <string name="title_transaction_not_found">Transaksi tidak ditemukan</string>
     <string name="title_total">Total: %1$s</string>
+    <string name="title_edit_product">Edit Produk</string>
 
     <!--Subtitle-->
     <string name="subtitle_date">Tanggal</string>
@@ -182,4 +190,18 @@
 
     <!--Msg-->
     <string name="msg_stock_added">Stok untuk produk %1$s berhasil ditambahkan sejumlah %2$s %3$s</string>
+    <string name="msg_receipt_saved">Struk berhasil disimpan</string>
+    <string name="msg_error_product_not_found">Produk tidak ditemukan</string>
+    <string name="msg_report_generated_success">Laporan %1$s berhasil dibuat</string>
+
+    <!--Content Description-->
+    <string name="cd_product_menu">Menu Produk</string>
+    <string name="cd_print_recap">Cetak Rekap</string>
+    <string name="cd_search_transaction">Cari Transaksi</string>
+    <string name="cd_back">Kembali</string>
+
+    <!--Dialog-->
+    <string name="dialog_notification_permission_title">Izin Notifikasi</string>
+    <string name="dialog_notification_permission_desc">Aplikasi membutuhkan izin notifikasi untuk memberitahu Anda ketika laporan PDF selesai dibuat. Laporan akan tetap dibuat meskipun izin tidak diberikan.</string>
+    <string name="label_camera_permission">Izin Kamera</string>
 </resources>

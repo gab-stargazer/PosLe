@@ -51,7 +51,7 @@ fun ProductAddEditSectionModalPrice(
             label = stringResource(Res.string.label_product_buy_price),
             trailingIcon = {
                 AnimatedVisibility(
-                    visible = state.productModalPriceError == null && state.productModalPrice.isNotBlank(),
+                    visible = state.isProductModalPriceValidated,
                     enter = fadeIn(),
                     exit = fadeOut()
                 ) {

@@ -80,7 +80,6 @@ import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.O
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnProductUnitChange
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditEvent.OnProductUnitRequestValidation
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditState
-import org.lelestacia.posle.navigation.AddEdit
 import org.lelestacia.posle.navigation.AddEdit.Add
 import org.lelestacia.posle.navigation.AddEdit.Edit
 import org.lelestacia.posle.ui.component.BorderedTextField
@@ -95,10 +94,13 @@ import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.btn_add_product
 import posle.shared.generated.resources.btn_delete_product
 import posle.shared.generated.resources.btn_update_product
+import posle.shared.generated.resources.label_camera_permission
 import posle.shared.generated.resources.label_product_name
 import posle.shared.generated.resources.label_product_sku_number
 import posle.shared.generated.resources.label_product_unit
+import posle.shared.generated.resources.title_add_product
 import posle.shared.generated.resources.title_add_stock_movement
+import posle.shared.generated.resources.title_edit_product
 import java.math.BigDecimal
 import kotlin.time.Clock
 
@@ -111,7 +113,7 @@ fun ProductAddEditScreen(
 
     val state by component.state.collectAsStateWithLifecycle()
     val cameraPermission = rememberAppPermissionState(
-        listOf(AppPermission(Manifest.permission.CAMERA, "Izin Kamera", isRequired = true))
+        listOf(AppPermission(Manifest.permission.CAMERA, stringResource(Res.string.label_camera_permission), isRequired = true))
     )
 
     val context = LocalContext.current
@@ -173,8 +175,8 @@ fun ProductAddEditScreen(
                 title = {
                     Text(
                         when (state.mode) {
-                            Add -> "Tambahkan Produk"
-                            Edit -> "Edit Produk"
+                            Add -> stringResource(Res.string.title_add_product)
+                            Edit -> stringResource(Res.string.title_edit_product)
                         },
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.Bold,
@@ -253,7 +255,7 @@ fun ProductAddEditScreen(
                 label = stringResource(Res.string.label_product_name),
                 trailingIcon = {
                     AnimatedVisibility(
-                        visible = state.productNameError == null && state.productName.isNotBlank(),
+                        visible = state.isProductNameValidated,
                         enter = fadeIn(),
                         exit = fadeOut()
                     ) {
@@ -318,7 +320,7 @@ fun ProductAddEditScreen(
                 label = stringResource(Res.string.label_product_unit),
                 trailingIcon = {
                     AnimatedVisibility(
-                        visible = state.productUnitError == null && state.productUnit.isNotBlank(),
+                        visible = state.isProductUnitValidated,
                         enter = fadeIn(),
                         exit = fadeOut()
                     ) {
@@ -450,7 +452,7 @@ private fun PreviewProductAddEditUI() {
         var state by remember {
             mutableStateOf(
                 ProductAddEditState(
-                    mode = AddEdit.Edit,
+                    mode = Edit,
                     productName = "Nasi Goreng",
                     productUnit = "Porsi",
                     productSellPrice = "10000",

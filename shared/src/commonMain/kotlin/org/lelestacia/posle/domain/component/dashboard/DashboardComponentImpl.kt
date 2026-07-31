@@ -66,6 +66,14 @@ class DashboardComponentImpl(
                         event.config
                     )
                 )
+
+                is DashboardComponentEvent.OnToggleProductMenu -> {
+                    state.update { currentState ->
+                        currentState.copy(
+                            isProductMenuExpanded = event.isExpanded
+                        )
+                    }
+                }
             }
         }
     }

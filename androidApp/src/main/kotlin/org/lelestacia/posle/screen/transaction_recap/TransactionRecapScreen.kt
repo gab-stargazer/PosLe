@@ -50,6 +50,7 @@ import org.lelestacia.posle.util.SampleData
 import org.lelestacia.posle.util.toFormattedDate
 import org.lelestacia.posle.util.toRupiah
 import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.btn_confirm
 import posle.shared.generated.resources.label_total_transaction
 import posle.shared.generated.resources.txt_total_profit
 import posle.shared.generated.resources.txt_total_profit_description
@@ -87,7 +88,7 @@ fun TransactionRecapScreen(
                     }
                 ) {
                     Text(
-                        "Konfirmasi",
+                        stringResource(Res.string.btn_confirm),
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
                     )
                 }

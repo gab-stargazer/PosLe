@@ -2,7 +2,7 @@ package org.lelestacia.posle.screen
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,11 +11,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Print
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.VerticalAlignBottom
-import androidx.compose.material.icons.filled.VerticalAlignTop
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -71,6 +72,11 @@ import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.BurgundyRed
 import org.lelestacia.posle.util.FileStorage
 import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.action_export_products
+import posle.shared.generated.resources.action_import_products
+import posle.shared.generated.resources.cd_print_recap
+import posle.shared.generated.resources.cd_product_menu
+import posle.shared.generated.resources.cd_search_transaction
 import posle.shared.generated.resources.label_menu
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -179,35 +185,47 @@ fun DashboardScreen(
                         AnimatedVisibility(
                             activeChild is NavChild.ProductList
                         ) {
-                            Row {
+                            Box {
                                 IconButton(
                                     onClick = {
-                                        (activeChild as NavChild.ProductList).component
-                                            .onEvent(
-                                                ProductListComponentEvent.OnExportProducts { bytes ->
-                                                    fileStorage.saveToPublicDocuments(
-                                                        fileName = "products.xlsx",
-                                                        subFolder = "Daftar Produk",
-                                                        data = bytes
-                                                    )
-                                                }
-                                            )
+                                        component.onEvent(DashboardComponentEvent.OnToggleProductMenu(true))
                                     }
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.VerticalAlignBottom,
-                                        contentDescription = "Export Products"
+                                        imageVector = Icons.Default.MoreVert,
+                                        contentDescription = stringResource(Res.string.cd_product_menu)
                                     )
                                 }
 
-                                IconButton(
-                                    onClick = {
-                                        productImportLauncher.launch()
+                                DropdownMenu(
+                                    expanded = state.isProductMenuExpanded,
+                                    onDismissRequest = {
+                                        component.onEvent(DashboardComponentEvent.OnToggleProductMenu(false))
                                     }
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Default.VerticalAlignTop,
-                                        contentDescription = "Import Products"
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(Res.string.action_export_products)) },
+                                        onClick = {
+                                            component.onEvent(DashboardComponentEvent.OnToggleProductMenu(false))
+                                            (activeChild as NavChild.ProductList).component
+                                                .onEvent(
+                                                    ProductListComponentEvent.OnExportProducts { bytes ->
+                                                        fileStorage.saveToPublicDocuments(
+                                                            fileName = "products.xlsx",
+                                                            subFolder = "Daftar Produk",
+                                                            data = bytes
+                                                        )
+                                                    }
+                                                )
+                                        }
+                                    )
+
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(Res.string.action_import_products)) },
+                                        onClick = {
+                                            component.onEvent(DashboardComponentEvent.OnToggleProductMenu(false))
+                                            productImportLauncher.launch()
+                                        }
                                     )
                                 }
                             }
@@ -226,7 +244,7 @@ fun DashboardScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Print,
-                                    contentDescription = "Print Recap"
+                                    contentDescription = stringResource(Res.string.cd_print_recap)
                                 )
                             }
                         }
@@ -243,7 +261,7 @@ fun DashboardScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Search,
-                                    contentDescription = "Search Transaction"
+                                    contentDescription = stringResource(Res.string.cd_search_transaction)
                                 )
                             }
                         }

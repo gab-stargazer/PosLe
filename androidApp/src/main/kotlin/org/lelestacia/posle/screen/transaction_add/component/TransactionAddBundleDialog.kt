@@ -1,5 +1,8 @@
 package org.lelestacia.posle.screen.transaction_add.component
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,6 +14,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -40,6 +44,7 @@ import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.BurgundyRed
 import org.lelestacia.posle.ui.theme.CharcoalBlue
 import org.lelestacia.posle.ui.theme.MintCream
+import org.lelestacia.posle.ui.theme.successLightHighContrast
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Util
 import posle.shared.generated.resources.Res
@@ -104,6 +109,19 @@ fun TransactionAddBundleDialog(
                         onQuantityValidationRequest.invoke()
                     }
                 ),
+                trailingIcon = {
+                    AnimatedVisibility(
+                        visible = state.isQuantityValidated,
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            tint = successLightHighContrast
+                        )
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp)

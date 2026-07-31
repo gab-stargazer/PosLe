@@ -124,9 +124,23 @@ fun TransactionAddProductDialog(
                 },
                 keyboardActions = KeyboardActions(
                     onDone = {
+                        onEvent(DialogProductEvent.OnPriceRequestValidation)
                         focusManager.clearFocus(true)
                     }
                 ),
+                trailingIcon = {
+                    AnimatedVisibility(
+                        visible = state.isAmountValidated,
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            tint = successLightHighContrast
+                        )
+                    }
+                },
                 errorMessage = state.amountError,
                 modifier = Modifier.padding(top = 8.dp)
             )
@@ -151,7 +165,7 @@ fun TransactionAddProductDialog(
                     ),
                     trailingIcon = {
                         AnimatedVisibility(
-                            visible = state.priceError == null && state.price.isNotBlank(),
+                            visible = state.isPriceValidated,
                             enter = fadeIn(),
                             exit = fadeOut()
                         ) {

@@ -22,6 +22,7 @@ import com.arkivanov.decompose.retainedComponent
 import com.meticha.permissions_compose.AppPermission
 import com.meticha.permissions_compose.rememberAppPermissionState
 import kotlinx.serialization.json.Json
+import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.data.util.PdfExportInput
 import org.lelestacia.posle.domain.state_event.TransactionRecapState
 import org.lelestacia.posle.navigation.PosLeComponent
@@ -30,6 +31,12 @@ import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.onSurfaceLightHighContrast
 import org.lelestacia.posle.ui.theme.surfaceContainerLowestLightHighContrast
 import org.lelestacia.posle.worker.AndroidRunnableService
+import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.btn_allow
+import posle.shared.generated.resources.btn_later
+import posle.shared.generated.resources.dialog_notification_permission_desc
+import posle.shared.generated.resources.dialog_notification_permission_title
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge(
@@ -70,25 +77,21 @@ class MainActivity : ComponentActivity() {
             if (showPermissionRationale) {
                 AlertDialog(
                     onDismissRequest = { showPermissionRationale = false },
-                    title = { Text("Izin Notifikasi") },
+                    title = { Text(stringResource(Res.string.dialog_notification_permission_title)) },
                     text = {
-                        Text(
-                            "Aplikasi membutuhkan izin notifikasi untuk " +
-                                    "memberitahu Anda ketika laporan PDF selesai dibuat. " +
-                                    "Laporan akan tetap dibuat meskipun izin tidak diberikan."
-                        )
+                        Text(stringResource(Res.string.dialog_notification_permission_desc))
                     },
                     confirmButton = {
                         TextButton(onClick = {
                             showPermissionRationale = false
                             notificationPermission.requestPermission()
                         }) {
-                            Text("Izinkan")
+                            Text(stringResource(Res.string.btn_allow))
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = { showPermissionRationale = false }) {
-                            Text("Nanti")
+                            Text(stringResource(Res.string.btn_later))
                         }
                     }
                 )

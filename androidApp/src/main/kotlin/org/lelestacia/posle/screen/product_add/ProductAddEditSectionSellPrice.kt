@@ -55,7 +55,7 @@ fun ProductAddEditSectionSellPrice(
             textStyle = MaterialTheme.typography.bodyMedium,
             trailingIcon = {
                 AnimatedVisibility(
-                    visible = state.productSellPriceError == null && state.productSellPrice.isNotBlank(),
+                    visible = state.isProductSellPriceValidated,
                     enter = fadeIn(),
                     exit = fadeOut()
                 ) {

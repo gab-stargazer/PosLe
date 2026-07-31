@@ -17,17 +17,21 @@ import posle.shared.generated.resources.msg_error_unit_cannot_be_empty
 data class ProductAddEditState(
     val productName: String = "",
     val productNameError: String? = null,
+    val isProductNameValidated: Boolean = false,
 
     val skuNumber: String = "",
 
     val productUnit: String = "",
     val productUnitError: String? = null,
+    val isProductUnitValidated: Boolean = false,
 
     val productModalPrice: String = "",
     val productModalPriceError: String? = null,
+    val isProductModalPriceValidated: Boolean = false,
 
     val productSellPrice: String = "",
     val productSellPriceError: String? = null,
+    val isProductSellPriceValidated: Boolean = false,
 
 
     val isSellPriceAndBuyPriceTheSame: Boolean = false,

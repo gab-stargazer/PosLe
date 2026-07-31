@@ -40,6 +40,7 @@ import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.coroutineScope
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.msg_error_item_not_available
+import posle.shared.generated.resources.msg_error_product_not_found
 import posle.shared.generated.resources.msg_error_quantity_cannot_be_empty
 import posle.shared.generated.resources.msg_error_quantity_should_be_number
 import java.math.BigDecimal
@@ -203,7 +204,7 @@ class TransactionAddComponentImpl(
                         }
 
                         if (product == null) {
-                            snackBarHostState.showSnackbar("Produk tidak ditemukan")
+                            snackBarHostState.showSnackbar(getString(Res.string.msg_error_product_not_found))
                         }
                     }
                 }
@@ -217,37 +218,65 @@ class TransactionAddComponentImpl(
     private fun onDialogEvent(event: TransactionAddEvent.DialogProductEvent) {
         when (event) {
             is TransactionAddEvent.DialogProductEvent.OnAmountChanged -> {
-                _state.update { currentState ->
-                    currentState.copy(
-                        dialogProductState = currentState.dialogProductState.copy(
-                            amount = event.newAmount,
-                            amountError = null
-                        )
-                    )
+                scope.launch {
+                    val currentDialogState = state.value.dialogProductState
+                    if (currentDialogState.amountError != null) {
+                        val validationResult = currentDialogState.copy(amount = event.newAmount).validate()
+                        _state.update { currentState ->
+                            currentState.copy(
+                                dialogProductState = validationResult.copy(
+                                    isAmountValidated = validationResult.amountError == null
+                                )
+                            )
+                        }
+                    } else {
+                        _state.update { currentState ->
+                            currentState.copy(
+                                dialogProductState = currentState.dialogProductState.copy(
+                                    amount = event.newAmount,
+                                    isAmountValidated = false
+                                )
+                            )
+                        }
+                    }
                 }
             }
 
             is TransactionAddEvent.DialogProductEvent.OnPriceChanged -> {
                 if (event.newPrice.all { it.isDigit() }) {
-                    _state.update { currentState ->
-                        currentState.copy(
-                            dialogProductState = currentState.dialogProductState.copy(
-                                price = event.newPrice,
-                                priceError = null
-                            )
-                        )
+                    scope.launch {
+                        val currentDialogState = state.value.dialogProductState
+                        if (currentDialogState.priceError != null) {
+                            val validationResult = currentDialogState.copy(price = event.newPrice).validate()
+                            _state.update { currentState ->
+                                currentState.copy(
+                                    dialogProductState = validationResult.copy(
+                                        isPriceValidated = validationResult.priceError == null
+                                    )
+                                )
+                            }
+                        } else {
+                            _state.update { currentState ->
+                                currentState.copy(
+                                    dialogProductState = currentState.dialogProductState.copy(
+                                        price = event.newPrice,
+                                        isPriceValidated = false
+                                    )
+                                )
+                            }
+                        }
                     }
                 }
             }
 
             TransactionAddEvent.DialogProductEvent.OnPriceRequestValidation -> scope.launch {
                 val currentDialogState = state.value.dialogProductState
-                val priceValidationError =
-                    currentDialogState.validatePrice(currentDialogState.price)
+                val validationResult = currentDialogState.validate()
                 _state.update { currentState ->
                     currentState.copy(
-                        dialogProductState = currentDialogState.copy(
-                            priceError = priceValidationError?.let { getString(it) }
+                        dialogProductState = validationResult.copy(
+                            isPriceValidated = validationResult.priceError == null,
+                            isAmountValidated = validationResult.amountError == null
                         )
                     )
                 }
@@ -372,7 +401,8 @@ class TransactionAddComponentImpl(
                             currentState.copy(
                                 dialogBundleState = currentState.dialogBundleState.copy(
                                     quantity = event.newQuantity,
-                                    quantityError = quantityValidationError
+                                    quantityError = quantityValidationError,
+                                    isQuantityValidated = quantityValidationError == null
                                 )
                             )
                         }
@@ -380,7 +410,8 @@ class TransactionAddComponentImpl(
                         _state.update { currentState ->
                             currentState.copy(
                                 dialogBundleState = currentState.dialogBundleState.copy(
-                                    quantity = event.newQuantity
+                                    quantity = event.newQuantity,
+                                    isQuantityValidated = false
                                 )
                             )
                         }
@@ -395,7 +426,8 @@ class TransactionAddComponentImpl(
                     _state.update { currentState ->
                         currentState.copy(
                             dialogBundleState = currentDialogState.copy(
-                                quantityError = quantityValidationError
+                                quantityError = quantityValidationError,
+                                isQuantityValidated = quantityValidationError == null
                             )
                         )
                     }

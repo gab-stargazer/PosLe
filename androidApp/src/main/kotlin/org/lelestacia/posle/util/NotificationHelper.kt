@@ -52,8 +52,8 @@ object NotificationHelper {
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.stat_sys_download_done)
-            .setContentTitle("Report ready")
-            .setContentText("$fileName has been generated successfully")
+            .setContentTitle("Laporan Selesai")
+            .setContentText("Laporan $fileName berhasil dibuat")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)

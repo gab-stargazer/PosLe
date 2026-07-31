@@ -55,6 +55,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.lelestacia.posle.data.PosLeSettings
@@ -89,6 +90,7 @@ import posle.shared.generated.resources.label_customer
 import posle.shared.generated.resources.label_total
 import posle.shared.generated.resources.label_transaction_date
 import posle.shared.generated.resources.label_transaction_detail
+import posle.shared.generated.resources.msg_receipt_saved
 import java.io.ByteArrayOutputStream
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
@@ -123,9 +125,10 @@ fun TransactionViewScreen(
                     data = bytes
                 )
                 
+                val message = getString(Res.string.msg_receipt_saved)
                 delay(500.milliseconds)
                 component.onEvent(OnChangeSaveLoadingState(isLoading = false))
-                component.onEvent(OnShowMessage("Struk berhasil disimpan"))
+                component.onEvent(OnShowMessage(message))
             }
         }
     }

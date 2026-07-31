@@ -35,8 +35,10 @@ data class TransactionAddState(
         val selectedProduct: Product? = null,
         val amount: String = "",
         val amountError: String? = null,
+        val isAmountValidated: Boolean = false,
         val price: String = "",
         val priceError: String? = null,
+        val isPriceValidated: Boolean = false,
         val noteState: TextFieldState = TextFieldState(),
         val settings: PosLeSettings = PosLeSettings()
     ) {
@@ -54,6 +56,7 @@ data class TransactionAddState(
         val selectedBundle: Bundle? = null,
         val quantity: String = "",
         val quantityError: String? = null,
+        val isQuantityValidated: Boolean = false,
         val noteState: TextFieldState = TextFieldState(),
     )
 }

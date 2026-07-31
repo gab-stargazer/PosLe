@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import org.lelestacia.posle.data.entity.StockMovementType
 import org.lelestacia.posle.domain.model.Product
@@ -31,6 +30,7 @@ import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditNavigat
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditState
 import org.lelestacia.posle.navigation.AddEdit
 import org.lelestacia.posle.navigation.AddEdit.Add
+import org.lelestacia.posle.navigation.AddEdit.Edit
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
@@ -113,25 +113,18 @@ class ProductAddEditComponentImpl(
                     val currentState = state.value
                     if (currentState.productNameError != null) {
                         val productNameError = currentState.validateName(event.newProductName)
-                        if (productNameError != null) {
-                            _state.update { currentState ->
-                                currentState.copy(
-                                    productName = event.newProductName,
-                                    productNameError = getString(productNameError)
-                                )
-                            }
-                        } else {
-                            _state.update { currentState ->
-                                currentState.copy(
-                                    productName = event.newProductName,
-                                    productNameError = null,
-                                )
-                            }
+                        _state.update {
+                            it.copy(
+                                productName = event.newProductName,
+                                productNameError = productNameError?.let { res -> getString(res) },
+                                isProductNameValidated = productNameError == null
+                            )
                         }
                     } else {
-                        _state.update { currentState ->
-                            currentState.copy(
-                                productName = event.newProductName
+                        _state.update {
+                            it.copy(
+                                productName = event.newProductName,
+                                isProductNameValidated = false
                             )
                         }
                     }
@@ -142,12 +135,11 @@ class ProductAddEditComponentImpl(
                 scope.launch {
                     val currentState = state.value
                     val productNameError = currentState.validateName(currentState.productName)
-                    if (productNameError != null) {
-                        _state.update { currentState ->
-                            currentState.copy(
-                                productNameError = getString(productNameError)
-                            )
-                        }
+                    _state.update {
+                        it.copy(
+                            productNameError = productNameError?.let { res -> getString(res) },
+                            isProductNameValidated = productNameError == null
+                        )
                     }
                 }
             }
@@ -157,25 +149,18 @@ class ProductAddEditComponentImpl(
                     val currentState = state.value
                     if (currentState.productUnitError != null) {
                         val productUnitError = currentState.validateUnit(event.newProductUnit)
-                        if (productUnitError != null) {
-                            _state.update { currentState ->
-                                currentState.copy(
-                                    productUnit = event.newProductUnit,
-                                    productUnitError = getString(productUnitError)
-                                )
-                            }
-                        } else {
-                            _state.update { currentState ->
-                                currentState.copy(
-                                    productUnit = event.newProductUnit,
-                                    productUnitError = null,
-                                )
-                            }
+                        _state.update {
+                            it.copy(
+                                productUnit = event.newProductUnit,
+                                productUnitError = productUnitError?.let { res -> getString(res) },
+                                isProductUnitValidated = productUnitError == null
+                            )
                         }
                     } else {
-                        _state.update { currentState ->
-                            currentState.copy(
-                                productUnit = event.newProductUnit
+                        _state.update {
+                            it.copy(
+                                productUnit = event.newProductUnit,
+                                isProductUnitValidated = false
                             )
                         }
                     }
@@ -186,12 +171,11 @@ class ProductAddEditComponentImpl(
                 scope.launch {
                     val currentState = state.value
                     val productUnitError = currentState.validateUnit(currentState.productUnit)
-                    if (productUnitError != null) {
-                        _state.update { currentState ->
-                            currentState.copy(
-                                productUnitError = getString(productUnitError)
-                            )
-                        }
+                    _state.update {
+                        it.copy(
+                            productUnitError = productUnitError?.let { res -> getString(res) },
+                            isProductUnitValidated = productUnitError == null
+                        )
                     }
                 }
             }
@@ -202,25 +186,18 @@ class ProductAddEditComponentImpl(
                     if (currentState.productModalPriceError != null) {
                         val productModalPriceError =
                             currentState.validatePrice(event.newModalPrice)
-                        if (productModalPriceError != null) {
-                            _state.update { currentState ->
-                                currentState.copy(
-                                    productModalPrice = event.newModalPrice,
-                                    productModalPriceError = getString(productModalPriceError)
-                                )
-                            }
-                        } else if (event.newModalPrice.all { it.isDigit() }) {
-                            _state.update { currentState ->
-                                currentState.copy(
-                                    productModalPrice = event.newModalPrice,
-                                    productModalPriceError = null,
-                                )
-                            }
+                        _state.update {
+                            it.copy(
+                                productModalPrice = event.newModalPrice,
+                                productModalPriceError = productModalPriceError?.let { res -> getString(res) },
+                                isProductModalPriceValidated = productModalPriceError == null
+                            )
                         }
                     } else if (event.newModalPrice.all { it.isDigit() }) {
-                        _state.update { currentState ->
-                            currentState.copy(
-                                productModalPrice = event.newModalPrice
+                        _state.update {
+                            it.copy(
+                                productModalPrice = event.newModalPrice,
+                                isProductModalPriceValidated = false
                             )
                         }
                     }
@@ -232,12 +209,11 @@ class ProductAddEditComponentImpl(
                     val currentState = state.value
                     val productModalPriceError =
                         currentState.validatePrice(currentState.productModalPrice)
-                    if (productModalPriceError != null) {
-                        _state.update { currentState ->
-                            currentState.copy(
-                                productModalPriceError = getString(productModalPriceError)
-                            )
-                        }
+                    _state.update {
+                        it.copy(
+                            productModalPriceError = productModalPriceError?.let { res -> getString(res) },
+                            isProductModalPriceValidated = productModalPriceError == null
+                        )
                     }
                 }
             }
@@ -249,25 +225,18 @@ class ProductAddEditComponentImpl(
                         val productSellPriceError = currentState
                             .validatePrice(event.newSellPrice)
 
-                        if (productSellPriceError != null) {
-                            _state.update { currentState ->
-                                currentState.copy(
-                                    productSellPrice = event.newSellPrice,
-                                    productSellPriceError = getString(productSellPriceError)
-                                )
-                            }
-                        } else if (event.newSellPrice.all { it.isDigit() }) {
-                            _state.update { currentState ->
-                                currentState.copy(
-                                    productSellPrice = event.newSellPrice,
-                                    productSellPriceError = null,
-                                )
-                            }
+                        _state.update {
+                            it.copy(
+                                productSellPrice = event.newSellPrice,
+                                productSellPriceError = productSellPriceError?.let { res -> getString(res) },
+                                isProductSellPriceValidated = productSellPriceError == null
+                            )
                         }
                     } else if (event.newSellPrice.all { it.isDigit() }) {
-                        _state.update { currentState ->
-                            currentState.copy(
-                                productSellPrice = event.newSellPrice
+                        _state.update {
+                            it.copy(
+                                productSellPrice = event.newSellPrice,
+                                isProductSellPriceValidated = false
                             )
                         }
                     }
@@ -279,12 +248,11 @@ class ProductAddEditComponentImpl(
                     val currentState = state.value
                     val productSellPriceError =
                         currentState.validatePrice(currentState.productSellPrice)
-                    if (productSellPriceError != null) {
-                        _state.update { currentState ->
-                            currentState.copy(
-                                productSellPriceError = getString(productSellPriceError)
-                            )
-                        }
+                    _state.update {
+                        it.copy(
+                            productSellPriceError = productSellPriceError?.let { res -> getString(res) },
+                            isProductSellPriceValidated = productSellPriceError == null
+                        )
                     }
                 }
             }
@@ -343,7 +311,7 @@ class ProductAddEditComponentImpl(
                             )
                         }
 
-                        AddEdit.Edit -> {
+                        Edit -> {
                             productRepository.updateProduct(
                                 product = buildProduct(id = product?.id ?: throw Exception("Invalid Product ID")),
                                 variantsToAdd = emptyList(),
@@ -496,34 +464,5 @@ class ProductAddEditComponentImpl(
             imageUri = currentState.productImageUri,
             variants = currentState.variants
         )
-    }
-
-    private suspend fun validate(onSuccess: suspend () -> Unit) {
-        val errorMessage = getValidationError() ?: run {
-            onSuccess()
-            return
-        }
-
-        snackbarHostState.showSnackbar(getString(errorMessage))
-    }
-
-    private fun getValidationError(): StringResource? {
-        val currentState = state.value
-        val nameError = currentState.validateName(currentState.productName)
-        val unitError = currentState.validateUnit(currentState.productUnit)
-        val modalPriceError = currentState.validatePrice(currentState.productModalPrice)
-        val sellPriceError = currentState.validatePrice(currentState.productSellPrice)
-
-        return when {
-            nameError != null -> nameError
-
-            unitError != null -> unitError
-
-            modalPriceError != null -> modalPriceError
-
-            sellPriceError != null -> sellPriceError
-
-            else -> null
-        }
     }
 }

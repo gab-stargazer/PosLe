@@ -41,6 +41,7 @@ import org.lelestacia.posle.screen.transaction_history.TransactionItem
 import org.lelestacia.posle.ui.component.BorderedTextField
 import org.lelestacia.posle.ui.theme.BurgundyRed
 import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.cd_back
 import posle.shared.generated.resources.label_search
 import posle.shared.generated.resources.label_search_for_transaction
 import posle.shared.generated.resources.title_transaction_not_found
@@ -69,7 +70,7 @@ fun TransactionSearchScreen(
                     IconButton(onClick = { component.onEvent(TransactionSearchEvent.OnPop) }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(Res.string.cd_back)
                         )
                     }
                 },
