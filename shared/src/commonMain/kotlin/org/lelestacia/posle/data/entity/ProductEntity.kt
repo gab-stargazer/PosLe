@@ -12,7 +12,7 @@ import org.lelestacia.posle.util.Unit as PosLeUnit
     tableName = "product",
     indices = [
         Index("name"),
-        Index("sku_number", unique = true)
+        Index("sku_number")
     ]
 )
 data class ProductEntity(

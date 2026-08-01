@@ -48,27 +48,21 @@ fun RootContent(
                     DashboardScreen(component = child.component)
                 }
 
-                //  Transaction
-                is Child.TransactionList -> {
-
-                }
-
                 is Child.TransactionSearch -> {
                     TransactionSearchScreen(component = child.component)
                 }
-
 
                 is Child.TransactionView -> {
                     val bluetoothPermission = rememberAppPermissionState(
                         permissions = listOf(
                             AppPermission(
                                 permission = Manifest.permission.BLUETOOTH_SCAN,
-                                description = "Camera access is needed to take photos. Please grant this permission.",
+                                description = "Diperlukan untuk menemukan printer Bluetooth di sekitar.",
                                 isRequired = true
                             ),
                             AppPermission(
                                 permission = Manifest.permission.BLUETOOTH_CONNECT,
-                                description = "Microphone access is needed for voice recording. Please grant this permission.",
+                                description = "Diperlukan untuk terhubung dan mencetak ke printer Bluetooth.",
                                 isRequired = false
                             ),
                         )

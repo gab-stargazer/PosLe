@@ -349,7 +349,7 @@ fun TransactionViewScreen(
                                     ioScope.launch {
                                         printTransaction(
                                             transaction = state.transaction,
-                                            storeName = state.settings.storeName
+                                            storeNameValue = state.settings.storeName
                                         )
                                     }
                                 } else {

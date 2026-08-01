@@ -181,24 +181,23 @@ class BundleAddEditComponentImpl(
                     .mapNotNull { it.validate() }
 
                 if (error.isNotEmpty()) {
-                    var bundleProducts = state.value.bundleProducts
-                    bundleProducts = bundleProducts.map { bundleProduct ->
-                        if (error.any { it.product == bundleProduct.product }) {
-                            bundleProduct.copy(
-                                quantityError = error.first { it.product == bundleProduct.product }.quantityError,
-                                sellPriceError = error.first { it.product == bundleProduct.product }.sellPriceError
-                            )
-                        } else bundleProduct
-                    }
-
+                    val bundleProductsWithError = state.value
+                        .bundleProducts
+                        .map { bundleProduct ->
+                            val matchingError = error.firstOrNull { it.product == bundleProduct.product }
+                            if (matchingError != null) {
+                                bundleProduct.copy(
+                                    quantityError = matchingError.quantityError,
+                                    sellPriceError = matchingError.sellPriceError
+                                )
+                            } else bundleProduct
+                        }
 
                     _state.update { currentState ->
                         currentState.copy(
-                            bundleProducts = bundleProducts
+                            bundleProducts = bundleProductsWithError
                         )
                     }
-
-                    println(state.value.bundleProducts)
                     return
                 }
 

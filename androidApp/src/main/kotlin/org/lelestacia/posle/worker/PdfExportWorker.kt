@@ -11,6 +11,7 @@ import org.koin.core.component.inject
 import org.lelestacia.posle.data.util.PdfExportInput
 import org.lelestacia.posle.data.util.TransactionReportGenerator
 import org.lelestacia.posle.domain.repository.TransactionRepository
+import org.lelestacia.posle.util.AppLogger
 import org.lelestacia.posle.util.FileStorage
 import org.lelestacia.posle.util.NotificationHelper
 
@@ -30,7 +31,7 @@ class PdfExportWorker(
             .getTransactionsInRange(input.startDate, input.finishDate)
             .first()
 
-        println("PdfExportWorker: Starting work for $fileName")
+        AppLogger.info(TAG, "Starting work for $fileName")
         val bytes = TransactionReportGenerator.generateAsBytes(
             storeName = input.storeName,
             transactionId = "REKAP-SUMMARY",
@@ -48,7 +49,7 @@ class PdfExportWorker(
         } else null
 
         return if (resultUri != null) {
-            println("PdfExportWorker: Export successful, notifying user")
+            AppLogger.info(TAG, "Export successful, notifying user")
             NotificationHelper.notifySuccess(
                 context = applicationContext,
                 fileUri = resultUri.toUri(),
@@ -56,12 +57,13 @@ class PdfExportWorker(
             )
             Result.success()
         } else {
-            println("PdfExportWorker: Export failed")
+            AppLogger.error(TAG, "Export failed")
             Result.failure()
         }
     }
 
     companion object {
         const val INPUT_KEY = "pdf_export_input"
+        private const val TAG = "PdfExportWorker"
     }
 }

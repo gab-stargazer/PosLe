@@ -22,6 +22,7 @@ import org.jetbrains.compose.resources.getSystemResourceEnvironment
 import org.lelestacia.posle.data.entity.TransactionItemType
 import org.lelestacia.posle.domain.model.Transaction
 import org.lelestacia.posle.domain.model.TransactionItem
+import org.lelestacia.posle.util.AppLogger
 import org.lelestacia.posle.util.toDisplayText
 import org.lelestacia.posle.util.toFormattedDate
 import org.lelestacia.posle.util.toFormattedDateTime
@@ -39,6 +40,8 @@ import java.util.Locale
  * Utility for generating professionally formatted PDF transaction reports using iText7.
  */
 object TransactionReportGenerator {
+
+    private const val TAG = "TransactionReportGenerator"
 
     private object Styles {
         // Colors
@@ -95,7 +98,7 @@ object TransactionReportGenerator {
         finishDate: Long,
         transactions: List<Transaction>
     ): Boolean {
-        println("PDF Generator: Starting generation for Transaction ID: $transactionId")
+        AppLogger.info(TAG, "Starting generation for Transaction ID: $transactionId")
         return try {
             val pdfDoc = PdfDocument(PdfWriter(outputStream))
             val document = Document(pdfDoc, PageSize.A4).apply {
@@ -108,28 +111,27 @@ object TransactionReportGenerator {
                 boldFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD)
             )
 
-            println("PDF Generator: Writing Header and Metadata")
+            AppLogger.info(TAG, "Writing header and metadata")
             writeHeaderSection(context, storeName)
             writeMetadataSection(context, transactionId, startDate, finishDate - 1)
             addDivider(context, Styles.DIVIDER_THICKNESS_LARGE, marginBottom = 20f)
 
-            println("PDF Generator: Processing ${transactions.size} transactions")
+            AppLogger.info(TAG, "Processing ${transactions.size} transactions")
             transactions.forEachIndexed { index, transaction ->
                 if (index % 10 == 0 && index > 0) {
-                    println("PDF Generator: Processed $index / ${transactions.size} transactions")
+                    AppLogger.debug(TAG, "Processed $index / ${transactions.size} transactions")
                 }
                 writeTransactionCard(context, transaction)
             }
 
             addDivider(context, Styles.DIVIDER_THICKNESS_SMALL, marginTop = 10f)
 
-            println("PDF Generator: Closing document")
+            AppLogger.info(TAG, "Closing document")
             document.close()
-            println("PDF Generator: Generation successful")
+            AppLogger.info(TAG, "Generation successful")
             true
         } catch (e: Exception) {
-            println("PDF Generator: Generation failed with error: ${e.message}")
-            e.printStackTrace()
+            AppLogger.error(TAG, "Generation failed", e)
             false
         }
     }

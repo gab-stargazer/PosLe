@@ -54,7 +54,7 @@ android {
         applicationId = "org.lelestacia.posle"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 25
+        versionCode = 26
         versionName = "0.2.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -72,6 +72,10 @@ android {
     }
 
     buildTypes {
+        getByName("debug") {
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "Dev"
+        }
         getByName("release") {
             isMinifyEnabled = true
             isShrinkResources = true

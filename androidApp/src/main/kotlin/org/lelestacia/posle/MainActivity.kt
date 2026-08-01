@@ -57,7 +57,7 @@ class MainActivity : ComponentActivity() {
                 listOf(
                     AppPermission(
                         permission = Manifest.permission.POST_NOTIFICATIONS,
-                        description = "Izin dibutuhkan untuk pos notifikasi selesai",
+                        description = "Izin dibutuhkan untuk menampilkan notifikasi saat laporan selesai",
                         isRequired = true
                     )
                 )

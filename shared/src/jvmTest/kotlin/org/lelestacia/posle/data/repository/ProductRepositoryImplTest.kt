@@ -332,6 +332,7 @@ class ProductRepositoryImplTest {
             productDao = db.productDao(),
             variantDao = db.variantDao(),
             stockDao = db.stockDao(),
+            categoryDao = db.categoryDao(),
             transactionRunner = org.lelestacia.posle.data.TransactionRunnerImpl(db)
         )
     }

@@ -1,5 +1,8 @@
 # PosLe (Point of Sale)
 
+## Architecture
+For a detailed overview of the project structure and design patterns, see the [Architecture Documentation](./ARCHITECTURE.md).
+
 PosLe is a modern, cross-platform Point of Sale system built with Kotlin Multiplatform. It provides a robust solution for managing transactions, products, inventory, and sales recaps across Android and Desktop platforms.
 
 ## Key Features

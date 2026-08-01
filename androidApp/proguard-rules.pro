@@ -47,7 +47,6 @@
 -keep class com.patrykandpatrick.vico.** { *; }
 
 # KoalaPlot
--keep class io.github.koalaplot.** { *; }
 
 # ESCPOS Thermal Printer
 -keep class com.dantsu.escposprinter.** { *; }
@@ -70,12 +69,17 @@
 -keep class androidx.datastore.** { *; }
 
 # R8 Missing Classes (automatically generated rules)
+-dontwarn aQute.bnd.annotation.baseline.BaselineIgnore
+-dontwarn aQute.bnd.annotation.spi.ServiceConsumer
 -dontwarn aQute.bnd.annotation.spi.ServiceProvider
+-dontwarn com.github.luben.zstd.ZstdInputStream
 -dontwarn com.itextpdf.bouncycastle.BouncyCastleFactory
 -dontwarn com.itextpdf.bouncycastlefips.BouncyCastleFipsFactory
--dontwarn javax.xml.stream.XMLEventFactory
--dontwarn javax.xml.stream.XMLInputFactory
--dontwarn javax.xml.stream.XMLOutputFactory
--dontwarn javax.xml.stream.XMLResolver
--dontwarn javax.xml.stream.util.XMLEventAllocator
+-dontwarn edu.umd.cs.findbugs.annotations.Nullable
+-dontwarn edu.umd.cs.findbugs.annotations.SuppressFBWarnings
+-dontwarn java.awt.**
+-dontwarn javax.xml.stream.**
+-dontwarn net.sf.saxon.**
+-dontwarn org.apache.batik.**
+-dontwarn org.osgi.framework.**
 -dontwarn sharpen.config.MappingConfiguration

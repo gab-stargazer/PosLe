@@ -14,7 +14,6 @@ import org.koin.java.KoinJavaComponent.inject
 import org.lelestacia.posle.data.SettingManager
 import org.lelestacia.posle.domain.component.SettingComponentImpl
 import org.lelestacia.posle.domain.component.TransactionHistoryComponentImpl
-import org.lelestacia.posle.domain.component.TransactionListComponentImpl
 import org.lelestacia.posle.domain.component.TransactionProductConfigComponentImpl
 import org.lelestacia.posle.domain.component.TransactionSearchComponentImpl
 import org.lelestacia.posle.domain.component.TransactionViewComponentImpl
@@ -55,7 +54,6 @@ import org.lelestacia.posle.navigation.Config.BundleAddEdit as BundleAddEditConf
 import org.lelestacia.posle.navigation.Config.Dashboard as DashboardConfig
 import org.lelestacia.posle.navigation.Config.ProductAddEdit as ProductAddEditConfig
 import org.lelestacia.posle.navigation.Config.QrScanner as QrScannerConfig
-import org.lelestacia.posle.navigation.Config.TransactionList as TransactionListConfig
 import org.lelestacia.posle.navigation.Config.TransactionProduct as TransactionProductConfig
 import org.lelestacia.posle.navigation.Config.TransactionRecapProductView as TransactionRecapProductViewConfig
 import org.lelestacia.posle.navigation.Config.TransactionSearch as TransactionSearchConfig
@@ -215,13 +213,6 @@ class PosLeComponent(
                         onProductConfigConfirmed = null
                         rootNavigation.pop()
                     }
-                )
-            )
-
-            TransactionListConfig -> TransactionList(
-                TransactionListComponentImpl(
-                    componentContext = context,
-                    onNavigateTo = rootNavigation::pushToFront
                 )
             )
 

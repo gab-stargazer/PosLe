@@ -99,9 +99,13 @@ actual class FileStorage(
             }
             uri.toString()
         } catch (e: Exception) {
-            e.printStackTrace()
+            AppLogger.error(TAG, "Failed to save file '$fileName' to public documents", e)
             resolver.delete(uri, null, null)
             null
         }
+    }
+
+    private companion object {
+        const val TAG = "FileStorage"
     }
 }
