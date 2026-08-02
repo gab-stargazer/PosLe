@@ -1,5 +1,7 @@
 # PosLe (Point of Sale)
 
+[![Android Debug Build](https://github.com/gab-stargazer/PosLe/actions/workflows/android-debug-build.yml/badge.svg)](https://github.com/gab-stargazer/PosLe/actions/workflows/android-debug-build.yml)
+
 ## Architecture
 For a detailed overview of the project structure and design patterns, see the [Architecture Documentation](./ARCHITECTURE.md). For a developer-oriented walkthrough of the codebase — modules, layers, key classes, data flow, and key flows — see the [Codebase Guide](./CODEBASE.md). For app screenshots, see the [Screenshot Gallery](./SCREENSHOTS.md) or the [PosLe landing page](./docs/index.html).
 
