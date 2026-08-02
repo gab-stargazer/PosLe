@@ -26,13 +26,23 @@ jobs:
         shell: bash
         run: |
           mkdir -p androidApp/src/debug
-          echo "${{ secrets.GOOGLE_SERVICES_DEBUG_JSON }}" | base64 -d > androidApp/src/debug/google-services.json
+          B64="${{ secrets.GOOGLE_SERVICES_DEBUG_JSON }}"
+          if [ -z "$B64" ]; then
+            echo "::error::Secret GOOGLE_SERVICES_DEBUG_JSON is empty or not set — add it in repo Settings → Secrets and variables → Actions"
+            exit 1
+          fi
+          echo "$B64" | base64 -d > androidApp/src/debug/google-services.json
 
       - name: Inject google-services.json (release)
         shell: bash
         run: |
           mkdir -p androidApp/src/release
-          echo "${{ secrets.GOOGLE_SERVICES_RELEASE_JSON }}" | base64 -d > androidApp/src/release/google-services.json
+          B64="${{ secrets.GOOGLE_SERVICES_RELEASE_JSON }}"
+          if [ -z "$B64" ]; then
+            echo "::error::Secret GOOGLE_SERVICES_RELEASE_JSON is empty or not set — add it in repo Settings → Secrets and variables → Actions"
+            exit 1
+          fi
+          echo "$B64" | base64 -d > androidApp/src/release/google-services.json
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
