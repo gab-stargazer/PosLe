@@ -26,34 +26,26 @@ jobs:
         shell: bash
         run: |
           mkdir -p androidApp/src/debug
-          RAW="${{ secrets.GOOGLE_SERVICES_DEBUG_JSON }}"
-          if [ -z "$RAW" ]; then
+          B64B64="${{ secrets.GOOGLE_SERVICES_DEBUG_JSON }}"
+          if [ -z "$B64B64" ]; then
             echo "::error::Secret GOOGLE_SERVICES_DEBUG_JSON is empty or not set — add it in repo Settings → Secrets and variables → Actions"
             exit 1
           fi
-          # Accept base64 or raw JSON; decode/write whichever yields valid JSON
-          if printf '%s' "$RAW" | base64 -d 2>/dev/null | python3 -c 'import sys,json; json.load(sys.stdin)' 2>/dev/null; then
-            printf '%s' "$RAW" | base64 -d > androidApp/src/debug/google-services.json
-          else
-            printf '%s' "$RAW" > androidApp/src/debug/google-services.json
-          fi
+          # Double-base64: stored secret is base64(base64(json)) — no newlines/quotes/escapes.
+          printf '%s' "$B64B64" | base64 -d | base64 -d > androidApp/src/debug/google-services.json
           python3 -c 'import json; d=json.load(open("androidApp/src/debug/google-services.json")); assert d["project_info"]["project_id"]=="posle-dev" and any(c["client_info"]["android_client_info"]["package_name"]=="org.lelestacia.posle.dev" for c in d["client"]); print("debug google-services.json OK (posle-dev)")'
 
       - name: Inject google-services.json (release)
         shell: bash
         run: |
           mkdir -p androidApp/src/release
-          RAW="${{ secrets.GOOGLE_SERVICES_RELEASE_JSON }}"
-          if [ -z "$RAW" ]; then
+          B64B64="${{ secrets.GOOGLE_SERVICES_RELEASE_JSON }}"
+          if [ -z "$B64B64" ]; then
             echo "::error::Secret GOOGLE_SERVICES_RELEASE_JSON is empty or not set — add it in repo Settings → Secrets and variables → Actions"
             exit 1
           fi
-          # Accept base64 or raw JSON; decode/write whichever yields valid JSON
-          if printf '%s' "$RAW" | base64 -d 2>/dev/null | python3 -c 'import sys,json; json.load(sys.stdin)' 2>/dev/null; then
-            printf '%s' "$RAW" | base64 -d > androidApp/src/release/google-services.json
-          else
-            printf '%s' "$RAW" > androidApp/src/release/google-services.json
-          fi
+          # Double-base64: stored secret is base64(base64(json)) — no newlines/quotes/escapes.
+          printf '%s' "$B64B64" | base64 -d | base64 -d > androidApp/src/release/google-services.json
           python3 -c 'import json; d=json.load(open("androidApp/src/release/google-services.json")); assert d["project_info"]["project_id"]=="posle-833f7" and any(c["client_info"]["android_client_info"]["package_name"]=="org.lelestacia.posle" for c in d["client"]); print("release google-services.json OK (posle-833f7)")'
 
       - name: Grant execute permission for gradlew
