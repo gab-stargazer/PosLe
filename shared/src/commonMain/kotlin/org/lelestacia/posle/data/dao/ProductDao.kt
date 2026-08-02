@@ -4,6 +4,8 @@ import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.RewriteQueriesToDropUnusedColumns
+import androidx.room.RoomWarnings
 import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
@@ -128,6 +130,7 @@ interface ProductDao {
     ): PagingSource<Int, ProductWithVariantsAndStock>
 
     @Transaction
+    @RewriteQueriesToDropUnusedColumns
     @Query(
         value = """
             SELECT * FROM product 
@@ -143,7 +146,9 @@ interface ProductDao {
         categoryId: Int
     ): PagingSource<Int, ProductWithVariantsAndStock>
 
+    @SuppressWarnings(RoomWarnings.QUERY_MISMATCH)
     @Transaction
+    @RewriteQueriesToDropUnusedColumns
     @Query(
         """
             SELECT *

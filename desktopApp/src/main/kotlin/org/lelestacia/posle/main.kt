@@ -8,6 +8,7 @@ import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import org.koin.java.KoinJavaComponent.get
+import org.lelestacia.posle.ui.platform.PhoneOnlyContent
 import org.lelestacia.posle.util.DesktopNotifier
 import org.lelestacia.posle.util.FileStorage
 
@@ -24,7 +25,10 @@ fun main() = application {
     ) {
         App(
             content = {
-                // Desktop content
+                PhoneOnlyContent {
+                    // Desktop is not a phone-sized window, so the phone UI
+                    // is intentionally not shown here.
+                }
             }
         )
     }

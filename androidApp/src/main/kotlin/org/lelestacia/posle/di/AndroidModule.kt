@@ -16,7 +16,7 @@ val androidModule = module {
         getDatabaseBuilder(androidContext())
             .setQueryCoroutineContext(Dispatchers.IO)
             .setDriver(AndroidSQLiteDriver())
-            .fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigration(dropAllTables = true)
             .build()
     }
 

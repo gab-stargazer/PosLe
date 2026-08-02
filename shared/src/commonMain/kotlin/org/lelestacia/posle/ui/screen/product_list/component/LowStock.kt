@@ -1,0 +1,45 @@
+package org.lelestacia.posle.ui.screen.product_list.component
+
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.paging.compose.LazyPagingItems
+import org.jetbrains.compose.resources.stringResource
+import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent
+import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent.OnNavigateTo
+import org.lelestacia.posle.domain.model.Product
+import org.lelestacia.posle.navigation.AddEdit.Edit
+import org.lelestacia.posle.navigation.Config.ProductAddEdit
+import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.title_low_stock_products
+
+fun LazyListScope.lowStock(
+    lowStockProducts: LazyPagingItems<Product>,
+    isStockTracked: Boolean,
+    onEvent: (ProductListComponentEvent) -> Unit,
+) {
+    item {
+        Column(modifier = Modifier.animateItem()) {
+            Text(
+                text = stringResource(Res.string.title_low_stock_products),
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Bold
+                ),
+                modifier = Modifier.padding(12.dp)
+            )
+
+            ProductsLazyHorizontalGrid(
+                products = lowStockProducts,
+                isStockShown = isStockTracked,
+                onClick = { product ->
+                    onEvent(OnNavigateTo(ProductAddEdit(Edit, product)))
+                }
+            )
+        }
+    }
+}

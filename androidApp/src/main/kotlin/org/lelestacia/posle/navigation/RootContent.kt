@@ -13,15 +13,16 @@ import com.arkivanov.decompose.extensions.compose.stack.animation.fade
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import com.meticha.permissions_compose.AppPermission
 import com.meticha.permissions_compose.rememberAppPermissionState
-import org.lelestacia.posle.screen.DashboardScreen
-import org.lelestacia.posle.screen.QrScannerScreen
-import org.lelestacia.posle.screen.bundle_add_edit.BundleAddEditScreen
-import org.lelestacia.posle.screen.product_add.ProductAddEditScreen
-import org.lelestacia.posle.screen.product_add.ProductAddVariantsViewScreen
-import org.lelestacia.posle.screen.transaction_add.TransactionProductConfigScreen
-import org.lelestacia.posle.screen.transaction_recap_product_view.TransactionRecapProductDetailScreen
-import org.lelestacia.posle.screen.transaction_search.TransactionSearchScreen
-import org.lelestacia.posle.screen.transaction_view.TransactionViewScreen
+import org.lelestacia.posle.ui.platform.PlatformUi
+import org.lelestacia.posle.ui.screen.DashboardScreen
+import org.lelestacia.posle.ui.screen.QrScannerScreen
+import org.lelestacia.posle.ui.screen.bundle_add_edit.BundleAddEditScreen
+import org.lelestacia.posle.ui.screen.product_add.ProductAddEditScreen
+import org.lelestacia.posle.ui.screen.product_add.ProductAddVariantsViewScreen
+import org.lelestacia.posle.ui.screen.transaction_add.TransactionProductConfigScreen
+import org.lelestacia.posle.ui.screen.transaction_recap_product_view.TransactionRecapProductDetailScreen
+import org.lelestacia.posle.ui.screen.transaction_search.TransactionSearchScreen
+import org.lelestacia.posle.ui.screen.transaction_view.TransactionViewScreen
 
 @Composable
 fun RootContent(

@@ -4,6 +4,7 @@ import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import org.lelestacia.posle.data.entity.BundleEntity
 import org.lelestacia.posle.data.entity.BundleProductEntity
@@ -33,9 +34,11 @@ interface BundleDao {
     @Query("DELETE FROM bundle WHERE id = :bundleId")
     suspend fun deleteBundleById(bundleId: Int)
 
+    @Transaction
     @Query("SELECT * FROM bundle WHERE id = :id")
     suspend fun getBundleWithProductsById(id: Int): BundleWithProductsEntity?
 
+    @Transaction
     @Query(
         """
             SELECT * FROM bundle

@@ -1,7 +1,7 @@
 # PosLe (Point of Sale)
 
 ## Architecture
-For a detailed overview of the project structure and design patterns, see the [Architecture Documentation](./ARCHITECTURE.md).
+For a detailed overview of the project structure and design patterns, see the [Architecture Documentation](./ARCHITECTURE.md). For a developer-oriented walkthrough of the codebase — modules, layers, key classes, data flow, and key flows — see the [Codebase Guide](./CODEBASE.md). For app screenshots, see the [Screenshot Gallery](./SCREENSHOTS.md) or the [PosLe landing page](./docs/index.html).
 
 PosLe is a modern, cross-platform Point of Sale system built with Kotlin Multiplatform. It provides a robust solution for managing transactions, products, inventory, and sales recaps across Android and Desktop platforms.
 
@@ -11,6 +11,7 @@ PosLe is a modern, cross-platform Point of Sale system built with Kotlin Multipl
 - **Product & Inventory:** Manage a comprehensive product catalog, including variants, categories, and stock tracking with low-stock alerts.
 - **Bundles:** Create and manage product bundles for promotional offers or grouped sales.
 - **Sales Recaps:** Generate and view detailed transaction histories and sales summaries.
+- **Export Notifications:** Get a platform notification when a product-list export finishes (see [Export Notifications](./ARCHITECTURE.md#feature-export-notifications)).
 - **QR Scanning:** Quickly find products or process transactions using the built-in QR scanner.
 - **Data Persistence:** Offline-first approach using Room database for reliable data management.
 - **Cross-Platform:** Shared business logic and UI using Compose Multiplatform.

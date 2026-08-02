@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PosLe — Aplikasi Kasir, Lebih Simpel</title>
+<meta name="description" content="PosLe adalah aplikasi Point of Sale lintas platform untuk Android (Desktop segera hadir). Kelola transaksi, produk, paket, stok, dan rekap — semuanya offline-first.">
+<style>
+  :root {
+    --burgundy: #9B2A31;
+    --burgundy-dark: #7a1f25;
+    --burgundy-soft: #c05052;
+    --charcoal: #233D4D;
+    --cream: #F0F7F4;
+    --pink: #FCEAE9;
+    --ink: #1f2430;
+    --muted: #5b6570;
+    --white: #ffffff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+    line-height: 1.6;
+    background: var(--white);
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- Nav ---------- */
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255,255,255,.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(35,61,77,.08);
+  }
+  nav .container {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 19px; color: var(--ink); text-decoration: none; }
+  .brand .logo {
+    width: 34px; height: 34px; border-radius: 8px;
+    object-fit: cover; display: block;
+  }
+  .nav-links { display: flex; gap: 28px; align-items: center; }
+  .nav-links a:not(.btn) { color: var(--charcoal); text-decoration: none; font-size: 14.5px; font-weight: 600; }
+  .nav-links a:not(.btn):hover { color: var(--burgundy); }
+  .btn {
+    display: inline-block; padding: 10px 22px; border-radius: 999px;
+    font-weight: 700; font-size: 14.5px; text-decoration: none;
+    transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+    border: none; cursor: pointer;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-primary { background: var(--burgundy); color: var(--cream); box-shadow: 0 6px 18px rgba(155,42,49,.3); }
+  .btn-primary:hover { background: var(--burgundy-dark); }
+  .btn-outline { border: 1.5px solid rgba(35,61,77,.25); color: var(--charcoal); background: transparent; }
+  .btn-outline:hover { border-color: var(--burgundy); color: var(--burgundy); }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    background:
+      radial-gradient(900px 500px at 85% -10%, rgba(155,42,49,.10), transparent 60%),
+      radial-gradient(700px 420px at 0% 20%, rgba(35,61,77,.07), transparent 55%),
+      linear-gradient(180deg, var(--cream) 0%, var(--white) 100%);
+    padding: 96px 0 88px;
+    text-align: center;
+  }
+  .hero .app-logo {
+    width: 92px; height: 92px; border-radius: 22px; margin: 0 auto 26px;
+    object-fit: cover; display: block;
+    box-shadow: 0 12px 34px rgba(155,42,49,.38);
+  }
+  .hero h1 { font-size: clamp(34px, 5vw, 54px); font-weight: 800; letter-spacing: -1.2px; line-height: 1.1; }
+  .hero h1 span { color: var(--burgundy); }
+  .hero .tagline {
+    max-width: 620px; margin: 22px auto 34px;
+    font-size: 17.5px; color: var(--muted);
+  }
+  .hero .cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .hero .badges { margin-top: 30px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .badge {
+    font-size: 12.5px; font-weight: 600; color: var(--charcoal);
+    background: #fff; border: 1px solid rgba(35,61,77,.14);
+    padding: 6px 14px; border-radius: 999px;
+  }
+  .hero .phone-strip {
+    margin-top: 64px; display: flex; justify-content: center; gap: 22px; flex-wrap: wrap;
+  }
+  .frame {
+    background: #0d0f14; border-radius: 30px; padding: 9px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 18px 44px rgba(35,61,77,.22);
+    transform: rotate(-2deg);
+  }
+  .frame:nth-child(2) { transform: rotate(1.5deg); }
+  .frame:nth-child(3) { transform: rotate(-1deg); }
+  .frame img { display: block; width: 200px; height: 424px; border-radius: 22px; object-fit: cover; background: var(--pink); }
+
+  /* ---------- Sections ---------- */
+  section { padding: 84px 0; }
+  .section-label {
+    font-size: 13px; text-transform: uppercase; letter-spacing: 2px;
+    color: var(--burgundy); font-weight: 700; text-align: center; margin-bottom: 10px;
+  }
+  h2 { font-size: clamp(26px, 3.5vw, 36px); font-weight: 800; letter-spacing: -.6px; text-align: center; }
+  .section-sub { text-align: center; color: var(--muted); max-width: 560px; margin: 14px auto 0; font-size: 15.5px; }
+
+  /* Features */
+  #features { background: var(--white); }
+  .features-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 22px; margin-top: 48px;
+  }
+  .feature {
+    background: #fff; border: 1px solid rgba(35,61,77,.09); border-radius: 18px;
+    padding: 26px 24px; transition: transform .16s ease, box-shadow .16s ease;
+  }
+  .feature:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(35,61,77,.10); }
+  .feature .icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: var(--pink); color: var(--burgundy);
+    display: grid; place-items: center; font-size: 20px; margin-bottom: 14px;
+  }
+  .feature h3 { font-size: 16.5px; font-weight: 750; margin-bottom: 6px; }
+  .feature p { font-size: 14px; color: var(--muted); }
+
+  /* Screenshots gallery */
+  #screenshots { background: linear-gradient(180deg, var(--cream) 0%, var(--white) 100%); }
+  .gallery {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 26px; margin-top: 48px;
+  }
+  .card {
+    background: #fff; border-radius: 20px; padding: 18px 18px 16px;
+    box-shadow: 0 8px 26px rgba(35,61,77,.09); border: 1px solid rgba(35,61,77,.07);
+    text-align: center; transition: transform .16s ease, box-shadow .16s ease;
+  }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(35,61,77,.15); }
+  .card .frame { transform: none; }
+  .card .frame img { width: 200px; height: 424px; }
+  .card .caption { margin-top: 12px; font-weight: 650; font-size: 14.5px; }
+  .card .caption small { display: block; color: var(--muted); font-weight: 500; font-size: 12.5px; margin-top: 2px; }
+
+  /* CTA band */
+  #download {
+    background: linear-gradient(135deg, var(--burgundy) 0%, var(--burgundy-dark) 100%);
+    color: #fff; text-align: center;
+  }
+  #download h2 { color: #fff; }
+  #download .section-sub { color: rgba(255,255,255,.82); }
+  #download .cta { margin-top: 34px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  #download .btn-primary { background: #fff; color: var(--burgundy); box-shadow: 0 8px 22px rgba(0,0,0,.25); }
+  #download .btn-primary:hover { background: var(--cream); }
+  #download .btn-outline { border-color: rgba(255,255,255,.5); color: #fff; }
+  #download .btn-outline:hover { border-color: #fff; background: rgba(255,255,255,.12); }
+
+  footer { background: var(--charcoal); color: rgba(255,255,255,.75); padding: 40px 0; }
+  footer .container { display: flex; justify-content: space-between; align-items: center; gap: 18px; flex-wrap: wrap; }
+  footer .brand { color: #fff; }
+  footer .brand .logo { width: 30px; height: 30px; border-radius: 7px; }
+  footer a { color: var(--cream); text-decoration: none; font-weight: 600; }
+  footer a:hover { color: #fff; }
+  footer .note { font-size: 13px; }
+
+  @media (max-width: 640px) {
+    .nav-links a:not(.btn) { display: none; }
+    .hero { padding: 64px 0 60px; }
+    .hero .phone-strip { gap: 12px; }
+    .frame img { width: 150px; height: 318px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <div class="container">
+    <a class="brand" href="#top"><img class="logo" src="logo.png" alt="Logo PosLe">PosLe</a>
+    <div class="nav-links">
+      <a href="#features">Fitur</a>
+      <a href="#screenshots">Galeri</a>
+      <a href="#download" class="btn btn-primary">Mulai</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<header class="hero" id="top">
+  <div class="container">
+    <img class="app-logo" src="logo.png" alt="Logo PosLe">
+    <h1>Aplikasi Kasir,<br><span>Lebih Simpel.</span></h1>
+    <p class="tagline">
+      PosLe adalah aplikasi Point of Sale modern dan offline-first yang dibangun dengan Kotlin Multiplatform —
+      kelola transaksi, produk, paket, stok, dan rekap di Android
+      <em>(Desktop segera hadir)</em>.
+    </p>
+    <div class="cta">
+      <a href="#download" class="btn btn-primary">Unduh Aplikasi</a>
+      <a href="#screenshots" class="btn btn-outline">Lihat Galeri</a>
+    </div>
+    <div class="badges">
+      <span class="badge">Android</span>
+      <span class="badge">Desktop (Segera)</span>
+      <span class="badge">Offline-first</span>
+      <span class="badge">Pindai QR</span>
+      <span class="badge">Bahasa Indonesia</span>
+    </div>
+    <div class="phone-strip">
+      <div class="frame"><img src="../screenshots/transaction_add_product_selection.png" alt="Transaksi — Pemilihan Produk"></div>
+      <div class="frame"><img src="../screenshots/transaction_add_cart.png" alt="Transaksi — Keranjang"></div>
+      <div class="frame"><img src="../screenshots/transaction_recap.png" alt="Rekap Transaksi"></div>
+    </div>
+  </div>
+</header>
+
+<!-- Features -->
+<section id="features">
+  <div class="container">
+    <p class="section-label">Mengapa PosLe</p>
+    <h2>Semua yang dibutuhkan kasir</h2>
+    <p class="section-sub">Perangkat lengkap untuk usaha kecil &amp; menengah — mudah digunakan, dirancang untuk bertahan lama.</p>
+    <div class="features-grid">
+      <div class="feature">
+        <div class="icon">🛒</div>
+        <h3>Manajemen Transaksi</h3>
+        <p>Proses penjualan dengan cepat untuk produk satuan atau paket, ubah harga, dan tambahkan catatan per item.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">📦</div>
+        <h3>Produk &amp; Inventaris</h3>
+        <p>Katalog produk lengkap dengan varian, kategori, SKU, riwayat harga, dan pelacakan stok real-time.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">🧺</div>
+        <h3>Paket</h3>
+        <p>Buat paket promo dari produk yang sudah ada hanya dengan sekali sentuh — cocok untuk penawaran dan penjualan kelompok.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">📊</div>
+        <h3>Rekap Penjualan</h3>
+        <p>Ringkasan harian &amp; periode dengan rincian keuntungan, dapat diekspor sebagai PDF — langsung dari aplikasi.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">📷</div>
+        <h3>Pemindaian QR</h3>
+        <p>Temukan produk atau proses penjualan dengan cepat melalui pemindai QR bawaan.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">🖨️</div>
+        <h3>Struk &amp; Ekspor</h3>
+        <p>Cetak struk, simpan PDF transaksi, dan ekspor daftar produk ke Excel — diberi notifikasi saat selesai.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Screenshots -->
+<section id="screenshots">
+  <div class="container">
+    <p class="section-label">Galeri</p>
+    <h2>Pratinjau Aplikasi</h2>
+    <p class="section-sub">Tangkapan layar asli dari build Android.</p>
+    <div class="gallery">
+      <div class="card">
+        <div class="frame"><img src="../screenshots/transaction_add_product_selection.png" alt="Transaksi — Pemilihan Produk"></div>
+        <div class="caption">Pemilihan Produk<small>Transaksi · cari &amp; pindai QR</small></div>
+      </div>
+      <div class="card">
+        <div class="frame"><img src="../screenshots/transaction_add_cart.png" alt="Transaksi — Keranjang"></div>
+        <div class="caption">Keranjang<small>Keranjang · pelanggan &amp; total</small></div>
+      </div>
+      <div class="card">
+        <div class="frame"><img src="../screenshots/transaction_detail.png" alt="Detail Transaksi / Struk"></div>
+        <div class="caption">Detail &amp; Struk<small>Detail Transaksi · simpan / cetak</small></div>
+      </div>
+      <div class="card">
+        <div class="frame"><img src="../screenshots/transaction_recap.png" alt="Rekap Transaksi"></div>
+        <div class="caption">Rekap Transaksi<small>Rekap Transaksi · ringkasan keuntungan</small></div>
+      </div>
+      <div class="card">
+        <div class="frame"><img src="../screenshots/product_list.png" alt="Daftar Produk"></div>
+        <div class="caption">Daftar Produk<small>Daftar Produk · stok minim &amp; paket</small></div>
+      </div>
+      <div class="card">
+        <div class="frame"><img src="../screenshots/setting.png" alt="Pengaturan"></div>
+        <div class="caption">Pengaturan<small>Pengaturan · Tentang &amp; sakelar</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="download">
+  <div class="container">
+    <p class="section-label" style="color: rgba(255,255,255,.7)">Mulai</p>
+    <h2>Siap menjalankan toko Anda dengan PosLe?</h2>
+    <p class="section-sub">Bangun dari sumbernya di Android — kode terbuka dan terdokumentasi.</p>
+    <div class="cta">
+      <a href="#top" class="btn btn-primary">Kembali ke atas</a>
+      <a href="https://github.com/gab-stargazer/PosLe" class="btn btn-outline">Lihat di GitHub</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <a class="brand" href="#top"><img class="logo" src="logo.png" alt="Logo PosLe">PosLe</a>
+    <span class="note">Kotlin Multiplatform · Sistem Kasir</span>
+  </div>
+</footer>
+
+</body>
+</html>

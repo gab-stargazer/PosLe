@@ -16,3 +16,9 @@ fun BigDecimal.toDisplayText(): String {
         this.stripTrailingZeros().toPlainString()
     }
 }
+
+/**
+ * Returns only the digit characters of [this] string, preserving their order.
+ * Used to enforce numeric-only input in quantity fields.
+ */
+fun String.digitsOnly(): String = filter { it.isDigit() }

@@ -162,7 +162,10 @@ object TransactionReportGenerator {
         startDate: Long,
         finishDate: Long
     ) {
-        val printFmt = SimpleDateFormat("dd/MM/yyyy", Locale("in", "ID"))
+        val printFmt = SimpleDateFormat(
+            "dd/MM/yyyy",
+            Locale.Builder().setLanguage("in").setRegion("ID").build()
+        )
 
         context.document.add(createLabelValueLine(context, "No. Transaksi: ", transactionId))
         context.document.add(

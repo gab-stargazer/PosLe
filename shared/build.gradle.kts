@@ -14,7 +14,8 @@ plugins {
 
 kotlin {
     compilerOptions {
-        freeCompilerArgs.add("-Xexplicit-backing-fields")
+        //  Opt into stable expect/actual (KT-61573) — removes the Beta warning
+        freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 
     jvm()
@@ -40,6 +41,10 @@ kotlin {
     sourceSets {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
+            implementation(libs.permissions.compose)
+            implementation("com.github.DantSu:ESCPOS-ThermalPrinter-Android:3.3.0")
+            implementation(libs.androidx.core.ktx)
+            implementation(libs.androidx.activity.compose)
         }
 
         commonMain.dependencies {
@@ -116,6 +121,8 @@ kotlin {
 
         jvmTest.dependencies {
             implementation(libs.mockk)
+            implementation("org.jetbrains.compose.ui:ui-test-junit4:${libs.versions.composeMultiplatform.get()}")
+            implementation(compose.desktop.currentOs)
         }
 
         

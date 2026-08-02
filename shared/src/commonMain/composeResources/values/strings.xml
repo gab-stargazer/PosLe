@@ -62,7 +62,6 @@
     <string name="label_product_choosen">Produk Dipilih</string>
     <string name="label_recapped">Direkap</string>
     <string name="label_search_for_transaction">Cari Nama Pelanggan atau Produk</string>
-    <string name="label_setting_amount_precise">Jumlah Presisi</string>
     <string name="label_setting_customer_name">Nama Pelanggan</string>
     <string name="label_setting_product_volatile">Harga Produk Volatil</string>
     <string name="label_setting_recap_transaction">Rekap Transaksi Manual</string>
@@ -71,12 +70,16 @@
     <string name="label_variant_name">Nama Varian/Tambahan</string>
     <string name="label_variant_price_adjustment">Harga Tambahan</string>
     <string name="msg_confirm_delete_bundle">Apakah Anda yakin ingin menghapus paket ini?</string>
-    <string name="msg_setting_amount_precise">Jika aktif, jumlah produk akan menggunakan angka desimal.</string>
     <string name="msg_setting_customer_name">Jika aktif, Anda dapat menambahkan nama pelanggan pada transaksi.</string>
     <string name="msg_setting_product_volatile">Jika aktif, Anda dapat mengubah harga produk saat menambahkan transaksi.</string>
     <string name="msg_setting_recap_transaction">Jika aktif, transaksi akan memiliki status rekap untuk membantu anda melakukan rekap manual.</string>
     <string name="msg_setting_stock_tracked">Jika aktif, stok keluar masuk barang dan menu yang sesuai akan tersedia.</string>
     <string name="title_delete_bundle">Hapus Paket</string>
+
+    <!--About-->
+    <string name="title_about_app">Tentang Aplikasi</string>
+    <string name="label_app_version">Versi %1$s</string>
+    <string name="msg_app_about">Aplikasi kasir (Point of Sale) untuk mengelola produk, paket, stok, dan transaksi toko Anda.</string>
 
     <!--Button-->
     <string name="btn_add_bundle">Tambah Paket</string>
@@ -108,6 +111,7 @@
 
     <!--Item-->
     <string name="action_export_products">Ekspor Produk</string>
+    <string name="notification_export_success">Data Produk berhasil diekspor</string>
     <string name="action_import_products">Impor Produk</string>
     <string name="txt_add_product_to_bundle">Tambahkan Produk ke Paket</string>
     <string name="txt_add_product_to_bundle_description">Masukkan nama produk dibawah, kemudian klik produk yang ingin dipilih</string>
@@ -172,9 +176,6 @@
     <string name="description_product_purchase">Stok bertambah karena pembelian barang dari pemasok.</string>
     <string name="description_product_return">Stok bertambah karena barang dikembalikan oleh pelanggan.</string>
     <string name="description_product_sale">Stok berkurang karena barang telah terjual kepada pelanggan.</string>
-
-    <!--Placeholder-->
-    <string name="placeholder_store_name">Masukkan Nama Toko</string>
 
     <!--Error-->
     <string name="msg_error_bundle_must_contain_at_least_one_item">Paket harus berisi setidaknya 1 produk</string>
