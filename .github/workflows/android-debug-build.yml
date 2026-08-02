@@ -1,0 +1,47 @@
+name: Android Debug Build
+
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+jobs:
+  build-debug-apk:
+    name: Build Debug APK
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Inject google-services.json (debug)
+        shell: bash
+        run: |
+          echo "${{ secrets.GOOGLE_SERVICES_DEBUG_JSON }}" | base64 -d > androidApp/src/debug/google-services.json
+
+      - name: Inject google-services.json (release)
+        shell: bash
+        run: |
+          echo "${{ secrets.GOOGLE_SERVICES_RELEASE_JSON }}" | base64 -d > androidApp/src/release/google-services.json
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build debug APK
+        shell: bash
+        run: ./gradlew :androidApp:assembleDebug --no-daemon
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: androidApp-debug-apk
+          path: androidApp/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
