@@ -25,11 +25,13 @@ jobs:
       - name: Inject google-services.json (debug)
         shell: bash
         run: |
+          mkdir -p androidApp/src/debug
           echo "${{ secrets.GOOGLE_SERVICES_DEBUG_JSON }}" | base64 -d > androidApp/src/debug/google-services.json
 
       - name: Inject google-services.json (release)
         shell: bash
         run: |
+          mkdir -p androidApp/src/release
           echo "${{ secrets.GOOGLE_SERVICES_RELEASE_JSON }}" | base64 -d > androidApp/src/release/google-services.json
 
       - name: Grant execute permission for gradlew
