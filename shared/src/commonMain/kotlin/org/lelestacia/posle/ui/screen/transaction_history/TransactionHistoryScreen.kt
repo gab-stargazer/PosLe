@@ -52,7 +52,6 @@ fun TransactionHistoryScreen(
 ) {
     val state by component.state.collectAsStateWithLifecycle()
 
-    //  Paging
     val transactionHistory = component.allHistory.collectAsLazyPagingItems()
     val unRecappedTransactionHistory = component.unRecappedHistory.collectAsLazyPagingItems()
 

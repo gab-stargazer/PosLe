@@ -40,6 +40,9 @@ import posle.shared.generated.resources.title_product_movement_purchase
 import posle.shared.generated.resources.title_product_movement_return
 import posle.shared.generated.resources.title_product_movement_sale
 import java.math.BigDecimal
+import posle.shared.generated.resources.label_goods_in
+import posle.shared.generated.resources.label_goods_out
+import posle.shared.generated.resources.label_time_format
 
 @Composable
 fun ProductInboundOutboundItem(
@@ -73,8 +76,8 @@ fun ProductInboundOutboundItem(
             ) {
                 Text(
                     text = when (stockMovement.movementType) {
-                        StockMovementType.Purchase, StockMovementType.AdjustmentIncrease -> "Barang Masuk"
-                        StockMovementType.AdjustmentDecrease, StockMovementType.Sale, StockMovementType.Return -> "Barang Keluar"
+                        StockMovementType.Purchase, StockMovementType.AdjustmentIncrease -> stringResource(Res.string.label_goods_in)
+                        StockMovementType.AdjustmentDecrease, StockMovementType.Sale, StockMovementType.Return -> stringResource(Res.string.label_goods_out)
                     },
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
@@ -83,7 +86,7 @@ fun ProductInboundOutboundItem(
                 )
 
                 Text(
-                    "Waktu: ${stockMovement.createdAt.toFormattedDateTime()}",
+                    stringResource(Res.string.label_time_format, stockMovement.createdAt.toFormattedDateTime()),
                     style = MaterialTheme.typography.bodySmall
                 )
 

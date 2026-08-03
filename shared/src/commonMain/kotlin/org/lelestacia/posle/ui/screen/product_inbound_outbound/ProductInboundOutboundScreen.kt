@@ -35,9 +35,15 @@ import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInboundOutboundComponent
 import org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnToggleDialog
 import org.lelestacia.posle.domain.model.Product
+import org.lelestacia.posle.util.Name
+import org.lelestacia.posle.util.Amount
+import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.toDisplayText
+import java.math.BigDecimal
+import androidx.compose.ui.tooling.preview.Preview
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.btn_add_mutation
+import posle.shared.generated.resources.label_unit_format
 
 @TraceRecomposition
 @Composable
@@ -134,7 +140,7 @@ fun ProductStockItem(
                 )
             )
             Text(
-                text = "Satuan: ${product.unit.value}",
+                text = stringResource(Res.string.label_unit_format, product.unit.value),
                 style = MaterialTheme.typography.bodySmall
             )
         }
@@ -159,6 +165,23 @@ private fun PreviewProductInboundOutboundScreen() {
                 override val state = kotlinx.coroutines.flow.MutableStateFlow(org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInboundOutboundComponentState())
                 override fun onEvent(event: org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInboundOutboundComponentEvent) {}
             }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewProductStockItem() {
+    org.lelestacia.posle.ui.theme.AppTheme {
+        ProductStockItem(
+            product = Product(
+                id = 0,
+                name = Name("Salak Pondoh"),
+                stock = Amount(BigDecimal("50")),
+                unit = org.lelestacia.posle.util.Unit(value = "Kg"),
+                buyPrice = Price(BigDecimal("10000")),
+                sellPrice = Price(BigDecimal("15000"))
+            )
         )
     }
 }

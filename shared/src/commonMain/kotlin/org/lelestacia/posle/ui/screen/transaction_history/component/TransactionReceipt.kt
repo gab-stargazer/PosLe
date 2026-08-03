@@ -29,6 +29,13 @@ import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.SampleData
 import org.lelestacia.posle.util.toFormattedDateTime
 import org.lelestacia.posle.util.toRupiah
+import org.jetbrains.compose.resources.stringResource
+import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.app_name
+import posle.shared.generated.resources.label_receipt_date_format
+import posle.shared.generated.resources.label_receiver_format
+import posle.shared.generated.resources.label_total_spending
+import posle.shared.generated.resources.label_thanks_for_shopping
 
 @Composable
 fun TransactionReceipt(
@@ -50,8 +57,9 @@ fun TransactionReceipt(
                 .background(MintCream)
                 .padding(24.dp)
         ) {
+            val appName = stringResource(Res.string.app_name)
             Text(
-                text = storeName.value.ifEmpty { "Posle" }.uppercase(),
+                text = storeName.value.ifEmpty { appName }.uppercase(),
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.Monospace
@@ -59,7 +67,7 @@ fun TransactionReceipt(
             )
 
             Text(
-                text = "Tanggal: ${transactionDate.toFormattedDateTime()}".uppercase(),
+                text = stringResource(Res.string.label_receipt_date_format, transactionDate.toFormattedDateTime()).uppercase(),
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontFamily = FontFamily.Monospace
                 ),
@@ -70,7 +78,7 @@ fun TransactionReceipt(
 
             if (customerName.value.isNotBlank()) {
                 Text(
-                    "Penerima: ${customerName.value}".uppercase(),
+                    stringResource(Res.string.label_receiver_format, customerName.value).uppercase(),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontFamily = FontFamily.Monospace
                     ),
@@ -113,7 +121,7 @@ fun TransactionReceipt(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    "Total Belanja:",
+                    stringResource(Res.string.label_total_spending),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontFamily = FontFamily.Monospace
                     ),
@@ -133,7 +141,7 @@ fun TransactionReceipt(
 
 
             Text(
-                "Terimakasih telah berbelanja",
+                stringResource(Res.string.label_thanks_for_shopping),
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.Monospace

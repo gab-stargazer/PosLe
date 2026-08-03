@@ -83,22 +83,6 @@ fun ProductAddEditSectionSellPrice(
                 .padding(horizontal = 12.dp)
         )
 
-//        Row(
-//            verticalAlignment = Alignment.CenterVertically,
-//        ) {
-//            Checkbox(
-//                checked = state.isSellPriceAndBuyPriceTheSame,
-//                onCheckedChange = { newState ->
-//                    onEvent(OnSellPriceTheSameAsBuyPriceCheckedChange(newState))
-//                }
-//            )
-//
-//            Text(
-//                stringResource(Res.string.label_sell_price_equal_to_buy_price),
-//                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
-//            )
-//        }
-
         if (state.mode == Edit) {
             Row(
                 verticalAlignment = Alignment.Top,

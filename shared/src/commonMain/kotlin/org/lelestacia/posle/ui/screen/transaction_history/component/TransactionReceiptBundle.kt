@@ -28,6 +28,7 @@ import org.lelestacia.posle.util.toRupiah
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.title_subtotal
 import kotlin.time.Clock
+import posle.shared.generated.resources.label_note_format
 
 @Composable
 fun TransactionReceiptBundle(
@@ -104,7 +105,7 @@ fun TransactionReceiptBundle(
 
         if (transactionItem.note.orEmpty().isNotBlank()) {
             Text(
-                "Catatan: ${transactionItem.note}",
+                stringResource(Res.string.label_note_format, transactionItem.note.orEmpty()),
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontFamily = FontFamily.Monospace,
                     textAlign = TextAlign.Start

@@ -31,6 +31,10 @@ import org.lelestacia.posle.domain.model.Bundle
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.toRupiah
+import org.jetbrains.compose.resources.stringResource
+import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.label_bundle_price_format
+import posle.shared.generated.resources.label_product_count_in_bundle
 
 @TraceRecomposition
 @Composable
@@ -86,7 +90,7 @@ fun BundleItem(
 
                 Column {
                     Text(
-                        text = "Harga Paket: ${totalPrice.toRupiah()}",
+                        text = stringResource(Res.string.label_bundle_price_format, totalPrice.toRupiah()),
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontWeight = FontWeight.Bold
                         ),
@@ -94,7 +98,7 @@ fun BundleItem(
                     )
                     
                     Text(
-                        text = "${bundle.bundleProducts.size} Produk dalam Paket",
+                        text = stringResource(Res.string.label_product_count_in_bundle, bundle.bundleProducts.size),
                         style = MaterialTheme.typography.labelSmall,
                         textAlign = TextAlign.Center,
                     )

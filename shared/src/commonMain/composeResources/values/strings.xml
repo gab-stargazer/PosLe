@@ -205,4 +205,43 @@
     <string name="dialog_notification_permission_title">Izin Notifikasi</string>
     <string name="dialog_notification_permission_desc">Aplikasi membutuhkan izin notifikasi untuk memberitahu Anda ketika laporan PDF selesai dibuat. Laporan akan tetap dibuat meskipun izin tidak diberikan.</string>
     <string name="label_camera_permission">Izin Kamera</string>
+
+    <!--Scanner-->
+    <string name="label_scanning">Memindai...</string>
+    <string name="label_align_barcode">Sejajarkan barcode di dalam bingkai</string>
+    <string name="cd_close_scanner">Tutup</string>
+
+    <!--Additional labels-->
+    <string name="label_unit_format">Satuan: %1$s</string>
+    <string name="label_price_format">Harga: %1$s</string>
+    <string name="label_stock_format">Stok: %1$s %2$s</string>
+    <string name="label_bundle_price_format">Harga Paket: %1$s</string>
+    <string name="label_product_count_in_bundle">%1$d Produk dalam Paket</string>
+    <string name="label_no_data">Belum ada data</string>
+    <string name="label_today_data">Data hari ini:</string>
+    <string name="label_date_prefix">Tanggal: </string>
+    <string name="label_best_seller">Item Terlaris: </string>
+    <string name="label_total_transaction_prefix">Total Transaksi: </string>
+    <string name="label_transaction_count">%1$s Transaksi</string>
+    <string name="label_sold">Terjual:</string>
+    <string name="label_modal">Modal:</string>
+    <string name="label_sell">Jual:</string>
+    <string name="label_margin">Margin:</string>
+    <string name="label_product_badge">Produk</string>
+    <string name="label_bundle_badge">Paket</string>
+    <string name="label_receiver_format">Penerima: %1$s</string>
+    <string name="label_receipt_date_format">Tanggal: %1$s</string>
+    <string name="label_total_spending">Total Belanja:</string>
+    <string name="label_thanks_for_shopping">Terimakasih telah berbelanja</string>
+    <string name="label_note_format">Catatan: %1$s</string>
+    <string name="label_time_format">Waktu: %1$s</string>
+    <string name="label_goods_in">Barang Masuk</string>
+    <string name="label_goods_out">Barang Keluar</string>
+    <string name="label_recap_date_format">Rekap %1$s</string>
+    <string name="action_add_stock">Tambah Stok</string>
+    <string name="action_edit_bundle">Edit Paket</string>
+    <string name="action_add_bundle">Tambah Paket</string>
+    <string name="action_remove_product_from_category">Hapus Produk dari kategori</string>
+    <string name="action_edit_category">Edit Kategori</string>
+    <string name="action_delete_category">Hapus Kategori</string>
 </resources>

@@ -29,6 +29,14 @@ import org.lelestacia.posle.util.Unit
 import org.lelestacia.posle.util.Util
 import org.lelestacia.posle.util.toDisplayText
 import org.lelestacia.posle.util.toRupiah
+import org.jetbrains.compose.resources.stringResource
+import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.label_sold
+import posle.shared.generated.resources.label_modal
+import posle.shared.generated.resources.label_sell
+import posle.shared.generated.resources.label_margin
+import posle.shared.generated.resources.label_product_badge
+import posle.shared.generated.resources.label_bundle_badge
 
 @Composable
 fun TransactionProductDetailItem(
@@ -52,22 +60,22 @@ fun TransactionProductDetailItem(
             ) {
                 Column {
                     Text(
-                        text = "Terjual:",
+                        text = stringResource(Res.string.label_sold),
                         style = MaterialTheme.typography.bodyMedium
                     )
 
                     Text(
-                        text = "Modal:",
+                        text = stringResource(Res.string.label_modal),
                         style = MaterialTheme.typography.bodyMedium
                     )
 
                     Text(
-                        text = "Jual:",
+                        text = stringResource(Res.string.label_sell),
                         style = MaterialTheme.typography.bodyMedium
                     )
 
                     Text(
-                        text = "Margin:",
+                        text = stringResource(Res.string.label_margin),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -117,8 +125,8 @@ fun TransactionProductDetailItem(
             ) {
                 Text(
                     when (type) {
-                        TransactionItemType.Product -> "Produk"
-                        TransactionItemType.Bundle -> "Paket"
+                        TransactionItemType.Product -> stringResource(Res.string.label_product_badge)
+                        TransactionItemType.Bundle -> stringResource(Res.string.label_bundle_badge)
                     },
                     style = MaterialTheme.typography.titleSmall.copy(
                         fontWeight = FontWeight.Bold,

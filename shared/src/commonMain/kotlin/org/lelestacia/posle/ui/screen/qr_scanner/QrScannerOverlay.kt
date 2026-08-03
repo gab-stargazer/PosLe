@@ -32,8 +32,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.BurgundyRed
+import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.cd_close_scanner
+import posle.shared.generated.resources.label_align_barcode
+import posle.shared.generated.resources.label_scanning
 
 @Composable
 fun QrScannerOverlay(
@@ -41,7 +46,6 @@ fun QrScannerOverlay(
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
-        // Semi-transparent background with a hole in the middle
         Canvas(modifier = Modifier.fillMaxSize()) {
             val canvasWidth = size.width
             val canvasHeight = size.height
@@ -80,13 +84,13 @@ fun QrScannerOverlay(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Scanning...",
+                text = stringResource(Res.string.label_scanning),
                 color = Color.White,
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "Align barcode within the frame",
+                text = stringResource(Res.string.label_align_barcode),
                 color = Color.White.copy(alpha = 0.8f),
                 style = MaterialTheme.typography.bodyMedium
             )
@@ -101,7 +105,7 @@ fun QrScannerOverlay(
         ) {
             Icon(
                 imageVector = Icons.Default.Close,
-                contentDescription = "Close",
+                contentDescription = stringResource(Res.string.cd_close_scanner),
                 tint = Color.White
             )
         }

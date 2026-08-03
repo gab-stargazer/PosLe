@@ -20,10 +20,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
+import androidx.compose.ui.tooling.preview.Preview
+import org.lelestacia.posle.ui.theme.AppTheme
 import com.skydoves.compose.stability.runtime.TraceRecomposition
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.util.Util.GridItemHeight
 import org.lelestacia.posle.util.Util.GridItemSpacing
+import org.jetbrains.compose.resources.stringResource
+import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.label_no_data
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.flow.flowOf
 
 @Composable
 private fun EmptyProductsCard(modifier: Modifier = Modifier) {
@@ -41,7 +51,7 @@ private fun EmptyProductsCard(modifier: Modifier = Modifier) {
                 .padding(GridItemSpacing)
         ) {
             Text(
-                "Belum ada data",
+                stringResource(Res.string.label_no_data),
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold
                 )
@@ -103,5 +113,20 @@ fun ProductsLazyHorizontalGrid(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewProductsLazyHorizontalGrid() {
+    val products = flowOf(PagingData.from(emptyList<Product>()))
+        .cachedIn(rememberCoroutineScope())
+        .collectAsLazyPagingItems()
+    AppTheme {
+        ProductsLazyHorizontalGrid(
+            products = products,
+            isStockShown = true,
+            onClick = {},
+        )
     }
 }

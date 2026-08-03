@@ -13,6 +13,14 @@ import androidx.compose.ui.unit.dp
 import org.lelestacia.posle.domain.component.TransactionHistoryScreenState
 import org.lelestacia.posle.util.toFormattedDate
 import kotlin.time.Clock
+import org.jetbrains.compose.resources.stringResource
+import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.label_today_data
+import posle.shared.generated.resources.label_date_prefix
+import posle.shared.generated.resources.label_best_seller
+import posle.shared.generated.resources.label_total_transaction_prefix
+import posle.shared.generated.resources.label_transaction_count
+import posle.shared.generated.resources.label_total_money
 
 @Composable
 fun TransactionHistoryScreenHeader(
@@ -22,33 +30,21 @@ fun TransactionHistoryScreenHeader(
     val totalTransaction = state.todayTransactions
         .size
 
-//    val totalTransactionValue = state.todayTransactions
-//        .sumOf {
-//            it.items.sumOf { item -> item.productAmount.value.toBigDecimal() * item.productSellPrice.value }
-//        }
-//
-//    val mostSoldItemToday =
-//        state.todayTransactions
-//            .flatMap { it.items }
-//            .groupingBy { it.productName }
-//            .eachCount()
-//            .maxByOrNull { it.value }
-//            ?.key
-
     Column(
         modifier = modifier
             .padding(12.dp)
     ) {
         Text(
-            text = "Data hari ini:",
+            text = stringResource(Res.string.label_today_data),
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold
             )
         )
 
+        val datePrefix = stringResource(Res.string.label_date_prefix)
         val dateSb = buildAnnotatedString {
             withStyle(MaterialTheme.typography.bodyMedium.toSpanStyle()) {
-                append("Tanggal: ")
+                append(datePrefix)
             }
 
             withStyle(
@@ -60,44 +56,46 @@ fun TransactionHistoryScreenHeader(
         }
         Text(dateSb)
 
+        val bestSellerPrefix = stringResource(Res.string.label_best_seller)
         val mostSaleSb = buildAnnotatedString {
             withStyle(MaterialTheme.typography.bodyMedium.toSpanStyle()) {
-                append("Item Terlaris: ")
+                append(bestSellerPrefix)
             }
 
             withStyle(
                 MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
                     .toSpanStyle()
             ) {
-//                append(mostSoldItemToday?.value ?: "Belum ada data")
             }
         }
         Text(mostSaleSb)
 
+        val totalTransactionPrefix = stringResource(Res.string.label_total_transaction_prefix)
+        val transactionCount = stringResource(Res.string.label_transaction_count, totalTransaction)
         val totalSb = buildAnnotatedString {
             withStyle(MaterialTheme.typography.bodyMedium.toSpanStyle()) {
-                append("Total Transaksi: ")
+                append(totalTransactionPrefix)
             }
 
             withStyle(
                 MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
                     .toSpanStyle()
             ) {
-                append("$totalTransaction Transaksi")
+                append(transactionCount)
             }
         }
         Text(totalSb)
 
+        val totalMoney = stringResource(Res.string.label_total_money, "Rp0")
         val totalValueSb = buildAnnotatedString {
             withStyle(MaterialTheme.typography.bodyMedium.toSpanStyle()) {
-                append("Total Uang: ")
+                append(totalMoney)
             }
 
             withStyle(
                 MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
                     .toSpanStyle()
             ) {
-//                append(totalTransactionValue.toRupiah())
             }
         }
         Text(totalValueSb)

@@ -58,6 +58,7 @@ import posle.shared.generated.resources.label_optional_note
 import posle.shared.generated.resources.label_product_amount
 import posle.shared.generated.resources.label_product_price_latest
 import java.math.BigDecimal
+import posle.shared.generated.resources.label_variation
 
 @Composable
 fun TransactionProductConfigScreen(
@@ -100,7 +101,7 @@ fun TransactionProductConfigScreen(
                 if (state.product.variants.isNotEmpty()) {
                     item {
                         Text(
-                            text = "Variasi",
+                            text = stringResource(Res.string.label_variation),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)

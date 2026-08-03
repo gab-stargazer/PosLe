@@ -41,6 +41,9 @@ import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.MintCream
 import org.lelestacia.posle.util.SampleData
 import org.lelestacia.posle.util.toRupiah
+import org.jetbrains.compose.resources.stringResource
+import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.label_price_format
 
 @Composable
 fun TransactionAddProductGrid(
@@ -118,7 +121,7 @@ private fun TransactionAddProductCard(
             )
 
             Text(
-                text = "Harga: ${product.sellPrice.value.toRupiah()}",
+                text = stringResource(Res.string.label_price_format, product.sellPrice.value.toRupiah()),
                 style = MaterialTheme.typography.labelSmall,
                 textAlign = TextAlign.Center,
             )

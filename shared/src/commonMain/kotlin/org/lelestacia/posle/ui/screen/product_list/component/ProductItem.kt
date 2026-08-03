@@ -46,6 +46,8 @@ import org.lelestacia.posle.util.toRupiah
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.title_add_product_to_category_shorts
 import java.math.BigDecimal
+import posle.shared.generated.resources.label_price_format
+import posle.shared.generated.resources.label_stock_format
 
 @TraceRecomposition
 @Composable
@@ -101,7 +103,7 @@ fun ProductItem(
 
                 Column {
                     Text(
-                        text = "Harga: ${product.sellPrice.value.toRupiah()}",
+                        text = stringResource(Res.string.label_price_format, product.sellPrice.value.toRupiah()),
                         style = MaterialTheme.typography.labelSmall,
                         textAlign = TextAlign.Center,
                     )
@@ -110,7 +112,7 @@ fun ProductItem(
 
                     if (isStockTracked) {
                         Text(
-                            text = "Stok: $stock ${product.unit.value}",
+                            text = stringResource(Res.string.label_stock_format, stock, product.unit.value),
                             style = MaterialTheme.typography.labelSmall,
                             textAlign = TextAlign.Center,
                         )
@@ -195,5 +197,15 @@ private fun PreviewProductItem() {
                     .padding(12.dp)
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewProductAddItem() {
+    AppTheme {
+        ProductAddItem(
+            onClick = {}
+        )
     }
 }

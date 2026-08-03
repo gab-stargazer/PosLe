@@ -27,6 +27,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.tooling.preview.Preview
+import org.lelestacia.posle.ui.theme.AppTheme
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.paging.PagingData
@@ -47,6 +49,9 @@ import org.lelestacia.posle.navigation.AddEdit.Edit
 import org.lelestacia.posle.navigation.Config.ProductAddEdit
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.title_add_product_to_category
+import posle.shared.generated.resources.action_remove_product_from_category
+import posle.shared.generated.resources.action_edit_category
+import posle.shared.generated.resources.action_delete_category
 
 fun LazyListScope.categorized(
     searchQuery: String,
@@ -198,7 +203,7 @@ fun LazyListScope.categorized(
                         DropdownMenuItem(
                             text = {
                                 Text(
-                                    "Hapus Produk dari kategori",
+                                    stringResource(Res.string.action_remove_product_from_category),
                                     style = MaterialTheme.typography.bodyMedium.copy(
                                         fontWeight = FontWeight.Bold
                                     )
@@ -236,7 +241,7 @@ fun CategoryMenu(
         DropdownMenuItem(
             text = {
                 Text(
-                    "Edit Kategori",
+                    stringResource(Res.string.action_edit_category),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.Bold
                     )
@@ -248,13 +253,26 @@ fun CategoryMenu(
         DropdownMenuItem(
             text = {
                 Text(
-                    "Hapus Kategori",
+                    stringResource(Res.string.action_delete_category),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.Bold
                     )
                 )
             },
             onClick = onDeleteCategory
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewCategoryMenu() {
+    AppTheme {
+        CategoryMenu(
+            isExpanded = true,
+            onDismiss = {},
+            onEditCategory = {},
+            onDeleteCategory = {}
         )
     }
 }

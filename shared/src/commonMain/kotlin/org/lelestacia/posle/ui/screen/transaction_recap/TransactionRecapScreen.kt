@@ -57,6 +57,7 @@ import posle.shared.generated.resources.label_total_transaction
 import posle.shared.generated.resources.txt_total_profit
 import posle.shared.generated.resources.txt_total_profit_description
 import kotlin.time.Clock
+import posle.shared.generated.resources.label_recap_date_format
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,7 +103,13 @@ fun TransactionRecapScreen(
                 }
             }
         ) {
-            DateRangePicker(state = state.dateRangePickerState)
+            DateRangePicker(
+                state = state.dateRangePickerState,
+                colors = DatePickerDefaults.colors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
+                ),
+
+            )
         }
     }
 
@@ -121,7 +128,11 @@ fun TransactionRecapScreen(
             ) {
                 Text(
                     when {
-                        state.isSameDay -> "Rekap ${state.startDate.toFormattedDate()}"
+                        state.isSameDay -> stringResource(
+                            Res.string.label_recap_date_format,
+                            state.startDate.toFormattedDate()
+                        )
+
                         else -> "${state.startDate.toFormattedDate()} - ${state.finishDate.toFormattedDate()}"
                     },
                     style = MaterialTheme.typography.titleMedium.copy(

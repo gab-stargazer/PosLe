@@ -90,6 +90,8 @@ import posle.shared.generated.resources.msg_confirm_delete_bundle
 import posle.shared.generated.resources.title_delete_bundle
 import posle.shared.generated.resources.txt_add_product_to_bundle
 import posle.shared.generated.resources.txt_add_product_to_bundle_description
+import posle.shared.generated.resources.action_edit_bundle
+import posle.shared.generated.resources.action_add_bundle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -166,8 +168,8 @@ fun BundleAddEditScreen(
                 title = {
                     Text(
                         text = when (state.mode) {
-                            Edit -> "Edit Paket"
-                            else -> "Tambah Paket"
+                            Edit -> stringResource(Res.string.action_edit_bundle)
+                            else -> stringResource(Res.string.action_add_bundle)
                         },
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.Bold

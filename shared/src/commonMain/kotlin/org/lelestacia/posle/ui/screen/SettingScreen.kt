@@ -45,6 +45,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import com.arkivanov.decompose.value.MutableValue
+import com.arkivanov.decompose.value.Value
 import com.skydoves.compose.stability.runtime.TraceRecomposition
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -325,6 +327,29 @@ private fun PreviewSettingUI() {
                 )
             ),
             onEvent = {}
+        )
+    }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewSettingScreen() {
+    AppTheme {
+        SettingScreen(
+            component = object : SettingComponent {
+                override val state: Value<SettingState> = MutableValue(
+                    SettingState(
+                        settings = PosLeSettings(
+                            isProductVolatile = true,
+                            isAmountPrecise = false,
+                            isCustomerNameNeeded = true
+                        )
+                    )
+                )
+
+                override fun onEvent(event: SettingEvent) {}
+            }
         )
     }
 }
