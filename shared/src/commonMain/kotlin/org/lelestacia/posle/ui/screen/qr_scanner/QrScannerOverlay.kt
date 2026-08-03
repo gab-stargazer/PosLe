@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.lelestacia.posle.ui.theme.AppTheme
@@ -107,10 +108,12 @@ fun QrScannerOverlay(
     }
 }
 
-@Preview
+@Preview(device = Devices.PIXEL_7, showBackground = true)
 @Composable
 private fun PreviewQrScannerOverlay() {
     AppTheme {
-        QrScannerOverlay()
+        QrScannerOverlay(
+            onDismiss = {}
+        )
     }
 }
