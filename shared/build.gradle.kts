@@ -42,6 +42,7 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.permissions.compose)
+            implementation(libs.kscan)
             implementation("com.github.DantSu:ESCPOS-ThermalPrinter-Android:3.3.0")
             implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.activity.compose)
@@ -105,8 +106,8 @@ kotlin {
 
             api("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.5.0")
 
-            //  QR Kit
-            api(libs.qr.kit)
+            //  KScan — declared in androidMain.dependencies (JVM variant would
+            //  pull JavaCV/OpenCV; desktop scanner is a no-op)
 
             //  Apache POI
             implementation(libs.poi)

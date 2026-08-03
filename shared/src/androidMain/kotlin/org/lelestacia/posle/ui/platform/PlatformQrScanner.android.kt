@@ -6,9 +6,9 @@ import androidx.compose.ui.Modifier
 import android.Manifest
 import com.meticha.permissions_compose.AppPermission
 import com.meticha.permissions_compose.rememberAppPermissionState
-import qrscanner.CameraLens
-import qrscanner.OverlayShape
-import qrscanner.QrCodeScanner
+import org.ncgroup.kscan.BarcodeFormat
+import org.ncgroup.kscan.BarcodeResult
+import org.ncgroup.kscan.ScannerView
 
 @Composable
 internal actual fun platformQrScanner(
@@ -24,21 +24,25 @@ internal actual fun platformQrScanner(
         )
     )
 
-    QrCodeScanner(
-        flashlightOn = false,
-        cameraLens = CameraLens.Back,
-        onCompletion = { qrData ->
-            onScanned(qrData)
-        },
-        overlayShape = OverlayShape.Rectangle,
-        overlayColor = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.5f),
-        overlayBorderColor = androidx.compose.ui.graphics.Color.White,
-        zoomLevel = 1f,
-        maxZoomLevel = 10f,
-        permissionDeniedView = {
-            // Permission prompt handled by the app-level rationale dialog.
-        },
-        customOverlay = null,
-        modifier = Modifier.fillMaxSize()
-    )
+    ScannerView(
+        modifier = Modifier.fillMaxSize(),
+        // Only product UPC barcodes are accepted (UPC-A / UPC-E).
+        codeTypes = listOf(
+            BarcodeFormat.FORMAT_UPC_A,
+            BarcodeFormat.FORMAT_UPC_E
+        ),
+        scannerUiOptions = null
+    ) { result ->
+        when (result) {
+            is BarcodeResult.OnSuccess -> {
+                onScanned(result.barcode.data)
+            }
+            is BarcodeResult.OnFailed -> {
+                // Ignore transient scan failures; keep scanning.
+            }
+            BarcodeResult.OnCanceled -> {
+                // User dismissed the scanner.
+            }
+        }
+    }
 }
