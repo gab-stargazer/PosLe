@@ -3,6 +3,7 @@ package org.lelestacia.posle.navigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -11,11 +12,13 @@ import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.StringResource
 import org.lelestacia.posle.domain.component.SettingComponent
 import org.lelestacia.posle.domain.component.TransactionHistoryComponent
+import org.lelestacia.posle.domain.component.analytics.AnalyticsComponent
 import org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInboundOutboundComponent
 import org.lelestacia.posle.domain.component.product_list.ProductListComponent
 import org.lelestacia.posle.domain.component.transaction_add.TransactionAddComponent
 import org.lelestacia.posle.domain.component.transaction_recap.TransactionRecapComponent
 import posle.shared.generated.resources.Res
+import posle.shared.generated.resources.destination_analytics
 import posle.shared.generated.resources.destination_list_inbound_outbound
 import posle.shared.generated.resources.destination_list_product
 import posle.shared.generated.resources.destination_settings
@@ -41,6 +44,11 @@ enum class NavDestination(
         NavConfig.TransactionRecap,
         Icons.Default.History,
         Res.string.destination_transaction_recap
+    ),
+    Analytics(
+        NavConfig.Analytics,
+        Icons.Default.Insights,
+        Res.string.destination_analytics
     ),
     ProductList(
         NavConfig.ProductList,
@@ -72,6 +80,9 @@ sealed interface NavConfig {
     data object TransactionRecap : NavConfig
 
     @Serializable
+    data object Analytics : NavConfig
+
+    @Serializable
     data object ProductList : NavConfig
 
     @Serializable
@@ -85,6 +96,7 @@ sealed class NavChild {
     data class TransactionAdd(val component: TransactionAddComponent) : NavChild()
     data class TransactionHistory(val component: TransactionHistoryComponent) : NavChild()
     data class TransactionRecap(val component: TransactionRecapComponent) : NavChild()
+    data class Analytics(val component: AnalyticsComponent) : NavChild()
     data class ProductList(val component: ProductListComponent) : NavChild()
     data class ProductInboundOutbound(val component: ProductInboundOutboundComponent) : NavChild()
     data class Setting(val component: SettingComponent) : NavChild()

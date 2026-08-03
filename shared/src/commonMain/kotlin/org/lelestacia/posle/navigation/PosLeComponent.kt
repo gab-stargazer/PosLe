@@ -18,6 +18,7 @@ import org.lelestacia.posle.domain.component.TransactionProductConfigComponentIm
 import org.lelestacia.posle.domain.component.TransactionSearchComponentImpl
 import org.lelestacia.posle.domain.component.TransactionViewComponentImpl
 import org.lelestacia.posle.domain.component.TransactionViewNavigation
+import org.lelestacia.posle.domain.component.analytics.AnalyticsComponentImpl
 import org.lelestacia.posle.domain.component.bundle_add_edit.BundleAddEditComponentImpl
 import org.lelestacia.posle.domain.component.dashboard.DashboardComponentImpl
 import org.lelestacia.posle.domain.component.dashboard.DashboardNavigation
@@ -47,6 +48,7 @@ import org.lelestacia.posle.navigation.NavChild.ProductList
 import org.lelestacia.posle.navigation.NavChild.Setting
 import org.lelestacia.posle.navigation.NavChild.TransactionAdd
 import org.lelestacia.posle.navigation.NavChild.TransactionHistory
+import org.lelestacia.posle.navigation.NavChild.Analytics
 import kotlin.String
 import kotlin.Unit
 import kotlin.getValue
@@ -64,6 +66,7 @@ import org.lelestacia.posle.navigation.NavConfig.Setting as SettingConfig
 import org.lelestacia.posle.navigation.NavConfig.TransactionAdd as TransactionAddConfig
 import org.lelestacia.posle.navigation.NavConfig.TransactionHistory as TransactionHistoryConfig
 import org.lelestacia.posle.navigation.NavConfig.TransactionRecap as TransactionRecapConfig
+import org.lelestacia.posle.navigation.NavConfig.Analytics as AnalyticsConfig
 
 class PosLeComponent(
     componentContext: ComponentContext,
@@ -131,6 +134,17 @@ class PosLeComponent(
                         rootNavigation.pushNew(TransactionRecapProductViewConfig(it))
                     },
                     onPrintRecap = onPrintRecap,
+                )
+            )
+
+            AnalyticsConfig -> Analytics(
+                AnalyticsComponentImpl(
+                    componentContext = context,
+                    transactionRepository = transactionRepository,
+                    stockRepository = stockRepository,
+                    productRepository = productRepository,
+                    settingManager = settingManager,
+                    onNavigation = rootNavigation::pushNew
                 )
             )
 

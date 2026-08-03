@@ -8,6 +8,7 @@
     <string name="destination_transaction_add">Transaksi</string>
     <string name="destination_transaction_history">Riwayat Transaksi</string>
     <string name="destination_transaction_recap">Rekap Transaksi</string>
+    <string name="destination_analytics">Analitik</string>
 
     <!--Label-->
     <string name="label_additional_price">Harga Tambahan: </string>
@@ -180,6 +181,7 @@
     <!--Error-->
     <string name="msg_error_bundle_must_contain_at_least_one_item">Paket harus berisi setidaknya 1 produk</string>
     <string name="msg_error_item_not_available">Produk %1$s tidak cukup untuk paket ini</string>
+    <string name="msg_error_stock_insufficient">Stok produk %1$s tidak mencukupi</string>
     <string name="msg_error_name_cannot_be_empty">Nama Produk tidak boleh kosong</string>
     <string name="msg_error_price_cannot_be_empty">Harga Produk tidak boleh kosong</string>
     <string name="msg_error_price_cannot_contain_alphabet">Harga Produk harus berisi angka</string>
@@ -244,4 +246,22 @@
     <string name="action_remove_product_from_category">Hapus Produk dari kategori</string>
     <string name="action_edit_category">Edit Kategori</string>
     <string name="action_delete_category">Hapus Kategori</string>
+    <string name="action_choose_date_range">Pilih Rentang Tanggal</string>
+
+    <!--Analytics-->
+    <string name="label_total_revenue">Total Pendapatan</string>
+    <string name="label_total_transactions">Total Transaksi</string>
+    <string name="label_items_sold">Item Terjual</string>
+    <string name="label_revenue_trend">Tren Pendapatan</string>
+    <string name="label_top_products">Produk Terlaris</string>
+    <string name="label_fast_movers">Produk Tercepat</string>
+    <string name="label_slow_movers">Produk Paling Lambat</string>
+    <string name="label_needs_restock">Perlu Restok</string>
+    <string name="label_stock_tracking_disabled">Aktifkan \"Lacak Stok Barang\" di Pengaturan untuk melihat analisis stok.</string>
+    <string name="label_sales_section">Penjualan</string>
+    <string name="label_stock_section">Stok</string>
+    <string name="label_analytics_range_today">Hari Ini</string>
+    <string name="label_analytics_range_last_7_days">7 Hari Terakhir</string>
+    <string name="label_analytics_range_last_30_days">30 Hari Terakhir</string>
+    <string name="label_analytics_range_custom">Kustom</string>
 </resources>

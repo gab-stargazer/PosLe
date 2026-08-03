@@ -65,6 +65,7 @@ import org.lelestacia.posle.navigation.NavDestination
 import org.lelestacia.posle.ui.platform.PlatformBackHandler
 import org.lelestacia.posle.ui.platform.rememberCameraPermissionState
 import org.lelestacia.posle.ui.platform.rememberExportNotifier
+import org.lelestacia.posle.ui.screen.analytics.AnalyticsScreen
 import org.lelestacia.posle.ui.screen.product_inbound_outbound.ProductInboundOutboundScreen
 import org.lelestacia.posle.ui.screen.product_list.ProductListScreen
 import org.lelestacia.posle.ui.screen.transaction_add.TransactionAddScreen
@@ -304,6 +305,10 @@ fun DashboardScreen(
                 when (val child = it.instance) {
                     is NavChild.ProductList -> {
                         ProductListScreen(component = child.component)
+                    }
+
+                    is NavChild.Analytics -> {
+                        AnalyticsScreen(component = child.component)
                     }
 
                     is NavChild.Setting -> {

@@ -62,7 +62,7 @@ data class TransactionAddState(
     )
 }
 
-suspend fun DialogProductState.validate(): DialogProductState {
+suspend fun DialogProductState.validate(alreadyInCart: BigDecimal = BigDecimal.ZERO): DialogProductState {
     val isStockEnabled = settings.isProductStockTracked
     val stock = selectedProduct?.stock?.value ?: throw Exception("Stock is null on Validation")
     val amountAsBigDecimal = amount.toBigDecimalOrNull() ?: BigDecimal.ZERO
@@ -70,7 +70,7 @@ suspend fun DialogProductState.validate(): DialogProductState {
     val amountError = when {
         amount.isBlank() -> Res.string.msg_error_quantity_cannot_be_empty
         amountAsBigDecimal == BigDecimal.ZERO -> Res.string.msg_error_quantity_cannot_be_empty
-        isStockEnabled && amountAsBigDecimal > stock -> Res.string.msg_error_quantity_exceeded
+        isStockEnabled && amountAsBigDecimal + alreadyInCart > stock -> Res.string.msg_error_quantity_exceeded
         else -> null
     }
 
@@ -118,3 +118,28 @@ data class TransactionItemState(
     val noteState: TextFieldState = TextFieldState(),
     val variants: List<Variant> = emptyList()
 )
+
+/**
+ * Total units of [productId] already held in [cartItems] — both as a plain
+ * product line and inside bundle lines (bundle count × per-bundle quantity).
+ *
+ * Used to make stock-sufficiency checks cart-aware so that repeated additions
+ * of the same product (or overlapping bundles) cannot exceed the stock.
+ */
+fun cartQuantityInCart(productId: Int, cartItems: List<CartItems>): BigDecimal {
+    return cartItems.fold(BigDecimal.ZERO) { acc, cartItem ->
+        when (cartItem) {
+            is CartItems.ProductCartItem ->
+                if (cartItem.productId == productId) acc + cartItem.productQuantity.value else acc
+
+            is CartItems.BundleCartItem -> {
+                val bundleUnits = cartItem.bundleProducts
+                    .filter { it.productId == productId }
+                    .fold(BigDecimal.ZERO) { bundleAcc, bundleProduct ->
+                        bundleAcc + bundleProduct.quantity.value * cartItem.bundleQuantity.value
+                    }
+                acc + bundleUnits
+            }
+        }
+    }
+}

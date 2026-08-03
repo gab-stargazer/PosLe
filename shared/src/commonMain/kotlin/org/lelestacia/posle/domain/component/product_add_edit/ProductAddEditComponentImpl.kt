@@ -61,22 +61,6 @@ class ProductAddEditComponentImpl(
     private val sellPriceHistory = productRepository
         .getProductSellPriceHistory(product?.id ?: 0)
 
-    init {
-        if (product != null) {
-            scope.launch {
-                variantRepository
-                    .getVariantsByProductId(product.id)
-                    .collectLatest { variants ->
-                        _state.update {
-                            it.copy(
-                                variants = variants
-                            )
-                        }
-                    }
-            }
-        }
-    }
-
     private val _state = MutableStateFlow(
         ProductAddEditState(
             productName = product?.name?.value.orEmpty(),

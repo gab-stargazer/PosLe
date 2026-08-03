@@ -19,6 +19,16 @@ interface StockRepository {
     fun getStockMovements(): Flow<PagingData<StockMovement>>
 
     /**
+     * Returns stock movements whose `createdAt` falls in the half-open range
+     * `[startDate, finishDate)`, newest first.
+     *
+     * @param startDate The start timestamp in epoch milliseconds (inclusive).
+     * @param finishDate The end timestamp in epoch milliseconds (exclusive).
+     * @return A [Flow] list of [StockMovement] entries in the range.
+     */
+    fun getStockMovementsInRange(startDate: Long, finishDate: Long): Flow<List<StockMovement>>
+
+    /**
      * Records a new stock movement for a product.
      *
      * @param productId The ID of the product affected.

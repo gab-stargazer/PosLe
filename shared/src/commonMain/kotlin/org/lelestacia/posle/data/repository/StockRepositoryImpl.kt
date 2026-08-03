@@ -32,6 +32,16 @@ class StockRepositoryImpl(
         }
     }
 
+    override fun getStockMovementsInRange(
+        startDate: Long,
+        finishDate: Long
+    ): Flow<List<StockMovement>> {
+        return dao.readStockMovementsInRange(startDate = startDate, finishDate = finishDate)
+            .map { movements ->
+                movements.map(StockMovementEntity::toDomain)
+            }
+    }
+
     override suspend fun createStockMovement(
         productId: Int,
         amount: Amount,

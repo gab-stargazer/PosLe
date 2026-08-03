@@ -21,6 +21,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
 import org.lelestacia.posle.data.SettingManager
 import org.lelestacia.posle.domain.model.Bundle
+import org.lelestacia.posle.domain.model.CartItems
 import org.lelestacia.posle.domain.model.CartItems.BundleCartItem
 import org.lelestacia.posle.domain.model.CartItems.ProductCartItem
 import org.lelestacia.posle.domain.model.Variant
@@ -32,6 +33,7 @@ import org.lelestacia.posle.domain.state_event.TransactionAddState
 import org.lelestacia.posle.domain.state_event.TransactionAddState.DialogBundleState
 import org.lelestacia.posle.domain.state_event.TransactionAddState.DialogProductState
 import org.lelestacia.posle.domain.state_event.TransactionItemState
+import org.lelestacia.posle.domain.state_event.cartQuantityInCart
 import org.lelestacia.posle.domain.state_event.validate
 import org.lelestacia.posle.navigation.Config.TransactionView
 import org.lelestacia.posle.util.Amount
@@ -42,6 +44,7 @@ import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.msg_error_item_not_available
 import posle.shared.generated.resources.msg_error_quantity_cannot_be_empty
 import posle.shared.generated.resources.msg_error_quantity_should_be_number
+import posle.shared.generated.resources.msg_error_stock_insufficient
 import java.math.BigDecimal
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -167,6 +170,19 @@ class TransactionAddComponentImpl(
                 val cartItems = state.value.cartItems
 
                 scope.launch {
+                    if (state.value.settings.isProductStockTracked) {
+                        val unavailableProducts = findUnavailableProducts(cartItems)
+                        if (unavailableProducts.isNotEmpty()) {
+                            snackBarHostState.showSnackbar(
+                                getString(
+                                    Res.string.msg_error_stock_insufficient,
+                                    unavailableProducts.joinToString(", ") { it.value }
+                                )
+                            )
+                            return@launch
+                        }
+                    }
+
                     navigation.onNavigateTo(
                         config = TransactionView(
                             transaction = transactionRepository.createTransaction(
@@ -227,8 +243,13 @@ class TransactionAddComponentImpl(
             is TransactionAddEvent.DialogProductEvent.OnAmountChanged -> {
                 scope.launch {
                     val currentDialogState = state.value.dialogProductState
+                    val alreadyInCart = cartQuantityInCart(
+                        currentDialogState.selectedProduct?.id ?: -1,
+                        state.value.cartItems
+                    )
                     if (currentDialogState.amountError != null) {
-                        val validationResult = currentDialogState.copy(amount = event.newAmount).validate()
+                        val validationResult = currentDialogState.copy(amount = event.newAmount)
+                            .validate(alreadyInCart = alreadyInCart)
                         _state.update { currentState ->
                             currentState.copy(
                                 dialogProductState = validationResult.copy(
@@ -278,7 +299,12 @@ class TransactionAddComponentImpl(
 
             TransactionAddEvent.DialogProductEvent.OnPriceRequestValidation -> scope.launch {
                 val currentDialogState = state.value.dialogProductState
-                val validationResult = currentDialogState.validate()
+                val validationResult = currentDialogState.validate(
+                    alreadyInCart = cartQuantityInCart(
+                        currentDialogState.selectedProduct?.id ?: -1,
+                        state.value.cartItems
+                    )
+                )
                 _state.update { currentState ->
                     currentState.copy(
                         dialogProductState = validationResult.copy(
@@ -297,7 +323,9 @@ class TransactionAddComponentImpl(
                     val selectedProduct = currentState.dialogProductState.selectedProduct
                         ?: throw Exception("Product didn't get passed properly")
 
-                    val validationResult = currentState.dialogProductState.validate()
+                    val validationResult = currentState.dialogProductState.validate(
+                        alreadyInCart = cartQuantityInCart(selectedProduct.id, currentState.cartItems)
+                    )
                     val errors = listOf(
                         validationResult.amountError,
                         validationResult.priceError
@@ -465,8 +493,11 @@ class TransactionAddComponentImpl(
 
                     if (currentState.settings.isProductStockTracked) {
                         selectedBundle.bundleProducts.forEach { bundleProduct ->
+                            val alreadyInCart =
+                                cartQuantityInCart(bundleProduct.productId, currentState.cartItems)
+
                             val currentlyAvailable =
-                                productRepository.getProductAvailability(bundleProduct.productId)
+                                productRepository.getProductAvailability(bundleProduct.productId) - alreadyInCart
 
                             val currentlyRequested =
                                 bundleProduct.quantity.value * currentState.dialogBundleState.quantity.toBigDecimal()
@@ -534,5 +565,41 @@ class TransactionAddComponentImpl(
         }
 
         return null
+    }
+
+    /**
+     * Returns the names of products whose total demand across the whole [cartItems]
+     * (plain product lines and bundle contents) exceeds the currently available stock.
+     *
+     * This is the final gate before a transaction is committed: even when every
+     * individual add-to-cart check passed, the cart as a whole can still exceed
+     * the stock, so the commit path re-validates against live availability.
+     */
+    private suspend fun findUnavailableProducts(cartItems: List<CartItems>): List<Name> {
+        val demand = mutableMapOf<Int, Name>()
+        val totals = mutableMapOf<Int, BigDecimal>()
+
+        cartItems.forEach { cartItem ->
+            when (cartItem) {
+                is ProductCartItem -> {
+                    demand[cartItem.productId] = cartItem.productName
+                    totals[cartItem.productId] =
+                        (totals[cartItem.productId] ?: BigDecimal.ZERO) + cartItem.productQuantity.value
+                }
+
+                is BundleCartItem -> cartItem.bundleProducts.forEach { bundleProduct ->
+                    demand[bundleProduct.productId] = bundleProduct.productName
+                    totals[bundleProduct.productId] =
+                        (totals[bundleProduct.productId] ?: BigDecimal.ZERO) +
+                            bundleProduct.quantity.value * cartItem.bundleQuantity.value
+                }
+            }
+        }
+
+        return totals
+            .filter { (productId, total) ->
+                productRepository.getProductAvailability(productId) < total
+            }
+            .map { (productId, _) -> demand.getValue(productId) }
     }
 }

@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
 import org.lelestacia.posle.data.entity.StockEntity
 import org.lelestacia.posle.data.entity.StockMovementEntity
 import java.math.BigDecimal
@@ -34,6 +35,18 @@ interface StockDao {
         """
     )
     fun readStockMovement(): PagingSource<Int, StockMovementEntity>
+
+    @Query(
+        """
+            SELECT * FROM stock_movement
+            WHERE created_at >= :startDate AND created_at < :finishDate
+            ORDER BY created_at DESC
+        """
+    )
+    fun readStockMovementsInRange(
+        startDate: Long,
+        finishDate: Long
+    ): Flow<List<StockMovementEntity>>
 
     @Query(
         """
