@@ -75,7 +75,6 @@ import org.lelestacia.posle.util.SampleData
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.label_cart_count
 import posle.shared.generated.resources.label_product
-import posle.shared.generated.resources.msg_error_product_not_found
 import posle.shared.generated.resources.title_bundle
 import posle.shared.generated.resources.title_product
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent.DialogBundleEvent.OnAddToCartClicked as OnAddBundleToCartClicked

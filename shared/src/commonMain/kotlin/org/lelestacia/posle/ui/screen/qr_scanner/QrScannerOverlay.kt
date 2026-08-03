@@ -29,7 +29,9 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.BurgundyRed
 
 @Composable
@@ -61,7 +63,6 @@ fun QrScannerOverlay(
                 drawRect(Color.Black.copy(alpha = 0.7f))
             }
 
-            // Reticle Border
             drawRoundRect(
                 color = BurgundyRed,
                 topLeft = Offset(rectLeft, rectTop),
@@ -71,7 +72,6 @@ fun QrScannerOverlay(
             )
         }
 
-        // Top Content
         Column(
             modifier = Modifier
                 .align(Alignment.TopCenter)
@@ -91,7 +91,6 @@ fun QrScannerOverlay(
             )
         }
 
-        // Close Button
         IconButton(
             onClick = onDismiss,
             modifier = Modifier
@@ -105,5 +104,13 @@ fun QrScannerOverlay(
                 tint = Color.White
             )
         }
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewQrScannerOverlay() {
+    AppTheme {
+        QrScannerOverlay()
     }
 }
