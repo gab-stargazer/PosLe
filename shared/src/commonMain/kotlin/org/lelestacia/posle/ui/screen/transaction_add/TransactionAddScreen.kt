@@ -57,6 +57,7 @@ import org.lelestacia.posle.domain.state_event.TransactionAddEvent.DialogProduct
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent.DialogProductEvent.OnShown
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent.OnAddTransactionClicked
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent.OnNavigateToQrScanner
+import org.lelestacia.posle.domain.state_event.TransactionAddEvent.OnProductNotFoundDismissed
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent.OnRemoveProduct
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent.OnTabChanged
 import org.lelestacia.posle.domain.state_event.TransactionAddState
@@ -66,6 +67,7 @@ import org.lelestacia.posle.ui.screen.transaction_add.component.TransactionAddPr
 import org.lelestacia.posle.ui.screen.transaction_add.component.TransactionAddSearchBar
 import org.lelestacia.posle.ui.screen.transaction_add.component.TransactionAddTitle
 import org.lelestacia.posle.ui.platform.rememberCameraPermissionState
+import org.lelestacia.posle.ui.screen.transaction_add.component.TransactionAddProductNotFound
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.BurgundyRed
 import org.lelestacia.posle.ui.theme.CharcoalBlue
@@ -73,6 +75,7 @@ import org.lelestacia.posle.util.SampleData
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.label_cart_count
 import posle.shared.generated.resources.label_product
+import posle.shared.generated.resources.msg_error_product_not_found
 import posle.shared.generated.resources.title_bundle
 import posle.shared.generated.resources.title_product
 import org.lelestacia.posle.domain.state_event.TransactionAddEvent.DialogBundleEvent.OnAddToCartClicked as OnAddBundleToCartClicked
@@ -83,13 +86,14 @@ import org.lelestacia.posle.domain.state_event.TransactionAddEvent.DialogBundleE
 
 @Composable
 fun TransactionAddScreen(
+    isCameraPermissionGranted: Boolean,
+    onRequestCameraPermission: () -> Unit,
     component: TransactionAddComponent,
     modifier: Modifier = Modifier
 ) {
     val bundles = component.bundles.collectAsLazyPagingItems()
     val products = component.products.collectAsLazyPagingItems()
     val state by component.state.collectAsStateWithLifecycle()
-    val cameraPermission = rememberCameraPermissionState()
 
     val pagerState = rememberPagerState(
         initialPage = 0,
@@ -147,6 +151,23 @@ fun TransactionAddScreen(
             TransactionAddProductDialog(
                 state = state.dialogProductState,
                 onEvent = component::onEvent
+            )
+        }
+    }
+
+    if (state.isProductNotFoundShown) {
+        Dialog(
+            properties = DialogProperties(
+                dismissOnClickOutside = false
+            ),
+            onDismissRequest = {
+                component.onEvent(OnProductNotFoundDismissed)
+            }
+        ) {
+            TransactionAddProductNotFound(
+                onDismiss = {
+                    component.onEvent(OnProductNotFoundDismissed)
+                }
             )
         }
     }
@@ -232,14 +253,13 @@ fun TransactionAddScreen(
                                         .padding(end = 12.dp)
                                 )
 
-                                val isCameraGranted = cameraPermission.isGranted.value
                                 Button(
                                     shape = RoundedCornerShape(25F),
                                     onClick = {
-                                        if (isCameraGranted) {
+                                        if (isCameraPermissionGranted) {
                                             component.onEvent(OnNavigateToQrScanner)
                                         } else {
-                                            cameraPermission.requestPermission()
+                                            onRequestCameraPermission()
                                         }
                                     },
                                     colors = ButtonDefaults.buttonColors(
@@ -347,6 +367,8 @@ private fun PreviewTransactionAddScreen() {
         val products = SampleData.products
 
         TransactionAddScreen(
+            isCameraPermissionGranted = true,
+            onRequestCameraPermission = {},
             component = object : TransactionAddComponent {
                 override val bundles: Flow<PagingData<Bundle>>
                     get() = flowOf()

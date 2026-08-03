@@ -280,6 +280,10 @@ class PosLeComponent(
                         onQrScanned?.invoke(it)
                         onQrScanned = null
                         rootNavigation.pop()
+                    },
+                    onDismiss = {
+                        onQrScanned = null
+                        rootNavigation.pop()
                     }
                 )
             )

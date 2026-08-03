@@ -29,6 +29,7 @@ data class TransactionAddState(
     val dialogProductState: DialogProductState = DialogProductState(),
     val isDialogBundleShown: Boolean = false,
     val dialogBundleState: DialogBundleState = DialogBundleState(),
+    val isProductNotFoundShown: Boolean = false,
 ) {
     @Immutable
     data class DialogProductState(
@@ -91,6 +92,7 @@ sealed interface TransactionAddEvent {
     data class OnRemoveProduct(val cartItems: CartItems) : TransactionAddEvent
     data object OnAddTransactionClicked : TransactionAddEvent
     data object OnNavigateToQrScanner : TransactionAddEvent
+    data object OnProductNotFoundDismissed : TransactionAddEvent
 
     sealed interface DialogProductEvent : TransactionAddEvent {
         data class OnAmountChanged(val newAmount: String) : DialogProductEvent

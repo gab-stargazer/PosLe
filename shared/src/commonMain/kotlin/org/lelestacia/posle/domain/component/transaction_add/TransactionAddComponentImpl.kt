@@ -40,7 +40,6 @@ import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.coroutineScope
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.msg_error_item_not_available
-import posle.shared.generated.resources.msg_error_product_not_found
 import posle.shared.generated.resources.msg_error_quantity_cannot_be_empty
 import posle.shared.generated.resources.msg_error_quantity_should_be_number
 import java.math.BigDecimal
@@ -204,9 +203,17 @@ class TransactionAddComponentImpl(
                         }
 
                         if (product == null) {
-                            snackBarHostState.showSnackbar(getString(Res.string.msg_error_product_not_found))
+                            _state.update { currentState ->
+                                currentState.copy(isProductNotFoundShown = true)
+                            }
                         }
                     }
+                }
+            }
+
+            TransactionAddEvent.OnProductNotFoundDismissed -> {
+                _state.update { currentState ->
+                    currentState.copy(isProductNotFoundShown = false)
                 }
             }
 

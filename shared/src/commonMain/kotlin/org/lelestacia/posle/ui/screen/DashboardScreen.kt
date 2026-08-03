@@ -63,6 +63,7 @@ import org.lelestacia.posle.navigation.NavChild
 import org.lelestacia.posle.navigation.NavConfig
 import org.lelestacia.posle.navigation.NavDestination
 import org.lelestacia.posle.ui.platform.PlatformBackHandler
+import org.lelestacia.posle.ui.platform.rememberCameraPermissionState
 import org.lelestacia.posle.ui.platform.rememberExportNotifier
 import org.lelestacia.posle.ui.screen.product_inbound_outbound.ProductInboundOutboundScreen
 import org.lelestacia.posle.ui.screen.product_list.ProductListScreen
@@ -90,6 +91,7 @@ fun DashboardScreen(
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val state by component.state.collectAsStateWithLifecycle()
+    val cameraPermission = rememberCameraPermissionState()
     val fileStorage = koinInject<FileStorage>()
     val notifyExport = rememberExportNotifier()
 
@@ -309,7 +311,11 @@ fun DashboardScreen(
                     }
 
                     is NavChild.TransactionAdd -> {
-                        TransactionAddScreen(component = child.component)
+                        TransactionAddScreen(
+                            component = child.component,
+                            isCameraPermissionGranted = cameraPermission.isGranted.value,
+                            onRequestCameraPermission = cameraPermission::requestPermission
+                        )
                     }
 
                     is NavChild.TransactionRecap -> {

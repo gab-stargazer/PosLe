@@ -10,4 +10,9 @@ interface QrScannerComponent {
      * @param qrData The raw string data decoded from the scan.
      */
     fun onScannedQr(qrData: String)
+
+    /**
+     * Dismisses the QR scanner screen.
+     */
+    fun onDismiss()
 }

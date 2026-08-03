@@ -26,10 +26,14 @@ internal actual fun platformQrScanner(
 
     ScannerView(
         modifier = Modifier.fillMaxSize(),
-        // Only product UPC barcodes are accepted (UPC-A / UPC-E).
+        // Product barcodes only. UPC-A reads back (and is a subset of) EAN-13,
+        // so accept all retail product formats to avoid infinite auto-zoom.
         codeTypes = listOf(
             BarcodeFormat.FORMAT_UPC_A,
-            BarcodeFormat.FORMAT_UPC_E
+            BarcodeFormat.FORMAT_UPC_E,
+            BarcodeFormat.FORMAT_EAN_13,
+            BarcodeFormat.FORMAT_EAN_8,
+            BarcodeFormat.FORMAT_QR_CODE
         ),
         scannerUiOptions = null
     ) { result ->

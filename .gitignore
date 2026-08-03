@@ -19,5 +19,6 @@ captures
 node_modules/
 .artifacts
 /androidApp/release
+.hermes
 
 **/google-services.json
