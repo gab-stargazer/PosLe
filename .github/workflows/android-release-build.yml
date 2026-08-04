@@ -1,13 +1,13 @@
-name: Android Debug Build
+name: Android Release Build
 
 on:
   push:
-    branches: [dev]
+    branches: [master]
   workflow_dispatch:
 
 jobs:
-  build-debug-apk:
-    name: Build Debug APK
+  build-release-aab:
+    name: Build Release AAB
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -22,19 +22,6 @@ jobs:
           java-version: '17'
           cache: gradle
 
-      - name: Inject google-services.json (debug)
-        shell: bash
-        run: |
-          mkdir -p androidApp/src/debug
-          B64B64="${{ secrets.GOOGLE_SERVICES_DEBUG_JSON }}"
-          if [ -z "$B64B64" ]; then
-            echo "::error::Secret GOOGLE_SERVICES_DEBUG_JSON is empty or not set — add it in repo Settings → Secrets and variables → Actions"
-            exit 1
-          fi
-          # Double-base64: stored secret is base64(base64(json)) — no newlines/quotes/escapes.
-          printf '%s' "$B64B64" | base64 -d | base64 -d > androidApp/src/debug/google-services.json
-          python3 -c 'import json; d=json.load(open("androidApp/src/debug/google-services.json")); assert d["project_info"]["project_id"]=="posle-dev" and any(c["client_info"]["android_client_info"]["package_name"]=="org.lelestacia.posle.dev" for c in d["client"]); print("debug google-services.json OK (posle-dev)")'
-
       - name: Inject google-services.json (release)
         shell: bash
         run: |
@@ -48,16 +35,31 @@ jobs:
           printf '%s' "$B64B64" | base64 -d | base64 -d > androidApp/src/release/google-services.json
           python3 -c 'import json; d=json.load(open("androidApp/src/release/google-services.json")); assert d["project_info"]["project_id"]=="posle-833f7" and any(c["client_info"]["android_client_info"]["package_name"]=="org.lelestacia.posle" for c in d["client"]); print("release google-services.json OK (posle-833f7)")'
 
+      - name: Decode signing keystore
+        shell: bash
+        run: |
+          B64="${{ secrets.KEYSTORE_BASE64 }}"
+          if [ -z "$B64" ]; then
+            echo "::error::Secret KEYSTORE_BASE64 is empty or not set — add it in repo Settings → Secrets and variables → Actions"
+            exit 1
+          fi
+          # Base64 of the keystore file (single-line) → PKCS12 .jks on the runner.
+          printf '%s' "$B64" | base64 -d > "$RUNNER_TEMP/posle-release.jks"
+          echo "KEYSTORE_PATH=$RUNNER_TEMP/posle-release.jks" >> "$GITHUB_ENV"
+          echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> "$GITHUB_ENV"
+          echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> "$GITHUB_ENV"
+          echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> "$GITHUB_ENV"
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build debug APK
+      - name: Build release AAB
         shell: bash
-        run: ./gradlew :androidApp:assembleDebug --no-daemon
+        run: ./gradlew :androidApp:bundleRelease --no-daemon
 
-      - name: Upload APK artifact
+      - name: Upload AAB artifact
         uses: actions/upload-artifact@v7
         with:
-          name: androidApp-debug-apk
-          path: androidApp/build/outputs/apk/debug/*.apk
+          name: androidApp-release-aab
+          path: androidApp/build/outputs/bundle/release/*.aab
           if-no-files-found: error

@@ -1,5 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
@@ -46,6 +48,26 @@ dependencies {
     implementation("com.github.ireward:compose-html:1.0.2")
 }
 
+//  Release signing — the keystore is NEVER committed.
+//  Local: keystore.properties at repo root (gitignored). CI: env vars
+//  KEYSTORE_PATH / KEYSTORE_PASSWORD / KEY_ALIAS / KEY_PASSWORD.
+val keystoreProps = Properties()
+val keystorePropsFile = rootProject.file("keystore.properties")
+if (keystorePropsFile.exists()) {
+    keystorePropsFile.inputStream().use { stream -> keystoreProps.load(stream) }
+}
+
+fun signingValue(propName: String, envName: String): String? {
+    val fromProps = keystoreProps.getProperty(propName)
+    return if (!fromProps.isNullOrBlank()) fromProps else System.getenv(envName)
+}
+
+val releaseStoreFile = signingValue("storeFile", "KEYSTORE_PATH")?.let { rootProject.file(it) }
+val hasReleaseSigning = releaseStoreFile?.isFile == true &&
+    signingValue("storePassword", "KEYSTORE_PASSWORD") != null &&
+    signingValue("keyAlias", "KEY_ALIAS") != null &&
+    signingValue("keyPassword", "KEY_PASSWORD") != null
+
 android {
     namespace = "org.lelestacia.posle"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
@@ -69,6 +91,17 @@ android {
             excludes += "/META-INF/NOTICE.txt"
             excludes += "/META-INF/LICENSE.txt"
             excludes += "/META-INF/NOTICE.md"
+        }
+    }
+
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = releaseStoreFile
+                storePassword = signingValue("storePassword", "KEYSTORE_PASSWORD")
+                keyAlias = signingValue("keyAlias", "KEY_ALIAS")
+                keyPassword = signingValue("keyPassword", "KEY_PASSWORD")
+            }
         }
     }
 
@@ -97,6 +130,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            //  Signed only when a keystore is present (local keystore.properties
+            //  or CI env vars); otherwise release builds stay unsigned.
+            if (hasReleaseSigning) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 

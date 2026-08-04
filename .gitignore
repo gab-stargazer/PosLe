@@ -22,3 +22,7 @@ node_modules/
 .hermes
 graphify-out
 **/google-services.json
+keystore.properties
+*.jks
+*.keystore
+*.p12
