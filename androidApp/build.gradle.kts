@@ -29,8 +29,8 @@ dependencies {
     implementation("com.github.DantSu:ESCPOS-ThermalPrinter-Android:3.3.0")
 
     //  Apache POI on Android needs a StAX implementation (javax.xml.stream is
-    //  not part of the Android platform); see PosLeApplication.onCreate for the
-    //  factory system properties that route POI to aalto-xml.
+    //  not part of the Android platform); the StAX FactoryFinder discovers
+    //  aalto-xml automatically through its META-INF/services registration.
     implementation(libs.aalto.xml)
     implementation(libs.stax.api)
 

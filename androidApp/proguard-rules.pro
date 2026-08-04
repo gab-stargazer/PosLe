@@ -85,9 +85,9 @@
 -keep class org.apache.poi.xssf.** { *; }
 -keep class org.apache.poi.ooxml.** { *; }
 -keep class org.apache.poi.util.** { *; }
-# aalto-xml StAX implementation + stax-api — instantiated reflectively via the
-# javax.xml.stream.* factory system properties set in PosLeApplication.onCreate,
-# so R8 must keep both the classes and their names.
+# aalto-xml StAX implementation + stax-api — instantiated reflectively by the
+# StAX FactoryFinder via aalto's META-INF/services registration, so R8 must
+# keep both the classes and their names.
 -keep class com.fasterxml.aalto.** { *; }
 -keep class javax.xml.stream.** { *; }
 # Optional codecs/libraries POI references but Android does not ship
