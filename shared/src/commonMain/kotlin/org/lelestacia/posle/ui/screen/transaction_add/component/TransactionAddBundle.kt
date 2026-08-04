@@ -162,14 +162,14 @@ private fun PreviewTransactionAddBundle() {
     AppTheme {
         TransactionAddBundle(
             Bundle(
-                id = 0,
+                id = "0",
                 name = Name("Paket Kombo"),
                 imageUri = null,
                 createdAt = Clock.System.now().toEpochMilliseconds(),
                 updatedAt = null,
                 bundleProducts = listOf(
                     BundleProduct(
-                        productId = 0,
+                        productId = "0",
                         productName = Name("Nasi"),
                         skuNumber = null,
                         imageUri = null,
@@ -182,7 +182,7 @@ private fun PreviewTransactionAddBundle() {
                         updatedAt = null
                     ),
                     BundleProduct(
-                        productId = 0,
+                        productId = "0",
                         productName = Name("Ayam"),
                         skuNumber = null,
                         imageUri = null,

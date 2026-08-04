@@ -11,6 +11,7 @@ import org.lelestacia.posle.data.entity.toEntity
 import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.model.toDomain
 import org.lelestacia.posle.domain.repository.VariantRepository
+import org.lelestacia.posle.util.UuidProvider
 import org.lelestacia.posle.util.Util.pagingConfig
 
 class VariantRepositoryImpl(
@@ -19,7 +20,9 @@ class VariantRepositoryImpl(
 ) : VariantRepository {
 
     override suspend fun createVariant(variant: Variant) {
-        variantDao.insertVariant(variant.toEntity())
+        variantDao.insertVariant(
+            variant.toEntity().copy(id = UuidProvider.newUuid())
+        )
     }
 
     override fun getAllVariants(): Flow<PagingData<Variant>> {
@@ -29,7 +32,7 @@ class VariantRepositoryImpl(
         ).flow.map { it.map(VariantEntity::toDomain) }
     }
 
-    override fun getVariantsByProductId(productId: Int): Flow<List<Variant>> {
+    override fun getVariantsByProductId(productId: String): Flow<List<Variant>> {
         return variantDao.readVariantByProductId(productId).map { it.map(VariantEntity::toDomain) }
     }
 

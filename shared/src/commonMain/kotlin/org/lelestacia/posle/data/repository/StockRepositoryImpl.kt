@@ -13,6 +13,7 @@ import org.lelestacia.posle.data.entity.toDomain
 import org.lelestacia.posle.domain.model.StockMovement
 import org.lelestacia.posle.domain.repository.StockRepository
 import org.lelestacia.posle.util.Amount
+import org.lelestacia.posle.util.UuidProvider
 import org.lelestacia.posle.util.Util.pagingConfig
 import kotlin.time.Clock
 
@@ -43,7 +44,7 @@ class StockRepositoryImpl(
     }
 
     override suspend fun createStockMovement(
-        productId: Int,
+        productId: String,
         amount: Amount,
         movementType: StockMovementType,
         note: String?
@@ -52,6 +53,7 @@ class StockRepositoryImpl(
         
         dao.insertStockMovement(
             StockMovementEntity(
+                id = UuidProvider.newUuid(),
                 productId = productId,
                 productName = product.name,
                 productUnit = product.unit,

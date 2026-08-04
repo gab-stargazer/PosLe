@@ -387,20 +387,20 @@ private fun PreviewTransactionUI() {
                     TransactionViewState(
                         isSaveProcessing = true,
                         transaction = Transaction(
-                            id = 0,
+                            id = "0",
                             customerName = Name("Rudi"),
                             items = listOf(
                                 TransactionItem(
-                                    id = 1,
+                                    id = "1",
                                     type = TransactionItemType.Product,
-                                    referenceId = 1,
+                                    referenceId = "1",
                                     name = Name("Salak Pondoh"),
                                     quantity = Amount(java.math.BigDecimal("50")),
                                     sellPrice = Price(5000.toBigDecimal()),
                                     note = "2 Karung",
                                     products = listOf(
                                         TransactionProduct(
-                                            productId = 1,
+                                            productId = "1",
                                             productName = Name("Salak Pondoh"),
                                             skuNumber = null,
                                             imageUri = null,

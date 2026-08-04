@@ -244,8 +244,8 @@ private fun PreviewTransactionAddProductCart() {
         ) {
             TransactionAddProductCart(
                 cartItem = CartItems.ProductCartItem(
-                    id = 0,
-                    productId = 0,
+                    id = "0",
+                    productId = "0",
                     productName = Name("Sate Ayam"),
                     skuNumber = null,
                     imageUri = null,

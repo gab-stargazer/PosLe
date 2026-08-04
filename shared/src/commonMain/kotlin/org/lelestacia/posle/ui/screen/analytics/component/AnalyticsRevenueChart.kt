@@ -85,7 +85,7 @@ fun AnalyticsRevenueChart(
                             val index = dayIndex.toInt().coerceIn(0, pointCount - 1)
                             val label = timeSeries[index].date
                             Text(
-                                text = "${label.dayOfMonth} ${label.month.name.lowercase().take(3)}",
+                                text = "${label.day} ${label.month.name.lowercase().take(3)}",
                                 style = MaterialTheme.typography.labelSmall
                             )
                         },

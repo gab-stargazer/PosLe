@@ -23,6 +23,7 @@ import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.SkuNumber
 import org.lelestacia.posle.util.Unit
+import org.lelestacia.posle.util.UuidProvider
 import java.math.BigDecimal
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -144,7 +145,7 @@ class TransactionRepositoryImplTest {
 
             // When
             val bundle = createBundleCart(
-                bundleId = 10,
+                bundleId = "10",
                 name = "Paket Sembako",
                 products = listOf(
                     BundleItem(productId = berasId, name = "Beras 5kg", quantity = "1", unit = "bungkus", price = "90000"),
@@ -231,18 +232,20 @@ class TransactionRepositoryImplTest {
         sku: String,
         buyPrice: String,
         sellPrice: String
-    ): Int {
+    ): String {
+        val id = UuidProvider.newUuid()
         val entity = ProductEntity(
-            id = 0,
+            id = id,
             name = Name(name),
             unit = Unit("bungkus"),
             skuNumber = SkuNumber(sku),
             createdAt = timestamp
         )
-        val id = db.productDao().addProduct(entity).toInt()
+        db.productDao().addProduct(entity)
 
         db.productDao().addBuyPrice(
             ProductBuyPriceEntity(
+                id = UuidProvider.newUuid(),
                 productId = id,
                 price = Price(BigDecimal(buyPrice)),
                 changeType = PriceChangeType.ProductCreation,
@@ -251,6 +254,7 @@ class TransactionRepositoryImplTest {
         )
         db.productDao().addSellPrice(
             ProductSellPriceEntity(
+                id = UuidProvider.newUuid(),
                 productId = id,
                 price = Price(BigDecimal(sellPrice)),
                 changeType = PriceChangeType.ProductCreation,
@@ -260,10 +264,10 @@ class TransactionRepositoryImplTest {
         return id
     }
 
-    private fun createProductCart(productId: Int, quantity: String): List<CartItems.ProductCartItem> {
+    private fun createProductCart(productId: String, quantity: String): List<CartItems.ProductCartItem> {
         return listOf(
             CartItems.ProductCartItem(
-                id = 1,
+                id = "1",
                 productId = productId,
                 productName = Name("Beras 5kg"),
                 skuNumber = SkuNumber("BR5-001"),
@@ -278,7 +282,7 @@ class TransactionRepositoryImplTest {
     }
 
     private data class BundleItem(
-        val productId: Int,
+        val productId: String,
         val name: String,
         val quantity: String,
         val unit: String,
@@ -286,7 +290,7 @@ class TransactionRepositoryImplTest {
     )
 
     private fun createBundleCart(
-        bundleId: Int,
+        bundleId: String,
         name: String,
         products: List<BundleItem>,
         bundleQuantity: String,
@@ -309,7 +313,7 @@ class TransactionRepositoryImplTest {
         }
         return listOf(
             CartItems.BundleCartItem(
-                id = 1,
+                id = "1",
                 bundleId = bundleId,
                 bundleName = Name(name),
                 bundleQuantity = Amount(BigDecimal(bundleQuantity)),

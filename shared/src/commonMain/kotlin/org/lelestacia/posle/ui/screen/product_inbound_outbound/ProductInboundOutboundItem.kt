@@ -152,8 +152,8 @@ private fun PreviewProductInboundItem() {
     AppTheme {
         ProductInboundOutboundItem(
             stockMovement = StockMovement(
-                id = 1,
-                productId = 1,
+                id = "1",
+                productId = "1",
                 productName = Name("Sate Ayam"),
                 productUnit = Unit("Porsi"),
                 movementType = StockMovementType.Sale,
@@ -171,8 +171,8 @@ private fun PreviewProductOutboundItem() {
     AppTheme {
         ProductInboundOutboundItem(
             stockMovement = StockMovement(
-                id = 2,
-                productId = 2,
+                id = "2",
+                productId = "2",
                 productName = Name("Es Teh Manis"),
                 productUnit = Unit("Gelas"),
                 movementType = StockMovementType.Purchase,
@@ -190,8 +190,8 @@ private fun PreviewProductAdjustmentItem() {
     AppTheme {
         ProductInboundOutboundItem(
             stockMovement = StockMovement(
-                id = 3,
-                productId = 3,
+                id = "3",
+                productId = "3",
                 productName = Name("Nasi Putih"),
                 productUnit = Unit("Porsi"),
                 movementType = StockMovementType.AdjustmentDecrease,

@@ -20,5 +20,5 @@ node_modules/
 .artifacts
 /androidApp/release
 .hermes
-
+graphify-out
 **/google-services.json

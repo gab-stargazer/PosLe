@@ -17,8 +17,8 @@ import org.lelestacia.posle.util.Unit as PosLeUnit
 )
 data class ProductEntity(
     @ColumnInfo("id")
-    @PrimaryKey(autoGenerate = true)
-    val id: Int,
+    @PrimaryKey
+    val id: String,
     @ColumnInfo("name")
     val name: Name,
     @ColumnInfo("unit")

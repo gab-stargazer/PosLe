@@ -196,7 +196,7 @@ private fun PreviewTransactionAddBundleDialog() {
             mutableStateOf(
                 TransactionAddState.DialogBundleState(
                     selectedBundle = Bundle(
-                        id = 0,
+                        id = "0",
                         name = Name("Paket Kombo"),
                         imageUri = null,
                         bundleProducts = emptyList(),

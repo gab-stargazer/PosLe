@@ -77,6 +77,19 @@ android {
             applicationIdSuffix = ".dev"
             versionNameSuffix = " Dev"
         }
+        create("staging") {
+            //  Debug with minification: inherits debug's app id suffix (.dev),
+            //  debug signing and debuggability, but R8-minified like release.
+            initWith(getByName("debug"))
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            //  shared (KMP android library) only publishes debug/release variants
+            matchingFallbacks += "debug"
+        }
         getByName("release") {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -91,4 +104,28 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+}
+
+//  staging reuses debug's google-services.json (same Firebase project 'posle-dev',
+//  same applicationId org.lelestacia.posle.dev) — no separate JSON or CI secret needed.
+val copyStagingGoogleServices = tasks.register("copyStagingGoogleServices") {
+    val debugJson = layout.projectDirectory.file("src/debug/google-services.json")
+    val stagingJson = layout.projectDirectory.file("src/staging/google-services.json")
+    inputs.file(debugJson)
+    outputs.file(stagingJson)
+    doLast {
+        val src = debugJson.asFile
+        check(src.exists()) {
+            "src/debug/google-services.json not found — staging reuses debug's " +
+                "google-services.json. Supply it locally or via CI (GOOGLE_SERVICES_DEBUG_JSON)."
+        }
+        stagingJson.asFile.parentFile.mkdirs()
+        src.copyTo(stagingJson.asFile, overwrite = true)
+    }
+}
+
+//  The google-services plugin checks file existence at task execution time, so the
+//  copy above must finish before processStagingGoogleServices runs.
+tasks.matching { it.name == "processStagingGoogleServices" }.configureEach {
+    dependsOn(copyStagingGoogleServices)
 }

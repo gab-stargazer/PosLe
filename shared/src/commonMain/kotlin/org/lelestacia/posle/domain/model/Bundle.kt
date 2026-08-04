@@ -20,7 +20,7 @@ import org.lelestacia.posle.util.Unit
  */
 @Serializable
 data class Bundle(
-    val id: Int,
+    val id: String,
     val name: Name,
     val imageUri: String? = null,
     val bundleProducts: List<BundleProduct>,
@@ -34,7 +34,7 @@ data class Bundle(
 @Serializable
 @Immutable
 data class BundleProduct(
-    val productId: Int,
+    val productId: String,
     val productName: Name,
     val skuNumber: SkuNumber?,
     val imageUri: String?,
@@ -74,8 +74,8 @@ sealed interface CartItems {
      * A single product added to the cart.
      */
     data class ProductCartItem(
-        val id: Int,
-        val productId: Int,
+        val id: String,
+        val productId: String,
         val productName: Name,
         val skuNumber: SkuNumber?,
         val imageUri: String?,
@@ -90,8 +90,8 @@ sealed interface CartItems {
      * A product bundle added to the cart.
      */
     data class BundleCartItem(
-        val id: Int,
-        val bundleId: Int,
+        val id: String,
+        val bundleId: String,
         val bundleName: Name,
         val bundleQuantity: Amount,
         val bundleTotalPrice: Price,

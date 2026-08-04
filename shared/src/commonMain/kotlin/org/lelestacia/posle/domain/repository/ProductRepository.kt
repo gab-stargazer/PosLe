@@ -70,7 +70,7 @@ interface ProductRepository {
      */
     fun getProductWithCategories(
         searchQuery: String,
-        categoryId: Int
+        categoryId: String
     ): PagingSource<Int, ProductWithVariantsAndStock>
 
     /**
@@ -82,7 +82,7 @@ interface ProductRepository {
      */
     fun getProductNotInCategory(
         searchQuery: String,
-        categoryId: Int
+        categoryId: String
     ): PagingSource<Int, ProductWithVariantsAndStock>
 
     /**
@@ -91,7 +91,7 @@ interface ProductRepository {
      * @param productId The ID of the product.
      * @return A [Flow] list of [ProductPriceHistory] entries.
      */
-    fun getProductBuyPriceHistory(productId: Int): Flow<List<ProductPriceHistory>>
+    fun getProductBuyPriceHistory(productId: String): Flow<List<ProductPriceHistory>>
 
     /**
      * Retrieves the chronological history of sell prices for a product.
@@ -99,7 +99,7 @@ interface ProductRepository {
      * @param productId The ID of the product.
      * @return A [Flow] list of [ProductPriceHistory] entries.
      */
-    fun getProductSellPriceHistory(productId: Int): Flow<List<ProductPriceHistory>>
+    fun getProductSellPriceHistory(productId: String): Flow<List<ProductPriceHistory>>
 
     /**
      * Returns a flow of all products currently considered "available" based on query.
@@ -115,7 +115,7 @@ interface ProductRepository {
      * @param productId The ID of the product.
      * @return The total current quantity as a [BigDecimal].
      */
-    suspend fun getProductAvailability(productId: Int): BigDecimal
+    suspend fun getProductAvailability(productId: String): BigDecimal
 
     /**
      * Updates an existing product's details and manages its variant associations.

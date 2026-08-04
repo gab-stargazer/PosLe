@@ -54,7 +54,7 @@ object AnalyticsCalculator {
         val profitByDay = mutableMapOf<LocalDate, BigDecimal>()
         val transactionCountByDay = mutableMapOf<LocalDate, Int>()
 
-        val productAccumulators = mutableMapOf<Int, TopProductAccumulator>()
+        val productAccumulators = mutableMapOf<String, TopProductAccumulator>()
 
         inRangeTransactions.forEach { transaction ->
             val transactionRevenue = transaction.items.fold(BigDecimal.ZERO) { acc, item ->
@@ -109,7 +109,7 @@ object AnalyticsCalculator {
 
         val topProducts = productAccumulators.entries
             .sortedWith(
-                compareByDescending<Map.Entry<Int, TopProductAccumulator>> { it.value.totalRevenue }
+                compareByDescending<Map.Entry<String, TopProductAccumulator>> { it.value.totalRevenue }
                     .thenBy { it.value.productName.value }
             )
             .map { (productId, accumulator) ->
@@ -183,7 +183,7 @@ object AnalyticsCalculator {
      * Week label in the form `dd MMM` of the week's first day (used for chart axes).
      */
     private fun LocalDate.weekLabel(): String {
-        return "$dayOfMonth ${month.name.lowercase().take(3)}"
+        return "${day} ${month.name.lowercase().take(3)}"
     }
 
     /**

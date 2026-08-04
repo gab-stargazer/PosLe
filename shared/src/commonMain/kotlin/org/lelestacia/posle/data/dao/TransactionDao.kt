@@ -22,17 +22,17 @@ import org.lelestacia.posle.data.entity.TransactionWithItems
 interface TransactionDao {
 
     @Insert
-    suspend fun insertTransaction(transaction: TransactionEntity): Long
+    suspend fun insertTransaction(transaction: TransactionEntity)
 
     @Insert
-    suspend fun insertTransactionItem(item: TransactionItemEntity): Long
+    suspend fun insertTransactionItem(item: TransactionItemEntity)
 
     @Insert
     suspend fun insertTransactionItemProduct(products: List<TransactionItemProductEntity>)
 
     @Transaction
     @Query("SELECT * FROM `transaction` WHERE id = :transactionId")
-    suspend fun getTransactionWithItems(transactionId: Int): TransactionWithItems
+    suspend fun getTransactionWithItems(transactionId: String): TransactionWithItems
 
     @Transaction
     @Query("SELECT * FROM `transaction` ORDER BY created_at DESC")
@@ -79,15 +79,11 @@ interface TransactionDao {
         transaction: TransactionEntity,
         transactionItems: List<TransactionItemEntity>
     ): List<TransactionItemEntity> {
-        val transactionId = insertTransaction(transaction = transaction).toInt()
-        val transactionItems = transactionItems
-            .map { it.copy(transactionId = transactionId) }
-            .map { transactionItemEntity ->
-                val transactionItemId = insertTransactionItem(transactionItemEntity)
-                transactionItemEntity.copy(id = transactionItemId.toInt())
-            }
-
-        return transactionItems
+        insertTransaction(transaction = transaction)
+        return transactionItems.map { transactionItemEntity ->
+            insertTransactionItem(transactionItemEntity)
+            transactionItemEntity
+        }
     }
 
     @Update

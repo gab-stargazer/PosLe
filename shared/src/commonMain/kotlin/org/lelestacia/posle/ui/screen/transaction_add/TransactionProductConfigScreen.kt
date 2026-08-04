@@ -284,7 +284,7 @@ private class TransactionProductConfigComponentPreview(
 @Composable
 private fun TransactionProductConfigScreenPreview() {
     val previewProduct = Product(
-        id = 1,
+        id = "1",
         name = Name("Es Teh Manis"),
         buyPrice = Price(BigDecimal("15000")),
         sellPrice = Price(BigDecimal("15000")),
@@ -292,12 +292,12 @@ private fun TransactionProductConfigScreenPreview() {
         stock = Amount(BigDecimal("5")),
         variants = listOf(
             Variant(
-                id = 1,
+                id = "1",
                 name = Name("Less Sugar"),
                 priceAdjustment = Price(BigDecimal.ZERO)
             ),
             Variant(
-                id = 2,
+                id = "2",
                 name = Name("Extra Ice"),
                 priceAdjustment = Price(BigDecimal.ZERO)
             ),

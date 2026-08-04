@@ -16,15 +16,15 @@ import org.lelestacia.posle.util.Price
 @Immutable
 @Serializable
 data class Variant(
-    val id: Int,
+    val id: String,
     val name: Name,
     val priceAdjustment: Price,
 )
 
 @Serializable
 data class VariantJunction(
-    val productId: Int,
-    val variantId: Int,
+    val productId: String,
+    val variantId: String,
 )
 
 fun VariantEntity.toDomain(): Variant {

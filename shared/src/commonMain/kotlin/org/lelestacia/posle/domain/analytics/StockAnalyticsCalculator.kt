@@ -28,7 +28,7 @@ object StockAnalyticsCalculator {
     ): StockAnalyticsResult {
         if (movements.isEmpty()) return StockAnalyticsResult()
 
-        val soldByProduct = mutableMapOf<Int, MutableList<StockMovement>>()
+        val soldByProduct = mutableMapOf<String, MutableList<StockMovement>>()
         movements.forEach { movement ->
             if (movement.movementType == StockMovementType.Sale) {
                 soldByProduct.getOrPut(movement.productId) { mutableListOf() }.add(movement)

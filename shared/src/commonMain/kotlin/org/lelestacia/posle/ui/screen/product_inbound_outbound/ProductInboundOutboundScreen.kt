@@ -175,7 +175,7 @@ private fun PreviewProductStockItem() {
     org.lelestacia.posle.ui.theme.AppTheme {
         ProductStockItem(
             product = Product(
-                id = 0,
+                id = "0",
                 name = Name("Salak Pondoh"),
                 stock = Amount(BigDecimal("50")),
                 unit = org.lelestacia.posle.util.Unit(value = "Kg"),

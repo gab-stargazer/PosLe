@@ -57,8 +57,8 @@ fun LazyListScope.categorized(
     searchQuery: String,
     isStockTracked: Boolean,
     categories: LazyPagingItems<Category>,
-    categorizedProducts: (String, Int) -> Flow<PagingData<Product>>,
-    productsNotInCategory: (String, Int) -> Flow<PagingData<Product>>,
+    categorizedProducts: (String, String) -> Flow<PagingData<Product>>,
+    productsNotInCategory: (String, String) -> Flow<PagingData<Product>>,
     onEvent: (ProductListComponentEvent) -> Unit,
 ) {
     items(

@@ -22,6 +22,7 @@ import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.SkuNumber
 import org.lelestacia.posle.util.Unit
+import org.lelestacia.posle.util.UuidProvider
 import java.math.BigDecimal
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -53,11 +54,11 @@ class BundleRepositoryImplTest {
             setup()
             val beras = insertProduct(name = "Beras 5kg", sku = "BR5-001", buyPrice = "80000", sellPrice = "90000")
             val gula = insertProduct(name = "Gula Pasir 1kg", sku = "GP1-001", buyPrice = "15000", sellPrice = "18000")
-            insertBundle(bundleId = 10, name = "Paket Sembako", products = listOf(beras))
+            insertBundle(bundleId = "10", name = "Paket Sembako", products = listOf(beras))
 
             // When
             updateBundle(
-                bundleId = 10,
+                bundleId = "10",
                 name = "Paket Sembako",
                 products = listOf(
                     ProductInBundle(product = beras, quantity = "1", sellPrice = "90000"),
@@ -66,7 +67,7 @@ class BundleRepositoryImplTest {
             )
 
             // Then
-            val bundle = db.bundleDao().getBundleWithProductsById(10)!!
+            val bundle = db.bundleDao().getBundleWithProductsById("10")!!
             assertEquals(2, bundle.products.size, "Bundle should have 2 products after adding Gula")
             assertEquals(1, bundle.products.count { it.product.id == beras.id }, "Bundle should still contain Beras")
             assertEquals(1, bundle.products.count { it.product.id == gula.id }, "Bundle should contain newly added Gula")
@@ -85,11 +86,11 @@ class BundleRepositoryImplTest {
             setup()
             val beras = insertProduct(name = "Beras 5kg", sku = "BR5-001", buyPrice = "80000", sellPrice = "90000")
             val gula = insertProduct(name = "Gula Pasir 1kg", sku = "GP1-001", buyPrice = "15000", sellPrice = "18000")
-            insertBundle(bundleId = 10, name = "Paket Sembako", products = listOf(beras, gula))
+            insertBundle(bundleId = "10", name = "Paket Sembako", products = listOf(beras, gula))
 
             // When
             updateBundle(
-                bundleId = 10,
+                bundleId = "10",
                 name = "Paket Sembako",
                 products = listOf(
                     ProductInBundle(product = beras, quantity = "1", sellPrice = "90000")
@@ -97,7 +98,7 @@ class BundleRepositoryImplTest {
             )
 
             // Then
-            val bundle = db.bundleDao().getBundleWithProductsById(10)!!
+            val bundle = db.bundleDao().getBundleWithProductsById("10")!!
             assertEquals(1, bundle.products.size, "Bundle should have only 1 product after removing Gula")
             assertEquals(beras.id, bundle.products.first().product.id, "Remaining product should be Beras")
         }
@@ -109,11 +110,11 @@ class BundleRepositoryImplTest {
             // Given
             setup()
             val beras = insertProduct(name = "Beras 5kg", sku = "BR5-001", buyPrice = "80000", sellPrice = "90000")
-            insertBundle(bundleId = 10, name = "Paket Sembako", products = listOf(beras))
+            insertBundle(bundleId = "10", name = "Paket Sembako", products = listOf(beras))
 
             // When
             updateBundle(
-                bundleId = 10,
+                bundleId = "10",
                 name = "Paket Sembako",
                 products = listOf(
                     ProductInBundle(product = beras, quantity = "2", sellPrice = "85000")
@@ -121,7 +122,7 @@ class BundleRepositoryImplTest {
             )
 
             // Then
-            val bundle = db.bundleDao().getBundleWithProductsById(10)!!
+            val bundle = db.bundleDao().getBundleWithProductsById("10")!!
             assertEquals(1, bundle.products.size, "Bundle should still have 1 product")
             assertEquals(
                 BigDecimal("2"),
@@ -144,11 +145,11 @@ class BundleRepositoryImplTest {
             val beras = insertProduct(name = "Beras 5kg", sku = "BR5-001", buyPrice = "80000", sellPrice = "90000")
             val gula = insertProduct(name = "Gula Pasir 1kg", sku = "GP1-001", buyPrice = "15000", sellPrice = "18000")
             val minyak = insertProduct(name = "Minyak Goreng 2L", sku = "MG2-001", buyPrice = "28000", sellPrice = "33000")
-            insertBundle(bundleId = 10, name = "Paket Sembako", products = listOf(beras, gula))
+            insertBundle(bundleId = "10", name = "Paket Sembako", products = listOf(beras, gula))
 
             // When
             updateBundle(
-                bundleId = 10,
+                bundleId = "10",
                 name = "Paket Sembako",
                 products = listOf(
                     ProductInBundle(product = gula, quantity = "1", sellPrice = "17500"),
@@ -157,7 +158,7 @@ class BundleRepositoryImplTest {
             )
 
             // Then
-            val bundle = db.bundleDao().getBundleWithProductsById(10)!!
+            val bundle = db.bundleDao().getBundleWithProductsById("10")!!
             assertEquals(2, bundle.products.size, "Bundle should have 2 products after mix operations")
 
             // Beras removed
@@ -195,7 +196,7 @@ class BundleRepositoryImplTest {
 
             // When & Then (no exception)
             updateBundle(
-                bundleId = 999,
+                bundleId = "999",
                 name = "Tidak Ada",
                 products = emptyList()
             )
@@ -209,12 +210,12 @@ class BundleRepositoryImplTest {
             // Given
             setup()
             val beras = insertProduct(name = "Beras 5kg", sku = "BR5-001", buyPrice = "80000", sellPrice = "90000")
-            insertBundle(bundleId = 10, name = "Paket Sembako", products = listOf(beras))
+            insertBundle(bundleId = "10", name = "Paket Sembako", products = listOf(beras))
 
             // When
             val imageData = byteArrayOf(0x01, 0x02, 0x03)
             updateBundle(
-                bundleId = 10,
+                bundleId = "10",
                 name = "Paket Sembako",
                 products = listOf(
                     ProductInBundle(product = beras, quantity = "1", sellPrice = "90000")
@@ -223,7 +224,7 @@ class BundleRepositoryImplTest {
             )
 
             // Then
-            val bundle = db.bundleDao().getBundleWithProductsById(10)!!
+            val bundle = db.bundleDao().getBundleWithProductsById("10")!!
             assertEquals(
                 "/mock/images/bundle_10.png",
                 bundle.bundle.imageUri,
@@ -261,17 +262,19 @@ class BundleRepositoryImplTest {
         buyPrice: String,
         sellPrice: String
     ): Product {
+        val id = UuidProvider.newUuid()
         val entity = ProductEntity(
-            id = 0,
+            id = id,
             name = Name(name),
             unit = Unit("bungkus"),
             skuNumber = SkuNumber(sku),
             createdAt = timestamp
         )
-        val id = db.productDao().addProduct(entity).toInt()
+        db.productDao().addProduct(entity)
 
         db.productDao().addBuyPrice(
             ProductBuyPriceEntity(
+                id = UuidProvider.newUuid(),
                 productId = id,
                 price = Price(BigDecimal(buyPrice)),
                 changeType = PriceChangeType.ProductCreation,
@@ -280,6 +283,7 @@ class BundleRepositoryImplTest {
         )
         db.productDao().addSellPrice(
             ProductSellPriceEntity(
+                id = UuidProvider.newUuid(),
                 productId = id,
                 price = Price(BigDecimal(sellPrice)),
                 changeType = PriceChangeType.ProductCreation,
@@ -299,7 +303,7 @@ class BundleRepositoryImplTest {
     }
 
     private suspend fun insertBundle(
-        bundleId: Int,
+        bundleId: String,
         name: String,
         products: List<Product>
     ) {
@@ -313,7 +317,7 @@ class BundleRepositoryImplTest {
 
         val bundleProducts = products.map { product ->
             BundleProductEntity(
-                id = 0,
+                id = UuidProvider.newUuid(),
                 bundleId = bundleId,
                 productId = product.id,
                 name = product.name,
@@ -328,7 +332,7 @@ class BundleRepositoryImplTest {
     }
 
     private suspend fun updateBundle(
-        bundleId: Int,
+        bundleId: String,
         name: String,
         products: List<ProductInBundle>,
         imageByteArray: ByteArray? = null

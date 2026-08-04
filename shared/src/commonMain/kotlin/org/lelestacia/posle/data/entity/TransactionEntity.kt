@@ -20,9 +20,9 @@ import org.lelestacia.posle.util.Unit
     indices = [Index("customer_name")]
 )
 data class TransactionEntity(
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
     @ColumnInfo("id")
-    val id: Int = 0,
+    val id: String,
     @ColumnInfo("customer_name")
     val customerName: Name,
     @ColumnInfo("is_recapped")
@@ -52,15 +52,15 @@ enum class TransactionItemType {
     indices = [Index("transaction_id")]
 )
 data class TransactionItemEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    @PrimaryKey
+    val id: String,
     @ColumnInfo("transaction_id")
-    val transactionId: Int,
+    val transactionId: String,
     @ColumnInfo("type")
     val type: TransactionItemType,
     // Product.id or Bundle.id
     @ColumnInfo("reference_id")
-    val referenceId: Int,
+    val referenceId: String,
     @ColumnInfo("name")
     val name: Name,
     @ColumnInfo("quantity")
@@ -88,13 +88,13 @@ data class TransactionItemEntity(
     indices = [Index("transaction_item_id")]
 )
 data class TransactionItemProductEntity(
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
     @ColumnInfo("id")
-    val id: Int = 0,
+    val id: String,
     @ColumnInfo("transaction_item_id")
-    val transactionItemId: Int,
+    val transactionItemId: String,
     @ColumnInfo("product_id")
-    val productId: Int,
+    val productId: String,
     @ColumnInfo("product_name")
     val productName: Name,
     @ColumnInfo("sku_number")

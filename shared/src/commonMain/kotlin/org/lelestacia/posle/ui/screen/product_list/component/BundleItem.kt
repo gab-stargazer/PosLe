@@ -114,7 +114,7 @@ private fun PreviewBundleItem() {
     AppTheme {
         BundleItem(
             bundle = Bundle(
-                id = 0,
+                id = "0",
                 name = Name("Paket Sembako"),
                 bundleProducts = emptyList(),
                 createdAt = 0

@@ -17,6 +17,7 @@ import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.FileStorage
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
+import org.lelestacia.posle.util.UuidProvider
 import org.lelestacia.posle.util.Util
 import kotlin.time.Clock
 
@@ -33,12 +34,13 @@ class BundleRepositoryImpl(
     ) = transactionRunner.runTransaction {
         val currentTime = Clock.System.now().toEpochMilliseconds()
         val bundle = BundleEntity(
-            id = 0,
+            id = UuidProvider.newUuid(),
             name = bundleName,
             createdAt = currentTime
         )
 
-        val bundleId = bundleDao.insertBundleAndGetId(bundle).toInt()
+        val bundleId = bundle.id
+        bundleDao.insertBundleAndGetId(bundle)
 
         val imageUri = imageByteArray?.let { bytes ->
             storage.saveImage(fileName = "bundle_$bundleId.png", bytes)
@@ -55,7 +57,7 @@ class BundleRepositoryImpl(
 
         val bundleProductsEntity = bundleProducts.map { bundleProduct ->
             BundleProductEntity(
-                id = 0,
+                id = UuidProvider.newUuid(),
                 name = bundleProduct.product.name,
                 bundleId = bundleId,
                 productId = bundleProduct.product.id,
@@ -71,7 +73,7 @@ class BundleRepositoryImpl(
     }
 
     override suspend fun updateBundle(
-        bundleId: Int,
+        bundleId: String,
         bundleName: Name,
         bundleProducts: List<BundleProductState>,
         imageUri: String?,
@@ -133,7 +135,7 @@ class BundleRepositoryImpl(
                     )
                 } else {
                     toInsert += BundleProductEntity(
-                        id = 0,
+                        id = UuidProvider.newUuid(),
                         name = productState.product.name,
                         bundleId = bundleId,
                         productId = productState.product.id,
@@ -151,7 +153,7 @@ class BundleRepositoryImpl(
         }
     }
 
-    override suspend fun deleteBundle(bundleId: Int, bundleName: Name) {
+    override suspend fun deleteBundle(bundleId: String, bundleName: Name) {
         storage.deleteImage(fileName = "bundle_$bundleId.png")
         bundleDao.deleteBundleById(bundleId)
     }

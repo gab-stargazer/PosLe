@@ -24,7 +24,7 @@ import org.lelestacia.posle.util.Unit
  */
 @Serializable
 data class Transaction(
-    val id: Int,
+    val id: String,
     val customerName: Name,
     val items: List<TransactionItem>,
     val isRecapped: Boolean,
@@ -39,14 +39,14 @@ data class Transaction(
  */
 @Serializable
 data class TransactionItem(
-    val id: Int,
+    val id: String,
     val type: TransactionItemType,
 
     /**
      * Original Product.id or Bundle.id.
      * Useful for navigating back to the original object if it still exists.
      */
-    val referenceId: Int,
+    val referenceId: String,
 
     /**
      * Name shown on the receipt.
@@ -94,7 +94,7 @@ data class TransactionItem(
  */
 @Serializable
 data class TransactionProduct(
-    val productId: Int,
+    val productId: String,
     val productName: Name,
     val skuNumber: SkuNumber?,
     val imageUri: String?,

@@ -14,7 +14,7 @@ import org.lelestacia.posle.util.Name
 @Immutable
 @Serializable
 data class Category(
-    val id: Int,
+    val id: String,
     val name: Name,
 )
 

@@ -9,6 +9,7 @@ import org.lelestacia.posle.data.entity.StockMovementType
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Unit
+import org.lelestacia.posle.util.UuidProvider
 import java.math.BigDecimal
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -33,12 +34,12 @@ class StockRepositoryImplTest {
             val base = 1_700_000_000_000L
 
             // Three products + movements at distinct timestamps
-            insertProduct(productId = 1)
-            insertProduct(productId = 2)
-            insertProduct(productId = 3)
-            db.stockDao().insertStockMovement(movement(productId = 1, amount = "-5", createdAt = base))
-            db.stockDao().insertStockMovement(movement(productId = 2, amount = "-3", createdAt = base + dayMs))
-            db.stockDao().insertStockMovement(movement(productId = 3, amount = "-1", createdAt = base + 2 * dayMs))
+            insertProduct(productId = "1")
+            insertProduct(productId = "2")
+            insertProduct(productId = "3")
+            db.stockDao().insertStockMovement(movement(productId = "1", amount = "-5", createdAt = base))
+            db.stockDao().insertStockMovement(movement(productId = "2", amount = "-3", createdAt = base + dayMs))
+            db.stockDao().insertStockMovement(movement(productId = "3", amount = "-1", createdAt = base + 2 * dayMs))
 
             // Range covers only the first two (half-open: finishDate exclusive)
             val result = repo.getStockMovementsInRange(
@@ -47,7 +48,7 @@ class StockRepositoryImplTest {
             ).first()
 
             assertEquals(2, result.size, "Only movements inside [start, finish) should be returned")
-            assertEquals(listOf(2, 1), result.map { it.productId }, "Newest first ordering")
+            assertEquals(listOf("2", "1"), result.map { it.productId }, "Newest first ordering")
         }
     }
 
@@ -58,10 +59,10 @@ class StockRepositoryImplTest {
             val dayMs = 24 * 60 * 60 * 1000L
             val base = 1_700_000_000_000L
 
-            insertProduct(productId = 1)
-            insertProduct(productId = 2)
-            db.stockDao().insertStockMovement(movement(productId = 1, amount = "-5", createdAt = base))
-            db.stockDao().insertStockMovement(movement(productId = 2, amount = "-3", createdAt = base + dayMs))
+            insertProduct(productId = "1")
+            insertProduct(productId = "2")
+            db.stockDao().insertStockMovement(movement(productId = "1", amount = "-5", createdAt = base))
+            db.stockDao().insertStockMovement(movement(productId = "2", amount = "-3", createdAt = base + dayMs))
 
             // finishDate equals the second movement's timestamp → it must be excluded
             val result = repo.getStockMovementsInRange(
@@ -70,7 +71,7 @@ class StockRepositoryImplTest {
             ).first()
 
             assertEquals(1, result.size)
-            assertEquals(1, result[0].productId)
+            assertEquals("1", result[0].productId)
         }
     }
 
@@ -93,7 +94,7 @@ class StockRepositoryImplTest {
         repo = StockRepositoryImpl(dao = db.stockDao(), productDao = db.productDao())
     }
 
-    private suspend fun insertProduct(productId: Int) {
+    private suspend fun insertProduct(productId: String) {
         db.productDao().addProduct(
             org.lelestacia.posle.data.entity.ProductEntity(
                 id = productId,
@@ -107,9 +108,9 @@ class StockRepositoryImplTest {
         )
     }
 
-    private fun movement(productId: Int, amount: String, createdAt: Long): StockMovementEntity {
+    private fun movement(productId: String, amount: String, createdAt: Long): StockMovementEntity {
         return StockMovementEntity(
-            id = 0,
+            id = UuidProvider.newUuid(),
             productId = productId,
             productName = Name("Produk $productId"),
             productUnit = Unit("pcs"),

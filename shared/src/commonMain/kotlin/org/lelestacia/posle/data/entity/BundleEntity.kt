@@ -17,8 +17,8 @@ import org.lelestacia.posle.util.Unit
     indices = [Index("name")]
 )
 data class BundleEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int,
+    @PrimaryKey
+    val id: String,
 
     @ColumnInfo("name")
     val name: Name,
@@ -56,14 +56,14 @@ data class BundleEntity(
     ]
 )
 data class BundleProductEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    @PrimaryKey
+    val id: String,
 
     @ColumnInfo("bundle_id")
-    val bundleId: Int,
+    val bundleId: String,
 
     @ColumnInfo("product_id")
-    val productId: Int,
+    val productId: String,
 
     @ColumnInfo("name")
     val name: Name,

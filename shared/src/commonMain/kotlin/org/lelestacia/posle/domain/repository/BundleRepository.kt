@@ -41,7 +41,7 @@ interface BundleRepository {
      * @param imageByteArray New image data (if changed).
      */
     suspend fun updateBundle(
-        bundleId: Int,
+        bundleId: String,
         bundleName: Name,
         bundleProducts: List<BundleProductState>,
         imageUri: String?,
@@ -54,7 +54,7 @@ interface BundleRepository {
      * @param bundleId The ID of the bundle.
      * @param bundleName The name of the bundle (used for log/file identification).
      */
-    suspend fun deleteBundle(bundleId: Int, bundleName: Name)
+    suspend fun deleteBundle(bundleId: String, bundleName: Name)
 
     /**
      * Provides a paginated stream of bundles filtered by name.

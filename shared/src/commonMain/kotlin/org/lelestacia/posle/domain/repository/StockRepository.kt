@@ -36,5 +36,5 @@ interface StockRepository {
      * @param movementType The reason/type of movement (Sale, Purchase, etc.).
      * @param note Optional descriptive note for the movement.
      */
-    suspend fun createStockMovement(productId: Int, amount: Amount, movementType: StockMovementType, note: String? = null)
+    suspend fun createStockMovement(productId: String, amount: Amount, movementType: StockMovementType, note: String? = null)
 }

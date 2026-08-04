@@ -37,7 +37,7 @@ object ExcelManager {
         // Data
         products.forEachIndexed { index, product ->
             val row = sheet.createRow(index + 1)
-            row.createCell(COL_ID).setCellValue(product.id.toDouble())
+            row.createCell(COL_ID).setCellValue(product.id)
             row.createCell(COL_SKU).setCellValue(product.skuNumber?.value ?: "")
             row.createCell(COL_NAME).setCellValue(product.name.value)
             row.createCell(COL_CATEGORIES).setCellValue(
@@ -63,7 +63,6 @@ object ExcelManager {
         for (rowIndex in 1..sheet.lastRowNum) {
             val row = sheet.getRow(rowIndex) ?: continue
             
-            val id = row.getCell(COL_ID)?.numericCellValue?.toInt() ?: 0
             val sku = row.getCell(COL_SKU)?.stringCellValue?.takeIf { it.isNotBlank() }
             val name = row.getCell(COL_NAME)?.stringCellValue ?: ""
             val categoriesStr = row.getCell(COL_CATEGORIES)?.stringCellValue ?: ""
@@ -76,7 +75,7 @@ object ExcelManager {
 
             products.add(
                 Product(
-                    id = id,
+                    id = "",
                     name = Name(name),
                     skuNumber = sku?.let { SkuNumber(it) },
                     unit = Unit(unit),
@@ -85,7 +84,7 @@ object ExcelManager {
                     stock = Amount(BigDecimal.valueOf(stock)),
                     categories = categoriesStr.split(",")
                         .filter { it.isNotBlank() }
-                        .map { Category(id = 0, name = Name(it.trim())) }
+                        .map { Category(id = "", name = Name(it.trim())) }
                 )
             )
         }

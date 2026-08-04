@@ -198,7 +198,7 @@ private fun PreviewVariantItemAdd() {
     AppTheme {
         VariantViewItemAdd(
             variant = Variant(
-                id = 0,
+                id = "0",
                 name = Name("Karung"),
                 priceAdjustment = Price(BigDecimal.ZERO)
             ),

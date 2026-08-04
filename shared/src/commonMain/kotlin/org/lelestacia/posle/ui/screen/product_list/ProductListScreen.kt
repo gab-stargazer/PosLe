@@ -261,7 +261,7 @@ private fun PreviewProductListScreen() {
     AppTheme {
         ProductListScreen(
             component = object : ProductListComponent {
-                override val productPagingFlows: MutableMap<Pair<String, Int>, Flow<PagingData<Product>>>
+                override val productPagingFlows: MutableMap<Pair<String, String>, Flow<PagingData<Product>>>
                     get() = mutableMapOf()
 
                 override val state: StateFlow<org.lelestacia.posle.domain.component.product_list.ProductListComponentState>
@@ -269,10 +269,10 @@ private fun PreviewProductListScreen() {
 
                 override fun onEvent(event: ProductListComponentEvent) {}
 
-                override fun productsInCategory(searchQuery: String, categoryId: Int): Flow<PagingData<Product>> =
+                override fun productsInCategory(searchQuery: String, categoryId: String): Flow<PagingData<Product>> =
                     flowOf(PagingData.from(emptyList()))
 
-                override fun productsNotInCategory(searchQuery: String, categoryId: Int): Flow<PagingData<Product>> =
+                override fun productsNotInCategory(searchQuery: String, categoryId: String): Flow<PagingData<Product>> =
                     flowOf(PagingData.from(emptyList()))
             }
         )

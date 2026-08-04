@@ -257,15 +257,15 @@ private fun PreviewTransactionAddBundleCart() {
     AppTheme {
         TransactionAddBundleCart(
             cartItem = CartItems.BundleCartItem(
-                id = 0,
-                bundleId = 0,
+                id = "0",
+                bundleId = "0",
                 bundleName = Name("Paket Kombo"),
                 bundleQuantity = Amount(BigDecimal("3")),
                 bundleTotalPrice = Price(BigDecimal("12000")),
                 bundleNote = "Lorem ipsum dolor sit amet",
                 bundleProducts = listOf(
                     BundleProduct(
-                        productId = 0,
+                        productId = "0",
                         productName = Name("Nasi"),
                         skuNumber = null,
                         imageUri = null,
@@ -278,7 +278,7 @@ private fun PreviewTransactionAddBundleCart() {
                         updatedAt = null
                     ),
                     BundleProduct(
-                        productId = 0,
+                        productId = "0",
                         productName = Name("Ayam"),
                         skuNumber = null,
                         imageUri = null,

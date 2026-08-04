@@ -152,7 +152,7 @@ private fun PreviewTransactionProductDetailItem() {
         TransactionProductDetailItem(
             type = TransactionItemType.Bundle,
             product = TransactionProduct(
-                productId = 0,
+                productId = "0",
                 productName = Name("Nasi Goreng"),
                 skuNumber = null,
                 imageUri = null,

@@ -55,7 +55,7 @@ interface StockDao {
             WHERE product_id = :productId
         """
     )
-    suspend fun getStockByProductId(productId: Int): BigDecimal
+    suspend fun getStockByProductId(productId: String): BigDecimal
 
     @Update
     suspend fun updateStock(stock: StockEntity)

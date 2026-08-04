@@ -65,7 +65,7 @@ data class TimeSeriesPoint(
 
 @Serializable
 data class TopProduct(
-    val productId: Int,
+    val productId: String,
     val productName: Name,
     @Serializable(with = BigDecimalSerializer::class)
     val totalQuantity: BigDecimal = BigDecimal.ZERO,
@@ -82,7 +82,7 @@ data class AnalyticsResult(
 
 @Serializable
 data class StockProductAnalytics(
-    val productId: Int,
+    val productId: String,
     val productName: Name,
     val productUnit: Unit,
     @Serializable(with = BigDecimalSerializer::class)

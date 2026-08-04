@@ -24,7 +24,7 @@ import org.lelestacia.posle.data.entity.ProductWithVariantsAndStock
 interface ProductDao {
 
     @Insert
-    suspend fun addProduct(product: ProductEntity): Long
+    suspend fun addProduct(product: ProductEntity)
 
     @Insert
     suspend fun addSellPrice(price: ProductSellPriceEntity)
@@ -34,7 +34,7 @@ interface ProductDao {
 
     @Transaction
     @Query("SELECT * FROM PRODUCT WHERE id = :id")
-    suspend fun getProductById(id: Int): ProductWithVariantsAndStock
+    suspend fun getProductById(id: String): ProductWithVariantsAndStock
 
     @Query("SELECT * FROM product WHERE name LIKE '%' || :name || '%' ORDER BY name ASC")
     fun readProductsByName(name: String = ""): PagingSource<Int, ProductEntity>
@@ -63,7 +63,7 @@ interface ProductDao {
             LIMIT 3
         """
     )
-    fun readProductBuyPriceHistory(productId: Int): Flow<List<ProductBuyPriceEntity>>
+    fun readProductBuyPriceHistory(productId: String): Flow<List<ProductBuyPriceEntity>>
 
     @Query(
         """
@@ -73,10 +73,10 @@ interface ProductDao {
             LIMIT 3
         """
     )
-    fun readProductSellPriceHistory(productId: Int): Flow<List<ProductBuyPriceEntity>>
+    fun readProductSellPriceHistory(productId: String): Flow<List<ProductBuyPriceEntity>>
 
     @Query("SELECT * FROM product WHERE id = :id")
-    suspend fun readProductById(id: Int): ProductEntity?
+    suspend fun readProductById(id: String): ProductEntity?
 
     @Transaction
     @Query("SELECT * FROM product WHERE name LIKE '%' || :name || '%' ORDER BY name ASC")
@@ -126,7 +126,7 @@ interface ProductDao {
     )
     fun readProductWithCategories(
         searchQuery: String,
-        categoryId: Int
+        categoryId: String
     ): PagingSource<Int, ProductWithVariantsAndStock>
 
     @Transaction
@@ -143,7 +143,7 @@ interface ProductDao {
     )
     fun readProductNotInCategory(
         searchQuery: String,
-        categoryId: Int
+        categoryId: String
     ): PagingSource<Int, ProductWithVariantsAndStock>
 
     @SuppressWarnings(RoomWarnings.QUERY_MISMATCH)
@@ -164,10 +164,10 @@ interface ProductDao {
     fun getAvailableProducts(searchQuery: String = ""): Flow<List<ProductWithVariantsAndStock>>
 
     @Query("SELECT * FROM product_sell_price WHERE product_id = :productId ORDER BY created_at DESC LIMIT 1")
-    suspend fun getLatestSellPriceByProductId(productId: Int): ProductSellPriceEntity
+    suspend fun getLatestSellPriceByProductId(productId: String): ProductSellPriceEntity
 
     @Query("SELECT * FROM product_buy_price WHERE product_id = :productId ORDER BY created_at DESC LIMIT 1")
-    suspend fun getLatestBuyPriceByProductId(productId: Int): ProductBuyPriceEntity
+    suspend fun getLatestBuyPriceByProductId(productId: String): ProductBuyPriceEntity
 
     @Transaction
     @Query("SELECT * FROM product ORDER BY name ASC")
@@ -177,5 +177,5 @@ interface ProductDao {
     suspend fun update(product: ProductEntity)
 
     @Query("DELETE FROM product WHERE id = :id")
-    suspend fun delete(id: Int)
+    suspend fun delete(id: String)
 }

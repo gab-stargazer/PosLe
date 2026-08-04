@@ -39,6 +39,9 @@ class SettingScreenUiTest {
     @get:Rule
     val composeRule = createComposeRule()
 
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
+
     @Test
     fun toggle_product_volatile_fires_event() {
         val component = FakeSettingComponent()

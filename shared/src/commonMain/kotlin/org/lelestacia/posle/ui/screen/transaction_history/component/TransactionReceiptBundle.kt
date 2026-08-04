@@ -123,16 +123,16 @@ private fun PreviewTransactionReceiptBundle() {
         Box(modifier = Modifier.padding(12.dp)) {
             TransactionReceiptBundle(
                 transactionItem = TransactionItem(
-                    id = 0,
+                    id = "0",
                     type = TransactionItemType.Bundle,
-                    referenceId = 0,
+                    referenceId = "0",
                     name = Name("Paket Nasi Ayam"),
                     quantity = Amount(java.math.BigDecimal("10")),
                     sellPrice = Price(13000.toBigDecimal()),
                     note = "Lorem Ipsum",
                     products = List(2) {
                         TransactionProduct(
-                            productId = it,
+                            productId = it.toString(),
                             productName = Name("Nasi Ayam"),
                             quantity = Amount(java.math.BigDecimal.ONE),
                             unit = Unit("porsi"),

@@ -15,7 +15,7 @@ import org.lelestacia.posle.data.entity.VariantJunction
 interface VariantDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertVariant(variant: VariantEntity): Long
+    suspend fun insertVariant(variant: VariantEntity)
 
     @Query
         (
@@ -34,7 +34,7 @@ interface VariantDao {
             WHERE variant_junction.product_id = :productId
         """
     )
-    fun readVariantByProductId(productId: Int): Flow<List<VariantEntity>>
+    fun readVariantByProductId(productId: String): Flow<List<VariantEntity>>
 
     @Insert
     suspend fun insertVariantToProduct(variant: VariantJunction)
@@ -45,10 +45,10 @@ interface VariantDao {
             WHERE product_id == :productId AND variant_id == :variantId
         """
     )
-    suspend fun deleteVariantToProduct(variantId: Int, productId: Int)
+    suspend fun deleteVariantToProduct(variantId: String, productId: String)
 
     @Query("DELETE FROM variant_junction WHERE product_id = :productId")
-    suspend fun clearProductVariants(productId: Int)
+    suspend fun clearProductVariants(productId: String)
 
     @Update
     suspend fun updateVariant(variant: VariantEntity)
@@ -62,5 +62,5 @@ interface VariantDao {
             WHERE variant_id == :variantId
         """
     )
-    suspend fun deleteVariantJunction(variantId: Int)
+    suspend fun deleteVariantJunction(variantId: String)
 }

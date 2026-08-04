@@ -13,9 +13,9 @@ import org.lelestacia.posle.util.Name
     indices = [Index("name", unique = true)]
 )
 data class CategoryEntity(
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
     @ColumnInfo("id")
-    val id: Int = 0,
+    val id: String,
 
     @ColumnInfo("name")
     val name: Name,
@@ -45,10 +45,10 @@ data class CategoryEntity(
 )
 data class ProductCategoryJunction(
     @ColumnInfo("product_id")
-    val productId: Int,
+    val productId: String,
 
     @ColumnInfo("category_id")
-    val categoryId: Int,
+    val categoryId: String,
 )
 
 fun CategoryEntity.toDomain(): Category {

@@ -122,6 +122,7 @@ kotlin {
 
         jvmTest.dependencies {
             implementation(libs.mockk)
+            implementation(libs.kotlinx.coroutinesTest)
             implementation("org.jetbrains.compose.ui:ui-test-junit4:${libs.versions.composeMultiplatform.get()}")
             implementation(compose.desktop.currentOs)
         }

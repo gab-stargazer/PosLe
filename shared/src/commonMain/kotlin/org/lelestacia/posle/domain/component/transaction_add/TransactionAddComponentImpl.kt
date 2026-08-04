@@ -39,6 +39,7 @@ import org.lelestacia.posle.navigation.Config.TransactionView
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
+import org.lelestacia.posle.util.UuidProvider
 import org.lelestacia.posle.util.coroutineScope
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.msg_error_item_not_available
@@ -244,7 +245,7 @@ class TransactionAddComponentImpl(
                 scope.launch {
                     val currentDialogState = state.value.dialogProductState
                     val alreadyInCart = cartQuantityInCart(
-                        currentDialogState.selectedProduct?.id ?: -1,
+                        currentDialogState.selectedProduct?.id ?: "",
                         state.value.cartItems
                     )
                     if (currentDialogState.amountError != null) {
@@ -301,7 +302,7 @@ class TransactionAddComponentImpl(
                 val currentDialogState = state.value.dialogProductState
                 val validationResult = currentDialogState.validate(
                     alreadyInCart = cartQuantityInCart(
-                        currentDialogState.selectedProduct?.id ?: -1,
+                        currentDialogState.selectedProduct?.id ?: "",
                         state.value.cartItems
                     )
                 )
@@ -338,7 +339,7 @@ class TransactionAddComponentImpl(
                     } else {
                         cartItems.add(
                             ProductCartItem(
-                                id = 0,
+                                id = UuidProvider.newUuid(),
                                 productName = selectedProduct.name,
                                 productId = selectedProduct.id,
                                 skuNumber = selectedProduct.skuNumber,
@@ -526,7 +527,7 @@ class TransactionAddComponentImpl(
                     val cartItems = currentState.cartItems.toMutableList()
                     cartItems.add(
                         BundleCartItem(
-                            id = 0,
+                            id = UuidProvider.newUuid(),
                             bundleId = selectedBundle.id,
                             bundleName = selectedBundle.name,
                             bundleQuantity = Amount(currentState.dialogBundleState.quantity.toBigDecimal()),
@@ -576,8 +577,8 @@ class TransactionAddComponentImpl(
      * the stock, so the commit path re-validates against live availability.
      */
     private suspend fun findUnavailableProducts(cartItems: List<CartItems>): List<Name> {
-        val demand = mutableMapOf<Int, Name>()
-        val totals = mutableMapOf<Int, BigDecimal>()
+        val demand = mutableMapOf<String, Name>()
+        val totals = mutableMapOf<String, BigDecimal>()
 
         cartItems.forEach { cartItem ->
             when (cartItem) {

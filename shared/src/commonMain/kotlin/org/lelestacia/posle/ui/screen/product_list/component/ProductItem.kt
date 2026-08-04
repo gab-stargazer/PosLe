@@ -177,7 +177,7 @@ private fun PreviewProductItem() {
         ) {
             ProductItem(
                 product = Product(
-                    id = 0,
+                    id = "0",
                     name = Name("Salak"),
                     stock = Amount(BigDecimal("100")),
                     unit = org.lelestacia.posle.util.Unit(value = "Kg"),

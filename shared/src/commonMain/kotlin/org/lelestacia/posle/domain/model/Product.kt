@@ -26,7 +26,7 @@ import java.math.BigDecimal
 @Immutable
 @Serializable
 data class Product(
-    val id: Int,
+    val id: String,
     val name: Name,
     val stock: Amount,
     val buyPrice: Price,
@@ -46,7 +46,7 @@ data class Product(
  * @property createdAt Timestamp of the price change.
  */
 data class ProductPriceHistory(
-    val id: Int,
+    val id: String,
     val price: Price,
     val changes: BigDecimal,
     val createdAt: Long

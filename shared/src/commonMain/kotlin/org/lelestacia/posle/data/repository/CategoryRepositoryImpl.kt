@@ -23,7 +23,7 @@ class CategoryRepositoryImpl(
         dao.insertCategory(category.toEntity())
     }
 
-    override suspend fun createProductCategoryLink(productId: Int, categoryId: Int) {
+    override suspend fun createProductCategoryLink(productId: String, categoryId: String) {
         val junction = ProductCategoryJunction(
             productId = productId,
             categoryId = categoryId
@@ -32,7 +32,7 @@ class CategoryRepositoryImpl(
         dao.insertConnection(junction)
     }
 
-    override suspend fun deleteProductCategoryLink(productId: Int, categoryId: Int) {
+    override suspend fun deleteProductCategoryLink(productId: String, categoryId: String) {
         dao.deleteConnection(productId, categoryId)
     }
 
@@ -51,7 +51,7 @@ class CategoryRepositoryImpl(
         }
     }
 
-    override suspend fun deleteCategory(categoryId: Int) = transactionRunner.runTransaction {
+    override suspend fun deleteCategory(categoryId: String) = transactionRunner.runTransaction {
         dao.clearProductCategory(categoryId)
         dao.deleteCategoryById(categoryId)
     }

@@ -16,11 +16,11 @@ class TransactionAddStateEventTest {
     private val timestamp = 1_700_000_000_000L
 
     private fun productCart(
-        productId: Int,
+        productId: String,
         quantity: String,
         productName: String = "Beras 5kg"
     ): CartItems.ProductCartItem = CartItems.ProductCartItem(
-        id = 1,
+        id = "1",
         productId = productId,
         productName = Name(productName),
         skuNumber = SkuNumber("BR5-001"),
@@ -33,11 +33,11 @@ class TransactionAddStateEventTest {
     )
 
     private fun bundleCart(
-        bundleId: Int = 1,
-        products: List<Triple<Int, String, String>>,
+        bundleId: String = "1",
+        products: List<Triple<String, String, String>>,
         bundleQuantity: String = "1"
     ): CartItems.BundleCartItem = CartItems.BundleCartItem(
-        id = 1,
+        id = "1",
         bundleId = bundleId,
         bundleName = Name("Paket Sembako"),
         bundleQuantity = Amount(BigDecimal(bundleQuantity)),
@@ -66,20 +66,20 @@ class TransactionAddStateEventTest {
 
     @Test
     fun `cartQuantityInCart returns zero for empty cart`() {
-        assertEquals(BigDecimal.ZERO, cartQuantityInCart(productId = 1, cartItems = emptyList()))
+        assertEquals(BigDecimal.ZERO, cartQuantityInCart(productId = "1", cartItems = emptyList()))
     }
 
     @Test
     fun `cartQuantityInCart sums plain product lines for the product`() {
         val cart = listOf(
-            productCart(productId = 1, quantity = "2"),
-            productCart(productId = 1, quantity = "3"),
-            productCart(productId = 2, quantity = "5")
+            productCart(productId = "1", quantity = "2"),
+            productCart(productId = "1", quantity = "3"),
+            productCart(productId = "2", quantity = "5")
         )
 
-        assertEquals(BigDecimal("5"), cartQuantityInCart(productId = 1, cartItems = cart))
-        assertEquals(BigDecimal("5"), cartQuantityInCart(productId = 2, cartItems = cart))
-        assertEquals(BigDecimal.ZERO, cartQuantityInCart(productId = 99, cartItems = cart))
+        assertEquals(BigDecimal("5"), cartQuantityInCart(productId = "1", cartItems = cart))
+        assertEquals(BigDecimal("5"), cartQuantityInCart(productId = "2", cartItems = cart))
+        assertEquals(BigDecimal.ZERO, cartQuantityInCart(productId = "99", cartItems = cart))
     }
 
     @Test
@@ -87,33 +87,33 @@ class TransactionAddStateEventTest {
         val cart = listOf(
             bundleCart(
                 products = listOf(
-                    Triple(1, "4", "Beras"),
-                    Triple(2, "2", "Gula")
+                    Triple("1", "4", "Beras"),
+                    Triple("2", "2", "Gula")
                 ),
                 bundleQuantity = "2"
             )
         )
 
-        assertEquals(BigDecimal("8"), cartQuantityInCart(productId = 1, cartItems = cart))
-        assertEquals(BigDecimal("4"), cartQuantityInCart(productId = 2, cartItems = cart))
-        assertEquals(BigDecimal.ZERO, cartQuantityInCart(productId = 3, cartItems = cart))
+        assertEquals(BigDecimal("8"), cartQuantityInCart(productId = "1", cartItems = cart))
+        assertEquals(BigDecimal("4"), cartQuantityInCart(productId = "2", cartItems = cart))
+        assertEquals(BigDecimal.ZERO, cartQuantityInCart(productId = "3", cartItems = cart))
     }
 
     @Test
     fun `cartQuantityInCart combines plain products and bundle contents`() {
         val cart = listOf(
-            productCart(productId = 1, quantity = "3"),
+            productCart(productId = "1", quantity = "3"),
             bundleCart(
                 products = listOf(
-                    Triple(1, "4", "Beras"),
-                    Triple(2, "2", "Gula")
+                    Triple("1", "4", "Beras"),
+                    Triple("2", "2", "Gula")
                 ),
                 bundleQuantity = "2"
             )
         )
 
         // 3 plain units + 2 bundles × 4 units inside = 11
-        assertEquals(BigDecimal("11"), cartQuantityInCart(productId = 1, cartItems = cart))
-        assertEquals(BigDecimal("4"), cartQuantityInCart(productId = 2, cartItems = cart))
+        assertEquals(BigDecimal("11"), cartQuantityInCart(productId = "1", cartItems = cart))
+        assertEquals(BigDecimal("4"), cartQuantityInCart(productId = "2", cartItems = cart))
     }
 }

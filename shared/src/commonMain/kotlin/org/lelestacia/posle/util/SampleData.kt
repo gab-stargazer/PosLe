@@ -11,7 +11,7 @@ import java.math.BigDecimal
 object SampleData {
     val products = listOf(
         Product(
-            id = 1,
+            id = "1",
             name = Name("Sate Ayam"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -20,7 +20,7 @@ object SampleData {
             imageUri = null
         ),
         Product(
-            id = 2,
+            id = "2",
             name = Name("Es Teh Manis"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -29,7 +29,7 @@ object SampleData {
             imageUri = null
         ),
         Product(
-            id = 3,
+            id = "3",
             name = Name("Nasi Putih"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -38,7 +38,7 @@ object SampleData {
             imageUri = null
         ),
         Product(
-            id = 4,
+            id = "4",
             name = Name("Kerupuk"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -51,7 +51,7 @@ object SampleData {
     val indonesianFoodProducts = listOf(
         // 1. Nasi Goreng (Fried Rice)
         Product(
-            id = 1,
+            id = "1",
             name = Name("Nasi Goreng Spesial"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -62,7 +62,7 @@ object SampleData {
         ),
         // 2. Soto Ayam (Chicken Soup)
         Product(
-            id = 2,
+            id = "2",
             name = Name("Soto Ayam Lamongan"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -73,7 +73,7 @@ object SampleData {
         ),
         // 3. Gudeg Yogyakarta (Young Jackfruit Stew)
         Product(
-            id = 3,
+            id = "3",
             name = Name("Gudeg Manggar"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -84,7 +84,7 @@ object SampleData {
         ),
         // 4. Rendang Daging Sapi (Beef Rendang)
         Product(
-            id = 4,
+            id = "4",
             name = Name("Rendang Daging Premium"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -95,7 +95,7 @@ object SampleData {
         ),
         // 5. Sate Ayam (Chicken Satay)
         Product(
-            id = 5,
+            id = "5",
             name = Name("Sate Ayam Madura"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -106,7 +106,7 @@ object SampleData {
         ),
         // 6. Pempek Palembang (Fish Cake Soup)
         Product(
-            id = 6,
+            id = "6",
             name = Name("Pempek Kapal Selam Komplit"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -117,7 +117,7 @@ object SampleData {
         ),
         // 7. Rawon Daging Sapi (Black Beef Soup)
         Product(
-            id = 7,
+            id = "7",
             name = Name("Rawon Daging Spesial"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -128,7 +128,7 @@ object SampleData {
         ),
         // 8. Nasi Padang (Miniature Rice Meal)
         Product(
-            id = 8,
+            id = "8",
             name = Name("Nasi Padang Komplit"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -139,7 +139,7 @@ object SampleData {
         ),
         // 9. Gado-Gado (Mixed Vegetable Salad)
         Product(
-            id = 9,
+            id = "9",
             name = Name("Gado-Gado Klasik"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -150,7 +150,7 @@ object SampleData {
         ),
         // 10. Ketoprak (Tofu and Tauge Salad)
         Product(
-            id = 10,
+            id = "10",
             name = Name("Ketoprak Segar"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -161,7 +161,7 @@ object SampleData {
         ),
         // 11. Mie Ayam Bakso (Chicken Noodles with Meatballs)
         Product(
-            id = 11,
+            id = "11",
             name = Name("Mie Ayam Premium"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -172,7 +172,7 @@ object SampleData {
         ),
         // 12. Tumpeng Mini (Miniature Rice Cone Meal)
         Product(
-            id = 12,
+            id = "12",
             name = Name("Tumpeng Lauk Komplit"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -183,7 +183,7 @@ object SampleData {
         ),
         // 13. Bakso Malang (Meatball Soup)
         Product(
-            id = 13,
+            id = "13",
             name = Name("Bakso Malang Komplit"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -194,7 +194,7 @@ object SampleData {
         ),
         // 14. Sayur Asem (Tamarind Vegetable Soup)
         Product(
-            id = 14,
+            id = "14",
             name = Name("Sayur Asem Nusantara"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -205,7 +205,7 @@ object SampleData {
         ),
         // 15. Nasi Kuning (Yellow Rice)
         Product(
-            id = 15,
+            id = "15",
             name = Name("Nasi Kuning Komplit"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -216,7 +216,7 @@ object SampleData {
         ),
         // 16. Soto Betawi (Betawi Style Soup)
         Product(
-            id = 16,
+            id = "16",
             name = Name("Soto Betawi Daging"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -226,7 +226,7 @@ object SampleData {
         ),
         // 17. Tahu Isi (Stuffed Tofu)
         Product(
-            id = 17,
+            id = "17",
             name = Name("Tahu Isi Goreng"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -237,7 +237,7 @@ object SampleData {
         ),
         // 18. Klepon (Sweet Rice Cake)
         Product(
-            id = 18,
+            id = "18",
             name = Name("Jajanan Pasar Klasik (Klepon)"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -248,7 +248,7 @@ object SampleData {
         ),
         // 19. Nasi Uduk (Coconut Rice)
         Product(
-            id = 19,
+            id = "19",
             name = Name("Nasi Uduk Komplit"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -259,7 +259,7 @@ object SampleData {
         ),
         // 20. Bakso Kuah Kuning (Yellow Broth Meatballs)
         Product(
-            id = 20,
+            id = "20",
             name = Name("Bakso Kuah Kuning Original"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -270,7 +270,7 @@ object SampleData {
         ),
         // 21. Ayam Bakar Madu (Grilled Honey Chicken)
         Product(
-            id = 21,
+            id = "21",
             name = Name("Ayam Bakar Murni"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -281,7 +281,7 @@ object SampleData {
         ),
         // 22. Soto Betawi (Alternative/Variation)
         Product(
-            id = 22,
+            id = "22",
             name = Name("Soto Daging Sapi Premium"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -292,7 +292,7 @@ object SampleData {
         ),
         // 23. Martabak Manis (Sweet Savory Pancake)
         Product(
-            id = 23,
+            id = "23",
             name = Name("Martabak Manis Cokelat Keju"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -303,7 +303,7 @@ object SampleData {
         ),
         // 24. Tahu Tek (Tofu and Soy Sauce)
         Product(
-            id = 24,
+            id = "24",
             name = Name("Tahu Tek Komplit"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -314,7 +314,7 @@ object SampleData {
         ),
         // 25. Nasi Jamblang (River Rice Special)
         Product(
-            id = 25,
+            id = "25",
             name = Name("Nasi Jamblang Spesial"),
             buyPrice = Price(BigDecimal("15000")),
             sellPrice = Price(BigDecimal("15000")),
@@ -327,7 +327,7 @@ object SampleData {
 
 
     val sampleTransaction = Transaction(
-        id = 1001,
+        id = "1001",
         customerName = Name("Budi Santoso"),
         isRecapped = false,
         createdAt = 1752700000000L, // ~ July 2025
@@ -336,9 +336,9 @@ object SampleData {
 
             // 1. Simple product purchase
             TransactionItem(
-                id = 1,
+                id = "1",
                 type = TransactionItemType.Product,
-                referenceId = 501, // Product.id
+                referenceId = "501", // Product.id
                 name = Name("Kopi Kapal Api Sachet"),
                 quantity = Amount(BigDecimal("10")),
                 sellPrice = Price(BigDecimal("2500")),
@@ -347,7 +347,7 @@ object SampleData {
                 updatedAt = null,
                 products = listOf(
                     TransactionProduct(
-                        productId = 501,
+                        productId = "501",
                         productName = Name("Kopi Kapal Api Sachet"),
                         skuNumber = SkuNumber("KKA-001"),
                         imageUri = "https://cdn.example.com/products/kapal-api.jpg",
@@ -363,9 +363,9 @@ object SampleData {
 
             // 2. Product with variant (e.g. size), fractional quantity example (bulk/loose item)
             TransactionItem(
-                id = 2,
+                id = "2",
                 type = TransactionItemType.Product,
-                referenceId = 502,
+                referenceId = "502",
                 name = Name("Gula Pasir Curah"),
                 quantity = Amount(BigDecimal("0.5")), // 0.5 kg
                 sellPrice = Price(BigDecimal("7500")),
@@ -374,7 +374,7 @@ object SampleData {
                 updatedAt = null,
                 products = listOf(
                     TransactionProduct(
-                        productId = 502,
+                        productId = "502",
                         productName = Name("Gula Pasir"),
                         skuNumber = SkuNumber("GP-CURAH"),
                         imageUri = "https://cdn.example.com/products/gula-curah.jpg",
@@ -390,9 +390,9 @@ object SampleData {
 
             // 3. Bundle purchase: "Paket Sarapan Hemat" (Breakfast Bundle)
             TransactionItem(
-                id = 3,
+                id = "3",
                 type = TransactionItemType.Bundle,
-                referenceId = 9001, // Bundle.id
+                referenceId = "9001", // Bundle.id
                 name = Name("Paket Sarapan Hemat"),
                 quantity = Amount(BigDecimal("2")), // 2 bundles bought
                 sellPrice = Price(BigDecimal("15000")),
@@ -401,7 +401,7 @@ object SampleData {
                 updatedAt = null,
                 products = listOf(
                     TransactionProduct(
-                        productId = 601,
+                        productId = "601",
                         productName = Name("Indomie Goreng"),
                         skuNumber = SkuNumber("IDG-001"),
                         imageUri = "https://cdn.example.com/products/indomie-goreng.jpg",
@@ -413,7 +413,7 @@ object SampleData {
                         variants = emptyList()
                     ),
                     TransactionProduct(
-                        productId = 602,
+                        productId = "602",
                         productName = Name("Telur Ayam"),
                         skuNumber = SkuNumber("TLR-001"),
                         imageUri = "https://cdn.example.com/products/telur.jpg",
@@ -425,7 +425,7 @@ object SampleData {
                         variants = emptyList()
                     ),
                     TransactionProduct(
-                        productId = 603,
+                        productId = "603",
                         productName = Name("Teh Kotak"),
                         skuNumber = SkuNumber("TK-001"),
                         imageUri = "https://cdn.example.com/products/teh-kotak.jpg",

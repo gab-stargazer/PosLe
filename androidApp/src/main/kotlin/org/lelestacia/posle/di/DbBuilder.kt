@@ -10,5 +10,5 @@ fun getDatabaseBuilder(context: Context): RoomDatabase.Builder<PosLeDB> {
     return Room.databaseBuilder<PosLeDB>(
         context = context,
         name = dbFile.absolutePath
-    ).addMigrations(PosLeDB.MIGRATION_2_3, PosLeDB.MIGRATION_3_4)
+    )
 }

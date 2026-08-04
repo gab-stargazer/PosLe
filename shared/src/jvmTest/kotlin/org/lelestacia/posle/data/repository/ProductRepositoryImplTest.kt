@@ -22,6 +22,7 @@ import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.SkuNumber
 import org.lelestacia.posle.util.Unit
+import org.lelestacia.posle.util.UuidProvider
 import java.math.BigDecimal
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -338,7 +339,7 @@ class ProductRepositoryImplTest {
     }
 
     private fun createProduct(
-        id: Int = 0,
+        id: String = "0",
         name: String,
         sku: String,
         buyPrice: String,
@@ -362,18 +363,20 @@ class ProductRepositoryImplTest {
         sku: String,
         buyPrice: String,
         sellPrice: String
-    ): Int {
+    ): String {
+        val id = UuidProvider.newUuid()
         val entity = ProductEntity(
-            id = 0,
+            id = id,
             name = Name(name),
             unit = Unit("bungkus"),
             skuNumber = SkuNumber(sku),
             createdAt = timestamp
         )
-        val id = db.productDao().addProduct(entity).toInt()
+        db.productDao().addProduct(entity)
 
         db.productDao().addBuyPrice(
             ProductBuyPriceEntity(
+                id = UuidProvider.newUuid(),
                 productId = id,
                 price = Price(BigDecimal(buyPrice)),
                 changeType = PriceChangeType.ProductCreation,
@@ -382,6 +385,7 @@ class ProductRepositoryImplTest {
         )
         db.productDao().addSellPrice(
             ProductSellPriceEntity(
+                id = UuidProvider.newUuid(),
                 productId = id,
                 price = Price(BigDecimal(sellPrice)),
                 changeType = PriceChangeType.ProductCreation,
@@ -395,12 +399,13 @@ class ProductRepositoryImplTest {
         name: String,
         priceAdjustment: String
     ): VariantEntity {
+        val id = UuidProvider.newUuid()
         val entity = VariantEntity(
-            id = 0,
+            id = id,
             name = Name(name),
             priceAdjustment = Price(BigDecimal(priceAdjustment))
         )
-        val id = db.variantDao().insertVariant(entity).toInt()
-        return entity.copy(id = id)
+        db.variantDao().insertVariant(entity)
+        return entity
     }
 }

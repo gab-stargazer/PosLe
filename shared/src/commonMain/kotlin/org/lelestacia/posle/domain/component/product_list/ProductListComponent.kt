@@ -13,10 +13,10 @@ import org.lelestacia.posle.navigation.Config
 
 interface ProductListComponent {
     val state: StateFlow<ProductListComponentState>
-    val productPagingFlows: MutableMap<Pair<String, Int>, Flow<PagingData<Product>>>
+    val productPagingFlows: MutableMap<Pair<String, String>, Flow<PagingData<Product>>>
     fun onEvent(event: ProductListComponentEvent)
-    fun productsInCategory(searchQuery: String, categoryId: Int): Flow<PagingData<Product>>
-    fun productsNotInCategory(searchQuery: String, categoryId: Int): Flow<PagingData<Product>>
+    fun productsInCategory(searchQuery: String, categoryId: String): Flow<PagingData<Product>>
+    fun productsNotInCategory(searchQuery: String, categoryId: String): Flow<PagingData<Product>>
 }
 
 @Immutable
@@ -59,13 +59,13 @@ sealed interface ProductListComponentEvent {
     sealed interface CategoryEvent : ProductListComponentEvent {
         data object OnAddCategoryMenuClicked : CategoryEvent
         data object OnAddCategoryMenuDismissed : CategoryEvent
-        data class OnAddProductToCategory(val productId: Int, val categoryId: Int) :
+        data class OnAddProductToCategory(val productId: String, val categoryId: String) :
             CategoryEvent
 
-        data class OnRemoveProductFromCategory(val productId: Int, val categoryId: Int) :
+        data class OnRemoveProductFromCategory(val productId: String, val categoryId: String) :
             CategoryEvent
 
-        data class OnDeleteCategory(val categoryId: Int) : CategoryEvent
+        data class OnDeleteCategory(val categoryId: String) : CategoryEvent
     }
 
 

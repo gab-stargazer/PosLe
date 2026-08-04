@@ -90,17 +90,17 @@ private fun PreviewNasiGorengVariants() {
         TransactionViewVariantSection(
             variants = listOf(
                 Variant(
-                    id = 1,
+                    id = "1",
                     name = Name("Telur Ceplok"),
                     priceAdjustment = Price(BigDecimal("3000"))
                 ),
                 Variant(
-                    id = 2,
+                    id = "2",
                     name = Name("Kerupuk Udang"),
                     priceAdjustment = Price(BigDecimal("2000"))
                 ),
                 Variant(
-                    id = 3,
+                    id = "3",
                     name = Name("Ayam Suwir"),
                     priceAdjustment = Price(BigDecimal("5000"))
                 )

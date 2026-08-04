@@ -32,7 +32,7 @@ object AnalyticsTestData {
         baseDate.plusDays(days).atTime(12, 0).atZone(zone).toInstant().toEpochMilli()
 
     fun transaction(
-        id: Int,
+        id: String,
         createdAt: Long,
         customerName: String = "Pelanggan $id",
         items: List<TransactionItem> = emptyList(),
@@ -48,7 +48,7 @@ object AnalyticsTestData {
     }
 
     fun productItem(
-        productId: Int,
+        productId: String,
         name: String,
         quantity: String,
         sellPrice: String,
@@ -82,7 +82,7 @@ object AnalyticsTestData {
     }
 
     fun bundleItem(
-        bundleId: Int,
+        bundleId: String,
         name: String,
         bundleQuantity: String,
         bundleSellPrice: String,
@@ -103,7 +103,7 @@ object AnalyticsTestData {
     }
 
     fun bundleProduct(
-        productId: Int,
+        productId: String,
         name: String,
         quantity: String,
         sellPrice: String,
@@ -124,14 +124,14 @@ object AnalyticsTestData {
     }
 
     fun stockMovement(
-        productId: Int,
+        productId: String,
         productName: String,
         amount: String,
         movementType: StockMovementType = StockMovementType.Sale,
         createdAt: Long = dayOffset(0),
     ): StockMovement {
         return StockMovement(
-            id = 0,
+            id = "0",
             productId = productId,
             productName = Name(productName),
             productUnit = Unit("pcs"),

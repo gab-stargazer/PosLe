@@ -43,7 +43,7 @@ import posle.shared.generated.resources.title_product_sale
 data class StockEntity(
     @ColumnInfo("product_id")
     @PrimaryKey
-    val productId: Int,
+    val productId: String,
     @ColumnInfo("stock")
     val stock: Amount,
     @ColumnInfo("updated_at")
@@ -63,12 +63,12 @@ data class StockEntity(
     indices = [Index("product_id")]
 )
 data class StockMovementEntity(
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
     @ColumnInfo("id")
-    val id: Int = 0,
+    val id: String,
 
     @ColumnInfo("product_id")
-    val productId: Int,
+    val productId: String,
 
     @ColumnInfo("product_name")
     val productName: Name,

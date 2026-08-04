@@ -3,6 +3,7 @@ package org.lelestacia.posle.domain.component.analytics
 import com.arkivanov.decompose.ComponentContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -33,6 +34,7 @@ import java.math.BigDecimal
  * levels for the ranked fast/slow movers are fetched individually via
  * [ProductRepository.getProductAvailability].
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class AnalyticsComponentImpl(
     componentContext: ComponentContext,
     private val transactionRepository: TransactionRepository,

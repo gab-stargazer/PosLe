@@ -25,6 +25,7 @@ import org.lelestacia.posle.domain.model.Variant
 import org.lelestacia.posle.domain.repository.ProductRepository
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.FileStorage
+import org.lelestacia.posle.util.UuidProvider
 import org.lelestacia.posle.util.Util.pagingConfig
 import java.math.BigDecimal
 import kotlin.time.Clock
@@ -45,7 +46,7 @@ class ProductRepositoryImpl(
         }
 
         val entity = ProductEntity(
-            id = 0,
+            id = UuidProvider.newUuid(),
             name = product.name,
             unit = product.unit,
             skuNumber = product.skuNumber,
@@ -53,10 +54,13 @@ class ProductRepositoryImpl(
             createdAt = currentTime
         )
 
-        val productId = productDao.addProduct(entity).toInt()
+        val productId = entity.id
+
+        productDao.addProduct(entity)
 
         productDao.addBuyPrice(
             ProductBuyPriceEntity(
+                id = UuidProvider.newUuid(),
                 productId = productId,
                 price = product.buyPrice,
                 changeType = PriceChangeType.ProductCreation,
@@ -66,6 +70,7 @@ class ProductRepositoryImpl(
 
         productDao.addSellPrice(
             ProductSellPriceEntity(
+                id = UuidProvider.newUuid(),
                 productId = productId,
                 price = product.sellPrice,
                 changeType = PriceChangeType.ProductCreation,
@@ -116,12 +121,12 @@ class ProductRepositoryImpl(
             val categoryMap = allCategories.toMutableMap()
 
             products.forEach { product ->
-                // 1. Find or Create Product
-                var productId = product.id
-                val existingProduct = if (productId != 0) {
-                    productDao.readProductById(productId)
+                // 1. Find or Create Product (match existing records by SKU — imported ids are meaningless)
+                var productId = ""
+                val existingProduct = if (product.skuNumber != null) {
+                    productDao.getProductBySkuNumber(product.skuNumber.value)?.product
                 } else {
-                    product.skuNumber?.let { productDao.getProductBySkuNumber(it.value)?.product }
+                    null
                 }
 
                 if (existingProduct != null) {
@@ -138,16 +143,16 @@ class ProductRepositoryImpl(
                         )
                     )
                 } else {
-                    productId = productDao.addProduct(
-                        ProductEntity(
-                            id = 0,
-                            name = product.name,
-                            unit = product.unit,
-                            skuNumber = product.skuNumber,
-                            imageUri = null,
-                            createdAt = currentTime
-                        )
-                    ).toInt()
+                    val newProduct = ProductEntity(
+                        id = UuidProvider.newUuid(),
+                        name = product.name,
+                        unit = product.unit,
+                        skuNumber = product.skuNumber,
+                        imageUri = null,
+                        createdAt = currentTime
+                    )
+                    productId = newProduct.id
+                    productDao.addProduct(newProduct)
                 }
 
                 // 2. Pricing
@@ -155,6 +160,7 @@ class ProductRepositoryImpl(
                 if (product.buyPrice != latestBuyPrice) {
                     productDao.addBuyPrice(
                         ProductBuyPriceEntity(
+                            id = UuidProvider.newUuid(),
                             productId = productId,
                             price = product.buyPrice,
                             changeType = PriceChangeType.Adjustment,
@@ -167,6 +173,7 @@ class ProductRepositoryImpl(
                 if (product.sellPrice != latestSellPrice) {
                     productDao.addSellPrice(
                         ProductSellPriceEntity(
+                            id = UuidProvider.newUuid(),
                             productId = productId,
                             price = product.sellPrice,
                             changeType = PriceChangeType.Adjustment,
@@ -180,10 +187,11 @@ class ProductRepositoryImpl(
                     var categoryEntity = categoryMap[category.name.value]
                     if (categoryEntity == null) {
                         val newCategory = org.lelestacia.posle.data.entity.CategoryEntity(
+                            id = UuidProvider.newUuid(),
                             name = category.name
                         )
-                        val newCategoryId = categoryDao.insertCategory(newCategory).toInt()
-                        categoryEntity = newCategory.copy(id = newCategoryId)
+                        categoryDao.insertCategory(newCategory)
+                        categoryEntity = newCategory
                         categoryMap[category.name.value] = categoryEntity
                     }
 
@@ -212,6 +220,7 @@ class ProductRepositoryImpl(
 
                     stockDao.insertStockMovement(
                         org.lelestacia.posle.data.entity.StockMovementEntity(
+                            id = UuidProvider.newUuid(),
                             productId = productId,
                             productName = product.name,
                             productUnit = product.unit,
@@ -280,6 +289,7 @@ class ProductRepositoryImpl(
         if (product.buyPrice != productDao.getLatestBuyPriceByProductId(product.id).price) {
             productDao.addBuyPrice(
                 ProductBuyPriceEntity(
+                    id = UuidProvider.newUuid(),
                     productId = product.id,
                     price = product.buyPrice,
                     changeType = PriceChangeType.Adjustment,
@@ -291,6 +301,7 @@ class ProductRepositoryImpl(
         if (product.sellPrice != productDao.getLatestSellPriceByProductId(product.id).price) {
             productDao.addSellPrice(
                 ProductSellPriceEntity(
+                    id = UuidProvider.newUuid(),
                     productId = product.id,
                     price = product.sellPrice,
                     changeType = PriceChangeType.Adjustment,
@@ -302,19 +313,19 @@ class ProductRepositoryImpl(
 
     override fun getProductWithCategories(
         searchQuery: String,
-        categoryId: Int
+        categoryId: String
     ): PagingSource<Int, ProductWithVariantsAndStock> {
         return productDao.readProductWithCategories(searchQuery, categoryId)
     }
 
     override fun getProductNotInCategory(
         searchQuery: String,
-        categoryId: Int
+        categoryId: String
     ): PagingSource<Int, ProductWithVariantsAndStock> {
         return productDao.readProductNotInCategory(searchQuery, categoryId)
     }
 
-    override fun getProductBuyPriceHistory(productId: Int): Flow<List<ProductPriceHistory>> {
+    override fun getProductBuyPriceHistory(productId: String): Flow<List<ProductPriceHistory>> {
         return productDao.readProductBuyPriceHistory(productId).map { list ->
             list.map {
                 ProductPriceHistory(
@@ -327,7 +338,7 @@ class ProductRepositoryImpl(
         }
     }
 
-    override fun getProductSellPriceHistory(productId: Int): Flow<List<ProductPriceHistory>> {
+    override fun getProductSellPriceHistory(productId: String): Flow<List<ProductPriceHistory>> {
         return productDao.readProductSellPriceHistory(productId).map { list ->
             list.map {
                 ProductPriceHistory(
@@ -345,7 +356,7 @@ class ProductRepositoryImpl(
             .map { it.map(ProductWithVariantsAndStock::toDomain) }
     }
 
-    override suspend fun getProductAvailability(productId: Int): BigDecimal {
+    override suspend fun getProductAvailability(productId: String): BigDecimal {
         return stockDao.getStockByProductId(productId)
     }
 

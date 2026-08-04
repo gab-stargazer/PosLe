@@ -32,6 +32,7 @@ import org.lelestacia.posle.domain.repository.ProductRepository
 import org.lelestacia.posle.navigation.Config
 import org.lelestacia.posle.util.ExcelManager
 import org.lelestacia.posle.util.Name
+import org.lelestacia.posle.util.UuidProvider
 import org.lelestacia.posle.util.coroutineScope
 
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
@@ -58,7 +59,7 @@ class ProductListComponentImpl(
         .getCategories()
         .cachedIn(scope)
 
-    override val productPagingFlows: MutableMap<Pair<String, Int>, Flow<PagingData<Product>>> =
+    override val productPagingFlows: MutableMap<Pair<String, String>, Flow<PagingData<Product>>> =
         mutableMapOf()
 
     val lowStocksProducts: Flow<PagingData<Product>> = searchQuery
@@ -140,7 +141,7 @@ class ProductListComponentImpl(
                 scope.launch {
                     categoryRepository.createCategory(
                         Category(
-                            id = 0,
+                            id = UuidProvider.newUuid(),
                             name = Name(state.value.addCategoryState.categoryName.text.toString())
                         )
                     )
@@ -206,7 +207,7 @@ class ProductListComponentImpl(
 
     override fun productsInCategory(
         searchQuery: String,
-        categoryId: Int
+        categoryId: String
     ): Flow<PagingData<Product>> {
         return productPagingFlows.getOrPut(Pair(searchQuery, categoryId)) {
             Pager(
@@ -219,7 +220,7 @@ class ProductListComponentImpl(
 
     override fun productsNotInCategory(
         searchQuery: String,
-        categoryId: Int
+        categoryId: String
     ): Flow<PagingData<Product>> {
         return Pager(
             config = PagingConfig(pageSize = 20)

@@ -12,7 +12,7 @@ import org.lelestacia.posle.data.entity.ProductCategoryJunction
 interface CategoryDao {
 
     @Insert
-    suspend fun insertCategory(category: CategoryEntity): Long
+    suspend fun insertCategory(category: CategoryEntity)
 
     @Insert
     suspend fun insertConnection(connection: ProductCategoryJunction)
@@ -34,7 +34,7 @@ interface CategoryDao {
             WHERE id = :categoryId
         """
     )
-    suspend fun deleteCategoryById(categoryId: Int)
+    suspend fun deleteCategoryById(categoryId: String)
 
     @Query(
         """
@@ -42,7 +42,7 @@ interface CategoryDao {
             WHERE product_id = :productId AND category_id = :categoryId
         """
     )
-    suspend fun deleteConnection(productId: Int, categoryId: Int)
+    suspend fun deleteConnection(productId: String, categoryId: String)
 
     @Query(
         """
@@ -50,5 +50,5 @@ interface CategoryDao {
             WHERE category_id = :categoryId
         """
     )
-    suspend fun clearProductCategory(categoryId: Int)
+    suspend fun clearProductCategory(categoryId: String)
 }

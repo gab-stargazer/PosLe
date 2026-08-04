@@ -22,7 +22,7 @@ interface CategoryRepository {
      * @param productId The unique ID of the product.
      * @param categoryId The unique ID of the category.
      */
-    suspend fun createProductCategoryLink(productId: Int, categoryId: Int)
+    suspend fun createProductCategoryLink(productId: String, categoryId: String)
 
     /**
      * Removes the association between a product and a category.
@@ -30,7 +30,7 @@ interface CategoryRepository {
      * @param productId The product ID.
      * @param categoryId The category ID.
      */
-    suspend fun deleteProductCategoryLink(productId: Int, categoryId: Int)
+    suspend fun deleteProductCategoryLink(productId: String, categoryId: String)
 
     /**
      * Provides a paginated stream of all available categories.
@@ -51,5 +51,5 @@ interface CategoryRepository {
      *
      * @param categoryId The ID of the category to delete.
      */
-    suspend fun deleteCategory(categoryId: Int)
+    suspend fun deleteCategory(categoryId: String)
 }

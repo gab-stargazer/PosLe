@@ -16,6 +16,7 @@ import org.lelestacia.posle.domain.state_event.product_add.ProductVariantViewSta
 import org.lelestacia.posle.domain.state_event.product_add.ProductVariantViewState.VariantAddEditState
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
+import org.lelestacia.posle.util.UuidProvider
 import org.lelestacia.posle.util.coroutineScope
 import java.math.BigDecimal
 
@@ -112,7 +113,7 @@ class ProductAddVariantsViewComponentImpl(
                 when (state.value.addEditVariantDialogState.selectedVariant == null) {
                     true -> {
                         val newVariant = Variant(
-                            id = 0,
+                            id = UuidProvider.newUuid(),
                             name = Name(state.value.addEditVariantDialogState.variantNameState.text.toString()),
                             priceAdjustment = Price(
                                 state.value.addEditVariantDialogState.variantPriceState.text

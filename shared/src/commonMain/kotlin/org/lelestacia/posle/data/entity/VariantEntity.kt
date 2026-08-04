@@ -14,9 +14,9 @@ import org.lelestacia.posle.util.Price
     indices = [Index("name", unique = true)]
 )
 data class VariantEntity(
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
     @ColumnInfo("id")
-    val id: Int = 0,
+    val id: String,
 
     @ColumnInfo("name")
     val name: Name,
@@ -49,10 +49,10 @@ data class VariantEntity(
 )
 data class VariantJunction(
     @ColumnInfo("product_id")
-    val productId: Int,
+    val productId: String,
 
     @ColumnInfo("variant_id")
-    val variantId: Int,
+    val variantId: String,
 )
 
 fun Variant.toEntity(): VariantEntity {

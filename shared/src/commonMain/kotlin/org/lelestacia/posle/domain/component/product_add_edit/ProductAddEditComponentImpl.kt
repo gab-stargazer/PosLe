@@ -35,6 +35,7 @@ import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
 import org.lelestacia.posle.util.SkuNumber
+import org.lelestacia.posle.util.UuidProvider
 import org.lelestacia.posle.util.coroutineScope
 import org.lelestacia.posle.util.toDisplayText
 import posle.shared.generated.resources.Res
@@ -56,10 +57,10 @@ class ProductAddEditComponentImpl(
     private val scope = coroutineScope(Dispatchers.Main.immediate)
 
     private val buyPriceHistory = productRepository
-        .getProductBuyPriceHistory(product?.id ?: 0)
+        .getProductBuyPriceHistory(product?.id ?: "")
 
     private val sellPriceHistory = productRepository
-        .getProductSellPriceHistory(product?.id ?: 0)
+        .getProductSellPriceHistory(product?.id ?: "")
 
     private val _state = MutableStateFlow(
         ProductAddEditState(
@@ -290,7 +291,7 @@ class ProductAddEditComponentImpl(
                     when (state.value.mode) {
                         Add -> {
                             productRepository.createProduct(
-                                product = buildProduct(id = 0),
+                                product = buildProduct(id = UuidProvider.newUuid()),
                                 imageByteArray = state.value.productImageByteArray
                             )
                         }
@@ -435,7 +436,7 @@ class ProductAddEditComponentImpl(
         }
     }
 
-    private fun buildProduct(id: Int): Product {
+    private fun buildProduct(id: String): Product {
         val currentState = state.value
         return Product(
             id = id,

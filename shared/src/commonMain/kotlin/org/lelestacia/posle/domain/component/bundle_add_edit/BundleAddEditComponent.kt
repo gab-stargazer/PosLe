@@ -33,7 +33,7 @@ sealed interface BundleAddEditEvent {
 
 data class BundleAddEditState(
     val mode: org.lelestacia.posle.navigation.AddEdit = org.lelestacia.posle.navigation.AddEdit.Add,
-    val bundleId: Int = 0,
+    val bundleId: String = "",
     val bundleName: String = "",
     val bundleNameError: StringResource? = null,
     val bundleImageUri: String? = null,

@@ -126,7 +126,7 @@ data class TransactionItemState(
  * Used to make stock-sufficiency checks cart-aware so that repeated additions
  * of the same product (or overlapping bundles) cannot exceed the stock.
  */
-fun cartQuantityInCart(productId: Int, cartItems: List<CartItems>): BigDecimal {
+fun cartQuantityInCart(productId: String, cartItems: List<CartItems>): BigDecimal {
     return cartItems.fold(BigDecimal.ZERO) { acc, cartItem ->
         when (cartItem) {
             is CartItems.ProductCartItem ->

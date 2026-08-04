@@ -8,16 +8,16 @@ import org.lelestacia.posle.util.Unit
 
 
 data class Stock(
-    val id: Int,
-    val productId: Int,
+    val id: String,
+    val productId: String,
     val stock: Amount,
     val updatedAt: Long?
 )
 
 @Immutable
 data class StockMovement(
-    val id: Int = 0,
-    val productId: Int,
+    val id: String = "",
+    val productId: String,
     val productName: Name,
     val productUnit: Unit,
     val movementType: StockMovementType,

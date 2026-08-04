@@ -37,11 +37,11 @@ class AnalyticsCalculatorTest {
     fun `calculate sums revenue profit and items sold across transactions`() {
         // T1: 2x Beras @ 90000, buy 80000 → revenue 180000, profit 20000
         val t1 = AnalyticsTestData.transaction(
-            id = 1,
+            id = "1",
             createdAt = AnalyticsTestData.dayOffset(-1),
             items = listOf(
                 AnalyticsTestData.productItem(
-                    productId = 1,
+                    productId = "1",
                     name = "Beras 5kg",
                     quantity = "2",
                     sellPrice = "90000",
@@ -51,11 +51,11 @@ class AnalyticsCalculatorTest {
         )
         // T2: 3x Gula @ 18000, buy 15000 → revenue 54000, profit 9000
         val t2 = AnalyticsTestData.transaction(
-            id = 2,
+            id = "2",
             createdAt = AnalyticsTestData.dayOffset(0),
             items = listOf(
                 AnalyticsTestData.productItem(
-                    productId = 2,
+                    productId = "2",
                     name = "Gula Pasir 1kg",
                     quantity = "3",
                     sellPrice = "18000",
@@ -76,24 +76,24 @@ class AnalyticsCalculatorTest {
     fun `calculate multiplies bundle quantities for profit and top products`() {
         // 2x Paket Sembako, each contains Beras x1 (buy 80000, sell 90000) and Gula x2 (buy 15000, sell 18000)
         val bundle = AnalyticsTestData.transaction(
-            id = 3,
+            id = "3",
             createdAt = AnalyticsTestData.dayOffset(-2),
             items = listOf(
                 AnalyticsTestData.bundleItem(
-                    bundleId = 10,
+                    bundleId = "10",
                     name = "Paket Sembako",
                     bundleQuantity = "2",
                     bundleSellPrice = "126000",
                     products = listOf(
                         AnalyticsTestData.bundleProduct(
-                            productId = 1,
+                            productId = "1",
                             name = "Beras 5kg",
                             quantity = "1",
                             sellPrice = "90000",
                             buyPrice = "80000",
                         ),
                         AnalyticsTestData.bundleProduct(
-                            productId = 2,
+                            productId = "2",
                             name = "Gula Pasir 1kg",
                             quantity = "2",
                             sellPrice = "18000",
@@ -114,12 +114,12 @@ class AnalyticsCalculatorTest {
         assertEquals(BigDecimal("6"), result.overview.totalItemsSold)
 
         // Top product quantities: Beras 2 x 1 = 2, Gula 2 x 2 = 4
-        val beras = result.topProducts.first { it.productId == 1 }
+        val beras = result.topProducts.first { it.productId == "1" }
         assertEquals(BigDecimal("2"), beras.totalQuantity)
         // Top product revenue is line-item basis (item.quantity x sellPrice), same as overview:
         // Beras 2 x 90000 = 180000
         assertEquals(BigDecimal("180000"), beras.totalRevenue)
-        val gula = result.topProducts.first { it.productId == 2 }
+        val gula = result.topProducts.first { it.productId == "2" }
         assertEquals(BigDecimal("4"), gula.totalQuantity)
         // Gula 2 x 18000 = 36000 (NOT 2 x 2 x 18000)
         assertEquals(BigDecimal("36000"), gula.totalRevenue)
@@ -128,11 +128,11 @@ class AnalyticsCalculatorTest {
     @Test
     fun `transactions outside range are excluded`() {
         val inside = AnalyticsTestData.transaction(
-            id = 1,
+            id = "1",
             createdAt = AnalyticsTestData.dayOffset(0),
             items = listOf(
                 AnalyticsTestData.productItem(
-                    productId = 1,
+                    productId = "1",
                     name = "Beras 5kg",
                     quantity = "1",
                     sellPrice = "90000",
@@ -140,8 +140,8 @@ class AnalyticsCalculatorTest {
                 )
             ),
         )
-        val outsideBefore = AnalyticsTestData.transaction(id = 2, createdAt = AnalyticsTestData.dayOffset(-10))
-        val outsideAfter = AnalyticsTestData.transaction(id = 3, createdAt = AnalyticsTestData.dayOffset(5))
+        val outsideBefore = AnalyticsTestData.transaction(id = "2", createdAt = AnalyticsTestData.dayOffset(-10))
+        val outsideAfter = AnalyticsTestData.transaction(id = "3", createdAt = AnalyticsTestData.dayOffset(5))
 
         val result = AnalyticsCalculator.calculate(
             transactions = listOf(inside, outsideBefore, outsideAfter),
@@ -160,7 +160,7 @@ class AnalyticsCalculatorTest {
     fun `time series has one bucket per day in range`() {
         val result = AnalyticsCalculator.calculate(
             transactions = listOf(
-                AnalyticsTestData.transaction(id = 1, createdAt = AnalyticsTestData.dayOffset(-1))
+                AnalyticsTestData.transaction(id = "1", createdAt = AnalyticsTestData.dayOffset(-1))
             ),
             range = range,
         )
@@ -181,11 +181,11 @@ class AnalyticsCalculatorTest {
         val result = AnalyticsCalculator.calculate(
             transactions = listOf(
                 AnalyticsTestData.transaction(
-                    id = 1,
+                    id = "1",
                     createdAt = AnalyticsTestData.dayOffset(-3),
                     items = listOf(
                         AnalyticsTestData.productItem(
-                            productId = 1,
+                            productId = "1",
                             name = "Beras 5kg",
                             quantity = "2",
                             sellPrice = "90000",
@@ -209,11 +209,11 @@ class AnalyticsCalculatorTest {
     @Test
     fun `top products sorted by revenue descending`() {
         val low = AnalyticsTestData.transaction(
-            id = 1,
+            id = "1",
             createdAt = AnalyticsTestData.dayOffset(-1),
             items = listOf(
                 AnalyticsTestData.productItem(
-                    productId = 1,
+                    productId = "1",
                     name = "Beras 5kg",
                     quantity = "1",
                     sellPrice = "90000",
@@ -222,11 +222,11 @@ class AnalyticsCalculatorTest {
             ),
         )
         val high = AnalyticsTestData.transaction(
-            id = 2,
+            id = "2",
             createdAt = AnalyticsTestData.dayOffset(0),
             items = listOf(
                 AnalyticsTestData.productItem(
-                    productId = 2,
+                    productId = "2",
                     name = "Gula Pasir 1kg",
                     quantity = "10",
                     sellPrice = "18000",
@@ -238,18 +238,18 @@ class AnalyticsCalculatorTest {
         val result = AnalyticsCalculator.calculate(transactions = listOf(low, high), range = range)
 
         assertEquals(2, result.topProducts.size)
-        assertEquals(2, result.topProducts[0].productId) // Gula: 180000 > Beras: 90000
-        assertEquals(1, result.topProducts[1].productId)
+        assertEquals("2", result.topProducts[0].productId) // Gula: 180000 > Beras: 90000
+        assertEquals("1", result.topProducts[1].productId)
     }
 
     @Test
     fun `top products aggregate same product across transactions`() {
         val t1 = AnalyticsTestData.transaction(
-            id = 1,
+            id = "1",
             createdAt = AnalyticsTestData.dayOffset(-2),
             items = listOf(
                 AnalyticsTestData.productItem(
-                    productId = 1,
+                    productId = "1",
                     name = "Beras 5kg",
                     quantity = "2",
                     sellPrice = "90000",
@@ -258,11 +258,11 @@ class AnalyticsCalculatorTest {
             ),
         )
         val t2 = AnalyticsTestData.transaction(
-            id = 2,
+            id = "2",
             createdAt = AnalyticsTestData.dayOffset(-1),
             items = listOf(
                 AnalyticsTestData.productItem(
-                    productId = 1,
+                    productId = "1",
                     name = "Beras 5kg",
                     quantity = "3",
                     sellPrice = "90000",

@@ -47,7 +47,7 @@ class BundleAddEditComponentImpl(
     private val _state = MutableStateFlow(
         BundleAddEditState(
             mode = mode,
-            bundleId = bundle?.id ?: 0,
+            bundleId = bundle?.id ?: "",
             bundleName = bundle?.name?.value ?: "",
             bundleImageUri = bundle?.imageUri,
             bundleProducts = bundle?.bundleProducts?.map { bp ->

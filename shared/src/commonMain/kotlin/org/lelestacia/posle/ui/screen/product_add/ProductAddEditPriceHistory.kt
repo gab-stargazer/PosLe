@@ -93,7 +93,7 @@ private fun PreviewProductAddEditPriceHistory() {
         ProductAddEditPriceHistory(
             priceHistoryPaging = List(10) {
                 ProductPriceHistory(
-                    id = it,
+                    id = it.toString(),
                     price = Price(BigDecimal.ZERO),
                     changes = BigDecimal.ZERO,
                     createdAt = Clock.System.now().toEpochMilliseconds()

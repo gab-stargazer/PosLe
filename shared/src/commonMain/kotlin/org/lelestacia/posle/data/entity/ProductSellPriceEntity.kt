@@ -21,10 +21,10 @@ import org.lelestacia.posle.util.Price
 )
 data class ProductSellPriceEntity(
     @ColumnInfo("id")
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    @PrimaryKey
+    val id: String,
     @ColumnInfo("product_id")
-    val productId: Int,
+    val productId: String,
     @ColumnInfo("price")
     val price: Price,
     @ColumnInfo("change_type")
@@ -47,10 +47,10 @@ data class ProductSellPriceEntity(
 )
 data class ProductBuyPriceEntity(
     @ColumnInfo("id")
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    @PrimaryKey
+    val id: String,
     @ColumnInfo("product_id")
-    val productId: Int,
+    val productId: String,
     @ColumnInfo("price")
     val price: Price,
     @ColumnInfo("change_type")

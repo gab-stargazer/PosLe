@@ -26,6 +26,7 @@ import org.lelestacia.posle.domain.model.toEntity
 import org.lelestacia.posle.domain.repository.TransactionRepository
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
+import org.lelestacia.posle.util.UuidProvider
 import org.lelestacia.posle.util.getTodayRangeMilliseconds
 import kotlin.time.Clock
 
@@ -43,18 +44,19 @@ class TransactionRepositoryImpl(
     ): Transaction = transactionRunner.runTransaction {
         val currentTimeAsTimestamp = Clock.System.now().toEpochMilliseconds()
         val newTransactionEntity = TransactionEntity(
-            id = 0,
+            id = UuidProvider.newUuid(),
             customerName = customerName,
             createdAt = currentTimeAsTimestamp,
             updatedAt = null
         )
 
-        val newTransactionId = transactionDao.insertTransaction(newTransactionEntity).toInt()
+        val newTransactionId = newTransactionEntity.id
+        transactionDao.insertTransaction(newTransactionEntity)
         val transactionItems = cartItems.map { cartItem ->
             when (cartItem) {
                 is CartItems.BundleCartItem -> {
                     val newTransactionItemEntity = TransactionItemEntity(
-                        id = 0,
+                        id = UuidProvider.newUuid(),
                         transactionId = newTransactionId,
                         type = TransactionItemType.Bundle,
                         referenceId = cartItem.bundleId,
@@ -65,13 +67,13 @@ class TransactionRepositoryImpl(
                         createdAt = currentTimeAsTimestamp
                     )
 
-                    val newTransactionItemId =
-                        transactionDao.insertTransactionItem(newTransactionItemEntity).toInt()
+                    val newTransactionItemId = newTransactionItemEntity.id
+                    transactionDao.insertTransactionItem(newTransactionItemEntity)
 
                     val newTransactionItemProductEntities =
                         cartItem.bundleProducts.map { bundleProduct ->
                             TransactionItemProductEntity(
-                                id = 0,
+                                id = UuidProvider.newUuid(),
                                 transactionItemId = newTransactionItemId,
                                 productId = bundleProduct.productId,
                                 productName = bundleProduct.productName,
@@ -103,7 +105,7 @@ class TransactionRepositoryImpl(
 
                 is CartItems.ProductCartItem -> {
                     val newTransactionItemEntity = TransactionItemEntity(
-                        id = 0,
+                        id = UuidProvider.newUuid(),
                         transactionId = newTransactionId,
                         type = TransactionItemType.Product,
                         referenceId = cartItem.productId,
@@ -114,13 +116,13 @@ class TransactionRepositoryImpl(
                         createdAt = currentTimeAsTimestamp
                     )
 
-                    val newTransactionItemId =
-                        transactionDao.insertTransactionItem(newTransactionItemEntity).toInt()
+                    val newTransactionItemId = newTransactionItemEntity.id
+                    transactionDao.insertTransactionItem(newTransactionItemEntity)
 
                     val product = productDao.getProductById(cartItem.productId)
 
                     val newTransactionItemProductEntity = TransactionItemProductEntity(
-                        id = 0,
+                        id = UuidProvider.newUuid(),
                         transactionItemId = newTransactionItemId,
                         productId = cartItem.productId,
                         productName = cartItem.productName,
@@ -163,7 +165,7 @@ class TransactionRepositoryImpl(
             val stockMovements = transactionItems.flatMap { transactionItem ->
                 transactionItem.products.map { product ->
                     StockMovementEntity(
-                        id = 0,
+                        id = UuidProvider.newUuid(),
                         productId = product.productId,
                         productName = product.productName,
                         productUnit = product.unit,

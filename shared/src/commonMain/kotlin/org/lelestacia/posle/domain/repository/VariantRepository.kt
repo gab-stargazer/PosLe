@@ -28,7 +28,7 @@ interface VariantRepository {
      * @param productId The ID of the product.
      * @return A [Flow] list of linked [Variant]s.
      */
-    fun getVariantsByProductId(productId: Int): Flow<List<Variant>>
+    fun getVariantsByProductId(productId: String): Flow<List<Variant>>
 
     /**
      * Updates an existing variant's name or price adjustment.

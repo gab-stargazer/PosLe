@@ -106,7 +106,7 @@ private fun PreviewProductCartItem() {
         ) {
             TransactionReceiptProduct(
                 product = TransactionProduct(
-                    productId = 0,
+                    productId = "0",
                     productName = Name("Nasi"),
                     skuNumber = null,
                     imageUri = null,

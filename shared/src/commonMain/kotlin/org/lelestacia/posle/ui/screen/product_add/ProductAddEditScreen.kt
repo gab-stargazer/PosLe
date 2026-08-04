@@ -444,29 +444,29 @@ private fun PreviewProductAddEditUI() {
                     productSellPrice = "10000",
                     variants = listOf(
                         Variant(
-                            id = 2,
+                            id = "2",
                             name = Name("Pedas"),
                             priceAdjustment = Price(BigDecimal(2000))
                         ),
                         Variant(
-                            id = 3,
+                            id = "3",
                             name = Name("Ekstra Nasi"),
                             priceAdjustment = Price(BigDecimal(5000))
                         ),
                         Variant(
-                            id = 4,
+                            id = "4",
                             name = Name("Telur Ceplok"),
                             priceAdjustment = Price(BigDecimal(3000))
                         ),
                         Variant(
-                            id = 5,
+                            id = "5",
                             name = Name("Tanpa Bawang"),
                             priceAdjustment = Price(BigDecimal.ZERO)
                         )
                     ),
                     buyPriceHistory = List(3) {
                         ProductPriceHistory(
-                            id = it,
+                            id = it.toString(),
                             price = Price(it.toBigDecimal() * 1000.toBigDecimal()),
                             changes = BigDecimal.ZERO,
                             createdAt = Clock.System.now().toEpochMilliseconds()
@@ -474,7 +474,7 @@ private fun PreviewProductAddEditUI() {
                     },
                     sellPriceHistory = List(3) {
                         ProductPriceHistory(
-                            id = it,
+                            id = it.toString(),
                             price = Price(it.toBigDecimal() * 1000.toBigDecimal()),
                             changes = BigDecimal.ZERO,
                             createdAt = Clock.System.now().toEpochMilliseconds()

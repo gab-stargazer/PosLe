@@ -14,7 +14,7 @@ import org.lelestacia.posle.data.entity.BundleWithProductsEntity
 interface BundleDao {
 
     @Insert
-    suspend fun insertBundleAndGetId(bundle: BundleEntity): Long
+    suspend fun insertBundleAndGetId(bundle: BundleEntity)
 
     @Update
     suspend fun updateBundle(bundle: BundleEntity)
@@ -26,17 +26,17 @@ interface BundleDao {
     suspend fun insertBundleProducts(bundleProducts: List<BundleProductEntity>)
 
     @Query("DELETE FROM bundle_product WHERE bundle_id = :bundleId")
-    suspend fun deleteBundleProductsByBundleId(bundleId: Int)
+    suspend fun deleteBundleProductsByBundleId(bundleId: String)
 
     @Query("DELETE FROM bundle_product WHERE bundle_id = :bundleId AND product_id IN (:productIds)")
-    suspend fun deleteBundleProducts(bundleId: Int, productIds: List<Int>)
+    suspend fun deleteBundleProducts(bundleId: String, productIds: List<String>)
 
     @Query("DELETE FROM bundle WHERE id = :bundleId")
-    suspend fun deleteBundleById(bundleId: Int)
+    suspend fun deleteBundleById(bundleId: String)
 
     @Transaction
     @Query("SELECT * FROM bundle WHERE id = :id")
-    suspend fun getBundleWithProductsById(id: Int): BundleWithProductsEntity?
+    suspend fun getBundleWithProductsById(id: String): BundleWithProductsEntity?
 
     @Transaction
     @Query(
