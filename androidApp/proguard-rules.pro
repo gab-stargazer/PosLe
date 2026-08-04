@@ -68,6 +68,43 @@
 # Datastore
 -keep class androidx.datastore.** { *; }
 
+# Apache POI & XMLBeans — R8 must NOT obfuscate these. XMLBeans derives the
+# schema type-system name and the .xsb resource paths from the runtime class
+# name (SchemaTypeSystemImpl#getClass().getName()), and instantiates the
+# generated schema classes reflectively from that metadata. Renaming
+# TypeSystemHolder crashes XSSFWorkbook with ExceptionInInitializerError
+# (StringIndexOutOfBoundsException: begin 0, end -1 in SchemaTypeSystemImpl).
+-keep class org.apache.poi.schemas.** { *; }
+-keep class org.apache.xmlbeans.** { *; }
+-keep class org.openxmlformats.** { *; }
+-keep class schemaorg_apache_xmlbeans.** { *; }
+-keep class com.microsoft.schemas.** { *; }
+# POI runtime classes used by ExcelManager. org.apache.poi.ss.formula functions
+# are instantiated reflectively via functionMetadata.txt, so keep them name-stable.
+-keep class org.apache.poi.ss.** { *; }
+-keep class org.apache.poi.xssf.** { *; }
+-keep class org.apache.poi.ooxml.** { *; }
+-keep class org.apache.poi.util.** { *; }
+# aalto-xml StAX implementation + stax-api — instantiated reflectively via the
+# javax.xml.stream.* factory system properties set in PosLeApplication.onCreate,
+# so R8 must keep both the classes and their names.
+-keep class com.fasterxml.aalto.** { *; }
+-keep class javax.xml.stream.** { *; }
+# Optional codecs/libraries POI references but Android does not ship
+-dontwarn org.apache.poi.**
+-dontwarn org.apache.xmlbeans.**
+-dontwarn org.openxmlformats.**
+-dontwarn schemaorg_apache_xmlbeans.**
+-dontwarn com.microsoft.schemas.**
+-dontwarn javax.xml.crypto.**
+-dontwarn org.apache.jcp.**
+-dontwarn org.etsi.uri.**
+-dontwarn org.bouncycastle.**
+-dontwarn org.tukaani.xz.**
+-dontwarn com.github.luben.zstd.**
+-dontwarn org.brotli.**
+-dontwarn com.graphbuilder.**
+
 # R8 Missing Classes (automatically generated rules)
 -dontwarn aQute.bnd.annotation.baseline.BaselineIgnore
 -dontwarn aQute.bnd.annotation.spi.ServiceConsumer
