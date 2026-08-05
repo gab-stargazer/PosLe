@@ -18,6 +18,7 @@ object NotificationHelper {
     private const val CHANNEL_ID = "report_channel"
     private const val CHANNEL_NAME = "Reports"
     private const val NOTIFICATION_ID = 1001
+    private const val IMPORT_NOTIFICATION_ID = 1002
 
     private fun ensureChannel(context: Context) {
         val manager = context.getSystemService(NotificationManager::class.java)
@@ -76,5 +77,21 @@ object NotificationHelper {
             .build()
 
         NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification)
+    }
+
+    fun notifyImportSuccess(context: Context, title: String = "Impor Selesai") {
+        if (!canPostNotifications(context)) return
+
+        ensureChannel(context)
+
+        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.stat_sys_download_done)
+            .setContentTitle(title)
+            .setContentText("Data produk berhasil diimpor")
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+            .build()
+
+        NotificationManagerCompat.from(context).notify(IMPORT_NOTIFICATION_ID, notification)
     }
 }
