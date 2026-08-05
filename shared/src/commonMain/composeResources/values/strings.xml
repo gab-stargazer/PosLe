@@ -114,6 +114,7 @@
     <string name="action_export_products">Ekspor Produk</string>
     <string name="notification_export_success">Data Produk berhasil diekspor</string>
     <string name="action_import_products">Impor Produk</string>
+    <string name="notification_import_success">Data Produk berhasil diimpor</string>
     <string name="txt_add_product_to_bundle">Tambahkan Produk ke Paket</string>
     <string name="txt_add_product_to_bundle_description">Masukkan nama produk dibawah, kemudian klik produk yang ingin dipilih</string>
     <string name="txt_bundle_content">Isi Paket:</string>

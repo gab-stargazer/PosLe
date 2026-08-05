@@ -28,6 +28,12 @@ dependencies {
 
     implementation("com.github.DantSu:ESCPOS-ThermalPrinter-Android:3.3.0")
 
+    //  Apache POI on Android needs a StAX implementation (javax.xml.stream is
+    //  not part of the Android platform); the StAX FactoryFinder discovers
+    //  aalto-xml automatically through its META-INF/services registration.
+    implementation(libs.aalto.xml)
+    implementation(libs.stax.api)
+
     debugImplementation("com.squareup.leakcanary:leakcanary-android:2.14")
 
     //  Google
@@ -76,8 +82,8 @@ android {
         applicationId = "org.lelestacia.posle"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

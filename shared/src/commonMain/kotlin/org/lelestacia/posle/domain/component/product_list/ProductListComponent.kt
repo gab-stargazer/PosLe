@@ -54,7 +54,10 @@ sealed interface ProductListComponentEvent {
 
     //  Export/Import
     data class OnExportProducts(val onExport: (ByteArray) -> Unit) : ProductListComponentEvent
-    data class OnImportProducts(val fileBytes: ByteArray) : ProductListComponentEvent
+    data class OnImportProducts(
+        val fileBytes: ByteArray,
+        val onImportResult: (Boolean) -> Unit
+    ) : ProductListComponentEvent
 
     sealed interface CategoryEvent : ProductListComponentEvent {
         data object OnAddCategoryMenuClicked : CategoryEvent
