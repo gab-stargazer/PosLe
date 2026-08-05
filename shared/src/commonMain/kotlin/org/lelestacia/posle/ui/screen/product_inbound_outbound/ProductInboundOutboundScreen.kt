@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -55,7 +54,6 @@ fun ProductInboundOutboundScreen(
     val paging = component.priceMovement.collectAsLazyPagingItems()
     val products = component.products.collectAsLazyPagingItems()
 
-
     if (state.isAddStockShown) {
         Dialog(
             onDismissRequest = { component.onEvent(OnToggleDialog) }
@@ -87,12 +85,11 @@ fun ProductInboundOutboundScreen(
                 }
             }
         },
-        contentWindowInsets = WindowInsets(),
         modifier = modifier
     ) { paddingValues ->
         LazyColumn(
             contentPadding = PaddingValues(
-                bottom = 128.dp,
+                bottom = 112.dp,
                 start = 12.dp,
                 end = 12.dp,
                 top = 12.dp
@@ -100,12 +97,13 @@ fun ProductInboundOutboundScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+                .padding(paddingValues)
         ) {
             items(
                 count = paging.itemCount,
-                key = paging.itemKey { stockMovement -> stockMovement.id }) {
+                key = paging.itemKey { stockMovement -> stockMovement.id }
+            ) {
                 paging[it]?.let { stockMovement ->
                     Column(modifier = Modifier.animateItem()) {
                         ProductInboundOutboundItem(
