@@ -130,8 +130,13 @@ class ProductListComponentImpl(
 
             is ProductListComponentEvent.OnImportProducts -> {
                 scope.launch {
-                    val products = ExcelManager.importProductsFromExcel(event.fileBytes)
-                    productRepository.importProducts(products)
+                    try {
+                        val products = ExcelManager.importProductsFromExcel(event.fileBytes)
+                        productRepository.importProducts(products)
+                        event.onImportResult(true)
+                    } catch (e: Exception) {
+                        event.onImportResult(false)
+                    }
                 }
             }
 

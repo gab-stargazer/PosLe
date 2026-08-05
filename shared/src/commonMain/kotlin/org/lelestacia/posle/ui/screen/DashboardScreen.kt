@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Print
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -26,12 +27,17 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -65,6 +71,8 @@ import org.lelestacia.posle.navigation.NavDestination
 import org.lelestacia.posle.ui.platform.PlatformBackHandler
 import org.lelestacia.posle.ui.platform.rememberCameraPermissionState
 import org.lelestacia.posle.ui.platform.rememberExportNotifier
+import org.lelestacia.posle.ui.platform.rememberImportNotifier
+import org.lelestacia.posle.ui.platform.rememberNotificationPermissionState
 import org.lelestacia.posle.ui.screen.analytics.AnalyticsScreen
 import org.lelestacia.posle.ui.screen.product_inbound_outbound.ProductInboundOutboundScreen
 import org.lelestacia.posle.ui.screen.product_list.ProductListScreen
@@ -77,9 +85,13 @@ import org.lelestacia.posle.util.FileStorage
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.action_export_products
 import posle.shared.generated.resources.action_import_products
+import posle.shared.generated.resources.btn_allow
+import posle.shared.generated.resources.btn_later
 import posle.shared.generated.resources.cd_print_recap
 import posle.shared.generated.resources.cd_product_menu
 import posle.shared.generated.resources.cd_search_transaction
+import posle.shared.generated.resources.dialog_notification_permission_desc
+import posle.shared.generated.resources.dialog_notification_permission_title
 import posle.shared.generated.resources.label_menu
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -95,6 +107,55 @@ fun DashboardScreen(
     val cameraPermission = rememberCameraPermissionState()
     val fileStorage = koinInject<FileStorage>()
     val notifyExport = rememberExportNotifier()
+    val notifyImport = rememberImportNotifier()
+    val notificationPermission = rememberNotificationPermissionState()
+
+    var showNotificationRationale by remember { mutableStateOf(false) }
+    var pendingProductAction by remember { mutableStateOf<(() -> Unit)?>(null) }
+
+    LaunchedEffect(pendingProductAction, notificationPermission.isGranted.value) {
+        if (pendingProductAction != null && notificationPermission.isGranted.value) {
+            val action = pendingProductAction!!
+            pendingProductAction = null
+            action()
+        }
+    }
+
+    if (showNotificationRationale) {
+        AlertDialog(
+            onDismissRequest = {
+                showNotificationRationale = false
+                pendingProductAction = null
+            },
+            title = { Text(stringResource(Res.string.dialog_notification_permission_title)) },
+            text = { Text(stringResource(Res.string.dialog_notification_permission_desc)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showNotificationRationale = false
+                    notificationPermission.requestPermission()
+                }) {
+                    Text(stringResource(Res.string.btn_allow))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showNotificationRationale = false
+                    pendingProductAction = null
+                }) {
+                    Text(stringResource(Res.string.btn_later))
+                }
+            }
+        )
+    }
+
+    val runIfNotificationGranted: (() -> Unit) -> Unit = { action ->
+        if (notificationPermission.isGranted.value) {
+            action()
+        } else {
+            pendingProductAction = action
+            showNotificationRationale = true
+        }
+    }
 
     val activeChild = component.children.active.instance
 
@@ -102,7 +163,11 @@ fun DashboardScreen(
         if (activeChild is NavChild.ProductList) {
             scope.launch {
                 val bytes = file?.readBytes() ?: return@launch
-                activeChild.component.onEvent(ProductListComponentEvent.OnImportProducts(bytes))
+                activeChild.component.onEvent(
+                    ProductListComponentEvent.OnImportProducts(bytes) { success ->
+                        if (success) notifyImport()
+                    }
+                )
             }
         }
     }
@@ -212,17 +277,19 @@ fun DashboardScreen(
                                         text = { Text(stringResource(Res.string.action_export_products)) },
                                         onClick = {
                                             component.onEvent(DashboardComponentEvent.OnToggleProductMenu(false))
-                                            (activeChild as NavChild.ProductList).component
-                                                .onEvent(
-                                                    ProductListComponentEvent.OnExportProducts { bytes ->
-                                                        val savedPath = fileStorage.saveToPublicDocuments(
-                                                            fileName = "products.xlsx",
-                                                            subFolder = "Daftar Produk",
-                                                            data = bytes
-                                                        )
-                                                        notifyExport("products.xlsx", savedPath)
-                                                    }
-                                                )
+                                            runIfNotificationGranted {
+                                                (activeChild as NavChild.ProductList).component
+                                                    .onEvent(
+                                                        ProductListComponentEvent.OnExportProducts { bytes ->
+                                                            val savedPath = fileStorage.saveToPublicDocuments(
+                                                                fileName = "products.xlsx",
+                                                                subFolder = "Daftar Produk",
+                                                                data = bytes
+                                                            )
+                                                            notifyExport("products.xlsx", savedPath)
+                                                        }
+                                                    )
+                                            }
                                         }
                                     )
 
@@ -230,7 +297,9 @@ fun DashboardScreen(
                                         text = { Text(stringResource(Res.string.action_import_products)) },
                                         onClick = {
                                             component.onEvent(DashboardComponentEvent.OnToggleProductMenu(false))
-                                            productImportLauncher.launch()
+                                            runIfNotificationGranted {
+                                                productImportLauncher.launch()
+                                            }
                                         }
                                     )
                                 }
