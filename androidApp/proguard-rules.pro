@@ -4,22 +4,6 @@
 -keepattributes EnclosingMethod,InnerClasses
 -keepattributes SourceFile,LineNumberTable
 
-# Kotlin Coroutines
--keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
--keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
--keepnames class kotlinx.coroutines.android.AndroidExceptionPreHandler {}
--keepnames class kotlinx.coroutines.android.AndroidDispatcherFactory {}
--keep class kotlinx.coroutines.android.AndroidDispatcherFactory { *; }
-
-# Kotlin Serialization
--keep class **$$serializer { *; }
--keepclassmembers class * {
-    *** Companion;
-}
--keepclassmembers class * {
-    *** $serializer;
-}
-
 # Decompose & Essenty
 -keep class com.arkivanov.decompose.** { *; }
 -keep class com.arkivanov.essenty.** { *; }
@@ -27,46 +11,18 @@
 # Koin
 -keep class org.koin.** { *; }
 
-# Room
--keep class * extends androidx.room.RoomDatabase
--keep class * extends androidx.room.Entity
-
-# Paging
--keep class androidx.paging.PagingSource { *; }
-
-# Firebase
--keep class com.google.firebase.** { *; }
-
-# Coil
--keep class coil.** { *; }
-
 # FileKit
 -keep class io.github.vinceglb.filekit.** { *; }
 
 # Vico
 -keep class com.patrykandpatrick.vico.** { *; }
 
-# KoalaPlot
-
 # ESCPOS Thermal Printer
 -keep class com.dantsu.escposprinter.** { *; }
 
-# WorkManager
--keep class * extends androidx.work.InputMerger {
-    public <init>();
-}
--keep class * extends androidx.work.ListenableWorker {
-    public <init>(android.content.Context, androidx.work.WorkerParameters);
-}
-
 # iText 7/8/9
 -keep class com.itextpdf.** { *; }
--keep interface com.itextpdf.** { *; }
--keep enum com.itextpdf.** { *; }
 -dontwarn com.itextpdf.**
-
-# Datastore
--keep class androidx.datastore.** { *; }
 
 # Apache POI & XMLBeans — R8 must NOT obfuscate these. XMLBeans derives the
 # schema type-system name and the .xsb resource paths from the runtime class
