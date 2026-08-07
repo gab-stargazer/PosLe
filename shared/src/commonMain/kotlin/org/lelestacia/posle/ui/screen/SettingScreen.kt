@@ -226,7 +226,6 @@ private fun AboutApp(
         modifier = modifier
     ) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
@@ -249,6 +248,7 @@ private fun AboutApp(
 
             Column(
                 modifier = Modifier.weight(1F)
+                    .padding(end = 12.dp)
             ) {
                 Text(
                     text = appName,
@@ -266,7 +266,7 @@ private fun AboutApp(
                     text = stringResource(Res.string.msg_app_about),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Start,
+                    textAlign = TextAlign.Justify,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }

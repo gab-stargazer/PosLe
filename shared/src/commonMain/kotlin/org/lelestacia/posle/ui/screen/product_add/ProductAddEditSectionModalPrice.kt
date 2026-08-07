@@ -80,11 +80,7 @@ fun ProductAddEditSectionModalPrice(
         )
 
         if (state.mode == Edit) {
-            Row(
-                verticalAlignment = Alignment.Top,
-                modifier = Modifier
-                    .padding(start = 12.dp, top = 12.dp)
-            ) {
+            Row(verticalAlignment = Alignment.Top) {
                 Icon(
                     imageVector = Icons.Default.SubdirectoryArrowRight,
                     contentDescription = null,
@@ -104,7 +100,6 @@ fun ProductAddEditSectionModalPrice(
                 priceHistoryPaging = state.buyPriceHistory,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 12.dp)
             )
         }
     }

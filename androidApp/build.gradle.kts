@@ -6,8 +6,8 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-    alias(libs.plugins.google.crashlytic)
     alias(libs.plugins.google.gms)
+    alias(libs.plugins.google.crashlytic)
     alias(libs.plugins.stability.analyzer)
 }
 

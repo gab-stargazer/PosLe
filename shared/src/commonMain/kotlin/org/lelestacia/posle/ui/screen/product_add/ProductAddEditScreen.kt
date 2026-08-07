@@ -6,7 +6,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -221,7 +220,6 @@ fun ProductAddEditScreen(
                 }
             )
         },
-        contentWindowInsets = WindowInsets(),
         modifier = modifier
     ) { paddingValues ->
         Column(
@@ -378,53 +376,54 @@ fun ProductAddEditScreen(
                     .padding(top = 12.dp)
             )
 
-            Button(
-                onClick = {
-                    component.onEvent(OnAddProductClicked)
-                },
-                shape = Util.defaultShape,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = BurgundyRed
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp)
-                    .padding(top = 12.dp)
-            ) {
-                Text(
-                    text =
-                        when (state.mode) {
-                            Add -> stringResource(resource = Res.string.btn_add_product)
-                            Edit -> stringResource(resource = Res.string.btn_update_product)
-                        },
-                    style = MaterialTheme.typography.labelMediumEmphasized.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.surfaceContainerLowest
-                    )
-                )
-            }
-
-            if (state.mode == Edit) {
+            Column(modifier = Modifier.padding(top = 12.dp, bottom = 24.dp)) {
                 Button(
                     onClick = {
-                        component.onEvent(OnDeleteProductClicked)
+                        component.onEvent(OnAddProductClicked)
                     },
-                    shape = RoundedCornerShape(25F),
+                    shape = Util.defaultShape,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error,
-                        contentColor = MaterialTheme.colorScheme.onError
+                        containerColor = BurgundyRed
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 12.dp)
-                        .padding(top = 6.dp, bottom = 128.dp)
                 ) {
                     Text(
-                        text = stringResource(Res.string.btn_delete_product),
+                        text =
+                            when (state.mode) {
+                                Add -> stringResource(resource = Res.string.btn_add_product)
+                                Edit -> stringResource(resource = Res.string.btn_update_product)
+                            },
                         style = MaterialTheme.typography.labelMediumEmphasized.copy(
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.surfaceContainerLowest
                         )
                     )
+                }
+
+                if (state.mode == Edit) {
+                    Button(
+                        onClick = {
+                            component.onEvent(OnDeleteProductClicked)
+                        },
+                        shape = RoundedCornerShape(25F),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error,
+                            contentColor = MaterialTheme.colorScheme.onError
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp)
+                            .padding(top = 6.dp)
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.btn_delete_product),
+                            style = MaterialTheme.typography.labelMediumEmphasized.copy(
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
+                    }
                 }
             }
         }

@@ -1,7 +1,6 @@
 package org.lelestacia.posle.ui.screen.transaction_recap_product_view
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -59,7 +58,6 @@ fun TransactionRecapProductDetailScreen(
                 }
             )
         },
-        contentWindowInsets = WindowInsets(0),
         modifier = modifier
     ) { paddingValues ->
         Column(
