@@ -20,6 +20,15 @@
 # ESCPOS Thermal Printer
 -keep class com.dantsu.escposprinter.** { *; }
 
+# WorkManager — WorkManager instantiates InputMerger subclasses reflectively
+# by class name (WorkSpec.inputMergerClassName), so the no-arg constructor
+# must survive R8. work-runtime's own consumer rule keeps the class name but
+# NOT the constructor; without this rule R8 strips it and the app crashes with
+# NoSuchMethodException: androidx.work.OverwritingInputMerger.<init>.
+-keep class * extends androidx.work.InputMerger {
+    public <init>();
+}
+
 # iText 7/8/9
 -keep class com.itextpdf.** { *; }
 -dontwarn com.itextpdf.**
