@@ -53,6 +53,7 @@ import org.lelestacia.posle.domain.component.product_list.ProductListComponentEv
 import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent.CategoryEvent.OnAddCategoryMenuDismissed
 import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent.OnNavigateTo
 import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent.OnQueryChanged
+import org.lelestacia.posle.domain.component.product_list.ProductListComponentState
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.navigation.AddEdit.Add
 import org.lelestacia.posle.navigation.Config
@@ -264,8 +265,8 @@ private fun PreviewProductListScreen() {
                 override val productPagingFlows: MutableMap<Pair<String, String>, Flow<PagingData<Product>>>
                     get() = mutableMapOf()
 
-                override val state: StateFlow<org.lelestacia.posle.domain.component.product_list.ProductListComponentState>
-                    get() = MutableStateFlow(org.lelestacia.posle.domain.component.product_list.ProductListComponentState())
+                override val state: StateFlow<ProductListComponentState>
+                    get() = MutableStateFlow(ProductListComponentState())
 
                 override fun onEvent(event: ProductListComponentEvent) {}
 

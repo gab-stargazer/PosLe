@@ -20,9 +20,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
+import org.lelestacia.posle.data.entity.TransactionItemType
 import org.lelestacia.posle.navigation.Config.TransactionRecapProductItem
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.BurgundyRed
+import org.lelestacia.posle.util.SampleData
 import org.lelestacia.posle.util.toDisplayText
 import org.lelestacia.posle.util.toRupiah
 import posle.shared.generated.resources.Res
@@ -119,8 +121,8 @@ private fun PreviewTransactionRecapProductOutbound() {
         TransactionRecapProductOutbound(
             transactionProducts = listOf(
                 TransactionRecapProductItem(
-                    type = org.lelestacia.posle.data.entity.TransactionItemType.Product,
-                    product = org.lelestacia.posle.util.SampleData.sampleTransaction.items.first().products.first()
+                    type = TransactionItemType.Product,
+                    product = SampleData.sampleTransaction.items.first().products.first()
                 )
             ),
             onClick = {}

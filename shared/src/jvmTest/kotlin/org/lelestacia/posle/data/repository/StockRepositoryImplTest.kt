@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.lelestacia.posle.data.PosLeDB
 import org.lelestacia.posle.data.createTestDatabase
+import org.lelestacia.posle.data.entity.ProductEntity
 import org.lelestacia.posle.data.entity.StockMovementEntity
 import org.lelestacia.posle.data.entity.StockMovementType
 import org.lelestacia.posle.util.Amount
@@ -96,7 +97,7 @@ class StockRepositoryImplTest {
 
     private suspend fun insertProduct(productId: String) {
         db.productDao().addProduct(
-            org.lelestacia.posle.data.entity.ProductEntity(
+            ProductEntity(
                 id = productId,
                 name = Name("Produk $productId"),
                 unit = Unit("pcs"),

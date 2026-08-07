@@ -28,6 +28,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditState
 import org.lelestacia.posle.navigation.AddEdit.Edit
 import org.lelestacia.posle.ui.component.BorderedTextField
+import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.successLightHighContrast
 import org.lelestacia.posle.util.RupiahVisualTransformation
 import posle.shared.generated.resources.Res
@@ -108,7 +109,7 @@ fun ProductAddEditSectionModalPrice(
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true)
 @Composable
 private fun PreviewProductAddEditSectionModalPrice() {
-    org.lelestacia.posle.ui.theme.AppTheme {
+    AppTheme {
         ProductAddEditSectionModalPrice(
             state = ProductAddEditState(
                 mode = Edit,

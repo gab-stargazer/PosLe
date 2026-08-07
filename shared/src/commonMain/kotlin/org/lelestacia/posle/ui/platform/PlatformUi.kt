@@ -1,6 +1,8 @@
 package org.lelestacia.posle.ui.platform
 
 import androidx.compose.runtime.Composable
+import org.lelestacia.posle.domain.model.Transaction
+import org.lelestacia.posle.util.Name
 
 /**
  * Central place for platform-specific behavior that the shared UI depends on.
@@ -33,8 +35,8 @@ object PlatformUi {
      * without a printer (e.g. desktop) this is a no-op.
      */
     fun printTransaction(
-        transaction: org.lelestacia.posle.domain.model.Transaction,
-        storeNameValue: org.lelestacia.posle.util.Name,
+        transaction: Transaction,
+        storeNameValue: Name,
     ) {
         platformPrintTransaction(transaction = transaction, storeNameValue = storeNameValue)
     }

@@ -27,8 +27,10 @@ import org.lelestacia.posle.domain.component.product_list.ProductListComponentEv
 import org.lelestacia.posle.domain.component.product_list.ProductListComponentState.AddCategoryState
 import org.lelestacia.posle.domain.model.Category
 import org.lelestacia.posle.domain.model.Product
+import org.lelestacia.posle.domain.model.Bundle
 import org.lelestacia.posle.domain.repository.CategoryRepository
 import org.lelestacia.posle.domain.repository.ProductRepository
+import org.lelestacia.posle.domain.repository.BundleRepository
 import org.lelestacia.posle.navigation.Config
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.UuidProvider
@@ -40,7 +42,7 @@ class ProductListComponentImpl(
     settingManager: SettingManager,
     private val productRepository: ProductRepository,
     private val categoryRepository: CategoryRepository,
-    private val bundleRepository: org.lelestacia.posle.domain.repository.BundleRepository,
+    private val bundleRepository: BundleRepository,
     private val onExportProducts: () -> Unit,
     private val onImportProducts: (String) -> Unit,
     private val onNavigate: (Config) -> Unit,
@@ -51,7 +53,7 @@ class ProductListComponentImpl(
 
     private val _state = MutableStateFlow(ProductListComponentState())
 
-    private val bundles: Flow<PagingData<org.lelestacia.posle.domain.model.Bundle>> = searchQuery
+    private val bundles: Flow<PagingData<Bundle>> = searchQuery
         .flatMapLatest { query ->
             bundleRepository.getBundlesByName(query)
         }.cachedIn(scope)

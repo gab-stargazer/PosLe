@@ -8,15 +8,20 @@ import androidx.paging.map
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import org.lelestacia.posle.data.TransactionRunner
 import org.lelestacia.posle.data.dao.CategoryDao
 import org.lelestacia.posle.data.dao.ProductDao
 import org.lelestacia.posle.data.dao.StockDao
 import org.lelestacia.posle.data.dao.VariantDao
+import org.lelestacia.posle.data.entity.CategoryEntity
 import org.lelestacia.posle.data.entity.PriceChangeType
 import org.lelestacia.posle.data.entity.ProductBuyPriceEntity
+import org.lelestacia.posle.data.entity.ProductCategoryJunction
 import org.lelestacia.posle.data.entity.ProductEntity
 import org.lelestacia.posle.data.entity.ProductSellPriceEntity
 import org.lelestacia.posle.data.entity.ProductWithVariantsAndStock
+import org.lelestacia.posle.data.entity.StockMovementEntity
+import org.lelestacia.posle.data.entity.StockMovementType
 import org.lelestacia.posle.data.entity.VariantJunction
 import org.lelestacia.posle.data.entity.toDomain
 import org.lelestacia.posle.domain.model.Product
@@ -36,57 +41,58 @@ class ProductRepositoryImpl(
     private val variantDao: VariantDao,
     private val stockDao: StockDao,
     private val categoryDao: CategoryDao,
-    private val transactionRunner: org.lelestacia.posle.data.TransactionRunner
+    private val transactionRunner: TransactionRunner
 ) : ProductRepository {
 
-    override suspend fun createProduct(product: Product, imageByteArray: ByteArray?) = transactionRunner.runTransaction {
-        val currentTime = Clock.System.now().toEpochMilliseconds()
-        val newImageUri = imageByteArray?.let { bytes ->
-            storage.saveImage(fileName = "${product.name.value}.png", bytes)
-        }
+    override suspend fun createProduct(product: Product, imageByteArray: ByteArray?) =
+        transactionRunner.runTransaction {
+            val currentTime = Clock.System.now().toEpochMilliseconds()
+            val newImageUri = imageByteArray?.let { bytes ->
+                storage.saveImage(fileName = "${product.name.value}.png", bytes)
+            }
 
-        val entity = ProductEntity(
-            id = UuidProvider.newUuid(),
-            name = product.name,
-            unit = product.unit,
-            skuNumber = product.skuNumber,
-            imageUri = newImageUri,
-            createdAt = currentTime
-        )
-
-        val productId = entity.id
-
-        productDao.addProduct(entity)
-
-        productDao.addBuyPrice(
-            ProductBuyPriceEntity(
+            val entity = ProductEntity(
                 id = UuidProvider.newUuid(),
-                productId = productId,
-                price = product.buyPrice,
-                changeType = PriceChangeType.ProductCreation,
+                name = product.name,
+                unit = product.unit,
+                skuNumber = product.skuNumber,
+                imageUri = newImageUri,
                 createdAt = currentTime
             )
-        )
 
-        productDao.addSellPrice(
-            ProductSellPriceEntity(
-                id = UuidProvider.newUuid(),
-                productId = productId,
-                price = product.sellPrice,
-                changeType = PriceChangeType.ProductCreation,
-                createdAt = currentTime
-            )
-        )
+            val productId = entity.id
 
-        product.variants.forEach { variant ->
-            variantDao.insertVariantToProduct(
-                VariantJunction(
+            productDao.addProduct(entity)
+
+            productDao.addBuyPrice(
+                ProductBuyPriceEntity(
+                    id = UuidProvider.newUuid(),
                     productId = productId,
-                    variantId = variant.id
+                    price = product.buyPrice,
+                    changeType = PriceChangeType.ProductCreation,
+                    createdAt = currentTime
                 )
             )
+
+            productDao.addSellPrice(
+                ProductSellPriceEntity(
+                    id = UuidProvider.newUuid(),
+                    productId = productId,
+                    price = product.sellPrice,
+                    changeType = PriceChangeType.ProductCreation,
+                    createdAt = currentTime
+                )
+            )
+
+            product.variants.forEach { variant ->
+                variantDao.insertVariantToProduct(
+                    VariantJunction(
+                        productId = productId,
+                        variantId = variant.id
+                    )
+                )
+            }
         }
-    }
 
     override suspend fun getProductBySkuNumber(skuNumber: String): Product? {
         return productDao.getProductBySkuNumber(skuNumber)?.toDomain()
@@ -96,9 +102,13 @@ class ProductRepositoryImpl(
         return Pager(
             config = pagingConfig,
             pagingSourceFactory = { productDao.readProductWithLowStocks(searchQuery) }
-        ).flow.map { it.filter { entity -> entity.stock
-            .sumOf { stockMovement -> stockMovement.amount.value } < 12.toBigDecimal() }
-            .map { entity -> entity.toDomain() } }
+        ).flow.map {
+            it.filter { entity ->
+                entity.stock
+                    .sumOf { stockMovement -> stockMovement.amount.value } < 12.toBigDecimal()
+            }
+                .map { entity -> entity.toDomain() }
+        }
     }
 
     override fun getProductsByName(searchQuery: String): Flow<PagingData<Product>> {
@@ -186,7 +196,7 @@ class ProductRepositoryImpl(
                 product.categories.forEach { category ->
                     var categoryEntity = categoryMap[category.name.value]
                     if (categoryEntity == null) {
-                        val newCategory = org.lelestacia.posle.data.entity.CategoryEntity(
+                        val newCategory = CategoryEntity(
                             id = UuidProvider.newUuid(),
                             name = category.name
                         )
@@ -198,7 +208,7 @@ class ProductRepositoryImpl(
                     // Try to insert connection, ignore if exists
                     try {
                         categoryDao.insertConnection(
-                            org.lelestacia.posle.data.entity.ProductCategoryJunction(
+                            ProductCategoryJunction(
                                 productId = productId,
                                 categoryId = categoryEntity.id
                             )
@@ -212,14 +222,15 @@ class ProductRepositoryImpl(
                 val currentStock = stockDao.getStockByProductId(productId)
                 val diff = product.stock.value.subtract(currentStock)
                 if (diff.compareTo(BigDecimal.ZERO) != 0) {
-                    val movementType = if (diff.compareTo(BigDecimal.ZERO) > 0) {
-                        org.lelestacia.posle.data.entity.StockMovementType.AdjustmentIncrease
-                    } else {
-                        org.lelestacia.posle.data.entity.StockMovementType.AdjustmentDecrease
-                    }
+                    val movementType =
+                        if (diff > BigDecimal.ZERO) {
+                            StockMovementType.AdjustmentIncrease
+                        } else {
+                            StockMovementType.AdjustmentDecrease
+                        }
 
                     stockDao.insertStockMovement(
-                        org.lelestacia.posle.data.entity.StockMovementEntity(
+                        StockMovementEntity(
                             id = UuidProvider.newUuid(),
                             productId = productId,
                             productName = product.name,

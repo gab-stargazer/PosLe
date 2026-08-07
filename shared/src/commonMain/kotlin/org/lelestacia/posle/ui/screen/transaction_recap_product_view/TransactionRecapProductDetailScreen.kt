@@ -21,6 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.lelestacia.posle.domain.component.transaction_recap_product_view.TransactionRecapProductViewComponent
 import org.lelestacia.posle.domain.component.transaction_recap_product_view.TransactionRecapProductViewEvent
+import org.lelestacia.posle.domain.component.transaction_recap_product_view.TransactionRecapProductViewState
+import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.BurgundyRed
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -84,10 +86,10 @@ fun TransactionRecapProductDetailScreen(
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true)
 @Composable
 private fun PreviewTransactionRecapProductDetailScreen() {
-    org.lelestacia.posle.ui.theme.AppTheme {
+    AppTheme {
         TransactionRecapProductDetailScreen(
             component = object : TransactionRecapProductViewComponent {
-                override val state = kotlinx.coroutines.flow.MutableStateFlow(org.lelestacia.posle.domain.component.transaction_recap_product_view.TransactionRecapProductViewState(emptyList()))
+                override val state = kotlinx.coroutines.flow.MutableStateFlow(TransactionRecapProductViewState(emptyList()))
                 override fun onEvent(event: TransactionRecapProductViewEvent) {}
             }
         )

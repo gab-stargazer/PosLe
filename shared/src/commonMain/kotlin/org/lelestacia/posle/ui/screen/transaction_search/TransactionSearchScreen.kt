@@ -33,9 +33,12 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.component.TransactionSearchComponent
+import org.lelestacia.posle.domain.model.Transaction
 import org.lelestacia.posle.domain.state_event.TransactionSearchEvent
 import org.lelestacia.posle.domain.state_event.TransactionSearchEvent.OnSearchQueryChange
+import org.lelestacia.posle.domain.state_event.TransactionSearchState
 import org.lelestacia.posle.navigation.Config
+import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.screen.transaction_history.TransactionItem
 import org.lelestacia.posle.ui.component.BorderedTextField
 import org.lelestacia.posle.ui.theme.BurgundyRed
@@ -170,11 +173,11 @@ fun TransactionSearchScreen(
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true)
 @Composable
 private fun PreviewTransactionSearchScreen() {
-    org.lelestacia.posle.ui.theme.AppTheme {
+    AppTheme {
         TransactionSearchScreen(
             component = object : TransactionSearchComponent {
-                override val state = kotlinx.coroutines.flow.MutableStateFlow(org.lelestacia.posle.domain.state_event.TransactionSearchState())
-                override val searchResults = kotlinx.coroutines.flow.flowOf(androidx.paging.PagingData.from(emptyList<org.lelestacia.posle.domain.model.Transaction>()))
+                override val state = kotlinx.coroutines.flow.MutableStateFlow(TransactionSearchState())
+                override val searchResults = kotlinx.coroutines.flow.flowOf(androidx.paging.PagingData.from(emptyList<Transaction>()))
                 override fun onEvent(event: TransactionSearchEvent) {}
             }
         )
