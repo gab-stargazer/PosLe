@@ -3,6 +3,8 @@ package org.lelestacia.posle.ui.platform
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import kotlinx.coroutines.CoroutineScope
+import org.lelestacia.posle.domain.model.Transaction
+import org.lelestacia.posle.util.Name
 
 /**
  * Desktop (JVM) implementation of [ImagePickHandler]. The UI is phone-only
@@ -26,8 +28,8 @@ actual fun rememberImagePickHandler(
 internal actual fun platformBluetoothPermissionGranted(): Boolean = false
 
 internal actual fun platformPrintTransaction(
-    transaction: org.lelestacia.posle.domain.model.Transaction,
-    storeNameValue: org.lelestacia.posle.util.Name,
+    transaction: Transaction,
+    storeNameValue: Name,
 ) {
     // No-op on desktop: no Bluetooth printer available.
 }

@@ -11,6 +11,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import org.lelestacia.posle.domain.component.TransactionHistoryScreenState
+import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.util.toFormattedDate
 import kotlin.time.Clock
 import org.jetbrains.compose.resources.stringResource
@@ -105,7 +106,7 @@ fun TransactionHistoryScreenHeader(
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true)
 @Composable
 private fun PreviewTransactionHistoryScreenHeader() {
-    org.lelestacia.posle.ui.theme.AppTheme {
+    AppTheme {
         TransactionHistoryScreenHeader(
             state = TransactionHistoryScreenState(
                 todayTransactions = emptyList()

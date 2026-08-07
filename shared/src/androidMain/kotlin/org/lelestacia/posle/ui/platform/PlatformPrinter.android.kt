@@ -5,6 +5,8 @@ import android.content.pm.PackageManager
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import org.lelestacia.posle.domain.model.Transaction
+import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.printTransactionToPrinter
 
 @Composable
@@ -17,8 +19,8 @@ internal actual fun platformBluetoothPermissionGranted(): Boolean {
 }
 
 internal actual fun platformPrintTransaction(
-    transaction: org.lelestacia.posle.domain.model.Transaction,
-    storeNameValue: org.lelestacia.posle.util.Name,
+    transaction: Transaction,
+    storeNameValue: Name,
 ) {
     printTransactionToPrinter(
         transaction = transaction,

@@ -62,6 +62,11 @@ import org.lelestacia.posle.domain.component.dashboard.DashboardComponent
 import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent
 import org.lelestacia.posle.domain.state_event.DashboardComponentEvent
 import org.lelestacia.posle.domain.state_event.DashboardComponentState
+import org.lelestacia.posle.domain.component.transaction_add.TransactionAddComponent
+import org.lelestacia.posle.domain.model.Bundle
+import org.lelestacia.posle.domain.model.Product
+import org.lelestacia.posle.domain.state_event.TransactionAddEvent
+import org.lelestacia.posle.domain.state_event.TransactionAddState
 import org.lelestacia.posle.domain.state_event.TransactionRecapEvent
 import org.lelestacia.posle.navigation.Config
 import org.lelestacia.posle.navigation.NavChild
@@ -400,11 +405,11 @@ private fun PreviewDashboardScreen() {
                         ChildStack(
                             configuration = NavConfig.TransactionAdd,
                             instance = NavChild.TransactionAdd(
-                                component = object : org.lelestacia.posle.domain.component.transaction_add.TransactionAddComponent {
-                                    override val bundles = kotlinx.coroutines.flow.flowOf(androidx.paging.PagingData.from(emptyList<org.lelestacia.posle.domain.model.Bundle>()))
-                                    override val products = kotlinx.coroutines.flow.flowOf(androidx.paging.PagingData.from(emptyList<org.lelestacia.posle.domain.model.Product>()))
-                                    override val state = MutableStateFlow(org.lelestacia.posle.domain.state_event.TransactionAddState())
-                                    override fun onEvent(event: org.lelestacia.posle.domain.state_event.TransactionAddEvent) {}
+                                component = object : TransactionAddComponent {
+                                    override val bundles = kotlinx.coroutines.flow.flowOf(androidx.paging.PagingData.from(emptyList<Bundle>()))
+                                    override val products = kotlinx.coroutines.flow.flowOf(androidx.paging.PagingData.from(emptyList<Product>()))
+                                    override val state = MutableStateFlow(TransactionAddState())
+                                    override fun onEvent(event: TransactionAddEvent) {}
                                 }
                             )
                         )
