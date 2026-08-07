@@ -71,6 +71,8 @@ import org.lelestacia.posle.navigation.NavConfig.Analytics as AnalyticsConfig
 class PosLeComponent(
     componentContext: ComponentContext,
     private val onPrintRecap: (TransactionRecapState) -> Unit,
+    private val onExportProducts: () -> Unit,
+    private val onImportProducts: (String) -> Unit,
 ) : ComponentContext by componentContext {
 
     val snackbarHostState by inject<SnackbarHostState>(SnackbarHostState::class.java)
@@ -162,6 +164,8 @@ class PosLeComponent(
                     productRepository = productRepository,
                     categoryRepository = categoryRepository,
                     bundleRepository = bundleRepository,
+                    onExportProducts = onExportProducts,
+                    onImportProducts = onImportProducts,
                     onNavigate = rootNavigation::pushToFront
                 )
             )

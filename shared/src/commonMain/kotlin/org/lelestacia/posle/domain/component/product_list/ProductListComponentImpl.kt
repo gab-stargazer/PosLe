@@ -30,7 +30,6 @@ import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.repository.CategoryRepository
 import org.lelestacia.posle.domain.repository.ProductRepository
 import org.lelestacia.posle.navigation.Config
-import org.lelestacia.posle.util.ExcelManager
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.UuidProvider
 import org.lelestacia.posle.util.coroutineScope
@@ -42,6 +41,8 @@ class ProductListComponentImpl(
     private val productRepository: ProductRepository,
     private val categoryRepository: CategoryRepository,
     private val bundleRepository: org.lelestacia.posle.domain.repository.BundleRepository,
+    private val onExportProducts: () -> Unit,
+    private val onImportProducts: (String) -> Unit,
     private val onNavigate: (Config) -> Unit,
 ) : ComponentContext by componentContext, ProductListComponent {
 
@@ -120,24 +121,12 @@ class ProductListComponentImpl(
                 }
             }
 
-            is ProductListComponentEvent.OnExportProducts -> {
-                scope.launch {
-                    val products = productRepository.getAllProducts().first()
-                    val excelBytes = ExcelManager.exportProductsToExcel(products)
-                    event.onExport(excelBytes)
-                }
+            ProductListComponentEvent.OnExportProducts -> {
+                onExportProducts()
             }
 
             is ProductListComponentEvent.OnImportProducts -> {
-                scope.launch {
-                    try {
-                        val products = ExcelManager.importProductsFromExcel(event.fileBytes)
-                        productRepository.importProducts(products)
-                        event.onImportResult(true)
-                    } catch (e: Exception) {
-                        event.onImportResult(false)
-                    }
-                }
+                onImportProducts(event.filePath)
             }
 
             //=====Category Finish=====

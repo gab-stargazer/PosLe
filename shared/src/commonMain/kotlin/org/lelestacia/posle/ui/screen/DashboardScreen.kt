@@ -3,9 +3,9 @@ package org.lelestacia.posle.ui.screen
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -52,13 +52,12 @@ import com.arkivanov.decompose.router.stack.active
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
-import io.github.vinceglb.filekit.readBytes
+import io.github.vinceglb.filekit.path
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.koinInject
 import org.lelestacia.posle.domain.component.dashboard.DashboardComponent
 import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent
 import org.lelestacia.posle.domain.state_event.DashboardComponentEvent
@@ -70,8 +69,6 @@ import org.lelestacia.posle.navigation.NavConfig
 import org.lelestacia.posle.navigation.NavDestination
 import org.lelestacia.posle.ui.platform.PlatformBackHandler
 import org.lelestacia.posle.ui.platform.rememberCameraPermissionState
-import org.lelestacia.posle.ui.platform.rememberExportNotifier
-import org.lelestacia.posle.ui.platform.rememberImportNotifier
 import org.lelestacia.posle.ui.platform.rememberNotificationPermissionState
 import org.lelestacia.posle.ui.screen.analytics.AnalyticsScreen
 import org.lelestacia.posle.ui.screen.product_inbound_outbound.ProductInboundOutboundScreen
@@ -81,7 +78,6 @@ import org.lelestacia.posle.ui.screen.transaction_history.TransactionHistoryScre
 import org.lelestacia.posle.ui.screen.transaction_recap.TransactionRecapScreen
 import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.BurgundyRed
-import org.lelestacia.posle.util.FileStorage
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.action_export_products
 import posle.shared.generated.resources.action_import_products
@@ -105,9 +101,6 @@ fun DashboardScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val state by component.state.collectAsStateWithLifecycle()
     val cameraPermission = rememberCameraPermissionState()
-    val fileStorage = koinInject<FileStorage>()
-    val notifyExport = rememberExportNotifier()
-    val notifyImport = rememberImportNotifier()
     val notificationPermission = rememberNotificationPermissionState()
 
     var showNotificationRationale by remember { mutableStateOf(false) }
@@ -161,14 +154,10 @@ fun DashboardScreen(
 
     val productImportLauncher = rememberFilePickerLauncher { file ->
         if (activeChild is NavChild.ProductList) {
-            scope.launch {
-                val bytes = file?.readBytes() ?: return@launch
-                activeChild.component.onEvent(
-                    ProductListComponentEvent.OnImportProducts(bytes) { success ->
-                        if (success) notifyImport()
-                    }
-                )
-            }
+            val filePath = file?.path ?: return@rememberFilePickerLauncher
+            activeChild.component.onEvent(
+                ProductListComponentEvent.OnImportProducts(filePath)
+            )
         }
     }
 
@@ -185,7 +174,6 @@ fun DashboardScreen(
             ModalDrawerSheet(
                 drawerContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
                 drawerContentColor = MaterialTheme.colorScheme.onSurface,
-                windowInsets = WindowInsets()
             ) {
                 Text(
                     text = stringResource(Res.string.label_menu),
@@ -235,7 +223,8 @@ fun DashboardScreen(
                 }
             }
         },
-        gesturesEnabled = true
+        gesturesEnabled = true,
+        modifier = Modifier.navigationBarsPadding()
     ) {
         Scaffold(
             topBar = {
@@ -280,14 +269,7 @@ fun DashboardScreen(
                                             runIfNotificationGranted {
                                                 (activeChild as NavChild.ProductList).component
                                                     .onEvent(
-                                                        ProductListComponentEvent.OnExportProducts { bytes ->
-                                                            val savedPath = fileStorage.saveToPublicDocuments(
-                                                                fileName = "products.xlsx",
-                                                                subFolder = "Daftar Produk",
-                                                                data = bytes
-                                                            )
-                                                            notifyExport("products.xlsx", savedPath)
-                                                        }
+                                                        ProductListComponentEvent.OnExportProducts
                                                     )
                                             }
                                         }
@@ -360,8 +342,6 @@ fun DashboardScreen(
                     )
                 )
             },
-            contentWindowInsets = WindowInsets(),
-
             modifier = modifier,
         ) { paddingValues ->
             Children(
