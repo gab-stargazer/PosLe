@@ -6,6 +6,7 @@ import org.lelestacia.posle.domain.model.Product
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.msg_error_price_cannot_be_empty
 import posle.shared.generated.resources.msg_error_quantity_cannot_be_empty
+import org.lelestacia.posle.navigation.AddEdit
 
 interface BundleAddEditComponent {
     val state: StateFlow<BundleAddEditState>
@@ -32,7 +33,7 @@ sealed interface BundleAddEditEvent {
 }
 
 data class BundleAddEditState(
-    val mode: org.lelestacia.posle.navigation.AddEdit = org.lelestacia.posle.navigation.AddEdit.Add,
+    val mode: AddEdit = AddEdit.Add,
     val bundleId: String = "",
     val bundleName: String = "",
     val bundleNameError: StringResource? = null,

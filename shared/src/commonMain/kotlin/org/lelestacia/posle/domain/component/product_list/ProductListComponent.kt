@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.flowOf
 import org.lelestacia.posle.data.PosLeSettings
 import org.lelestacia.posle.domain.model.Category
 import org.lelestacia.posle.domain.model.Product
+import org.lelestacia.posle.domain.model.Bundle
 import org.lelestacia.posle.navigation.Config
 
 interface ProductListComponent {
@@ -31,7 +32,7 @@ data class ProductListComponentState(
     //  Paging
     val productsLowStock: Flow<PagingData<Product>> = flowOf(),
     val uncategorizedProducts: Flow<PagingData<Product>> = flowOf(),
-    val bundles: Flow<PagingData<org.lelestacia.posle.domain.model.Bundle>> = flowOf(),
+    val bundles: Flow<PagingData<Bundle>> = flowOf(),
     val categories: Flow<PagingData<Category>> = flowOf(),
 
     //  Setting
@@ -53,11 +54,8 @@ sealed interface ProductListComponentEvent {
     data object OnToggleFabMenu : ProductListComponentEvent
 
     //  Export/Import
-    data class OnExportProducts(val onExport: (ByteArray) -> Unit) : ProductListComponentEvent
-    data class OnImportProducts(
-        val fileBytes: ByteArray,
-        val onImportResult: (Boolean) -> Unit
-    ) : ProductListComponentEvent
+    data object OnExportProducts : ProductListComponentEvent
+    data class OnImportProducts(val filePath: String) : ProductListComponentEvent
 
     sealed interface CategoryEvent : ProductListComponentEvent {
         data object OnAddCategoryMenuClicked : CategoryEvent

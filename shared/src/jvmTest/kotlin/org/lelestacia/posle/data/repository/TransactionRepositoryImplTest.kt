@@ -8,6 +8,7 @@ import kotlinx.coroutines.runBlocking
 import org.lelestacia.posle.data.PosLeDB
 import org.lelestacia.posle.data.PosLeSettings
 import org.lelestacia.posle.data.SettingManager
+import org.lelestacia.posle.data.TransactionRunnerImpl
 import org.lelestacia.posle.data.createTestDatabase
 import org.lelestacia.posle.data.entity.PriceChangeType
 import org.lelestacia.posle.data.entity.ProductBuyPriceEntity
@@ -223,7 +224,7 @@ class TransactionRepositoryImplTest {
             productDao = db.productDao(),
             stockDao = db.stockDao(),
             settingManager = settingManager,
-            transactionRunner = org.lelestacia.posle.data.TransactionRunnerImpl(db)
+            transactionRunner = TransactionRunnerImpl(db)
         )
     }
 

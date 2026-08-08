@@ -2,7 +2,6 @@ package org.lelestacia.posle.ui.screen.product_add
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -39,6 +38,8 @@ import org.lelestacia.posle.domain.state_event.product_add.ProductVariantViewEve
 import org.lelestacia.posle.domain.state_event.product_add.ProductVariantViewEvent.OnEditVariant
 import org.lelestacia.posle.domain.state_event.product_add.ProductVariantViewEvent.OnSaveVariant
 import org.lelestacia.posle.domain.state_event.product_add.ProductVariantViewEvent.OnVariantDialogDismissed
+import org.lelestacia.posle.domain.state_event.product_add.ProductVariantViewState
+import org.lelestacia.posle.ui.theme.AppTheme
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.btn_add_variant
 import posle.shared.generated.resources.btn_save_selection
@@ -95,7 +96,6 @@ fun ProductAddVariantsViewScreen(
                 }
             )
         },
-        contentWindowInsets = WindowInsets(),
         modifier = modifier
     ) { paddingValues ->
         Column(
@@ -178,10 +178,10 @@ fun ProductAddVariantsViewScreen(
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true)
 @Composable
 private fun PreviewProductAddVariantsViewScreen() {
-    org.lelestacia.posle.ui.theme.AppTheme {
+    AppTheme {
         ProductAddVariantsViewScreen(
             component = object : ProductAddVariantsViewComponent {
-                override val state = com.arkivanov.decompose.value.MutableValue(org.lelestacia.posle.domain.state_event.product_add.ProductVariantViewState())
+                override val state = com.arkivanov.decompose.value.MutableValue(ProductVariantViewState())
                 override fun onEvent(event: ProductVariantViewEvent) {}
             }
         )

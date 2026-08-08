@@ -5,6 +5,7 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.lelestacia.posle.data.TransactionRunner
 import org.lelestacia.posle.data.dao.CategoryDao
 import org.lelestacia.posle.data.entity.CategoryEntity
 import org.lelestacia.posle.data.entity.ProductCategoryJunction
@@ -16,7 +17,7 @@ import org.lelestacia.posle.util.Util.pagingConfig
 
 class CategoryRepositoryImpl(
     private val dao: CategoryDao,
-    private val transactionRunner: org.lelestacia.posle.data.TransactionRunner
+    private val transactionRunner: TransactionRunner
 ) : CategoryRepository {
 
     override suspend fun createCategory(category: Category) {

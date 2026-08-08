@@ -7,6 +7,7 @@ import io.mockk.verify
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.lelestacia.posle.data.PosLeDB
+import org.lelestacia.posle.data.TransactionRunnerImpl
 import org.lelestacia.posle.data.createTestDatabase
 import org.lelestacia.posle.data.entity.PriceChangeType
 import org.lelestacia.posle.data.entity.ProductBuyPriceEntity
@@ -334,7 +335,7 @@ class ProductRepositoryImplTest {
             variantDao = db.variantDao(),
             stockDao = db.stockDao(),
             categoryDao = db.categoryDao(),
-            transactionRunner = org.lelestacia.posle.data.TransactionRunnerImpl(db)
+            transactionRunner = TransactionRunnerImpl(db)
         )
     }
 

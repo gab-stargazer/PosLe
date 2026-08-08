@@ -5,6 +5,7 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.lelestacia.posle.data.TransactionRunner
 import org.lelestacia.posle.data.dao.VariantDao
 import org.lelestacia.posle.data.entity.VariantEntity
 import org.lelestacia.posle.data.entity.toEntity
@@ -16,7 +17,7 @@ import org.lelestacia.posle.util.Util.pagingConfig
 
 class VariantRepositoryImpl(
     private val variantDao: VariantDao,
-    private val transactionRunner: org.lelestacia.posle.data.TransactionRunner
+    private val transactionRunner: TransactionRunner
 ) : VariantRepository {
 
     override suspend fun createVariant(variant: Variant) {

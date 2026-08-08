@@ -28,6 +28,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditState
 import org.lelestacia.posle.navigation.AddEdit.Edit
 import org.lelestacia.posle.ui.component.BorderedTextField
+import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.successLightHighContrast
 import org.lelestacia.posle.util.RupiahVisualTransformation
 import posle.shared.generated.resources.Res
@@ -80,11 +81,7 @@ fun ProductAddEditSectionModalPrice(
         )
 
         if (state.mode == Edit) {
-            Row(
-                verticalAlignment = Alignment.Top,
-                modifier = Modifier
-                    .padding(start = 12.dp, top = 12.dp)
-            ) {
+            Row(verticalAlignment = Alignment.Top) {
                 Icon(
                     imageVector = Icons.Default.SubdirectoryArrowRight,
                     contentDescription = null,
@@ -104,7 +101,6 @@ fun ProductAddEditSectionModalPrice(
                 priceHistoryPaging = state.buyPriceHistory,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 12.dp)
             )
         }
     }
@@ -113,7 +109,7 @@ fun ProductAddEditSectionModalPrice(
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true)
 @Composable
 private fun PreviewProductAddEditSectionModalPrice() {
-    org.lelestacia.posle.ui.theme.AppTheme {
+    AppTheme {
         ProductAddEditSectionModalPrice(
             state = ProductAddEditState(
                 mode = Edit,

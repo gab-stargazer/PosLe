@@ -21,8 +21,8 @@ node_modules/
 /androidApp/release
 .hermes
 graphify-out
-tmp/
-performance/
+tmp
+performance
 **/google-services.json
 keystore.properties
 *.jks
