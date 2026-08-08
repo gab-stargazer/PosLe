@@ -27,10 +27,11 @@ import org.lelestacia.posle.domain.component.product_list.ProductListComponentEv
 import org.lelestacia.posle.domain.component.product_list.ProductListComponentState.AddCategoryState
 import org.lelestacia.posle.domain.model.Category
 import org.lelestacia.posle.domain.model.Product
+import org.lelestacia.posle.domain.model.Bundle
 import org.lelestacia.posle.domain.repository.CategoryRepository
 import org.lelestacia.posle.domain.repository.ProductRepository
+import org.lelestacia.posle.domain.repository.BundleRepository
 import org.lelestacia.posle.navigation.Config
-import org.lelestacia.posle.util.ExcelManager
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.UuidProvider
 import org.lelestacia.posle.util.coroutineScope
@@ -41,7 +42,9 @@ class ProductListComponentImpl(
     settingManager: SettingManager,
     private val productRepository: ProductRepository,
     private val categoryRepository: CategoryRepository,
-    private val bundleRepository: org.lelestacia.posle.domain.repository.BundleRepository,
+    private val bundleRepository: BundleRepository,
+    private val onExportProducts: () -> Unit,
+    private val onImportProducts: (String) -> Unit,
     private val onNavigate: (Config) -> Unit,
 ) : ComponentContext by componentContext, ProductListComponent {
 
@@ -50,7 +53,7 @@ class ProductListComponentImpl(
 
     private val _state = MutableStateFlow(ProductListComponentState())
 
-    private val bundles: Flow<PagingData<org.lelestacia.posle.domain.model.Bundle>> = searchQuery
+    private val bundles: Flow<PagingData<Bundle>> = searchQuery
         .flatMapLatest { query ->
             bundleRepository.getBundlesByName(query)
         }.cachedIn(scope)
@@ -120,24 +123,12 @@ class ProductListComponentImpl(
                 }
             }
 
-            is ProductListComponentEvent.OnExportProducts -> {
-                scope.launch {
-                    val products = productRepository.getAllProducts().first()
-                    val excelBytes = ExcelManager.exportProductsToExcel(products)
-                    event.onExport(excelBytes)
-                }
+            ProductListComponentEvent.OnExportProducts -> {
+                onExportProducts()
             }
 
             is ProductListComponentEvent.OnImportProducts -> {
-                scope.launch {
-                    try {
-                        val products = ExcelManager.importProductsFromExcel(event.fileBytes)
-                        productRepository.importProducts(products)
-                        event.onImportResult(true)
-                    } catch (e: Exception) {
-                        event.onImportResult(false)
-                    }
-                }
+                onImportProducts(event.filePath)
             }
 
             //=====Category Finish=====

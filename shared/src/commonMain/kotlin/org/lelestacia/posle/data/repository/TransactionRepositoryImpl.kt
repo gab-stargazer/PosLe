@@ -29,13 +29,14 @@ import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.UuidProvider
 import org.lelestacia.posle.util.getTodayRangeMilliseconds
 import kotlin.time.Clock
+import org.lelestacia.posle.data.TransactionRunner
 
 class TransactionRepositoryImpl(
     private val transactionDao: TransactionDao,
     private val productDao: ProductDao,
     private val stockDao: StockDao,
     private val settingManager: SettingManager,
-    private val transactionRunner: org.lelestacia.posle.data.TransactionRunner
+    private val transactionRunner: TransactionRunner
 ) : TransactionRepository {
 
     override suspend fun createTransaction(

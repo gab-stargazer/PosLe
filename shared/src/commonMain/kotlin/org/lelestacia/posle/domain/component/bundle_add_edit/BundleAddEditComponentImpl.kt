@@ -19,6 +19,7 @@ import org.lelestacia.posle.domain.repository.BundleRepository
 import org.lelestacia.posle.domain.repository.ProductRepository
 import org.lelestacia.posle.navigation.AddEdit
 import org.lelestacia.posle.navigation.AddEdit.Add
+import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.coroutineScope
 import org.lelestacia.posle.util.toDisplayText
@@ -55,7 +56,7 @@ class BundleAddEditComponentImpl(
                     product = Product(
                         id = bp.productId,
                         name = bp.productName,
-                        stock = org.lelestacia.posle.util.Amount(java.math.BigDecimal.ZERO),
+                        stock = Amount(java.math.BigDecimal.ZERO),
                         buyPrice = bp.buyPrice,
                         sellPrice = bp.sellPriceIndividual,
                         unit = bp.unit,

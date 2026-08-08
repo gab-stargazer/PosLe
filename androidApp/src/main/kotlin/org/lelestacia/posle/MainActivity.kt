@@ -24,6 +24,8 @@ import com.meticha.permissions_compose.rememberAppPermissionState
 import kotlinx.serialization.json.Json
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.data.util.PdfExportInput
+import org.lelestacia.posle.data.util.ProductExportInput
+import org.lelestacia.posle.data.util.ProductImportInput
 import org.lelestacia.posle.domain.state_event.TransactionRecapState
 import org.lelestacia.posle.navigation.PosLeComponent
 import org.lelestacia.posle.navigation.RootContent
@@ -31,11 +33,16 @@ import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.ui.theme.onSurfaceLightHighContrast
 import org.lelestacia.posle.ui.theme.surfaceContainerLowestLightHighContrast
 import org.lelestacia.posle.worker.AndroidRunnableService
+import org.lelestacia.posle.worker.PdfExportWorker
+import org.lelestacia.posle.worker.ProductExportWorker
+import org.lelestacia.posle.worker.ProductImportWorker
 import posle.shared.generated.resources.Res
 import posle.shared.generated.resources.btn_allow
 import posle.shared.generated.resources.btn_later
 import posle.shared.generated.resources.dialog_notification_permission_desc
 import posle.shared.generated.resources.dialog_notification_permission_title
+import posle.shared.generated.resources.notification_export_success
+import posle.shared.generated.resources.notification_import_success
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,12 +72,31 @@ class MainActivity : ComponentActivity() {
 
             var showPermissionRationale by remember { mutableStateOf(false) }
             var pendingState by remember { mutableStateOf<TransactionRecapState?>(null) }
+            var pendingExport by remember { mutableStateOf(false) }
+            var pendingImportPath by remember { mutableStateOf<String?>(null) }
 
-            LaunchedEffect(pendingState, notificationPermission.allRequiredGranted()) {
-                if (pendingState != null && notificationPermission.allRequiredGranted()) {
-                    val state = pendingState!!
-                    pendingState = null
-                    enqueuePdfExport(runnableService, state)
+            val exportSuccessTitle = stringResource(Res.string.notification_export_success)
+            val importSuccessTitle = stringResource(Res.string.notification_import_success)
+
+            LaunchedEffect(
+                pendingState,
+                pendingExport,
+                pendingImportPath,
+                notificationPermission.allRequiredGranted()
+            ) {
+                if (notificationPermission.allRequiredGranted()) {
+                    pendingState?.let {
+                        pendingState = null
+                        enqueuePdfExport(runnableService, it)
+                    }
+                    if (pendingExport) {
+                        pendingExport = false
+                        enqueueProductExport(runnableService, exportSuccessTitle)
+                    }
+                    pendingImportPath?.let {
+                        pendingImportPath = null
+                        enqueueProductImport(runnableService, it, importSuccessTitle)
+                    }
                 }
             }
 
@@ -109,6 +135,22 @@ class MainActivity : ComponentActivity() {
                                 showPermissionRationale = true
                             }
                         },
+                        onExportProducts = {
+                            if (notificationPermission.allRequiredGranted() || Build.VERSION.SDK_INT <= 32) {
+                                enqueueProductExport(runnableService, exportSuccessTitle)
+                            } else {
+                                pendingExport = true
+                                showPermissionRationale = true
+                            }
+                        },
+                        onImportProducts = { filePath ->
+                            if (notificationPermission.allRequiredGranted() || Build.VERSION.SDK_INT <= 32) {
+                                enqueueProductImport(runnableService, filePath, importSuccessTitle)
+                            } else {
+                                pendingImportPath = filePath
+                                showPermissionRationale = true
+                            }
+                        },
                     )
                 }
             }
@@ -136,4 +178,33 @@ private fun enqueuePdfExport(
     )
     val json = Json.encodeToString(input)
     runnableService.enqueue("pdf_export_${state.startDate}", json)
+}
+
+private fun enqueueProductExport(
+    runnableService: AndroidRunnableService,
+    title: String = "Data Produk berhasil diekspor"
+) {
+    val input = ProductExportInput(title = title)
+    val json = Json.encodeToString(input)
+    runnableService.enqueue(
+        id = "product_export",
+        serializedData = json,
+        workerClass = ProductExportWorker::class,
+        inputKey = ProductExportWorker.INPUT_KEY
+    )
+}
+
+private fun enqueueProductImport(
+    runnableService: AndroidRunnableService,
+    filePath: String,
+    title: String = "Data Produk berhasil diimpor"
+) {
+    val input = ProductImportInput(filePath = filePath, title = title)
+    val json = Json.encodeToString(input)
+    runnableService.enqueue(
+        id = "product_import",
+        serializedData = json,
+        workerClass = ProductImportWorker::class,
+        inputKey = ProductImportWorker.INPUT_KEY
+    )
 }

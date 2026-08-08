@@ -42,7 +42,15 @@ import org.lelestacia.posle.domain.repository.VariantRepository
 import org.lelestacia.posle.domain.state_event.TransactionItemState
 import org.lelestacia.posle.domain.state_event.TransactionRecapState
 import org.lelestacia.posle.domain.state_event.product_add.ProductAddEditNavigation
-import org.lelestacia.posle.navigation.Child.*
+import org.lelestacia.posle.navigation.Child.BundleAddEdit
+import org.lelestacia.posle.navigation.Child.Dashboard
+import org.lelestacia.posle.navigation.Child.ProductAddEdit
+import org.lelestacia.posle.navigation.Child.QrScanner
+import org.lelestacia.posle.navigation.Child.TransactionRecapProductView
+import org.lelestacia.posle.navigation.Child.TransactionSearch
+import org.lelestacia.posle.navigation.Child.TransactionView
+import org.lelestacia.posle.navigation.Child.VariantView
+import org.lelestacia.posle.navigation.Child.TransactionProductConfig as ChildTransactionProductConfig
 import org.lelestacia.posle.navigation.NavChild.ProductInboundOutbound
 import org.lelestacia.posle.navigation.NavChild.ProductList
 import org.lelestacia.posle.navigation.NavChild.Setting
@@ -71,6 +79,8 @@ import org.lelestacia.posle.navigation.NavConfig.Analytics as AnalyticsConfig
 class PosLeComponent(
     componentContext: ComponentContext,
     private val onPrintRecap: (TransactionRecapState) -> Unit,
+    private val onExportProducts: () -> Unit,
+    private val onImportProducts: (String) -> Unit,
 ) : ComponentContext by componentContext {
 
     val snackbarHostState by inject<SnackbarHostState>(SnackbarHostState::class.java)
@@ -162,6 +172,8 @@ class PosLeComponent(
                     productRepository = productRepository,
                     categoryRepository = categoryRepository,
                     bundleRepository = bundleRepository,
+                    onExportProducts = onExportProducts,
+                    onImportProducts = onImportProducts,
                     onNavigate = rootNavigation::pushToFront
                 )
             )
@@ -216,7 +228,7 @@ class PosLeComponent(
                 )
             )
 
-            is TransactionProductConfig -> TransactionProductConfig(
+            is TransactionProductConfig -> ChildTransactionProductConfig(
                 TransactionProductConfigComponentImpl(
                     componentContext = context,
                     product = config.product,

@@ -1,6 +1,7 @@
 package org.lelestacia.posle.navigation
 
 import kotlinx.serialization.Serializable
+import org.lelestacia.posle.data.entity.TransactionItemType
 import org.lelestacia.posle.domain.component.TransactionProductConfigComponent
 import org.lelestacia.posle.domain.component.TransactionSearchComponent
 import org.lelestacia.posle.domain.component.TransactionViewComponent
@@ -10,6 +11,7 @@ import org.lelestacia.posle.domain.component.product_add_edit.ProductAddEditComp
 import org.lelestacia.posle.domain.component.product_add_edit.ProductAddVariantsViewComponent
 import org.lelestacia.posle.domain.component.qr_scanner.QrScannerComponent
 import org.lelestacia.posle.domain.component.transaction_recap_product_view.TransactionRecapProductViewComponent
+import org.lelestacia.posle.domain.model.Bundle
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.domain.model.Transaction
 import org.lelestacia.posle.domain.model.Variant
@@ -31,7 +33,7 @@ sealed interface Config {
 
     @Serializable
     data class TransactionRecapProductItem(
-        val type: org.lelestacia.posle.data.entity.TransactionItemType,
+        val type: TransactionItemType,
         val product: TransactionProductModel
     )
 
@@ -54,7 +56,7 @@ sealed interface Config {
     @Serializable
     data class BundleAddEdit(
         val addEdit: AddEdit,
-        val bundle: org.lelestacia.posle.domain.model.Bundle? = null
+        val bundle: Bundle? = null
     ) : Config
 
     @Serializable

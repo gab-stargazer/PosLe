@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -33,11 +32,16 @@ import androidx.paging.compose.itemKey
 import com.skydoves.compose.stability.runtime.TraceRecomposition
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInboundOutboundComponent
+import org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInboundOutboundComponentEvent
 import org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInboundOutboundComponentEvent.ProductInboundOutboundAddStockEvent.OnToggleDialog
+import org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInboundOutboundComponentState
 import org.lelestacia.posle.domain.model.Product
+import org.lelestacia.posle.domain.model.StockMovement
+import org.lelestacia.posle.ui.theme.AppTheme
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Price
+import org.lelestacia.posle.util.Unit
 import org.lelestacia.posle.util.toDisplayText
 import java.math.BigDecimal
 import androidx.compose.ui.tooling.preview.Preview
@@ -54,7 +58,6 @@ fun ProductInboundOutboundScreen(
     val state by component.state.collectAsStateWithLifecycle()
     val paging = component.priceMovement.collectAsLazyPagingItems()
     val products = component.products.collectAsLazyPagingItems()
-
 
     if (state.isAddStockShown) {
         Dialog(
@@ -87,12 +90,11 @@ fun ProductInboundOutboundScreen(
                 }
             }
         },
-        contentWindowInsets = WindowInsets(),
         modifier = modifier
     ) { paddingValues ->
         LazyColumn(
             contentPadding = PaddingValues(
-                bottom = 128.dp,
+                bottom = 112.dp,
                 start = 12.dp,
                 end = 12.dp,
                 top = 12.dp
@@ -100,12 +102,13 @@ fun ProductInboundOutboundScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+                .padding(paddingValues)
         ) {
             items(
                 count = paging.itemCount,
-                key = paging.itemKey { stockMovement -> stockMovement.id }) {
+                key = paging.itemKey { stockMovement -> stockMovement.id }
+            ) {
                 paging[it]?.let { stockMovement ->
                     Column(modifier = Modifier.animateItem()) {
                         ProductInboundOutboundItem(
@@ -157,13 +160,13 @@ fun ProductStockItem(
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true)
 @Composable
 private fun PreviewProductInboundOutboundScreen() {
-    org.lelestacia.posle.ui.theme.AppTheme {
+    AppTheme {
         ProductInboundOutboundScreen(
             component = object : ProductInboundOutboundComponent {
-                override val priceMovement = kotlinx.coroutines.flow.flowOf(androidx.paging.PagingData.from(emptyList<org.lelestacia.posle.domain.model.StockMovement>()))
-                override val products = kotlinx.coroutines.flow.flowOf(androidx.paging.PagingData.from(emptyList<org.lelestacia.posle.domain.model.Product>()))
-                override val state = kotlinx.coroutines.flow.MutableStateFlow(org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInboundOutboundComponentState())
-                override fun onEvent(event: org.lelestacia.posle.domain.component.product_inbound_outbound.ProductInboundOutboundComponentEvent) {}
+                override val priceMovement = kotlinx.coroutines.flow.flowOf(androidx.paging.PagingData.from(emptyList<StockMovement>()))
+                override val products = kotlinx.coroutines.flow.flowOf(androidx.paging.PagingData.from(emptyList<Product>()))
+                override val state = kotlinx.coroutines.flow.MutableStateFlow(ProductInboundOutboundComponentState())
+                override fun onEvent(event: ProductInboundOutboundComponentEvent) {}
             }
         )
     }
@@ -172,13 +175,13 @@ private fun PreviewProductInboundOutboundScreen() {
 @Preview(showBackground = true)
 @Composable
 private fun PreviewProductStockItem() {
-    org.lelestacia.posle.ui.theme.AppTheme {
+    AppTheme {
         ProductStockItem(
             product = Product(
                 id = "0",
                 name = Name("Salak Pondoh"),
                 stock = Amount(BigDecimal("50")),
-                unit = org.lelestacia.posle.util.Unit(value = "Kg"),
+                unit = Unit(value = "Kg"),
                 buyPrice = Price(BigDecimal("10000")),
                 sellPrice = Price(BigDecimal("15000"))
             )

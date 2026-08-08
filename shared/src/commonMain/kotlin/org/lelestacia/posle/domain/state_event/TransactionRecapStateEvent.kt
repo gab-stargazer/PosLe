@@ -4,10 +4,11 @@ import androidx.compose.material3.CalendarLocale
 import androidx.compose.material3.DateRangePickerState
 import org.lelestacia.posle.data.PosLeSettings
 import org.lelestacia.posle.domain.model.Transaction
+import org.lelestacia.posle.navigation.Config
 
 data class TransactionRecapState(
     val transactionHistory: List<Transaction> = listOf(),
-    val listOfProducts: List<List<org.lelestacia.posle.navigation.Config.TransactionRecapProductItem>> = listOf(),
+    val listOfProducts: List<List<Config.TransactionRecapProductItem>> = listOf(),
     val totalProfit: java.math.BigDecimal = java.math.BigDecimal.ZERO,
     val startDate: Long = 0,
     val finishDate: Long = 0,
@@ -26,7 +27,7 @@ data class TransactionRecapState(
 sealed interface TransactionRecapEvent {
     data class OnPrimaryTabChanged(val newIndex: Int) : TransactionRecapEvent
     data class OnNavigateToTransactionView(val transaction: Transaction) : TransactionRecapEvent
-    data class OnNavigateToRecapProductView(val products: List<org.lelestacia.posle.navigation.Config.TransactionRecapProductItem>) :
+    data class OnNavigateToRecapProductView(val products: List<Config.TransactionRecapProductItem>) :
         TransactionRecapEvent
 
     data class OnDateRangePickerVisibilityChanged(val isShown: Boolean) : TransactionRecapEvent

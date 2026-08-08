@@ -37,6 +37,7 @@ import com.skydoves.compose.stability.runtime.TraceRecomposition
 import org.jetbrains.compose.resources.stringResource
 import org.lelestacia.posle.domain.model.Product
 import org.lelestacia.posle.ui.theme.AppTheme
+import org.lelestacia.posle.util.Unit as PosUnit
 import org.lelestacia.posle.util.Amount
 import org.lelestacia.posle.util.Name
 import org.lelestacia.posle.util.Price
@@ -180,7 +181,7 @@ private fun PreviewProductItem() {
                     id = "0",
                     name = Name("Salak"),
                     stock = Amount(BigDecimal("100")),
-                    unit = org.lelestacia.posle.util.Unit(value = "Kg"),
+                    unit = PosUnit(value = "Kg"),
                     buyPrice = Price(BigDecimal("15000")),
                     sellPrice = Price(BigDecimal("15000")),
                 ),

@@ -9,7 +9,6 @@ import com.arkivanov.decompose.value.MutableValue
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
@@ -17,10 +16,11 @@ import org.lelestacia.posle.data.PosLeSettings
 import org.lelestacia.posle.data.SettingManager
 import org.lelestacia.posle.domain.component.SettingComponent
 import org.lelestacia.posle.domain.component.SettingComponentImpl
+import org.lelestacia.posle.domain.component.product_list.ProductListComponentEvent
+import org.lelestacia.posle.domain.component.product_list.ProductListComponentImpl
 import org.lelestacia.posle.domain.state_event.SettingEvent
 import org.lelestacia.posle.domain.state_event.SettingState
 import org.lelestacia.posle.ui.theme.AppTheme
-import org.lelestacia.posle.util.FileStorage
 import org.lelestacia.posle.util.Name
 import kotlin.test.assertTrue
 
@@ -88,26 +88,26 @@ class SettingScreenUiTest {
     }
 
     @Test
-    fun export_product_saves_to_public_documents() {
-        val fileStorage = mockk<FileStorage>(relaxed = true)
-        every { fileStorage.saveToPublicDocuments(any(), any(), any()) } returns "/saved/products.xlsx"
+    fun export_product_fires_export_event() {
+        //  Export IO moved to the WorkManager worker — the component only
+        //  forwards the event to the platform-level callback.
+        var exportTriggered = false
+        val onExportProducts: () -> Unit = { exportTriggered = true }
+        val onImportProducts: (String) -> Unit = {}
 
-        //  This is exactly the wiring in DashboardScreen.kt:215-221 —
-        //  the OnExportProducts callback invokes the mocked storage save.
-        var exportedBytes: ByteArray? = null
-        val onExport: (ByteArray) -> Unit = { bytes ->
-            exportedBytes = bytes
-            val savedPath = fileStorage.saveToPublicDocuments(
-                fileName = "products.xlsx",
-                subFolder = "Daftar Produk",
-                data = bytes
-            )
-            check(savedPath != null) { "export should succeed with mocked storage" }
-        }
+        val component = ProductListComponentImpl(
+            componentContext = testComponentContext(),
+            settingManager = mockk(relaxed = true),
+            productRepository = mockk(relaxed = true),
+            categoryRepository = mockk(relaxed = true),
+            bundleRepository = mockk(relaxed = true),
+            onExportProducts = onExportProducts,
+            onImportProducts = onImportProducts,
+            onNavigate = {}
+        )
 
-        onExport(byteArrayOf(1, 2, 3, 4))
+        component.onEvent(ProductListComponentEvent.OnExportProducts)
 
-        verify { fileStorage.saveToPublicDocuments("products.xlsx", "Daftar Produk", any()) }
-        assertTrue(exportedBytes!!.contentEquals(byteArrayOf(1, 2, 3, 4)))
+        assertTrue(exportTriggered)
     }
 }

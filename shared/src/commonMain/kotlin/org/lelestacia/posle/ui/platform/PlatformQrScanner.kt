@@ -1,6 +1,8 @@
 package org.lelestacia.posle.ui.platform
 
 import androidx.compose.runtime.Composable
+import org.lelestacia.posle.domain.model.Transaction
+import org.lelestacia.posle.util.Name
 
 /**
  * Renders the platform-specific QR scanner. Platforms without a camera
@@ -21,6 +23,6 @@ internal expect fun platformBluetoothPermissionGranted(): Boolean
  * Prints a transaction receipt. No-op on platforms without a printer.
  */
 internal expect fun platformPrintTransaction(
-    transaction: org.lelestacia.posle.domain.model.Transaction,
-    storeNameValue: org.lelestacia.posle.util.Name,
+    transaction: Transaction,
+    storeNameValue: Name,
 )
